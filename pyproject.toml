@@ -1,0 +1,31 @@
+[build-system]
+requires = [
+    "setuptools >= 65.3.0, < 66",
+    "setuptools_scm[toml] >= 7.0.5, < 8",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[tool.pylint.similarities]
+ignore-comments=['yes']
+ignore-docstrings=['yes']
+ignore-imports=['no']
+min-similarity-lines=40
+
+[tool.pylint.messages_control]
+# disable wrong-import-order, ungrouped-imports because it conflicts with isort
+disable = ["too-few-public-methods", "wrong-import-order", "ungrouped-imports"]
+[tool.pylint.'DESIGN']
+max-attributes=12
+
+[tool.setuptools_scm]
+version_scheme = "post-release"
+
+[tool.isort]
+profile = "black"
+line_length = 88
+src_paths = ["src", "examples", "tests"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+required_plugins = [ "pytest-asyncio", "pytest-mock" ]
