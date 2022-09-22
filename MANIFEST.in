@@ -1,0 +1,7 @@
+exclude .gitignore
+exclude .darglint
+exclude noxfile.py
+exclude CODEOWNERS
+recursive-exclude .github *
+recursive-exclude tests *
+recursive-exclude benchmarks *
