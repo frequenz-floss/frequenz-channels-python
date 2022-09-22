@@ -6,6 +6,24 @@ requires = [
 ]
 build-backend = "setuptools.build_meta"
 
+
+[project]
+name = "frequenz-channels"
+requires-python = ">= 3.8, < 4"
+dependencies = [
+    "watchfiles >= 0.15.0",
+]
+dynamic = [ "version" ]
+
+[[project.authors]]
+name ="Frequenz Energy-as-a-Service GmbH"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools_scm]
+version_scheme = "post-release"
+
 [tool.pylint.similarities]
 ignore-comments=['yes']
 ignore-docstrings=['yes']
@@ -17,9 +35,6 @@ min-similarity-lines=40
 disable = ["too-few-public-methods", "wrong-import-order", "ungrouped-imports"]
 [tool.pylint.'DESIGN']
 max-attributes=12
-
-[tool.setuptools_scm]
-version_scheme = "post-release"
 
 [tool.isort]
 profile = "black"
