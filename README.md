@@ -6,4 +6,4 @@ This repository contains channel implementations for python.
 
 If you want to know how to build this project and contribute to it, please
 check out the [Contributing
-Guide](https://github.com/frequenz-floss/frequenz-channels/CONTRIBUTING.md).
+Guide](https://github.com/frequenz-floss/frequenz-channels-python/CONTRIBUTING.md).
