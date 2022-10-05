@@ -35,10 +35,10 @@ name ="Frequenz Energy-as-a-Service GmbH"
 email = "floss@frequenz.com"
 
 [project.urls]
-Changelog = "https://github.com/frequenz-floss/frequenz-channels-pytyhon/releases"
-Repository = "https://github.com/frequenz-floss/frequenz-channels-pytyhon"
-Issues = "https://github.com/frequenz-floss/frequenz-channels-pytyhon/issues"
-Support = "https://github.com/frequenz-floss/frequenz-channels-pytyhon/discussions/categories/support"
+Changelog = "https://github.com/frequenz-floss/frequenz-channels-python/releases"
+Repository = "https://github.com/frequenz-floss/frequenz-channels-python"
+Issues = "https://github.com/frequenz-floss/frequenz-channels-python/issues"
+Support = "https://github.com/frequenz-floss/frequenz-channels-python/discussions/categories/support"
 
 [tool.setuptools]
 include-package-data = true

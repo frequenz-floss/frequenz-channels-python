@@ -54,9 +54,9 @@ These are the steps to create a new release:
 
 5. A GitHub action will test the tag and if all goes well it will create
    a [GitHub
-   Release](https://github.com/frequenz-floss/frequenz-channels/releases),
+   Release](https://github.com/frequenz-floss/frequenz-channels-python/releases),
    create a new
-   [announcement](https://github.com/frequenz-floss/frequenz-channels/discussions/categories/announcements)
+   [announcement](https://github.com/frequenz-floss/frequenz-channels-python/discussions/categories/announcements)
    about the release, and upload a new package to
    [PyPI](https://pypi.org/project/frequenz-channels/) automatically.
 
