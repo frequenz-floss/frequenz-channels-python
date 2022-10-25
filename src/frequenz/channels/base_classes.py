@@ -9,21 +9,28 @@ MIT
 """
 
 from abc import ABC, abstractmethod
-from typing import Callable, Generic, Optional, TypeVar
+from typing import Callable, Generic, Optional, TypeVar, Union
 
 T = TypeVar("T")
 U = TypeVar("U")
+
+
+Message = Union[T, Exception]
+"""A message that can contain either a value of type T or an exception."""
 
 
 class Sender(ABC, Generic[T]):
     """A base class for channel Sender."""
 
     @abstractmethod
-    async def send(self, msg: T) -> bool:
-        """Send a message to the channel.
+    async def send(self, msg: Message[T]) -> bool:
+        """Send a message (value or exception) to the channel.
+
+        Message carrying an Exception instead of a value will be raised in the
+        receiving end.
 
         Args:
-            msg: The message to be sent.
+            msg: The message (value or exception) to be sent.
 
         Returns:
             Whether the message was sent, based on whether the channel is open
@@ -39,7 +46,10 @@ class Receiver(ABC, Generic[T]):
         """Receive a message from the channel.
 
         Returns:
-            None, if the channel is closed, a message otherwise.
+            None, if the channel is closed, a value otherwise.
+
+        Raises:
+            Exception: if an Exception was received through the channel.
         """
 
     def __aiter__(self) -> "Receiver[T]":
@@ -59,6 +69,7 @@ class Receiver(ABC, Generic[T]):
         Raises:
             StopAsyncIteration: if we receive `None`, i.e. if the underlying
                 channel is closed.
+            Exception: if an Exception was received through the channel.
         """
         received = await self.receive()
         if received is None:
@@ -101,12 +112,16 @@ class Peekable(ABC, Generic[T]):
     """
 
     @abstractmethod
-    def peek(self) -> Optional[T]:
-        """Return the latest value that was sent to the channel.
+    def peek(self) -> Optional[Message[T]]:
+        """Return the latest message (value or exception) that was sent to the
+        channel.
+
+        Note that if an exception was received, it will not be raised when
+        peeking.
 
         Returns:
-            The latest value received by the channel, and None, if nothing has
-            been sent to the channel yet.
+            The latest message (value or exception) received by the channel,
+            and None, if nothing has been sent to the channel yet.
         """
 
 
@@ -114,8 +129,9 @@ class BufferedReceiver(Receiver[T]):
     """A base class for buffered channel receivers."""
 
     @abstractmethod
-    def enqueue(self, msg: T) -> None:
-        """Put a message into this buffered receiver's queue.
+    def enqueue(self, msg: Message[T]) -> None:
+        """Put a message (value or exception) into this buffered receiver's
+        queue.
 
         Args:
             msg: The message to be added to the queue.

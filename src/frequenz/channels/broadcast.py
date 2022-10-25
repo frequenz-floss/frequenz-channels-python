@@ -16,7 +16,7 @@ from uuid import UUID, uuid4
 from frequenz.channels.base_classes import BufferedReceiver
 from frequenz.channels.base_classes import Peekable as BasePeekable
 from frequenz.channels.base_classes import Sender as BaseSender
-from frequenz.channels.base_classes import T
+from frequenz.channels.base_classes import Message, T
 
 logger = logging.Logger(__name__)
 
@@ -82,7 +82,7 @@ class Broadcast(Generic[T]):
         self.recv_cv: Condition = Condition()
         self.receivers: Dict[UUID, Receiver[T]] = {}
         self.closed: bool = False
-        self._latest: Optional[T] = None
+        self._latest: Optional[Message[T]] = None
 
     async def close(self) -> None:
         """Close the Broadcast channel.
@@ -168,11 +168,11 @@ class Sender(BaseSender[T]):
         """
         self._chan = chan
 
-    async def send(self, msg: T) -> bool:
-        """Send a message to all broadcast receivers.
+    async def send(self, msg: Message[T]) -> bool:
+        """Send a message (value or exception) to all broadcast receivers.
 
         Args:
-            msg: The message to be broadcast.
+            msg: The message (value or exception) to be broadcast.
 
         Returns:
             Boolean indicating whether the message was sent, based on whether
@@ -214,7 +214,7 @@ class Receiver(BufferedReceiver[T]):
         self._uuid = uuid
         self._name = name
         self._chan = chan
-        self._q: Deque[T] = deque(maxlen=maxsize)
+        self._q: Deque[Message[T]] = deque(maxlen=maxsize)
 
         self._active = True
 
@@ -223,15 +223,15 @@ class Receiver(BufferedReceiver[T]):
         if self._active:
             self._chan._drop_receiver(self._uuid)
 
-    def enqueue(self, msg: T) -> None:
-        """Put a message into this receiver's queue.
+    def enqueue(self, msg: Message[T]) -> None:
+        """Put a message (value or exception) into this receiver's queue.
 
         To be called by broadcast senders.  If the receiver's queue is already
         full, drop the oldest message to make room for the incoming message, and
         log a warning.
 
         Args:
-            msg: The message to be sent.
+            msg: The message (value or exception) to be enqueued.
         """
         if len(self._q) == self._q.maxlen:
             self._q.popleft()
@@ -260,11 +260,12 @@ class Receiver(BufferedReceiver[T]):
         If `into_peekable` is called on a broadcast `Receiver`, further calls to
         `receive`, will raise an `EOFError`.
 
-        Raises:
-            EOFError: when the receiver has been converted into a `Peekable`.
-
         Returns:
             None, if the channel is closed, a message otherwise.
+
+        Raises:
+            EOFError: when the receiver has been converted into a `Peekable`.
+            Exception: if an Exception was received through the channel.
         """
         if not self._active:
             raise EOFError("This receiver is no longer active.")
@@ -275,6 +276,8 @@ class Receiver(BufferedReceiver[T]):
             async with self._chan.recv_cv:
                 await self._chan.recv_cv.wait()
         ret = self._q.popleft()
+        if isinstance(ret, Exception):
+            raise ret
         return ret
 
     def into_peekable(self) -> "Peekable[T]":
@@ -306,11 +309,16 @@ class Peekable(BasePeekable[T]):
         """
         self._chan = chan
 
-    def peek(self) -> Optional[T]:
-        """Return the latest value that was sent to the channel.
+    def peek(self) -> Optional[Message[T]]:
+        """Return the latest message (value or exception) that was sent to the
+        channel.
+
+        Note that if an exception was received, it will not be raised when
+        peeking.
 
         Returns:
-            The latest value received by the channel, and None, if nothing has
-            been sent to the channel yet, or if the channel is closed.
+            The latest message (value or exception) received by the channel,
+            and None, if nothing has been sent to the channel yet, or if the
+            channel is closed.
         """
         return self._chan._latest  # pylint: disable=protected-access

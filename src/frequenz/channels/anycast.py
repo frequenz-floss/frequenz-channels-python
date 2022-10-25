@@ -13,7 +13,7 @@ from typing import Deque, Generic, Optional
 
 from frequenz.channels.base_classes import Receiver as BaseReceiver
 from frequenz.channels.base_classes import Sender as BaseSender
-from frequenz.channels.base_classes import T
+from frequenz.channels.base_classes import Message, T
 
 
 class Anycast(Generic[T]):
@@ -65,7 +65,7 @@ class Anycast(Generic[T]):
             maxsize: Size of the channel's buffer.
         """
         self.limit: int = maxsize
-        self.deque: Deque[T] = deque(maxlen=maxsize)
+        self.deque: Deque[Message[T]] = deque(maxlen=maxsize)
         self.send_cv: Condition = Condition()
         self.recv_cv: Condition = Condition()
         self.closed: bool = False
@@ -117,8 +117,8 @@ class Sender(BaseSender[T]):
         """
         self._chan = chan
 
-    async def send(self, msg: T) -> bool:
-        """Send a message across the channel.
+    async def send(self, msg: Message[T]) -> bool:
+        """Send a message (value or exception) across the channel.
 
         To send, this method inserts the message into the Anycast channel's
         buffer.  If the channel's buffer is full, waits for messages to get
@@ -126,7 +126,7 @@ class Sender(BaseSender[T]):
         message will be received by exactly one receiver.
 
         Args:
-            msg: The message to be sent.
+            msg: The message (value or exception) to be sent.
 
         Returns:
             Boolean indicating whether the message was sent, based on whether
@@ -167,6 +167,9 @@ class Receiver(BaseReceiver[T]):
 
         Returns:
             None, if the channel is closed, a message otherwise.
+
+        Raises:
+            Exception: if an Exception was received through the channel.
         """
         while len(self._chan.deque) == 0:
             if self._chan.closed:
@@ -176,4 +179,6 @@ class Receiver(BaseReceiver[T]):
         ret = self._chan.deque.popleft()
         async with self._chan.send_cv:
             self._chan.send_cv.notify(1)
+        if isinstance(ret, Exception):
+            raise ret
         return ret

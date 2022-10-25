@@ -8,7 +8,7 @@ MIT
 """
 
 from frequenz.channels.anycast import Anycast
-from frequenz.channels.base_classes import BufferedReceiver, Peekable, Receiver, Sender
+from frequenz.channels.base_classes import BufferedReceiver, Message, Peekable, Receiver, Sender
 from frequenz.channels.bidirectional import Bidirectional, BidirectionalHandle
 from frequenz.channels.broadcast import Broadcast
 from frequenz.channels.merge import Merge
@@ -26,6 +26,7 @@ __all__ = [
     "FileWatcher",
     "Merge",
     "MergeNamed",
+    "Message",
     "Peekable",
     "Receiver",
     "Select",

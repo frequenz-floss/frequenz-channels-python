@@ -20,15 +20,49 @@ logger = logging.Logger(__name__)
 T = TypeVar("T")
 
 
-@dataclass
+@dataclass(frozen=True)
 class _Selected:
     """A wrapper class for holding values in `Select`.
 
     Using this wrapper class allows `Select` to inform user code when a
-    receiver gets closed.
+    receiver gets closed or raises an exception.
     """
 
-    inner: Optional[Any]
+    _result: Any
+
+    @property
+    def result(self) -> Any:
+        """The result from a selected receiver or None if the channel was closed.
+
+        Returns: the value of the receiver or None if the channel was closed.
+
+        Raises:
+            Exception: if the value is an exception.
+        """
+        if isinstance(self._result, Exception):
+            raise self._result
+        return self._result
+
+    @property
+    def exception(self) -> Optional[Exception]:
+        """The exception from a selected receiver.
+
+        Returns: the exception that was received or None if there was no exception.
+
+        Raises:
+            Exception: if the value is an exception.
+        """
+        if isinstance(self._result, Exception):
+            return self._result
+        return None
+
+    @property
+    def closed(self) -> bool:
+        """Whether the underlaying channel from the selected receiver was closed.
+
+        Returns: True if it was closed, False if it wasn't.
+        """
+        return self._result is None
 
 
 class Select:
@@ -38,18 +72,25 @@ class Select:
     simultaneously wait on, this can be done with:
 
     ```
-    select = Select(name1 = receiver1, name2 = receiver2)
+    select = Select(name1=receiver1, name2=receiver2)
     while await select.ready():
-        if msg := select.name1:
-            if val := msg.inner:
-                # do something with `val`
-                pass
-            else:
+        if selected := select.name1:
+            if selected.closed:
                 # handle closure of receiver.
                 pass
-        elif msg := select.name2:
-            # do something with `msg.inner`
-            pass
+            elif selected.exception:
+                # handle the exception
+                pass
+            else:
+                # use selected.result
+                pass
+        elif selected := select.name2:
+            if selected.closed:
+                # handle closure of receiver.
+                pass
+            else:
+                # Raises if an exception was received
+                print(selected.result)
     ```
 
     If `Select` was created with more `AsyncIterator` than what are read in
@@ -124,6 +165,8 @@ class Select:
             name = item.get_name()
             if isinstance(item.exception(), StopAsyncIteration):
                 result = None
+            elif item.exception():
+                result = item.exception()
             else:
                 result = item.result()
             self._ready_count += 1

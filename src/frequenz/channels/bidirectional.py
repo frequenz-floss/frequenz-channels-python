@@ -9,7 +9,7 @@ MIT
 
 from typing import Generic, Optional
 
-from frequenz.channels.base_classes import Receiver, Sender, T, U
+from frequenz.channels.base_classes import Message, Receiver, Sender, T, U
 from frequenz.channels.broadcast import Broadcast
 
 
@@ -73,11 +73,11 @@ class BidirectionalHandle(Sender[T], Receiver[U]):
         self._sender = sender
         self._receiver = receiver
 
-    async def send(self, msg: T) -> bool:
-        """Send a value to the other side.
+    async def send(self, msg: Message[T]) -> bool:
+        """Send a message (value or exception) to the other side.
 
         Args:
-            msg: The value to send.
+            msg: The message (value or exception) to send.
 
         Returns:
             Boolean indicating whether the send was successful.
@@ -85,9 +85,12 @@ class BidirectionalHandle(Sender[T], Receiver[U]):
         return await self._sender.send(msg)
 
     async def receive(self) -> Optional[U]:
-        """Receive a value from the other side.
+        """Receive a message (value or exception) from the other side.
 
         Returns:
             Received value, or None if the channels are closed.
+
+        Raises:
+            Exception: if an Exception was received through the channel.
         """
         return await self._receiver.receive()
