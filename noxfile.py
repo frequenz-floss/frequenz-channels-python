@@ -9,18 +9,24 @@ MIT
 
 import nox
 
+check_dirs = [
+        "benchmarks",
+        "docs",
+        "src",
+        "tests",
+        ]
 
 @nox.session
 def formatting(session: nox.Session) -> None:
     session.install("black", "isort")
-    session.run("black", "--check", "src", "tests", "benchmarks")
-    session.run("isort", "--check", "src", "tests", "benchmarks")
+    session.run("black", "--check", *check_dirs)
+    session.run("isort", "--check", *check_dirs)
 
 
 @nox.session
 def pylint(session: nox.Session) -> None:
-    session.install(".", "pylint", "pytest")
-    session.run("pylint", "src", "tests", "benchmarks")
+    session.install(".[docs]", "pylint", "pytest")
+    session.run("pylint", *check_dirs)
 
 
 @nox.session
@@ -35,9 +41,7 @@ def mypy(session: nox.Session) -> None:
         "--explicit-package-bases",
         "--follow-imports=silent",
         "--strict",
-        "src",
-        "tests",
-        "benchmarks",
+        *check_dirs,
     )
 
 
@@ -46,7 +50,7 @@ def docstrings(session: nox.Session) -> None:
     """Check docstring tone with pydocstyle and param descriptions with darglint."""
     session.install("pydocstyle", "darglint", "toml")
 
-    session.run("pydocstyle", "src", "tests", "benchmarks")
+    session.run("pydocstyle", *check_dirs)
 
     # Darglint checks that function argument and return values are documented.
     # This is needed only for the `src` dir, so we exclude the other top level

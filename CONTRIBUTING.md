@@ -29,6 +29,25 @@ python -m pip install nox
 nox
 ```
 
+To build the documentation, first install the dependencies:
+
+```sh
+python -m pip install -e .[docs]
+```
+
+Then you can build the documentation (it will be written in the `site/`
+directory):
+
+```sh
+mkdocs build
+```
+
+Or you can just serve the documentation without building it using:
+
+```sh
+mkdocs serve
+```
+
 Releasing
 =========
 

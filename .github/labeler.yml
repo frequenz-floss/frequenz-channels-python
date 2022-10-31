@@ -8,6 +8,7 @@
 
 "part:docs": 
   - "**/*.md"
+  - "docs/**"
   - LICENSE
 
 "part:tests":
@@ -16,11 +17,13 @@
 "part:tooling":
   - "**/*.ini"
   - "**/*.toml"
+  - "**/*.yaml"
   - "*requirements*.txt"
   - ".git*"
   - ".git*/**"
   - CODEOWNERS
   - MANIFEST.in
+  - docs/mkdocstrings_autoapi.py
   - noxfile.py
   - setup.py
 
