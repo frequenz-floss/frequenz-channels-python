@@ -21,6 +21,7 @@
   - ".git*/**"
   - CODEOWNERS
   - MANIFEST.in
+  - noxfile.py
   - setup.py
 
 "part:channels":
