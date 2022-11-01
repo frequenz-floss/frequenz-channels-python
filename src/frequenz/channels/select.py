@@ -36,7 +36,7 @@ class Select:
     messages coming in the additional async iterators are dropped, and
     a warning message is logged.
 
-    [Receiver][frequenz.channels.Receiver]s also function as AsyncIterator.
+    [Receiver][frequenz.channels.Receiver]s also function as `AsyncIterator`.
 
     Example:
         For example, if there are two async iterators that you want to
@@ -86,8 +86,8 @@ class Select:
     async def ready(self) -> bool:
         """Wait until there is a message in any of the async iterators.
 
-        Returns True if there is a message available, and False if all async
-        iterators have closed.
+        Returns `True` if there is a message available, and `False` if all
+        async iterators have closed.
 
         Returns:
             Boolean indicating whether there are further messages or not.
@@ -138,17 +138,17 @@ class Select:
         return True
 
     def __getattr__(self, name: str) -> Optional[Any]:
-        """Return the latest unread message from a AsyncIterator, if available.
+        """Return the latest unread message from a `AsyncIterator`, if available.
 
         Args:
             name: Name of the channel.
 
         Returns:
-            Latest unread message for the specified AsyncIterator, or None.
+            Latest unread message for the specified `AsyncIterator`, or `None`.
 
         Raises:
-            KeyError: when the name was not specified when creating the Select
-                instance.
+            KeyError: when the name was not specified when creating the
+                `Select` instance.
         """
         result = self._result[name]
         if result is None:

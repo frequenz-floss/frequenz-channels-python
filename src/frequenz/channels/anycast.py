@@ -171,7 +171,7 @@ class Receiver(BaseReceiver[T]):
         will receive each message.
 
         Returns:
-            None, if the channel is closed, a message otherwise.
+            `None`, if the channel is closed, a message otherwise.
         """
         while len(self._chan.deque) == 0:
             if self._chan.closed:
