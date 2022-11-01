@@ -91,8 +91,9 @@ class Receiver(ABC, Generic[T]):
 class Peekable(ABC, Generic[T]):
     """A base class for creating Peekables for peeking into channels.
 
-    A Peekable provides a `peek` method that allows the user to get a peek at
-    the latest value in the channel, without consuming anything.
+    A Peekable provides a [peek()][frequenz.channels.Peekable] method that
+    allows the user to get a peek at the latest value in the channel, without
+    consuming anything.
     """
 
     @abstractmethod
