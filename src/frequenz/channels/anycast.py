@@ -19,9 +19,10 @@ class Anycast(Generic[T]):
     through a sender will be received by exactly one receiver.
 
     In cases where each message need to be received by every receiver, a
-    `Broadcast` channel may be used.
+    [Broadcast][frequenz.channels.Broadcast] channel may be used.
 
-    Uses an `deque` internally, so Anycast channels are not thread-safe.
+    Uses an [deque][collections.deque] internally, so Anycast channels are not
+    thread-safe.
 
     Example:
     ``` python
@@ -69,10 +70,13 @@ class Anycast(Generic[T]):
     async def close(self) -> None:
         """Close the channel.
 
-        Any further attempts to `send` data will return False.
+        Any further attempts to [send()][frequenz.channels.Sender.send] data
+        will return `False`.
 
         Receivers will still be able to drain the pending items on the channel,
-        but after that, subsequent `recv` calls will return None immediately.
+        but after that, subsequent
+        [receive()][frequenz.channels.Receiver.receive] calls will return `None`
+        immediately.
 
         """
         self.closed = True

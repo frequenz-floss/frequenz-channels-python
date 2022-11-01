@@ -54,7 +54,7 @@ class Select:
     messages coming in the additional async iterators are dropped, and
     a warning message is logged.
 
-    `Receivers` also function as AsyncIterator.
+    [Receiver][frequenz.channels.Receiver]s also function as AsyncIterator.
     """
 
     def __init__(self, **kwargs: AsyncIterator[Any]) -> None:

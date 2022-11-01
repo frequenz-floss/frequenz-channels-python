@@ -25,8 +25,8 @@ class Broadcast(Generic[T]):
     receivers.
 
     Internally, a broadcast receiver's buffer is implemented with just
-    append/pop operations on either side of a `collections.deque`, which are
-    thread-safe.  Because of this, `Broadcast` channels are thread-safe.
+    append/pop operations on either side of a [deque][collections.deque], which
+    are thread-safe.  Because of this, `Broadcast` channels are thread-safe.
 
     Example:
     ``` python
@@ -83,10 +83,13 @@ class Broadcast(Generic[T]):
     async def close(self) -> None:
         """Close the Broadcast channel.
 
-        Any further attempts to `send` data will return False.
+        Any further attempts to [send()][frequenz.channels.Sender.send] data
+        will return `False`.
 
         Receivers will still be able to drain the pending items on their queues,
-        but after that, subsequent `recv` calls will return None immediately.
+        but after that, subsequent
+        [receive()][frequenz.channels.Receiver.receive] calls will return `None`
+        immediately.
         """
         self._latest = None
         self.closed = True
@@ -140,8 +143,9 @@ class Broadcast(Generic[T]):
     def get_peekable(self) -> "Peekable[T]":
         """Create a new Peekable for the broadcast channel.
 
-        A Peekable provides a `peek` method that allows the user to get a peek
-        at the latest value in the channel, without consuming anything.
+        A Peekable provides a [peek()][frequenz.channels.Peekable.peek] method
+        that allows the user to get a peek at the latest value in the channel,
+        without consuming anything.
 
         Returns:
             A Peekable to peek into the broadcast channel with.
@@ -152,7 +156,8 @@ class Broadcast(Generic[T]):
 class Sender(BaseSender[T]):
     """A sender to send messages to the broadcast channel.
 
-    Should not be created directly, but through the `Channel.get_sender()`
+    Should not be created directly, but through the
+    [Broadcast.get_sender()][frequenz.channels.Broadcast.get_sender]
     method.
     """
 
@@ -188,7 +193,8 @@ class Sender(BaseSender[T]):
 class Receiver(BufferedReceiver[T]):
     """A receiver to receive messages from the broadcast channel.
 
-    Should not be created directly, but through the `Channel.get_receiver()`
+    Should not be created directly, but through the
+    [Broadcast.get_receiver()][frequenz.channels.Broadcast.get_receiver]
     method.
     """
 
@@ -253,8 +259,9 @@ class Receiver(BufferedReceiver[T]):
         them.  If there are no remaining messages in the buffer and the channel
         is closed, returns `None` immediately.
 
-        If `into_peekable` is called on a broadcast `Receiver`, further calls to
-        `receive`, will raise an `EOFError`.
+        If [into_peekable()][frequenz.channels.Receiver.into_peekable] is called
+        on a broadcast `Receiver`, further calls to `receive`, will raise an
+        `EOFError`.
 
         Raises:
             EOFError: when the receiver has been converted into a `Peekable`.
@@ -277,7 +284,8 @@ class Receiver(BufferedReceiver[T]):
         """Convert the `Receiver` implementation into a `Peekable`.
 
         Once this function has been called, the receiver will no longer be
-        usable, and calling `receive` on the receiver will raise an exception.
+        usable, and calling [receive()][frequenz.channels.Receiver.receive] on
+        the receiver will raise an exception.
 
         Returns:
             A `Peekable` instance.
@@ -290,8 +298,9 @@ class Receiver(BufferedReceiver[T]):
 class Peekable(BasePeekable[T]):
     """A Peekable to peek into broadcast channels.
 
-    A Peekable provides a `peek` method that allows the user to get a peek at
-    the latest value in the channel, without consuming anything.
+    A Peekable provides a [peek()][frequenz.channels.Peekable] method that
+    allows the user to get a peek at the latest value in the channel, without
+    consuming anything.
     """
 
     def __init__(self, chan: Broadcast[T]) -> None:

@@ -54,7 +54,7 @@ class Bidirectional(Generic[T, U]):
 
 
 class BidirectionalHandle(Sender[T], Receiver[U]):
-    """A handle to a Bidirectional instance.
+    """A handle to a [Bidirectional][frequenz.channels.Bidirectional] instance.
 
     It can be used to send/receive values between the client and service.
     """

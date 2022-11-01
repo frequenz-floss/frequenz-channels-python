@@ -65,8 +65,9 @@ class Timer(Receiver[datetime]):
     def stop(self) -> None:
         """Stop the timer.
 
-        Once `stop` has been called, all subsequent calls to `receive` will
-        immediately return None.
+        Once `stop` has been called, all subsequent calls to
+        [receive()][frequenz.channels.Timer.receive] will immediately return
+        None.
         """
         self._stopped = True
 
@@ -74,7 +75,9 @@ class Timer(Receiver[datetime]):
         """Return the current time once the next tick is due.
 
         Returns:
-            The time of the next tick.
+            The time of the next tick or `None` if
+                [stop()][frequenz.channels.Timer.stop] has been called on the
+                timer.
         """
         if self._stopped:
             return None
