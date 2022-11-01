@@ -16,7 +16,7 @@ class Timer(Receiver[datetime]):
     Primarily for use with `channel.Select` calls.
 
     When you want something to happen with a fixed period:
-    ```
+    ```python
     timer = channel.Timer(30.0)
     select = Select(bat_1 = receiver1, timer = timer)
     while await select.ready():
@@ -32,7 +32,7 @@ class Timer(Receiver[datetime]):
 
     When you want something to happen when nothing else has happened in a
     certain interval:
-    ```
+    ```python
     timer = channel.Timer(30.0)
     select = Select(bat_1 = receiver1, timer = timer)
     while await select.ready():

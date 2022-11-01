@@ -34,7 +34,7 @@ class Select:
     For example, if there are two async iterators that you want to
     simultaneously wait on, this can be done with:
 
-    ```
+    ```python
     select = Select(name1 = receiver1, name2 = receiver2)
     while await select.ready():
         if msg := select.name1:
@@ -50,8 +50,9 @@ class Select:
     ```
 
     If `Select` was created with more `AsyncIterator` than what are read in
-    the if-chain after each call to `ready()`, messages coming in the
-    additional async iterators are dropped, and a warning message is logged.
+    the if-chain after each call to [ready()][frequenz.channels.Select.ready],
+    messages coming in the additional async iterators are dropped, and
+    a warning message is logged.
 
     `Receivers` also function as AsyncIterator.
     """

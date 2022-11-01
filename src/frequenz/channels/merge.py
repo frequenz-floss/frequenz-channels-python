@@ -17,7 +17,7 @@ class Merge(Receiver[T]):
     can be awaited together, and their results merged into a single stream, by
     using `Merge` like this:
 
-    ```
+    ```python
     merge = Merge(receiver1, receiver2)
     while msg := await merge.receive():
         # do something with msg
