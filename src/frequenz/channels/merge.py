@@ -13,16 +13,17 @@ from frequenz.channels.base_classes import Receiver, T
 class Merge(Receiver[T]):
     """Merge messages coming from multiple channels into a single stream.
 
-    For example, if there are two channel receivers with the same type, they
-    can be awaited together, and their results merged into a single stream, by
-    using `Merge` like this:
+    Example:
+        For example, if there are two channel receivers with the same type,
+        they can be awaited together, and their results merged into a single
+        stream, by using `Merge` like this:
 
-    ```python
-    merge = Merge(receiver1, receiver2)
-    while msg := await merge.receive():
-        # do something with msg
-        pass
-    ```
+        ```python
+        merge = Merge(receiver1, receiver2)
+        while msg := await merge.receive():
+            # do something with msg
+            pass
+        ```
     """
 
     def __init__(self, *args: Receiver[T]) -> None:

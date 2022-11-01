@@ -28,35 +28,38 @@ class Broadcast(Generic[T]):
     append/pop operations on either side of a [deque][collections.deque], which
     are thread-safe.  Because of this, `Broadcast` channels are thread-safe.
 
+    When there are multiple channel receivers, they can be awaited
+    simultaneously using [Select][frequenz.channels.Select],
+    [Merge][frequenz.channels.Merge] or
+    [MergeNamed][frequenz.channels.MergeNamed].
+
     Example:
-    ``` python
-    async def send(sender: channel.Sender) -> None:
-        while True:
-            next = random.randint(3, 17)
-            print(f"sending: {next}")
-            await sender.send(next)
+        ``` python
+        async def send(sender: channel.Sender) -> None:
+            while True:
+                next = random.randint(3, 17)
+                print(f"sending: {next}")
+                await sender.send(next)
 
 
-    async def recv(id: int, receiver: channel.Receiver) -> None:
-        while True:
-            next = await receiver.receive()
-            print(f"receiver_{id} received {next}")
-            await asyncio.sleep(0.1) # sleep (or work) with the data
+        async def recv(id: int, receiver: channel.Receiver) -> None:
+            while True:
+                next = await receiver.receive()
+                print(f"receiver_{id} received {next}")
+                await asyncio.sleep(0.1) # sleep (or work) with the data
 
 
-    bcast = channel.Broadcast()
+        bcast = channel.Broadcast()
 
-    sender = bcast.get_sender()
-    receiver_1 = bcast.get_receiver()
+        sender = bcast.get_sender()
+        receiver_1 = bcast.get_receiver()
 
-    asyncio.create_task(send(sender))
+        asyncio.create_task(send(sender))
 
-    await recv(1, receiver_1)
-    ```
+        await recv(1, receiver_1)
+        ```
 
-    Check the `tests` and `benchmarks` directories for more examples.  When
-    there are multiple channel receivers, they can be awaited simultaneously
-    using `channel.Select` or `channel.Merge`.
+        Check the `tests` and `benchmarks` directories for more examples.
     """
 
     def __init__(self, name: str, resend_latest: bool = False) -> None:
