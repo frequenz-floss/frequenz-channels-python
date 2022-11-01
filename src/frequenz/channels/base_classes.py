@@ -36,14 +36,14 @@ class Receiver(ABC, Generic[T]):
         """Receive a message from the channel.
 
         Returns:
-            None, if the channel is closed, a message otherwise.
+            `None`, if the channel is closed, a message otherwise.
         """
 
     def __aiter__(self) -> Receiver[T]:
         """Initialize the async iterator over received values.
 
         Returns:
-            self, since no extra setup is needed for the iterator
+            `self`, since no extra setup is needed for the iterator.
         """
         return self
 
@@ -69,7 +69,7 @@ class Receiver(ABC, Generic[T]):
             call: function to apply on incoming messages.
 
         Returns:
-            A receiver to read results of the given function from.
+            A `Receiver` to read results of the given function from.
         """
         return _Map(self, call)
 
@@ -123,7 +123,8 @@ class BufferedReceiver(Receiver[T]):
 class _Map(Receiver[U], Generic[T, U]):
     """Apply a transform function on a channel receiver.
 
-    Has two generic types -
+    Has two generic types:
+
     - The input type: value type in the input receiver.
     - The output type: return type of the transform method.
     """
@@ -143,7 +144,7 @@ class _Map(Receiver[U], Generic[T, U]):
         """Return a transformed message received from the input channel.
 
         Returns:
-            None, if the channel is closed, a message otherwise.
+            `None`, if the channel is closed, a message otherwise.
         """
         msg = await self._recv.receive()
         if msg is None:

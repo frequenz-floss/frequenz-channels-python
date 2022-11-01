@@ -70,7 +70,7 @@ class Timer(Receiver[datetime]):
 
         Once `stop` has been called, all subsequent calls to
         [receive()][frequenz.channels.Timer.receive] will immediately return
-        None.
+        `None`.
         """
         self._stopped = True
 

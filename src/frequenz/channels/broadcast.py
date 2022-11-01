@@ -22,7 +22,7 @@ logger = logging.Logger(__name__)
 class Broadcast(Generic[T]):
     """A channel to broadcast messages to multiple receivers.
 
-    Broadcast channels can have multiple senders and multiple receivers. Each
+    `Broadcast` channels can have multiple senders and multiple receivers. Each
     message sent through any of the senders is received by all of the
     receivers.
 
@@ -272,7 +272,7 @@ class Receiver(BufferedReceiver[T]):
             EOFError: when the receiver has been converted into a `Peekable`.
 
         Returns:
-            None, if the channel is closed, a message otherwise.
+            `None`, if the channel is closed, a message otherwise.
         """
         if not self._active:
             raise EOFError("This receiver is no longer active.")

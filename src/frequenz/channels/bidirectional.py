@@ -47,7 +47,7 @@ class Bidirectional(Generic[T, U]):
 
     @property
     def service_handle(self) -> BidirectionalHandle[U, T]:
-        """Get a BidirectionalHandle for the service to use.
+        """Get a `BidirectionalHandle` for the service to use.
 
         Returns:
             Object to send/receive messages with.
@@ -86,6 +86,6 @@ class BidirectionalHandle(Sender[T], Receiver[U]):
         """Receive a value from the other side.
 
         Returns:
-            Received value, or None if the channels are closed.
+            Received value, or `None` if the channels are closed.
         """
         return await self._receiver.receive()
