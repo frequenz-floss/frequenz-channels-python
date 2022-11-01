@@ -1,11 +1,7 @@
-"""An abstraction to provide bi-directional communication between actors.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
-
-License
-MIT
-"""
+"""An abstraction to provide bi-directional communication between actors."""
 
 from typing import Generic, Optional
 

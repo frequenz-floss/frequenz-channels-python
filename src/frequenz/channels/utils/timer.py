@@ -1,11 +1,7 @@
-"""A timer receiver that returns the timestamp every `interval`.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
-
-License
-MIT
-"""
+"""A timer receiver that returns the timestamp every `interval`."""
 
 import asyncio
 from datetime import datetime, timedelta

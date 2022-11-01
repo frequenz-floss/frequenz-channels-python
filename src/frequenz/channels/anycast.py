@@ -1,11 +1,7 @@
-"""A channel for sending data across async tasks.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
-
-License
-MIT
-"""
+"""A channel for sending data across async tasks."""
 
 from asyncio import Condition
 from collections import deque

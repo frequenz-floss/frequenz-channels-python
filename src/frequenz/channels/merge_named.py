@@ -1,11 +1,7 @@
-"""Merge messages coming from channels into a single stream containing name of message.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
-
-License
-MIT
-"""
+"""Merge messages coming from channels into a single stream containing name of message."""
 
 import asyncio
 from collections import deque

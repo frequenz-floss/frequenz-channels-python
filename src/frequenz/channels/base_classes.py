@@ -1,12 +1,7 @@
-"""
-Baseclasses for Channel Sender and Receiver.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
-
-License
-MIT
-"""
+"""Baseclasses for Channel Sender and Receiver."""
 
 from abc import ABC, abstractmethod
 from typing import Callable, Generic, Optional, TypeVar

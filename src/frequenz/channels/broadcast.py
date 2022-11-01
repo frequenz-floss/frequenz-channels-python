@@ -1,11 +1,7 @@
-"""A channel to broadcast messages to all receivers.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
-
-License
-MIT
-"""
+"""A channel to broadcast messages to all receivers."""
 
 import logging
 from asyncio import Condition
