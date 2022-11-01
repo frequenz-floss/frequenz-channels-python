@@ -320,7 +320,7 @@ class Peekable(BasePeekable[T]):
         """Return the latest value that was sent to the channel.
 
         Returns:
-            The latest value received by the channel, and None, if nothing has
-            been sent to the channel yet, or if the channel is closed.
+            The latest value received by the channel, and `None`, if nothing
+                has been sent to the channel yet, or if the channel is closed.
         """
         return self._chan._latest  # pylint: disable=protected-access

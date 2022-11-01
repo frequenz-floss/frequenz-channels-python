@@ -48,8 +48,8 @@ class Merge(Receiver[T]):
         """Wait until there's a message in any of the channels.
 
         Returns:
-            The next message that was received, or None, if all channels have
-            closed.
+            The next message that was received, or `None`, if all channels have
+                closed.
         """
         # we use a while loop to continue to wait for new data, in case the
         # previous `wait` completed because a channel was closed.

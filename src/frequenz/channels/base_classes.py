@@ -24,7 +24,7 @@ class Sender(ABC, Generic[T]):
 
         Returns:
             Whether the message was sent, based on whether the channel is open
-            or not.
+                or not.
         """
 
 
@@ -103,8 +103,8 @@ class Peekable(ABC, Generic[T]):
         """Return the latest value that was sent to the channel.
 
         Returns:
-            The latest value received by the channel, and None, if nothing has
-            been sent to the channel yet.
+            The latest value received by the channel, and `None`, if nothing
+                has been sent to the channel yet.
         """
 
 
