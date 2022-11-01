@@ -3,6 +3,8 @@
 
 """An abstraction to provide bi-directional communication between actors."""
 
+from __future__ import annotations
+
 from typing import Generic, Optional
 
 from frequenz.channels.base_classes import Receiver, Sender, T, U
@@ -35,7 +37,7 @@ class Bidirectional(Generic[T, U]):
         )
 
     @property
-    def client_handle(self) -> "BidirectionalHandle[T, U]":
+    def client_handle(self) -> BidirectionalHandle[T, U]:
         """Get a BidirectionalHandle for the client to use.
 
         Returns:
@@ -44,7 +46,7 @@ class Bidirectional(Generic[T, U]):
         return self._client_handle
 
     @property
-    def service_handle(self) -> "BidirectionalHandle[U, T]":
+    def service_handle(self) -> BidirectionalHandle[U, T]:
         """Get a BidirectionalHandle for the service to use.
 
         Returns:

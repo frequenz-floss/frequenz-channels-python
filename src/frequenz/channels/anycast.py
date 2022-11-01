@@ -3,6 +3,8 @@
 
 """A channel for sending data across async tasks."""
 
+from __future__ import annotations
+
 from asyncio import Condition
 from collections import deque
 from typing import Deque, Generic, Optional
@@ -88,7 +90,7 @@ class Anycast(Generic[T]):
         async with self.recv_cv:
             self.recv_cv.notify_all()
 
-    def get_sender(self) -> "Sender[T]":
+    def get_sender(self) -> Sender[T]:
         """Create a new sender.
 
         Returns:
@@ -96,7 +98,7 @@ class Anycast(Generic[T]):
         """
         return Sender(self)
 
-    def get_receiver(self) -> "Receiver[T]":
+    def get_receiver(self) -> Receiver[T]:
         """Create a new receiver.
 
         Returns:
