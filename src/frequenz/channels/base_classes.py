@@ -3,6 +3,8 @@
 
 """Baseclasses for Channel Sender and Receiver."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import Callable, Generic, Optional, TypeVar
 
@@ -37,7 +39,7 @@ class Receiver(ABC, Generic[T]):
             None, if the channel is closed, a message otherwise.
         """
 
-    def __aiter__(self) -> "Receiver[T]":
+    def __aiter__(self) -> Receiver[T]:
         """Initialize the async iterator over received values.
 
         Returns:
@@ -60,7 +62,7 @@ class Receiver(ABC, Generic[T]):
             raise StopAsyncIteration
         return received
 
-    def map(self, call: Callable[[T], U]) -> "Receiver[U]":
+    def map(self, call: Callable[[T], U]) -> Receiver[U]:
         """Return a receiver with `call` applied on incoming messages.
 
         Args:
@@ -71,7 +73,7 @@ class Receiver(ABC, Generic[T]):
         """
         return _Map(self, call)
 
-    def into_peekable(self) -> "Peekable[T]":
+    def into_peekable(self) -> Peekable[T]:
         """Convert the `Receiver` implementation into a `Peekable`.
 
         Once this function has been called, the receiver will no longer be

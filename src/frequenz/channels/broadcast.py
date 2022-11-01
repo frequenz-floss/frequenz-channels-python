@@ -3,6 +3,8 @@
 
 """A channel to broadcast messages to all receivers."""
 
+from __future__ import annotations
+
 import logging
 from asyncio import Condition
 from collections import deque
@@ -110,7 +112,7 @@ class Broadcast(Generic[T]):
         if uuid in self.receivers:
             del self.receivers[uuid]
 
-    def get_sender(self) -> "Sender[T]":
+    def get_sender(self) -> Sender[T]:
         """Create a new broadcast sender.
 
         Returns:
@@ -120,7 +122,7 @@ class Broadcast(Generic[T]):
 
     def get_receiver(
         self, name: Optional[str] = None, maxsize: int = 50
-    ) -> "Receiver[T]":
+    ) -> Receiver[T]:
         """Create a new broadcast receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -137,13 +139,13 @@ class Broadcast(Generic[T]):
         uuid = uuid4()
         if name is None:
             name = str(uuid)
-        recv: "Receiver[T]" = Receiver(uuid, name, maxsize, self)
+        recv: Receiver[T] = Receiver(uuid, name, maxsize, self)
         self.receivers[uuid] = recv
         if self._resend_latest and self._latest is not None:
             recv.enqueue(self._latest)
         return recv
 
-    def get_peekable(self) -> "Peekable[T]":
+    def get_peekable(self) -> Peekable[T]:
         """Create a new Peekable for the broadcast channel.
 
         A Peekable provides a [peek()][frequenz.channels.Peekable.peek] method
@@ -283,7 +285,7 @@ class Receiver(BufferedReceiver[T]):
         ret = self._q.popleft()
         return ret
 
-    def into_peekable(self) -> "Peekable[T]":
+    def into_peekable(self) -> Peekable[T]:
         """Convert the `Receiver` implementation into a `Peekable`.
 
         Once this function has been called, the receiver will no longer be
