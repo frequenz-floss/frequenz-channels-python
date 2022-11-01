@@ -52,7 +52,7 @@ class Timer(Receiver[datetime]):
     """
 
     def __init__(self, interval: float) -> None:
-        """Create a `LocalTimer` instance.
+        """Create a `Timer` instance.
 
         Args:
             interval: number of seconds between messages.

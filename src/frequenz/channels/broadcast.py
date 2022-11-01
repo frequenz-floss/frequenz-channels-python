@@ -181,8 +181,8 @@ class Sender(BaseSender[T]):
             msg: The message to be broadcast.
 
         Returns:
-            Boolean indicating whether the message was sent, based on whether
-            the broadcast channel is open or not.
+            Whether the message was sent, based on whether the broadcast
+                channel is open or not.
         """
         if self._chan.closed:
             return False
