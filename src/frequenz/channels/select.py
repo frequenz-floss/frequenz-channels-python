@@ -31,30 +31,31 @@ class _Selected:
 class Select:
     """Select the next available message from a group of AsyncIterators.
 
-    For example, if there are two async iterators that you want to
-    simultaneously wait on, this can be done with:
-
-    ```python
-    select = Select(name1 = receiver1, name2 = receiver2)
-    while await select.ready():
-        if msg := select.name1:
-            if val := msg.inner:
-                # do something with `val`
-                pass
-            else:
-                # handle closure of receiver.
-                pass
-        elif msg := select.name2:
-            # do something with `msg.inner`
-            pass
-    ```
-
     If `Select` was created with more `AsyncIterator` than what are read in
     the if-chain after each call to [ready()][frequenz.channels.Select.ready],
     messages coming in the additional async iterators are dropped, and
     a warning message is logged.
 
     [Receiver][frequenz.channels.Receiver]s also function as AsyncIterator.
+
+    Example:
+        For example, if there are two async iterators that you want to
+        simultaneously wait on, this can be done with:
+
+        ```python
+        select = Select(name1 = receiver1, name2 = receiver2)
+        while await select.ready():
+            if msg := select.name1:
+                if val := msg.inner:
+                    # do something with `val`
+                    pass
+                else:
+                    # handle closure of receiver.
+                    pass
+            elif msg := select.name2:
+                # do something with `msg.inner`
+                pass
+        ```
     """
 
     def __init__(self, **kwargs: AsyncIterator[Any]) -> None:
