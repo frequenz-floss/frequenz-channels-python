@@ -1,11 +1,8 @@
-"""Tests for the Select implementation.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
+"""Tests for the Select implementation."""
 
-License
-MIT
-"""
 import asyncio
 from asyncio import Queue
 from typing import List, Optional

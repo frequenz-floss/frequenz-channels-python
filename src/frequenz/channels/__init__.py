@@ -1,11 +1,7 @@
-"""Channel implementations.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
-
-License
-MIT
-"""
+"""Channel implementations."""
 
 from frequenz.channels.anycast import Anycast
 from frequenz.channels.base_classes import BufferedReceiver, Peekable, Receiver, Sender

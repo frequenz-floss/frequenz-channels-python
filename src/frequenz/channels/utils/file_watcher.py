@@ -1,11 +1,7 @@
-"""A Channel receiver for watching for new (or modified) files.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
-
-License
-MIT
-"""
+"""A Channel receiver for watching for new (or modified) files."""
 import asyncio
 import pathlib
 from enum import Enum

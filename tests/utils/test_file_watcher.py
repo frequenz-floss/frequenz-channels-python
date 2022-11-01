@@ -1,11 +1,8 @@
-"""Tests for `channel.FileWatcher`
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
+"""Tests for `channel.FileWatcher`."""
 
-License
-MIT
-"""
 import os
 import pathlib
 

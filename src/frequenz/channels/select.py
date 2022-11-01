@@ -1,14 +1,11 @@
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
+
 """Select the first among multiple AsyncIterators.
 
 Expects AsyncIterator class to raise `StopAsyncIteration`
 exception once no more messages are expected or the channel
 is closed in case of `Receiver` class.
-
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
-
-License
-MIT
 """
 
 import asyncio
