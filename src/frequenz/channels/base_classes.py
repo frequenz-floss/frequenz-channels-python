@@ -13,7 +13,7 @@ U = TypeVar("U")
 
 
 class Sender(ABC, Generic[T]):
-    """A base class for channel Sender."""
+    """A channel Sender."""
 
     @abstractmethod
     async def send(self, msg: T) -> bool:
@@ -29,7 +29,7 @@ class Sender(ABC, Generic[T]):
 
 
 class Receiver(ABC, Generic[T]):
-    """A base class for channel Receiver."""
+    """A channel Receiver."""
 
     @abstractmethod
     async def receive(self) -> Optional[T]:
@@ -79,10 +79,6 @@ class Receiver(ABC, Generic[T]):
         Once this function has been called, the receiver will no longer be
         usable, and calling `receive` on the receiver will raise an exception.
 
-        This is a default implementation of `into_peekable` that always raises
-        an exception.  This method can be overridden in other implementations
-        of `Receiver.`
-
         Raises:
             NotImplementedError: when a `Receiver` implementation doesn't have
                 a custom `get_peekable` implementation.
@@ -91,7 +87,7 @@ class Receiver(ABC, Generic[T]):
 
 
 class Peekable(ABC, Generic[T]):
-    """A base class for creating Peekables for peeking into channels.
+    """A channel peekable.
 
     A Peekable provides a [peek()][frequenz.channels.Peekable] method that
     allows the user to get a peek at the latest value in the channel, without
@@ -109,7 +105,7 @@ class Peekable(ABC, Generic[T]):
 
 
 class BufferedReceiver(Receiver[T]):
-    """A base class for buffered channel receivers."""
+    """A channel receiver with a buffer."""
 
     @abstractmethod
     def enqueue(self, msg: T) -> None:

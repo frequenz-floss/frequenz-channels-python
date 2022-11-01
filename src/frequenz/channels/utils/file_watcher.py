@@ -21,7 +21,7 @@ class EventType(Enum):
 
 
 class FileWatcher(Receiver[pathlib.Path]):
-    """A channel receiver that watches for file events using watchfiles."""
+    """A channel receiver that watches for file events."""
 
     def __init__(
         self,
@@ -32,9 +32,8 @@ class FileWatcher(Receiver[pathlib.Path]):
 
         Args:
             paths: Paths to watch for changes.
-            event_types: Types of events to watch for.  Available types are:
-                CREATE, MODIFY, DELETE.  By default, watcher will watch for all
-                types of events.
+            event_types: Types of events to watch for or `None` to watch for
+                all event types.
         """
         if event_types is None:
             event_types = {EventType.CREATE, EventType.MODIFY, EventType.DELETE}

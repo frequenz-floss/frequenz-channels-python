@@ -90,7 +90,7 @@ class Select:
         async iterators have closed.
 
         Returns:
-            Boolean indicating whether there are further messages or not.
+            Whether there are further messages or not.
         """
         if self._ready_count > 0:
             if self._ready_count == self._prev_ready_count:

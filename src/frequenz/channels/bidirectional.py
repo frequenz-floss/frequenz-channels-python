@@ -78,7 +78,7 @@ class BidirectionalHandle(Sender[T], Receiver[U]):
             msg: The value to send.
 
         Returns:
-            Boolean indicating whether the send was successful.
+            Whether the send was successful or not.
         """
         return await self._sender.send(msg)
 
