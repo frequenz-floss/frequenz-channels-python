@@ -14,9 +14,9 @@ import mkdocs_gen_files
 SRC_PATH = "src"
 DST_PATH = "reference"
 
-# noqa because mkdocs_gen_files uses a very weird module-level
+# type ignore because mkdocs_gen_files uses a very weird module-level
 # __getattr__() which messes up the type system
-nav = mkdocs_gen_files.Nav()  # noqa
+nav = mkdocs_gen_files.Nav()  # type: ignore
 
 for path in sorted(Path(SRC_PATH).rglob("*.py")):
     module_path = path.relative_to(SRC_PATH).with_suffix("")
