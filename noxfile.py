@@ -6,23 +6,30 @@
 import nox
 
 check_dirs = [
-        "benchmarks",
-        "docs",
-        "src",
-        "tests",
-        ]
+    "benchmarks",
+    "docs",
+    "src",
+    "tests",
+]
+
+check_files = [
+    "noxfile.py",
+]
+
 
 @nox.session
 def formatting(session: nox.Session) -> None:
+    """Run black and isort to make sure the format is uniform."""
     session.install("black", "isort")
-    session.run("black", "--check", *check_dirs)
-    session.run("isort", "--check", *check_dirs)
+    session.run("black", "--check", *check_dirs, *check_files)
+    session.run("isort", "--check", *check_dirs, *check_files)
 
 
 @nox.session
 def pylint(session: nox.Session) -> None:
-    session.install(".[docs]", "pylint", "pytest")
-    session.run("pylint", *check_dirs)
+    """Run pylint to do lint checks."""
+    session.install("-e", ".[docs]", "pylint", "pytest", "nox")
+    session.run("pylint", *check_dirs, *check_files)
 
 
 @nox.session
@@ -46,7 +53,7 @@ def docstrings(session: nox.Session) -> None:
     """Check docstring tone with pydocstyle and param descriptions with darglint."""
     session.install("pydocstyle", "darglint", "toml")
 
-    session.run("pydocstyle", *check_dirs)
+    session.run("pydocstyle", *check_dirs, *check_files)
 
     # Darglint checks that function argument and return values are documented.
     # This is needed only for the `src` dir, so we exclude the other top level
@@ -56,6 +63,7 @@ def docstrings(session: nox.Session) -> None:
 
 @nox.session
 def pytest(session: nox.Session) -> None:
+    """Run all tests using pytest."""
     session.install("pytest", "pytest-cov", "pytest-mock", "pytest-asyncio")
     session.install("-e", ".")
     session.run(
