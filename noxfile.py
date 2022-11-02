@@ -34,18 +34,26 @@ def pylint(session: nox.Session) -> None:
 
 @nox.session
 def mypy(session: nox.Session) -> None:
-    session.install(".", "mypy")
-    session.run(
-        "mypy",
-        "--ignore-missing-imports",
+    """Run mypy to check type hints."""
+    session.install("-e", ".[docs]", "pytest", "nox", "mypy")
+
+    common_args = [
         "--namespace-packages",
         "--non-interactive",
         "--install-types",
         "--explicit-package-bases",
-        "--follow-imports=silent",
         "--strict",
-        *check_dirs,
-    )
+    ]
+
+    pkg_args = []
+    for pkg in check_dirs:
+        if pkg == "src":
+            pkg = "frequenz.channels"
+        pkg_args.append("-p")
+        pkg_args.append(pkg)
+
+    session.run("mypy", *common_args, *pkg_args)
+    session.run("mypy", *common_args, *check_files)
 
 
 @nox.session
