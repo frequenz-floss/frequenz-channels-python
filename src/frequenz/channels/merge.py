@@ -5,7 +5,7 @@
 
 import asyncio
 from collections import deque
-from typing import Any, Deque, Optional, Set
+from typing import Any, Deque, Set
 
 from frequenz.channels.base_classes import Receiver, T
 
@@ -34,7 +34,7 @@ class Merge(Receiver[T]):
         """
         self._receivers = {str(id): recv for id, recv in enumerate(args)}
         self._pending: Set[asyncio.Task[Any]] = {
-            asyncio.create_task(recv.receive(), name=name)
+            asyncio.create_task(recv.__anext__(), name=name)
             for name, recv in self._receivers.items()
         }
         self._results: Deque[T] = deque(maxlen=len(self._receivers))
@@ -44,8 +44,11 @@ class Merge(Receiver[T]):
         for task in self._pending:
             task.cancel()
 
-    async def receive(self) -> Optional[T]:
+    async def __anext__(self) -> T:
         """Wait until there's a message in any of the channels.
+
+        Raises:
+            StopAsyncIteration: When the channel is closed.
 
         Returns:
             The next message that was received, or `None`, if all channels have
@@ -58,17 +61,17 @@ class Merge(Receiver[T]):
                 return self._results.popleft()
 
             if len(self._pending) == 0:
-                return None
+                raise StopAsyncIteration()
             done, self._pending = await asyncio.wait(
                 self._pending, return_when=asyncio.FIRST_COMPLETED
             )
             for item in done:
                 name = item.get_name()
-                result = item.result()
                 # if channel is closed, don't add a task for it again.
-                if result is None:
+                if isinstance(item.exception(), StopAsyncIteration):
                     continue
+                result = item.result()
                 self._results.append(result)
                 self._pending.add(
-                    asyncio.create_task(self._receivers[name].receive(), name=name)
+                    asyncio.create_task(self._receivers[name].__anext__(), name=name)
                 )

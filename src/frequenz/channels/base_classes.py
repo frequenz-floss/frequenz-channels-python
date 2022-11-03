@@ -32,11 +32,14 @@ class Receiver(ABC, Generic[T]):
     """A channel Receiver."""
 
     @abstractmethod
-    async def receive(self) -> Optional[T]:
-        """Receive a message from the channel.
+    async def __anext__(self) -> T:
+        """Await the next value in the async iteration over received values.
 
         Returns:
-            `None`, if the channel is closed, a message otherwise.
+            The next value received.
+
+        Raises:
+            StopAsyncIteration: if the underlying channel is closed.
         """
 
     def __aiter__(self) -> Receiver[T]:
@@ -47,19 +50,16 @@ class Receiver(ABC, Generic[T]):
         """
         return self
 
-    async def __anext__(self) -> T:
-        """Await the next value in the async iteration over received values.
+    async def receive(self) -> Optional[T]:
+        """Receive a message from the channel.
 
         Returns:
-            The next value received.
-
-        Raises:
-            StopAsyncIteration: if we receive `None`, i.e. if the underlying
-                channel is closed.
+            The received message.
         """
-        received = await self.receive()
-        if received is None:
-            raise StopAsyncIteration
+        try:
+            received = await self.__anext__()  # pylint: disable=unnecessary-dunder-call
+        except StopAsyncIteration:
+            return None
         return received
 
     def map(self, call: Callable[[T], U]) -> Receiver[U]:
@@ -136,13 +136,11 @@ class _Map(Receiver[U], Generic[T, U]):
         self._recv = recv
         self._transform = transform
 
-    async def receive(self) -> Optional[U]:
+    async def __anext__(self) -> U:
         """Return a transformed message received from the input channel.
 
         Returns:
-            `None`, if the channel is closed, a message otherwise.
+            A transformed message.
         """
-        msg = await self._recv.receive()
-        if msg is None:
-            return None
+        msg = await self._recv.__anext__()
         return self._transform(msg)

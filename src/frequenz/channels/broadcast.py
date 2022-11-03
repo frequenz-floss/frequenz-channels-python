@@ -249,7 +249,7 @@ class Receiver(BufferedReceiver[T]):
         """
         return len(self._q)
 
-    async def receive(self) -> Optional[T]:
+    async def __anext__(self) -> T:
         """Receive a message from the Broadcast channel.
 
         Waits until there are messages available in the channel and returns
@@ -261,6 +261,7 @@ class Receiver(BufferedReceiver[T]):
         `EOFError`.
 
         Raises:
+            StopAsyncIteration: When the channel is closed.
             EOFError: when the receiver has been converted into a `Peekable`.
 
         Returns:
@@ -271,7 +272,7 @@ class Receiver(BufferedReceiver[T]):
 
         while len(self._q) == 0:
             if self._chan.closed:
-                return None
+                raise StopAsyncIteration()
             async with self._chan.recv_cv:
                 await self._chan.recv_cv.wait()
         ret = self._q.popleft()

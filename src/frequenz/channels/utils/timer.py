@@ -5,7 +5,6 @@
 
 import asyncio
 from datetime import datetime, timedelta, timezone
-from typing import Optional
 
 from frequenz.channels.base_classes import Receiver
 
@@ -76,8 +75,11 @@ class Timer(Receiver[datetime]):
         """
         self._stopped = True
 
-    async def receive(self) -> Optional[datetime]:
+    async def __anext__(self) -> datetime:
         """Return the current time (in UTC) once the next tick is due.
+
+        Raises:
+            StopAsyncIteration: When the channel is closed.
 
         Returns:
             The time of the next tick in UTC or `None` if
@@ -89,7 +91,7 @@ class Timer(Receiver[datetime]):
               instead of a native datetime object.
         """
         if self._stopped:
-            return None
+            raise StopAsyncIteration()
         now = datetime.now(timezone.utc)
         diff = self._next_msg_time - now
         while diff.total_seconds() > 0:

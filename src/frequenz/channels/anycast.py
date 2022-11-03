@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from asyncio import Condition
 from collections import deque
-from typing import Deque, Generic, Optional
+from typing import Deque, Generic
 
 from frequenz.channels.base_classes import Receiver as BaseReceiver
 from frequenz.channels.base_classes import Sender as BaseSender
@@ -163,19 +163,22 @@ class Receiver(BaseReceiver[T]):
         """
         self._chan = chan
 
-    async def receive(self) -> Optional[T]:
+    async def __anext__(self) -> T:
         """Receive a message from the channel.
 
         Waits for an message to become available, and returns that message.
         When there are multiple receivers for the channel, only one receiver
         will receive each message.
 
+        Raises:
+            StopAsyncIteration: When the channel is closed.
+
         Returns:
-            `None`, if the channel is closed, a message otherwise.
+            The received message.
         """
         while len(self._chan.deque) == 0:
             if self._chan.closed:
-                return None
+                raise StopAsyncIteration()
             async with self._chan.recv_cv:
                 await self._chan.recv_cv.wait()
         ret = self._chan.deque.popleft()
