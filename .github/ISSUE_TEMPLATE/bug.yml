@@ -48,7 +48,9 @@ body:
         - Documentation (part:docs)
         - Unit, integration and performance tests (part:tests)
         - Build script, CI, dependencies, etc. (part:tooling)
-        - Channels implementation (part:channels)
+        - Channels, `Broadcast`, `Bidirectional`, etc. (part:channels)
+        - Select (part:select)
+        - Utility receivers, `Merge`, `Timer`, etc. (part:receivers)
     validations:
       required: true
   - type: textarea

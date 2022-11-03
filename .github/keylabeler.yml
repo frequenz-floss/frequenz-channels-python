@@ -14,6 +14,8 @@ caseSensitive: true
 labelMappings:
   "part:channels": "part:channels"
   "part:docs": "part:docs"
+  "part:receivers": "part:receivers"
+  "part:select": "part:select"
   "part:tests": "part:tests"
   "part:tooling": "part:tooling"
   "part:❓": "part:❓"

@@ -24,4 +24,13 @@
   - setup.py
 
 "part:channels":
-  - "src/frequenz/channels/**"
+  - any:
+      - "src/frequenz/channels/**"
+      - "!src/frequenz/channels/select.py"
+      - "!src/frequenz/channels/util/**"
+
+"part:receivers":
+  - "src/frequenz/channels/util/**"
+
+"part:select":
+  - "src/frequenz/channels/select.py"
