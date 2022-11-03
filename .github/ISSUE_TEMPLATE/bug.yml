@@ -27,21 +27,14 @@ body:
       placeholder: What did you expect to happen.
     validations:
       required: true
-  - type: dropdown
+  - type: input
     id: version
     attributes:
       label: Affected version(s)
       description:
-        Which version(s) have you tried and found this issue in? (if you see
-        this issue **not** happening on any version, please let us know in the
-        "Extra information").
-      multiple: true
-      options:
-        - I don't know (version:❓)
-        - An older version (version:old)
-        - v0.1.x (version:0.1.x)
-    validations:
-      required: true
+        Please add a comma-separated list of the versions affected by this
+        issue.
+      placeholder: 'Example: v0.11.0, v0.12.0'
   - type: dropdown
     id: part
     attributes:
