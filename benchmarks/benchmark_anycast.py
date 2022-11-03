@@ -1,11 +1,7 @@
-"""Benchmark for Anycast channels.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
-
-License
-MIT
-"""
+"""Benchmark for Anycast channels."""
 
 import asyncio
 import csv

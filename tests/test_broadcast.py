@@ -1,11 +1,7 @@
-"""Tests for the Broadcast implementation.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
-
-License
-MIT
-"""
+"""Tests for the Broadcast implementation."""
 
 import asyncio
 from typing import Tuple

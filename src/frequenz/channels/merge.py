@@ -1,11 +1,7 @@
-"""Merge messages coming from channels into a single stream.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
-
-License
-MIT
-"""
+"""Merge messages coming from channels into a single stream."""
 
 import asyncio
 from collections import deque
@@ -17,16 +13,17 @@ from frequenz.channels.base_classes import Receiver, T
 class Merge(Receiver[T]):
     """Merge messages coming from multiple channels into a single stream.
 
-    For example, if there are two channel receivers with the same type, they
-    can be awaited together, and their results merged into a single stream, by
-    using `Merge` like this:
+    Example:
+        For example, if there are two channel receivers with the same type,
+        they can be awaited together, and their results merged into a single
+        stream, by using `Merge` like this:
 
-    ```
-    merge = Merge(receiver1, receiver2)
-    while msg := await merge.receive():
-        # do something with msg
-        pass
-    ```
+        ```python
+        merge = Merge(receiver1, receiver2)
+        while msg := await merge.receive():
+            # do something with msg
+            pass
+        ```
     """
 
     def __init__(self, *args: Receiver[T]) -> None:
@@ -51,8 +48,8 @@ class Merge(Receiver[T]):
         """Wait until there's a message in any of the channels.
 
         Returns:
-            The next message that was received, or None, if all channels have
-            closed.
+            The next message that was received, or `None`, if all channels have
+                closed.
         """
         # we use a while loop to continue to wait for new data, in case the
         # previous `wait` completed because a channel was closed.

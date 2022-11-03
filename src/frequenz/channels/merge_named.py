@@ -1,11 +1,7 @@
-"""Merge messages coming from channels into a single stream containing name of message.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
-
-License
-MIT
-"""
+"""Merge messages coming from channels into a single stream containing name of message."""
 
 import asyncio
 from collections import deque
@@ -39,8 +35,8 @@ class MergeNamed(Receiver[Tuple[str, T]]):
         """Wait until there's a message in any of the channels.
 
         Returns:
-            The next message that was received, or None, if all channels have
-            closed.
+            The next message that was received, or `None`, if all channels have
+                closed.
         """
         # we use a while loop to continue to wait for new data, in case the
         # previous `wait` completed because a channel was closed.

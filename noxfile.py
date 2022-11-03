@@ -1,44 +1,59 @@
-"""Code quality checks.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
-
-License
-MIT
-"""
+"""Code quality checks."""
 
 import nox
+
+check_dirs = [
+    "benchmarks",
+    "docs",
+    "src",
+    "tests",
+]
+
+check_files = [
+    "noxfile.py",
+]
 
 
 @nox.session
 def formatting(session: nox.Session) -> None:
+    """Run black and isort to make sure the format is uniform."""
     session.install("black", "isort")
-    session.run("black", "--check", "src", "tests", "benchmarks")
-    session.run("isort", "--check", "src", "tests", "benchmarks")
+    session.run("black", "--check", *check_dirs, *check_files)
+    session.run("isort", "--check", *check_dirs, *check_files)
 
 
 @nox.session
 def pylint(session: nox.Session) -> None:
-    session.install(".", "pylint", "pytest")
-    session.run("pylint", "src", "tests", "benchmarks")
+    """Run pylint to do lint checks."""
+    session.install("-e", ".[docs]", "pylint", "pytest", "nox")
+    session.run("pylint", *check_dirs, *check_files)
 
 
 @nox.session
 def mypy(session: nox.Session) -> None:
-    session.install(".", "mypy")
-    session.run(
-        "mypy",
-        "--ignore-missing-imports",
+    """Run mypy to check type hints."""
+    session.install("-e", ".[docs]", "pytest", "nox", "mypy")
+
+    common_args = [
         "--namespace-packages",
         "--non-interactive",
         "--install-types",
         "--explicit-package-bases",
-        "--follow-imports=silent",
         "--strict",
-        "src",
-        "tests",
-        "benchmarks",
-    )
+    ]
+
+    pkg_args = []
+    for pkg in check_dirs:
+        if pkg == "src":
+            pkg = "frequenz.channels"
+        pkg_args.append("-p")
+        pkg_args.append(pkg)
+
+    session.run("mypy", *common_args, *pkg_args)
+    session.run("mypy", *common_args, *check_files)
 
 
 @nox.session
@@ -46,7 +61,7 @@ def docstrings(session: nox.Session) -> None:
     """Check docstring tone with pydocstyle and param descriptions with darglint."""
     session.install("pydocstyle", "darglint", "toml")
 
-    session.run("pydocstyle", "src", "tests", "benchmarks")
+    session.run("pydocstyle", *check_dirs, *check_files)
 
     # Darglint checks that function argument and return values are documented.
     # This is needed only for the `src` dir, so we exclude the other top level
@@ -56,6 +71,7 @@ def docstrings(session: nox.Session) -> None:
 
 @nox.session
 def pytest(session: nox.Session) -> None:
+    """Run all tests using pytest."""
     session.install("pytest", "pytest-cov", "pytest-mock", "pytest-asyncio")
     session.install("-e", ".")
     session.run(

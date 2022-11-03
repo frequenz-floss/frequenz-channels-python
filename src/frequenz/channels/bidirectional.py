@@ -1,11 +1,9 @@
-"""An abstraction to provide bi-directional communication between actors.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
+"""An abstraction to provide bi-directional communication between actors."""
 
-License
-MIT
-"""
+from __future__ import annotations
 
 from typing import Generic, Optional
 
@@ -39,7 +37,7 @@ class Bidirectional(Generic[T, U]):
         )
 
     @property
-    def client_handle(self) -> "BidirectionalHandle[T, U]":
+    def client_handle(self) -> BidirectionalHandle[T, U]:
         """Get a BidirectionalHandle for the client to use.
 
         Returns:
@@ -48,8 +46,8 @@ class Bidirectional(Generic[T, U]):
         return self._client_handle
 
     @property
-    def service_handle(self) -> "BidirectionalHandle[U, T]":
-        """Get a BidirectionalHandle for the service to use.
+    def service_handle(self) -> BidirectionalHandle[U, T]:
+        """Get a `BidirectionalHandle` for the service to use.
 
         Returns:
             Object to send/receive messages with.
@@ -58,7 +56,7 @@ class Bidirectional(Generic[T, U]):
 
 
 class BidirectionalHandle(Sender[T], Receiver[U]):
-    """A handle to a Bidirectional instance.
+    """A handle to a [Bidirectional][frequenz.channels.Bidirectional] instance.
 
     It can be used to send/receive values between the client and service.
     """
@@ -80,7 +78,7 @@ class BidirectionalHandle(Sender[T], Receiver[U]):
             msg: The value to send.
 
         Returns:
-            Boolean indicating whether the send was successful.
+            Whether the send was successful or not.
         """
         return await self._sender.send(msg)
 
@@ -88,6 +86,6 @@ class BidirectionalHandle(Sender[T], Receiver[U]):
         """Receive a value from the other side.
 
         Returns:
-            Received value, or None if the channels are closed.
+            Received value, or `None` if the channels are closed.
         """
         return await self._receiver.receive()

@@ -1,11 +1,7 @@
-"""Tests for the Channel implementation.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
-
-License
-MIT
-"""
+"""Tests for the Channel implementation."""
 
 import asyncio
 

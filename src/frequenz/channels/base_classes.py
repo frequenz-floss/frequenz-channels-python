@@ -1,12 +1,9 @@
-"""
-Baseclasses for Channel Sender and Receiver.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
+"""Baseclasses for Channel Sender and Receiver."""
 
-License
-MIT
-"""
+from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from typing import Callable, Generic, Optional, TypeVar
@@ -16,7 +13,7 @@ U = TypeVar("U")
 
 
 class Sender(ABC, Generic[T]):
-    """A base class for channel Sender."""
+    """A channel Sender."""
 
     @abstractmethod
     async def send(self, msg: T) -> bool:
@@ -27,26 +24,26 @@ class Sender(ABC, Generic[T]):
 
         Returns:
             Whether the message was sent, based on whether the channel is open
-            or not.
+                or not.
         """
 
 
 class Receiver(ABC, Generic[T]):
-    """A base class for channel Receiver."""
+    """A channel Receiver."""
 
     @abstractmethod
     async def receive(self) -> Optional[T]:
         """Receive a message from the channel.
 
         Returns:
-            None, if the channel is closed, a message otherwise.
+            `None`, if the channel is closed, a message otherwise.
         """
 
-    def __aiter__(self) -> "Receiver[T]":
+    def __aiter__(self) -> Receiver[T]:
         """Initialize the async iterator over received values.
 
         Returns:
-            self, since no extra setup is needed for the iterator
+            `self`, since no extra setup is needed for the iterator.
         """
         return self
 
@@ -65,26 +62,22 @@ class Receiver(ABC, Generic[T]):
             raise StopAsyncIteration
         return received
 
-    def map(self, call: Callable[[T], U]) -> "Receiver[U]":
+    def map(self, call: Callable[[T], U]) -> Receiver[U]:
         """Return a receiver with `call` applied on incoming messages.
 
         Args:
             call: function to apply on incoming messages.
 
         Returns:
-            A receiver to read results of the given function from.
+            A `Receiver` to read results of the given function from.
         """
         return _Map(self, call)
 
-    def into_peekable(self) -> "Peekable[T]":
+    def into_peekable(self) -> Peekable[T]:
         """Convert the `Receiver` implementation into a `Peekable`.
 
         Once this function has been called, the receiver will no longer be
         usable, and calling `receive` on the receiver will raise an exception.
-
-        This is a default implementation of `into_peekable` that always raises
-        an exception.  This method can be overridden in other implementations
-        of `Receiver.`
 
         Raises:
             NotImplementedError: when a `Receiver` implementation doesn't have
@@ -94,10 +87,11 @@ class Receiver(ABC, Generic[T]):
 
 
 class Peekable(ABC, Generic[T]):
-    """A base class for creating Peekables for peeking into channels.
+    """A channel peekable.
 
-    A Peekable provides a `peek` method that allows the user to get a peek at
-    the latest value in the channel, without consuming anything.
+    A Peekable provides a [peek()][frequenz.channels.Peekable] method that
+    allows the user to get a peek at the latest value in the channel, without
+    consuming anything.
     """
 
     @abstractmethod
@@ -105,13 +99,13 @@ class Peekable(ABC, Generic[T]):
         """Return the latest value that was sent to the channel.
 
         Returns:
-            The latest value received by the channel, and None, if nothing has
-            been sent to the channel yet.
+            The latest value received by the channel, and `None`, if nothing
+                has been sent to the channel yet.
         """
 
 
 class BufferedReceiver(Receiver[T]):
-    """A base class for buffered channel receivers."""
+    """A channel receiver with a buffer."""
 
     @abstractmethod
     def enqueue(self, msg: T) -> None:
@@ -125,7 +119,8 @@ class BufferedReceiver(Receiver[T]):
 class _Map(Receiver[U], Generic[T, U]):
     """Apply a transform function on a channel receiver.
 
-    Has two generic types -
+    Has two generic types:
+
     - The input type: value type in the input receiver.
     - The output type: return type of the transform method.
     """
@@ -145,7 +140,7 @@ class _Map(Receiver[U], Generic[T, U]):
         """Return a transformed message received from the input channel.
 
         Returns:
-            None, if the channel is closed, a message otherwise.
+            `None`, if the channel is closed, a message otherwise.
         """
         msg = await self._recv.receive()
         if msg is None:
