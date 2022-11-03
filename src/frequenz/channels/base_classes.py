@@ -60,9 +60,34 @@ class Sender(ABC, Generic[T]):
 class Receiver(ABC, Generic[T]):
     """A channel Receiver."""
 
-    @abstractmethod
     async def __anext__(self) -> T:
         """Await the next value in the async iteration over received values.
+
+        Returns:
+            The next value received.
+
+        Raises:
+            StopAsyncIteration: if the underlying channel is closed.
+        """
+        await self._ready()
+        return self._get()
+
+    @abstractmethod
+    async def _ready(self) -> None:
+        """Wait until the receiver is ready with a value.
+
+        Once a call to `_ready` has finished, the value should be read with a call to
+        `_get()`.
+
+        Raises:
+            StopAsyncIteration: if the underlying channel is closed.
+        """
+
+    @abstractmethod
+    def _get(self) -> T:
+        """Return the latest value once `_ready` is complete.
+
+        `_ready()` must be called before each call to `_get()`.
 
         Returns:
             The next value received.
@@ -168,11 +193,14 @@ class _Map(Receiver[U], Generic[T, U]):
         self._recv = recv
         self._transform = transform
 
-    async def __anext__(self) -> U:
-        """Return a transformed message received from the input channel.
+    async def _ready(self) -> None:
+        """Wait until the receiver is ready with a value."""
+        await self._recv._ready()  # pylint: disable=protected-access
+
+    def _get(self) -> U:
+        """Return a transformed value once `_ready()` is complete.
 
         Returns:
-            A transformed message.
+            The next value that was received.
         """
-        msg = await self._recv.__anext__()
-        return self._transform(msg)
+        return self._transform(self._recv._get())  # pylint: disable=protected-access

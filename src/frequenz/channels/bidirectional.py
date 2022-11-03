@@ -82,10 +82,14 @@ class BidirectionalHandle(Sender[T], Receiver[U]):
         """
         return await self._sender.send(msg)
 
-    async def __anext__(self) -> U:
-        """Receive a value from the other side.
+    async def _ready(self) -> None:
+        """Wait until the receiver is ready with a value."""
+        await self._receiver._ready()  # pylint: disable=protected-access
+
+    def _get(self) -> U:
+        """Return the latest value once `_ready` is complete.
 
         Returns:
-            Received value, or `None` if the channels are closed.
+            The next value that was received.
         """
-        return await self._receiver.__anext__()
+        return self._receiver._get()  # pylint: disable=protected-access

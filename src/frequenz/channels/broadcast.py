@@ -249,32 +249,32 @@ class Receiver(BufferedReceiver[T]):
         """
         return len(self._q)
 
-    async def __anext__(self) -> T:
-        """Receive a message from the Broadcast channel.
-
-        Waits until there are messages available in the channel and returns
-        them.  If there are no remaining messages in the buffer and the channel
-        is closed, returns `None` immediately.
-
-        If [into_peekable()][frequenz.channels.Receiver.into_peekable] is called
-        on a broadcast `Receiver`, further calls to `receive`, will raise an
-        `EOFError`.
+    async def _ready(self) -> None:
+        """Wait until the receiver is ready with a value.
 
         Raises:
-            StopAsyncIteration: When the channel is closed.
-            EOFError: when the receiver has been converted into a `Peekable`.
-
-        Returns:
-            `None`, if the channel is closed, a message otherwise.
+            EOFError: When called before a call to `_ready()` finishes.
+            StopAsyncIteration: if the underlying channel is closed.
         """
         if not self._active:
             raise EOFError("This receiver is no longer active.")
 
+        # Use a while loop here, to handle spurious wakeups of condition variables.
+        #
+        # The condition also makes sure that if there are already messages ready to be
+        # consumed, then we return immediately.
         while len(self._q) == 0:
             if self._chan.closed:
                 raise StopAsyncIteration()
             async with self._chan.recv_cv:
                 await self._chan.recv_cv.wait()
+
+    def _get(self) -> T:
+        """Return the latest value once `_ready` is complete.
+
+        Returns:
+            The next value that was received.
+        """
         ret = self._q.popleft()
         return ret
 

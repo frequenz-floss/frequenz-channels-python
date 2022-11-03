@@ -5,6 +5,7 @@
 
 import asyncio
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 
 from frequenz.channels.base_classes import Receiver
 
@@ -61,6 +62,7 @@ class Timer(Receiver[datetime]):
         self._stopped = False
         self._interval = timedelta(seconds=interval)
         self._next_msg_time = datetime.now(timezone.utc) + self._interval
+        self._now: Optional[datetime] = None
 
     def reset(self) -> None:
         """Reset the timer to start timing from `now`."""
@@ -75,11 +77,12 @@ class Timer(Receiver[datetime]):
         """
         self._stopped = True
 
-    async def __anext__(self) -> datetime:
+    async def _ready(self) -> None:
         """Return the current time (in UTC) once the next tick is due.
 
         Raises:
-            StopAsyncIteration: When the channel is closed.
+            StopAsyncIteration: if [stop()][frequenz.channels.Timer.stop] has been
+                called on the timer.
 
         Returns:
             The time of the next tick in UTC or `None` if
@@ -90,6 +93,10 @@ class Timer(Receiver[datetime]):
             * **v0.11.0:** Returns a timezone-aware datetime with UTC timezone
               instead of a native datetime object.
         """
+        # if there are messages waiting to be consumed, return immediately.
+        if self._now is not None:
+            return
+
         if self._stopped:
             raise StopAsyncIteration()
         now = datetime.now(timezone.utc)
@@ -98,7 +105,21 @@ class Timer(Receiver[datetime]):
             await asyncio.sleep(diff.total_seconds())
             now = datetime.now(timezone.utc)
             diff = self._next_msg_time - now
+        self._now = now
 
-        self._next_msg_time = now + self._interval
+        self._next_msg_time = self._now + self._interval
 
+    def _get(self) -> datetime:
+        """Return the latest value once `_ready` is complete.
+
+        Raises:
+            EOFError: When called before a call to `_ready()` finishes.
+
+        Returns:
+            The timestamp for the next tick.
+        """
+        if self._now is None:
+            raise EOFError("_get called before _ready finished")
+        now = self._now
+        self._now = None
         return now

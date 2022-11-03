@@ -31,21 +31,18 @@ class MergeNamed(Receiver[Tuple[str, T]]):
         for task in self._pending:
             task.cancel()
 
-    async def __anext__(self) -> Tuple[str, T]:
+    async def _ready(self) -> None:
         """Wait until there's a message in any of the channels.
 
         Raises:
             StopAsyncIteration: When the channel is closed.
-
-        Returns:
-            The next message that was received, or `None`, if all channels have
-                closed.
         """
         # we use a while loop to continue to wait for new data, in case the
         # previous `wait` completed because a channel was closed.
         while True:
+            # if there are messages waiting to be consumed, return immediately.
             if len(self._results) > 0:
-                return self._results.popleft()
+                return
 
             if len(self._pending) == 0:
                 raise StopAsyncIteration()
@@ -60,5 +57,20 @@ class MergeNamed(Receiver[Tuple[str, T]]):
                 result = item.result()
                 self._results.append((name, result))
                 self._pending.add(
+                    # pylint: disable=unnecessary-dunder-call
                     asyncio.create_task(self._receivers[name].__anext__(), name=name)
                 )
+
+    def _get(self) -> Tuple[str, T]:
+        """Return the latest value once `_ready` is complete.
+
+        Raises:
+            EOFError: When called before a call to `_ready()` finishes.
+
+        Returns:
+            The next value that was received, along with its name.
+        """
+        if not self._results:
+            raise EOFError("_get called before _ready finished.")
+
+        return self._results.popleft()

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from asyncio import Condition
 from collections import deque
-from typing import Deque, Generic
+from typing import Deque, Generic, Optional
 
 from frequenz.channels.base_classes import Receiver as BaseReceiver
 from frequenz.channels.base_classes import Sender as BaseSender
@@ -162,26 +162,38 @@ class Receiver(BaseReceiver[T]):
             chan: A reference to the channel that this receiver belongs to.
         """
         self._chan = chan
+        self._next: Optional[T] = None
 
-    async def __anext__(self) -> T:
-        """Receive a message from the channel.
-
-        Waits for an message to become available, and returns that message.
-        When there are multiple receivers for the channel, only one receiver
-        will receive each message.
+    async def _ready(self) -> None:
+        """Wait until the receiver is ready with a value.
 
         Raises:
-            StopAsyncIteration: When the channel is closed.
-
-        Returns:
-            The received message.
+            StopAsyncIteration: if the underlying channel is closed.
         """
+        # if a message is already ready, then return immediately.
+        if self._next is not None:
+            return
+
         while len(self._chan.deque) == 0:
             if self._chan.closed:
                 raise StopAsyncIteration()
             async with self._chan.recv_cv:
                 await self._chan.recv_cv.wait()
-        ret = self._chan.deque.popleft()
+        self._next = self._chan.deque.popleft()
         async with self._chan.send_cv:
             self._chan.send_cv.notify(1)
-        return ret
+
+    def _get(self) -> T:
+        """Return the latest value once `_ready()` is complete.
+
+        Raises:
+            EOFError: When called before a call to `_ready()` finishes.
+
+        Returns:
+            The next value that was received.
+        """
+        if self._next is None:
+            raise EOFError("_get was called before a call to _ready finished.")
+        next_val = self._next
+        self._next = None
+        return next_val

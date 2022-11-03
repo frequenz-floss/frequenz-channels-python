@@ -8,6 +8,7 @@ from enum import Enum
 from typing import List, Optional, Set, Union
 
 from watchfiles import Change, awatch
+from watchfiles.main import FileChange
 
 from frequenz.channels.base_classes import Receiver
 
@@ -52,6 +53,7 @@ class FileWatcher(Receiver[pathlib.Path]):
                 and pathlib.Path(path_str).is_file()
             ),
         )
+        self._changes: Set[FileChange] = set()
 
     def __del__(self) -> None:
         """Cleanup registered watches.
@@ -62,7 +64,7 @@ class FileWatcher(Receiver[pathlib.Path]):
         """
         self._stop_event.set()
 
-    async def __anext__(self) -> pathlib.Path:
+    async def _ready(self) -> None:
         """Wait for the next file event and return its path.
 
         Raises:
@@ -71,13 +73,17 @@ class FileWatcher(Receiver[pathlib.Path]):
         Returns:
             Path of next file.
         """
-        while True:
-            changes = await self._awatch.__anext__()
-            for change in changes:
-                # Tuple of (Change, path) returned by watchfiles
-                if change is None or len(change) != 2:
-                    raise StopAsyncIteration()
+        # if there are messages waiting to be consumed, return immediately.
+        if self._changes:
+            return
 
-                _, path_str = change
-                path = pathlib.Path(path_str)
-                return path
+        self._changes = await self._awatch.__anext__()
+
+    def _get(self) -> pathlib.Path:
+        change = self._changes.pop()
+        # Tuple of (Change, path) returned by watchfiles
+        if change is None or len(change) != 2:
+            raise StopAsyncIteration()
+        _, path_str = change
+        path = pathlib.Path(path_str)
+        return path
