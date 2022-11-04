@@ -1,9 +1,7 @@
-Contributing to `frequenz-channels`
-===================================
+# Contributing to `frequenz-channels`
 
 
-Build
-=====
+## Build
 
 You can use `build` to simply build the source and binary distribution:
 
@@ -12,8 +10,7 @@ python -m pip install build
 python -m build
 ```
 
-Local development
-=================
+## Local development
 
 You can use editable installs to develop the project locally (it will install
 all the dependencies too):
@@ -81,8 +78,7 @@ That said, if you want to test the actual website in **your fork**, you can
 always use `mike deploy --push --remote your-fork-remote`, and then access the
 GitHub pages produced for your fork.
 
-Releasing
-=========
+## Releasing
 
 These are the steps to create a new release:
 
