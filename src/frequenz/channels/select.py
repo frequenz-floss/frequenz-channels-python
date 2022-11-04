@@ -30,6 +30,29 @@ class _Selected:
     inner: Optional[Any]
 
 
+@dataclass
+class _ReadyReceiver:
+    """A class for tracking receivers that have a message ready to be read.
+
+    Used to make sure that receivers are not consumed from until messages are accessed
+    by user code, at which point, it will be converted into a `_Selected` object.
+
+    When a channel has closed,  `recv` should be `None`.
+    """
+
+    recv: Optional[Receiver[Any]]
+
+    def get(self) -> _Selected:
+        """Consume a message from the receiver and return a `_Selected` object.
+
+        Returns:
+            An instance of `_Selected` holding a value from the receiver.
+        """
+        if self.recv is None:
+            return _Selected(None)
+        return _Selected(self.recv._get())  # pylint: disable=protected-access
+
+
 class Select:
     """Select the next available message from a group of Receivers.
 
@@ -67,16 +90,16 @@ class Select:
             **kwargs: sequence of receivers
         """
         self._receivers = kwargs
-        self._pending: Set[asyncio.Task[Any]] = set()
+        self._pending: Set[asyncio.Task[None]] = set()
 
         for name, recv in self._receivers.items():
             # can replace __anext__() to anext() (Only Python 3.10>=)
-            msg = recv.__anext__()  # pylint: disable=unnecessary-dunder-call
-            self._pending.add(asyncio.create_task(msg, name=name))  # type: ignore
+            ready = recv._ready()  # pylint: disable=unnecessary-dunder-call
+            self._pending.add(asyncio.create_task(ready, name=name))
 
         self._ready_count = 0
         self._prev_ready_count = 0
-        self._result: Dict[str, Optional[_Selected]] = {
+        self._result: Dict[str, Optional[_ReadyReceiver]] = {
             name: None for name in self._receivers
         }
 
@@ -100,6 +123,8 @@ class Select:
                 for name, value in self._result.items():
                     if value is not None:
                         dropped_names.append(name)
+                        if value.recv is not None:
+                            value.recv._get()  # pylint: disable=protected-access
                         self._result[name] = None
                 self._ready_count = 0
                 self._prev_ready_count = 0
@@ -123,20 +148,19 @@ class Select:
         )
         for item in done:
             name = item.get_name()
+            recv = self._receivers[name]
             if isinstance(item.exception(), StopAsyncIteration):
                 result = None
             else:
-                result = item.result()
+                result = recv
             self._ready_count += 1
-            self._result[name] = _Selected(result)
+            self._result[name] = _ReadyReceiver(result)
             # if channel or Receiver is closed
             # don't add a task for it again.
             if result is None:
                 continue
-            msg = self._receivers[  # pylint: disable=unnecessary-dunder-call
-                name
-            ].__anext__()
-            self._pending.add(asyncio.create_task(msg, name=name))  # type: ignore
+            ready = recv._ready()  # pylint: disable=protected-access
+            self._pending.add(asyncio.create_task(ready, name=name))
         return True
 
     def __getattr__(self, name: str) -> Optional[Any]:
@@ -157,4 +181,4 @@ class Select:
             return result
         self._result[name] = None
         self._ready_count -= 1
-        return result
+        return result.get()
