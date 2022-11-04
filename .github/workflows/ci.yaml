@@ -174,7 +174,7 @@ jobs:
           VERSION: ${{ steps.mike-metadata.outputs.version }}
           ALIASES: ${{ steps.mike-metadata.outputs.aliases }}
         run: |
-          mike deploy --push "$VERSION" $ALIASES
+          mike deploy --push --update-aliases "$VERSION" $ALIASES
 
   create-github-release:
     needs: ["publish-docs"]
