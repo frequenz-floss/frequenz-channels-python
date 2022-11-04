@@ -3,7 +3,7 @@ name: frequenz-channels-python
 on: [pull_request, push, workflow_dispatch]
 
 env:
-  DEFAULT_PYTHON_VERSION: "3.10"
+  DEFAULT_PYTHON_VERSION: "3.11"
 
 jobs:
   test:
