@@ -1,9 +1,9 @@
 # License: MIT
 # Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-"""Select the first among multiple AsyncIterators.
+"""Select the first among multiple Receivers.
 
-Expects AsyncIterator class to raise `StopAsyncIteration`
+Expects Receiver class to raise `StopAsyncIteration`
 exception once no more messages are expected or the channel
 is closed in case of `Receiver` class.
 """
@@ -11,7 +11,9 @@ is closed in case of `Receiver` class.
 import asyncio
 import logging
 from dataclasses import dataclass
-from typing import Any, AsyncIterator, Dict, List, Optional, Set, TypeVar
+from typing import Any, Dict, List, Optional, Set, TypeVar
+
+from frequenz.channels.base_classes import Receiver
 
 logger = logging.Logger(__name__)
 T = TypeVar("T")
@@ -29,17 +31,17 @@ class _Selected:
 
 
 class Select:
-    """Select the next available message from a group of AsyncIterators.
+    """Select the next available message from a group of Receivers.
 
-    If `Select` was created with more `AsyncIterator` than what are read in
+    If `Select` was created with more `Receiver` than what are read in
     the if-chain after each call to [ready()][frequenz.channels.Select.ready],
-    messages coming in the additional async iterators are dropped, and
+    messages coming in the additional receivers are dropped, and
     a warning message is logged.
 
-    [Receiver][frequenz.channels.Receiver]s also function as `AsyncIterator`.
+    [Receiver][frequenz.channels.Receiver]s also function as `Receiver`.
 
     Example:
-        For example, if there are two async iterators that you want to
+        For example, if there are two receivers that you want to
         simultaneously wait on, this can be done with:
 
         ```python
@@ -58,11 +60,11 @@ class Select:
         ```
     """
 
-    def __init__(self, **kwargs: AsyncIterator[Any]) -> None:
+    def __init__(self, **kwargs: Receiver[Any]) -> None:
         """Create a `Select` instance.
 
         Args:
-            **kwargs: sequence of async iterators
+            **kwargs: sequence of receivers
         """
         self._receivers = kwargs
         self._pending: Set[asyncio.Task[Any]] = set()
@@ -84,10 +86,10 @@ class Select:
             task.cancel()
 
     async def ready(self) -> bool:
-        """Wait until there is a message in any of the async iterators.
+        """Wait until there is a message in any of the receivers.
 
         Returns `True` if there is a message available, and `False` if all
-        async iterators have closed.
+        receivers have closed.
 
         Returns:
             Whether there are further messages or not.
@@ -102,7 +104,7 @@ class Select:
                 self._ready_count = 0
                 self._prev_ready_count = 0
                 logger.warning(
-                    "Select.ready() dropped data from async iterator(s): %s, "
+                    "Select.ready() dropped data from receiver(s): %s, "
                     "because no messages have been fetched since the last call to ready().",
                     dropped_names,
                 )
@@ -127,7 +129,7 @@ class Select:
                 result = item.result()
             self._ready_count += 1
             self._result[name] = _Selected(result)
-            # if channel or AsyncIterator is closed
+            # if channel or Receiver is closed
             # don't add a task for it again.
             if result is None:
                 continue
@@ -138,13 +140,13 @@ class Select:
         return True
 
     def __getattr__(self, name: str) -> Optional[Any]:
-        """Return the latest unread message from a `AsyncIterator`, if available.
+        """Return the latest unread message from a `Receiver`, if available.
 
         Args:
             name: Name of the channel.
 
         Returns:
-            Latest unread message for the specified `AsyncIterator`, or `None`.
+            Latest unread message for the specified `Receiver`, or `None`.
 
         Raises:
             KeyError: when the name was not specified when creating the
