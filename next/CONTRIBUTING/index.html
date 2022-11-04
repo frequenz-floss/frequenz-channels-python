@@ -610,9 +610,54 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Development
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
         Development
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#build" class="md-nav__link">
+    Build
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-development" class="md-nav__link">
+    Local development
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#releasing" class="md-nav__link">
+    Releasing
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -638,6 +683,35 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#build" class="md-nav__link">
+    Build
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#local-development" class="md-nav__link">
+    Local development
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#releasing" class="md-nav__link">
+    Releasing
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -657,12 +731,12 @@
 
 
 <h1 id="contributing-to-frequenz-channels">Contributing to <code>frequenz-channels</code><a class="headerlink" href="#contributing-to-frequenz-channels" title="Permanent link">¤</a></h1>
-<h1 id="build">Build<a class="headerlink" href="#build" title="Permanent link">¤</a></h1>
+<h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">¤</a></h2>
 <p>You can use <code>build</code> to simply build the source and binary distribution:</p>
 <div class="highlight"><pre><span></span><code>python -m pip install build
 python -m build
 </code></pre></div>
-<h1 id="local-development">Local development<a class="headerlink" href="#local-development" title="Permanent link">¤</a></h1>
+<h2 id="local-development">Local development<a class="headerlink" href="#local-development" title="Permanent link">¤</a></h2>
 <p>You can use editable installs to develop the project locally (it will install
 all the dependencies too):</p>
 <div class="highlight"><pre><span></span><code>python -m pip install -e .
@@ -708,7 +782,7 @@ local <code>gh-pages</code> branch to the <code>origin</code> remote.</p>
 <p>That said, if you want to test the actual website in <strong>your fork</strong>, you can
 always use <code>mike deploy --push --remote your-fork-remote</code>, and then access the
 GitHub pages produced for your fork.</p>
-<h1 id="releasing">Releasing<a class="headerlink" href="#releasing" title="Permanent link">¤</a></h1>
+<h2 id="releasing">Releasing<a class="headerlink" href="#releasing" title="Permanent link">¤</a></h2>
 <p>These are the steps to create a new release:</p>
 <ol>
 <li>
