@@ -1,14 +1,11 @@
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
+
 """Select the first among multiple AsyncIterators.
 
 Expects AsyncIterator class to raise `StopAsyncIteration`
 exception once no more messages are expected or the channel
 is closed in case of `Receiver` class.
-
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
-
-License
-MIT
 """
 
 import asyncio
@@ -34,29 +31,31 @@ class _Selected:
 class Select:
     """Select the next available message from a group of AsyncIterators.
 
-    For example, if there are two async iterators that you want to
-    simultaneously wait on, this can be done with:
-
-    ```
-    select = Select(name1 = receiver1, name2 = receiver2)
-    while await select.ready():
-        if msg := select.name1:
-            if val := msg.inner:
-                # do something with `val`
-                pass
-            else:
-                # handle closure of receiver.
-                pass
-        elif msg := select.name2:
-            # do something with `msg.inner`
-            pass
-    ```
-
     If `Select` was created with more `AsyncIterator` than what are read in
-    the if-chain after each call to `ready()`, messages coming in the
-    additional async iterators are dropped, and a warning message is logged.
+    the if-chain after each call to [ready()][frequenz.channels.Select.ready],
+    messages coming in the additional async iterators are dropped, and
+    a warning message is logged.
 
-    `Receivers` also function as AsyncIterator.
+    [Receiver][frequenz.channels.Receiver]s also function as `AsyncIterator`.
+
+    Example:
+        For example, if there are two async iterators that you want to
+        simultaneously wait on, this can be done with:
+
+        ```python
+        select = Select(name1 = receiver1, name2 = receiver2)
+        while await select.ready():
+            if msg := select.name1:
+                if val := msg.inner:
+                    # do something with `val`
+                    pass
+                else:
+                    # handle closure of receiver.
+                    pass
+            elif msg := select.name2:
+                # do something with `msg.inner`
+                pass
+        ```
     """
 
     def __init__(self, **kwargs: AsyncIterator[Any]) -> None:
@@ -87,11 +86,11 @@ class Select:
     async def ready(self) -> bool:
         """Wait until there is a message in any of the async iterators.
 
-        Returns True if there is a message available, and False if all async
-        iterators have closed.
+        Returns `True` if there is a message available, and `False` if all
+        async iterators have closed.
 
         Returns:
-            Boolean indicating whether there are further messages or not.
+            Whether there are further messages or not.
         """
         if self._ready_count > 0:
             if self._ready_count == self._prev_ready_count:
@@ -139,17 +138,17 @@ class Select:
         return True
 
     def __getattr__(self, name: str) -> Optional[Any]:
-        """Return the latest unread message from a AsyncIterator, if available.
+        """Return the latest unread message from a `AsyncIterator`, if available.
 
         Args:
             name: Name of the channel.
 
         Returns:
-            Latest unread message for the specified AsyncIterator, or None.
+            Latest unread message for the specified `AsyncIterator`, or `None`.
 
         Raises:
-            KeyError: when the name was not specified when creating the Select
-                instance.
+            KeyError: when the name was not specified when creating the
+                `Select` instance.
         """
         result = self._result[name]
         if result is None:

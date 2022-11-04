@@ -1,11 +1,8 @@
-"""Tests for the MergeNamed implementation.
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-Copyright
-Copyright © 2022 Frequenz Energy-as-a-Service GmbH
+"""Tests for the MergeNamed implementation."""
 
-License
-MIT
-"""
 import asyncio
 from typing import List, Tuple
 
