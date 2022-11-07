@@ -26,7 +26,7 @@ async def test_merge() -> None:
 
     merge = Merge(chan1.get_receiver(), chan2.get_receiver())
     results: List[int] = []
-    while item := await merge.receive():
+    async for item in merge:
         results.append(item)
     await senders
     for ctr in range(5):
