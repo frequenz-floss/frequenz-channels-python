@@ -217,3 +217,25 @@ async def test_broadcast_map() -> None:
 
     assert (await receiver.receive()) is False
     assert (await receiver.receive()) is True
+
+
+async def test_broadcast_receiver_drop() -> None:
+    """Ensure deleted receivers get cleaned up."""
+    chan = Broadcast[int]("input-chan")
+    sender = chan.get_sender()
+
+    receiver1 = chan.get_receiver()
+    receiver2 = chan.get_receiver()
+
+    await sender.send(10)
+
+    assert 10 == await receiver1.receive()
+    assert 10 == await receiver2.receive()
+
+    assert len(chan.receivers) == 2
+
+    del receiver2
+
+    await sender.send(20)
+
+    assert len(chan.receivers) == 1
