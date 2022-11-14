@@ -11,7 +11,17 @@ is closed in case of `Receiver` class.
 import asyncio
 import logging
 from dataclasses import dataclass
-from typing import Any, AsyncIterator, Dict, List, Optional, Set, TypeVar
+from typing import (
+    Any,
+    AsyncIterable,
+    AsyncIterator,
+    Dict,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    TypeVar,
+)
 
 logger = logging.Logger(__name__)
 T = TypeVar("T")
@@ -25,7 +35,9 @@ class _Selected:
     receiver gets closed.
     """
 
-    inner: Optional[Any]
+    origin: AsyncIterator[Any]
+    name: str
+    result: Optional[Any]
 
 
 class Select:
@@ -65,25 +77,31 @@ class Select:
             **kwargs: sequence of async iterators
         """
         self._receivers = kwargs
-        self._pending: Set[asyncio.Task[Any]] = set()
+        self._pending: Dict[str, asyncio.Task[Any]] = dict()
 
         for name, recv in self._receivers.items():
-            # can replace __anext__() to anext() (Only Python 3.10>=)
-            msg = recv.__anext__()  # pylint: disable=unnecessary-dunder-call
-            self._pending.add(asyncio.create_task(msg, name=name))  # type: ignore
-
-        self._ready_count = 0
-        self._prev_ready_count = 0
-        self._result: Dict[str, Optional[_Selected]] = {
-            name: None for name in self._receivers
-        }
+            self._add_pending(name, recv)
 
     def __del__(self) -> None:
         """Cleanup any pending tasks."""
-        for task in self._pending:
+        for task in self._pending.values():
             task.cancel()
 
-    async def ready(self) -> bool:
+    def _add_pending(self, name: str, recv: AsyncIterator[Any]) -> None:
+        async def pending_fun(name: str, recv: AsyncIterator[Any]) -> Tuple[str, Any]:
+            try:
+                # can replace __anext__() to anext() (Only Python 3.10>=)
+                result = (
+                    await recv.__anext__()
+                )  # pylint: disable=unnecessary-dunder-call
+            except StopAsyncIteration:
+                result = None
+            return name, result
+
+        assert name not in self._pending
+        self._pending[name] = asyncio.create_task(pending_fun(name, recv), name=name)
+
+    async def ready(self) -> AsyncIterable[Any]:
         """Wait until there is a message in any of the async iterators.
 
         Returns `True` if there is a message available, and `False` if all
@@ -92,67 +110,15 @@ class Select:
         Returns:
             Whether there are further messages or not.
         """
-        if self._ready_count > 0:
-            if self._ready_count == self._prev_ready_count:
-                dropped_names: List[str] = []
-                for name, value in self._result.items():
-                    if value is not None:
-                        dropped_names.append(name)
-                        self._result[name] = None
-                self._ready_count = 0
-                self._prev_ready_count = 0
-                logger.warning(
-                    "Select.ready() dropped data from async iterator(s): %s, "
-                    "because no messages have been fetched since the last call to ready().",
-                    dropped_names,
-                )
-            else:
-                self._prev_ready_count = self._ready_count
-                return True
-        if len(self._pending) == 0:
-            return False
-
-        # once all the pending messages have been consumed, reset the
-        # `_prev_ready_count` as well, and wait for new messages.
-        self._prev_ready_count = 0
-
-        done, self._pending = await asyncio.wait(
-            self._pending, return_when=asyncio.FIRST_COMPLETED
-        )
-        for item in done:
-            name = item.get_name()
-            if isinstance(item.exception(), StopAsyncIteration):
-                result = None
-            else:
-                result = item.result()
-            self._ready_count += 1
-            self._result[name] = _Selected(result)
+        print(f"PENDING: {[t.get_name() for t in self._pending.values()]}")
+        while coro := next(asyncio.as_completed(self._pending.values()), None):
+            name, result = await coro
+            # Remove the done task from the pending
+            del self._pending[name]
+            print(f'>>> ready: {name=} {result=}')
+            yield _Selected(origin=self._receivers[name], name=name, result=result)
             # if channel or AsyncIterator is closed
             # don't add a task for it again.
-            if result is None:
-                continue
-            msg = self._receivers[  # pylint: disable=unnecessary-dunder-call
-                name
-            ].__anext__()
-            self._pending.add(asyncio.create_task(msg, name=name))  # type: ignore
-        return True
-
-    def __getattr__(self, name: str) -> Optional[Any]:
-        """Return the latest unread message from a `AsyncIterator`, if available.
-
-        Args:
-            name: Name of the channel.
-
-        Returns:
-            Latest unread message for the specified `AsyncIterator`, or `None`.
-
-        Raises:
-            KeyError: when the name was not specified when creating the
-                `Select` instance.
-        """
-        result = self._result[name]
-        if result is None:
-            return result
-        self._result[name] = None
-        self._ready_count -= 1
-        return result
+            if result is not None:
+                self._add_pending(name, self._receivers[name])
+            print(f"PENDING: {[t.get_name() for t in self._pending.values()]}")
