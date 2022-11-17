@@ -6,7 +6,7 @@
 import asyncio
 import logging
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from frequenz.channels import Anycast, Select, Sender, Timer
@@ -30,13 +30,13 @@ async def test_timer() -> None:
     ]
     fail_count = 0
     for test_case in test_cases:
-        start = datetime.now()
+        start = datetime.now(timezone.utc)
         count = 0
         async for _ in Timer(test_case.delta):
             count += 1
             if count >= test_case.count:
                 break
-        actual_duration = (datetime.now() - start).total_seconds()
+        actual_duration = (datetime.now(timezone.utc) - start).total_seconds()
         expected_duration = test_case.delta * test_case.count
         tolerance = expected_duration * 0.1
 
@@ -72,7 +72,7 @@ async def test_timer_reset() -> None:
     senders = asyncio.create_task(send(chan1.get_sender()))
     select = Select(msg=chan1.get_receiver(), timer=timer)
 
-    start_ts = datetime.now()
+    start_ts = datetime.now(timezone.utc)
     stop_ts: Optional[datetime] = None
     while await select.ready():
         if select.msg:

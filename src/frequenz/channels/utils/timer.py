@@ -4,7 +4,7 @@
 """A timer receiver that returns the timestamp every `interval`."""
 
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from frequenz.channels.base_classes import Receiver
@@ -14,6 +14,8 @@ class Timer(Receiver[datetime]):
     """A timer receiver that returns the timestamp every `interval` seconds.
 
     Primarily for use with [Select][frequenz.channels.Select].
+
+    The timestamp generated is a timezone-aware datetime using UTC as timezone.
 
     Example:
         When you want something to happen with a fixed period:
@@ -59,11 +61,11 @@ class Timer(Receiver[datetime]):
         """
         self._stopped = False
         self._interval = timedelta(seconds=interval)
-        self._next_msg_time = datetime.now() + self._interval
+        self._next_msg_time = datetime.now(timezone.utc) + self._interval
 
     def reset(self) -> None:
         """Reset the timer to start timing from `now`."""
-        self._next_msg_time = datetime.now() + self._interval
+        self._next_msg_time = datetime.now(timezone.utc) + self._interval
 
     def stop(self) -> None:
         """Stop the timer.
@@ -75,20 +77,24 @@ class Timer(Receiver[datetime]):
         self._stopped = True
 
     async def receive(self) -> Optional[datetime]:
-        """Return the current time once the next tick is due.
+        """Return the current time (in UTC) once the next tick is due.
 
         Returns:
-            The time of the next tick or `None` if
+            The time of the next tick in UTC or `None` if
                 [stop()][frequenz.channels.Timer.stop] has been called on the
                 timer.
+
+        Changelog:
+            * **v0.11.0:** Returns a timezone-aware datetime with UTC timezone
+              instead of a native datetime object.
         """
         if self._stopped:
             return None
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         diff = self._next_msg_time - now
         while diff.total_seconds() > 0:
             await asyncio.sleep(diff.total_seconds())
-            now = datetime.now()
+            now = datetime.now(timezone.utc)
             diff = self._next_msg_time - now
 
         self._next_msg_time = now + self._interval
