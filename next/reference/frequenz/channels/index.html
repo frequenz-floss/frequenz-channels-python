@@ -2582,8 +2582,7 @@ simultaneously using <a class="autorefs autorefs-internal" href="#frequenz.chann
 
         <details class="quote">
           <summary>Source code in <code>frequenz/channels/broadcast.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 22</span>
-<span class="normal"> 23</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 23</span>
 <span class="normal"> 24</span>
 <span class="normal"> 25</span>
 <span class="normal"> 26</span>
@@ -2708,17 +2707,7 @@ simultaneously using <a class="autorefs autorefs-internal" href="#frequenz.chann
 <span class="normal">145</span>
 <span class="normal">146</span>
 <span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Broadcast</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Broadcast</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;A channel to broadcast messages to multiple receivers.</span>
 
 <span class="sd">    `Broadcast` channels can have multiple senders and multiple receivers. Each</span>
@@ -2780,7 +2769,7 @@ simultaneously using <a class="autorefs autorefs-internal" href="#frequenz.chann
         <span class="bp">self</span><span class="o">.</span><span class="n">_resend_latest</span> <span class="o">=</span> <span class="n">resend_latest</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">recv_cv</span><span class="p">:</span> <span class="n">Condition</span> <span class="o">=</span> <span class="n">Condition</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">UUID</span><span class="p">,</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">UUID</span><span class="p">,</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ReferenceType</span><span class="p">[</span><span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_latest</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -2799,17 +2788,6 @@ simultaneously using <a class="autorefs autorefs-internal" href="#frequenz.chann
         <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">recv_cv</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">recv_cv</span><span class="o">.</span><span class="n">notify_all</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">_drop_receiver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uuid</span><span class="p">:</span> <span class="n">UUID</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="sd">&quot;&quot;&quot;Drop a specific receiver from the list of broadcast receivers.</span>
-
-<span class="sd">        Called from the destructors of receivers.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            uuid: a uuid identifying the receiver to be dropped.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">uuid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">:</span>
-            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">[</span><span class="n">uuid</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">get_sender</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sender</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Create a new broadcast sender.</span>
@@ -2839,7 +2817,7 @@ simultaneously using <a class="autorefs autorefs-internal" href="#frequenz.chann
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span>
         <span class="n">recv</span><span class="p">:</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="n">Receiver</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">maxsize</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">[</span><span class="n">uuid</span><span class="p">]</span> <span class="o">=</span> <span class="n">recv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">[</span><span class="n">uuid</span><span class="p">]</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ref</span><span class="p">(</span><span class="n">recv</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resend_latest</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_latest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">recv</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_latest</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">recv</span>
@@ -2931,8 +2909,7 @@ to wait for the next message on the channel to arrive.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/broadcast.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">67</span>
-<span class="normal">68</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">68</span>
 <span class="normal">69</span>
 <span class="normal">70</span>
 <span class="normal">71</span>
@@ -2950,7 +2927,8 @@ to wait for the next message on the channel to arrive.</p>
 <span class="normal">83</span>
 <span class="normal">84</span>
 <span class="normal">85</span>
-<span class="normal">86</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resend_latest</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">86</span>
+<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">resend_latest</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Create a Broadcast channel.</span>
 
 <span class="sd">    Args:</span>
@@ -2967,7 +2945,7 @@ to wait for the next message on the channel to arrive.</p>
     <span class="bp">self</span><span class="o">.</span><span class="n">_resend_latest</span> <span class="o">=</span> <span class="n">resend_latest</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">recv_cv</span><span class="p">:</span> <span class="n">Condition</span> <span class="o">=</span> <span class="n">Condition</span><span class="p">()</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">UUID</span><span class="p">,</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="n">UUID</span><span class="p">,</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ReferenceType</span><span class="p">[</span><span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_latest</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
@@ -3002,8 +2980,7 @@ immediately.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/broadcast.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 88</span>
-<span class="normal"> 89</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 89</span>
 <span class="normal"> 90</span>
 <span class="normal"> 91</span>
 <span class="normal"> 92</span>
@@ -3016,7 +2993,8 @@ immediately.</p>
 <span class="normal"> 99</span>
 <span class="normal">100</span>
 <span class="normal">101</span>
-<span class="normal">102</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">102</span>
+<span class="normal">103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Close the Broadcast channel.</span>
 
 <span class="sd">    Any further attempts to [send()][frequenz.channels.Sender.send] data</span>
@@ -3077,17 +3055,17 @@ without consuming anything.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/broadcast.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_peekable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Peekable</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_peekable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Peekable</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Create a new Peekable for the broadcast channel.</span>
 
 <span class="sd">    A Peekable provides a [peek()][frequenz.channels.Peekable.peek] method</span>
@@ -3187,7 +3165,17 @@ get dropped just in this receiver.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/broadcast.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">123</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
 <span class="normal">124</span>
 <span class="normal">125</span>
 <span class="normal">126</span>
@@ -3200,17 +3188,7 @@ get dropped just in this receiver.</p>
 <span class="normal">133</span>
 <span class="normal">134</span>
 <span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_receiver</span><span class="p">(</span>
+<span class="normal">136</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_receiver</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">maxsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Create a new broadcast receiver.</span>
@@ -3230,7 +3208,7 @@ get dropped just in this receiver.</p>
     <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">uuid</span><span class="p">)</span>
     <span class="n">recv</span><span class="p">:</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="n">Receiver</span><span class="p">(</span><span class="n">uuid</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">maxsize</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
-    <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">[</span><span class="n">uuid</span><span class="p">]</span> <span class="o">=</span> <span class="n">recv</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">receivers</span><span class="p">[</span><span class="n">uuid</span><span class="p">]</span> <span class="o">=</span> <span class="n">weakref</span><span class="o">.</span><span class="n">ref</span><span class="p">(</span><span class="n">recv</span><span class="p">)</span>
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resend_latest</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_latest</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">recv</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_latest</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">recv</span>
@@ -3277,13 +3255,13 @@ get dropped just in this receiver.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/broadcast.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_sender</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sender</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_sender</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sender</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Create a new broadcast sender.</span>
 
 <span class="sd">    Returns:</span>
@@ -5152,8 +5130,8 @@ a custom <code>get_peekable</code> implementation.</p>
 <code class="highlight language-python"><span class="n">receive</span><span class="p">()</span></code>
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#frequenz.channels.base_classes.Receiver.receive" class="headerlink" title="Permanent link">¤</a></h6>
@@ -5998,8 +5976,8 @@ async iterators have closed.</p>
 <code class="highlight language-python"><span class="n">send</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></code>
   
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
+      <small class="doc doc-label doc-label-abstractmethod"><code>abstractmethod</code></small>
   </span>
 
 <a href="#frequenz.channels.base_classes.Sender.send" class="headerlink" title="Permanent link">¤</a></h6>
