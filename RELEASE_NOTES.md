@@ -20,9 +20,11 @@ time.
 
 ## Bug Fixes
 
+* [`Broadcast`] receivers now get cleaned up once they go out of scope.
+
 * [`Timer`] now returns [timezone-aware] `datetime` objects using UTC as
   timezone.
 
-
+[`Broadcast`]: https://frequenz-floss.github.io/frequenz-channels-python/v0.11/reference/frequenz/channels/#frequenz.channels.Broadcast
 [`Timer`]: https://frequenz-floss.github.io/frequenz-channels-python/v0.11/reference/frequenz/channels/#frequenz.channels.Timer
 [timezone-aware]: https://docs.python.org/3/library/datetime.html#aware-and-naive-objects

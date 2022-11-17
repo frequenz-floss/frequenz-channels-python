@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import logging
+import weakref
 from asyncio import Condition
 from collections import deque
 from typing import Deque, Dict, Generic, Optional
@@ -81,7 +82,7 @@ class Broadcast(Generic[T]):
         self._resend_latest = resend_latest
 
         self.recv_cv: Condition = Condition()
-        self.receivers: Dict[UUID, Receiver[T]] = {}
+        self.receivers: Dict[UUID, weakref.ReferenceType[Receiver[T]]] = {}
         self.closed: bool = False
         self._latest: Optional[T] = None
 
@@ -100,17 +101,6 @@ class Broadcast(Generic[T]):
         self.closed = True
         async with self.recv_cv:
             self.recv_cv.notify_all()
-
-    def _drop_receiver(self, uuid: UUID) -> None:
-        """Drop a specific receiver from the list of broadcast receivers.
-
-        Called from the destructors of receivers.
-
-        Args:
-            uuid: a uuid identifying the receiver to be dropped.
-        """
-        if uuid in self.receivers:
-            del self.receivers[uuid]
 
     def get_sender(self) -> Sender[T]:
         """Create a new broadcast sender.
@@ -140,7 +130,7 @@ class Broadcast(Generic[T]):
         if name is None:
             name = str(uuid)
         recv: Receiver[T] = Receiver(uuid, name, maxsize, self)
-        self.receivers[uuid] = recv
+        self.receivers[uuid] = weakref.ref(recv)
         if self._resend_latest and self._latest is not None:
             recv.enqueue(self._latest)
         return recv
@@ -188,8 +178,15 @@ class Sender(BaseSender[T]):
             return False
         # pylint: disable=protected-access
         self._chan._latest = msg
-        for recv in self._chan.receivers.values():
+        stale_refs = []
+        for name, recv_ref in self._chan.receivers.items():
+            recv = recv_ref()
+            if recv is None:
+                stale_refs.append(name)
+                continue
             recv.enqueue(msg)
+        for name in stale_refs:
+            del self._chan.receivers[name]
         async with self._chan.recv_cv:
             self._chan.recv_cv.notify_all()
         return True
@@ -224,11 +221,6 @@ class Receiver(BufferedReceiver[T]):
         self._q: Deque[T] = deque(maxlen=maxsize)
 
         self._active = True
-
-    def __del__(self) -> None:
-        """Drop this receiver from the list of Broadcast receivers."""
-        if self._active:
-            self._chan._drop_receiver(self._uuid)
 
     def enqueue(self, msg: T) -> None:
         """Put a message into this receiver's queue.
@@ -295,7 +287,6 @@ class Receiver(BufferedReceiver[T]):
         Returns:
             A `Peekable` instance.
         """
-        self._chan._drop_receiver(self._uuid)  # pylint: disable=protected-access
         self._active = False
         return Peekable(self._chan)
 
