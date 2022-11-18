@@ -88,6 +88,7 @@ class FileWatcher(Receiver[pathlib.Path]):
         Returns:
             The next change that was received.
         """
+        assert self._changes, "calls to `consume()` must be follow a call to `ready()`"
         change = self._changes.pop()
         # Tuple of (Change, path) returned by watchfiles
         if change is None or len(change) != 2:

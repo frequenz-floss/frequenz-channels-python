@@ -70,7 +70,6 @@ class MergeNamed(Receiver[Tuple[str, T]]):
         Returns:
             The next value that was received, along with its name.
         """
-        if not self._results:
-            raise EOFError("_get called before _ready finished.")
+        assert self._results, "calls to `consume()` must be follow a call to `ready()`"
 
         return self._results.popleft()

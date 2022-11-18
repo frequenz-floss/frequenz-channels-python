@@ -192,10 +192,9 @@ class Receiver(BaseReceiver[T]):
         Returns:
             The next value that was received.
         """
-        if self._next is None:
-            raise EOFError(
-                "`consume()` was called before a call to `ready()` finished."
-            )
+        assert (
+            self._next is not None
+        ), "calls to `consume()` must be follow a call to `ready()`"
         next_val = self._next
         self._next = None
         return next_val

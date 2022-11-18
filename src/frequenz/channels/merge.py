@@ -83,7 +83,6 @@ class Merge(Receiver[T]):
         Returns:
             The next value that was received.
         """
-        if not self._results:
-            raise EOFError("`consume` called before `ready` finished.")
+        assert self._results, "calls to `consume()` must be follow a call to `ready()`"
 
         return self._results.popleft()

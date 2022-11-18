@@ -275,6 +275,7 @@ class Receiver(BufferedReceiver[T]):
         Returns:
             The next value that was received.
         """
+        assert self._q, "calls to `consume()` must be follow a call to `ready()`"
         ret = self._q.popleft()
         return ret
 

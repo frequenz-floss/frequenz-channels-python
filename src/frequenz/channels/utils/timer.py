@@ -118,8 +118,9 @@ class Timer(Receiver[datetime]):
             * **v0.11.0:** Returns a timezone-aware datetime with UTC timezone
               instead of a native datetime object.
         """
-        if self._now is None:
-            raise EOFError("`consume` called before `ready` finished")
+        assert (
+            self._now is not None
+        ), "calls to `consume()` must be follow a call to `ready()`"
         now = self._now
         self._now = None
         return now
