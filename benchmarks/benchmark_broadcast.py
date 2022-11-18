@@ -62,7 +62,7 @@ async def benchmark_broadcast(
     """
     channels: List[Broadcast[int]] = [Broadcast("meter") for _ in range(num_channels)]
     senders: List[asyncio.Task[Any]] = [
-        asyncio.create_task(send_msg(num_messages, bcast.get_sender()))
+        asyncio.create_task(send_msg(num_messages, bcast.new_sender()))
         for bcast in channels
     ]
 
@@ -75,7 +75,7 @@ async def benchmark_broadcast(
     receivers = []
     for bcast in channels:
         for _ in range(num_receivers):
-            receivers.append(update_tracker_on_receive(bcast.get_receiver()))
+            receivers.append(update_tracker_on_receive(bcast.new_receiver()))
 
     receivers_runs = asyncio.gather(*receivers)
 
@@ -104,11 +104,11 @@ async def benchmark_single_task_broadcast(
         int: Total number of messages received by all receivers.
     """
     channels: List[Broadcast[int]] = [Broadcast("meter") for _ in range(num_channels)]
-    senders = [b.get_sender() for b in channels]
+    senders = [b.new_sender() for b in channels]
     recv_tracker = 0
 
     receivers = [
-        [bcast.get_receiver() for _ in range(num_receivers)] for bcast in channels
+        [bcast.new_receiver() for _ in range(num_receivers)] for bcast in channels
     ]
 
     for ctr in range(num_messages):

@@ -22,8 +22,8 @@ async def test_mergenamed() -> None:
         await ch2.send(1000)
         await chan2.close()
 
-    senders = asyncio.create_task(send(chan1.get_sender(), chan2.get_sender()))
-    recvs = {"chan1": chan1.get_receiver(), "chan2": chan2.get_receiver()}
+    senders = asyncio.create_task(send(chan1.new_sender(), chan2.new_sender()))
+    recvs = {"chan1": chan1.new_receiver(), "chan2": chan2.new_receiver()}
 
     merge = MergeNamed(**recvs)
     results: List[Tuple[str, int]] = []

@@ -69,8 +69,8 @@ async def test_timer_reset() -> None:
 
     timer = Timer(timer_delta)
 
-    senders = asyncio.create_task(send(chan1.get_sender()))
-    select = Select(msg=chan1.get_receiver(), timer=timer)
+    senders = asyncio.create_task(send(chan1.new_sender()))
+    select = Select(msg=chan1.new_receiver(), timer=timer)
 
     start_ts = datetime.now(timezone.utc)
     stop_ts: Optional[datetime] = None

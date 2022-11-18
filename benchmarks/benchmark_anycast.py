@@ -42,7 +42,7 @@ async def benchmark_anycast(
     """
     channels: List[Anycast[int]] = [Anycast(buffer_size) for _ in range(num_channels)]
     senders = [
-        asyncio.create_task(send_msg(num_messages, bcast.get_sender()))
+        asyncio.create_task(send_msg(num_messages, bcast.new_sender()))
         for bcast in channels
     ]
 
@@ -57,7 +57,7 @@ async def benchmark_anycast(
     receivers = []
     for acast in channels:
         for _ in range(num_receivers):
-            receivers.append(update_tracker_on_receive(acast.get_receiver()))
+            receivers.append(update_tracker_on_receive(acast.new_receiver()))
 
     receivers_runs = asyncio.gather(*receivers)
 

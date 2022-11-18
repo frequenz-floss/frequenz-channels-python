@@ -9,10 +9,14 @@ https://frequenz-floss.github.io/frequenz-channels-python/
 For now the documentation is pretty scarce but we will be improving it with
 time.
 
-## Upgrading
+## Upgrading (breaking changes)
 
 * You need to make sure to use [timezone-aware] `datetime` objects when using
   the timestamp returned by [`Timer`], Otherwise you will get an exception.
+
+* Channels methods `get_receiver()` and `get_sender()` have been renamed to
+  `new_receiver()` and `new_sender()` respectively. This is to make it more
+  clear that new objects are being created.
 
 ## New Features
 

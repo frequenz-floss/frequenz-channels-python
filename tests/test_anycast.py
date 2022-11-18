@@ -43,17 +43,17 @@ async def test_anycast() -> None:
 
     receivers = []
     for ctr in range(num_receivers):
-        receivers.append(update_tracker_on_receive(ctr, acast.get_receiver()))
+        receivers.append(update_tracker_on_receive(ctr, acast.new_receiver()))
 
     # get one more sender and receiver to test channel operations after the
     # channel is closed.
-    after_close_receiver = acast.get_receiver()
-    after_close_sender = acast.get_sender()
+    after_close_receiver = acast.new_receiver()
+    after_close_sender = acast.new_sender()
 
     receivers_runs = asyncio.gather(*receivers)
     senders = []
     for ctr in range(num_senders):
-        senders.append(send_msg(acast.get_sender()))
+        senders.append(send_msg(acast.new_sender()))
 
     await asyncio.gather(*senders)
     await acast.close()
@@ -75,8 +75,8 @@ async def test_anycast_after_close() -> None:
     """Ensure closed channels can't get new messages."""
     acast: Anycast[int] = Anycast()
 
-    receiver = acast.get_receiver()
-    sender = acast.get_sender()
+    receiver = acast.new_receiver()
+    sender = acast.new_sender()
 
     assert await sender.send(2) is True
 
@@ -94,8 +94,8 @@ async def test_anycast_full() -> None:
     timeout = 0.2
     acast: Anycast[int] = Anycast(buffer_size)
 
-    receiver = acast.get_receiver()
-    sender = acast.get_sender()
+    receiver = acast.new_receiver()
+    sender = acast.new_sender()
 
     timeout_at = 0
     for ctr in range(buffer_size + 1):
@@ -137,8 +137,8 @@ async def test_anycast_async_iterator() -> None:
     """Check that the anycast receiver works as an async iterator."""
     acast: Anycast[str] = Anycast()
 
-    sender = acast.get_sender()
-    receiver = acast.get_receiver()
+    sender = acast.new_sender()
+    receiver = acast.new_receiver()
 
     async def send_values() -> None:
         for val in ["one", "two", "three", "four", "five"]:
@@ -159,10 +159,10 @@ async def test_anycast_async_iterator() -> None:
 async def test_anycast_map() -> None:
     """Ensure map runs on all incoming messages."""
     chan = Anycast[int]()
-    sender = chan.get_sender()
+    sender = chan.new_sender()
 
     # transform int receiver into bool receiver.
-    receiver: Receiver[bool] = chan.get_receiver().map(lambda num: num > 10)
+    receiver: Receiver[bool] = chan.new_receiver().map(lambda num: num > 10)
 
     await sender.send(8)
     await sender.send(12)

@@ -141,7 +141,7 @@ class Receiver(ABC, Generic[T]):
 
         Raises:
             NotImplementedError: when a `Receiver` implementation doesn't have
-                a custom `get_peekable` implementation.
+                a custom `into_peekable` implementation.
         """
         raise NotImplementedError("This receiver does not implement `into_peekable`")
 

@@ -22,9 +22,9 @@ async def test_merge() -> None:
         await ch2.send(1000)
         await chan2.close()
 
-    senders = asyncio.create_task(send(chan1.get_sender(), chan2.get_sender()))
+    senders = asyncio.create_task(send(chan1.new_sender(), chan2.new_sender()))
 
-    merge = Merge(chan1.get_receiver(), chan2.get_receiver())
+    merge = Merge(chan1.new_receiver(), chan2.new_receiver())
     results: List[int] = []
     async for item in merge:
         results.append(item)

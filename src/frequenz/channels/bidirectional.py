@@ -28,12 +28,12 @@ class Bidirectional(Generic[T, U]):
         )
 
         self._client_handle = BidirectionalHandle(
-            self._request_channel.get_sender(),
-            self._response_channel.get_receiver(),
+            self._request_channel.new_sender(),
+            self._response_channel.new_receiver(),
         )
         self._service_handle = BidirectionalHandle(
-            self._response_channel.get_sender(),
-            self._request_channel.get_receiver(),
+            self._response_channel.new_sender(),
+            self._request_channel.new_receiver(),
         )
 
     @property
