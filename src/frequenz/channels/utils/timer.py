@@ -77,7 +77,7 @@ class Timer(Receiver[datetime]):
         """
         self._stopped = True
 
-    async def _ready(self) -> None:
+    async def ready(self) -> None:
         """Return the current time (in UTC) once the next tick is due.
 
         Raises:
@@ -88,10 +88,6 @@ class Timer(Receiver[datetime]):
             The time of the next tick in UTC or `None` if
                 [stop()][frequenz.channels.Timer.stop] has been called on the
                 timer.
-
-        Changelog:
-            * **v0.11.0:** Returns a timezone-aware datetime with UTC timezone
-              instead of a native datetime object.
         """
         # if there are messages waiting to be consumed, return immediately.
         if self._now is not None:
@@ -109,17 +105,21 @@ class Timer(Receiver[datetime]):
 
         self._next_msg_time = self._now + self._interval
 
-    def _get(self) -> datetime:
-        """Return the latest value once `_ready` is complete.
+    def consume(self) -> datetime:
+        """Return the latest value once `ready` is complete.
 
         Raises:
-            EOFError: When called before a call to `_ready()` finishes.
+            EOFError: When called before a call to `ready()` finishes.
 
         Returns:
             The timestamp for the next tick.
+
+        Changelog:
+            * **v0.11.0:** Returns a timezone-aware datetime with UTC timezone
+              instead of a native datetime object.
         """
         if self._now is None:
-            raise EOFError("_get called before _ready finished")
+            raise EOFError("`consume` called before `ready` finished")
         now = self._now
         self._now = None
         return now

@@ -31,7 +31,7 @@ class MergeNamed(Receiver[Tuple[str, T]]):
         for task in self._pending:
             task.cancel()
 
-    async def _ready(self) -> None:
+    async def ready(self) -> None:
         """Wait until there's a message in any of the channels.
 
         Raises:
@@ -61,11 +61,11 @@ class MergeNamed(Receiver[Tuple[str, T]]):
                     asyncio.create_task(self._receivers[name].__anext__(), name=name)
                 )
 
-    def _get(self) -> Tuple[str, T]:
-        """Return the latest value once `_ready` is complete.
+    def consume(self) -> Tuple[str, T]:
+        """Return the latest value once `ready` is complete.
 
         Raises:
-            EOFError: When called before a call to `_ready()` finishes.
+            EOFError: When called before a call to `ready()` finishes.
 
         Returns:
             The next value that was received, along with its name.

@@ -164,7 +164,7 @@ class Receiver(BaseReceiver[T]):
         self._chan = chan
         self._next: Optional[T] = None
 
-    async def _ready(self) -> None:
+    async def ready(self) -> None:
         """Wait until the receiver is ready with a value.
 
         Raises:
@@ -183,17 +183,19 @@ class Receiver(BaseReceiver[T]):
         async with self._chan.send_cv:
             self._chan.send_cv.notify(1)
 
-    def _get(self) -> T:
-        """Return the latest value once `_ready()` is complete.
+    def consume(self) -> T:
+        """Return the latest value once `ready()` is complete.
 
         Raises:
-            EOFError: When called before a call to `_ready()` finishes.
+            EOFError: When called before a call to `ready()` finishes.
 
         Returns:
             The next value that was received.
         """
         if self._next is None:
-            raise EOFError("_get was called before a call to _ready finished.")
+            raise EOFError(
+                "`consume()` was called before a call to `ready()` finished."
+            )
         next_val = self._next
         self._next = None
         return next_val

@@ -64,7 +64,7 @@ class FileWatcher(Receiver[pathlib.Path]):
         """
         self._stop_event.set()
 
-    async def _ready(self) -> None:
+    async def ready(self) -> None:
         """Wait for the next file event and return its path.
 
         Raises:
@@ -79,7 +79,15 @@ class FileWatcher(Receiver[pathlib.Path]):
 
         self._changes = await self._awatch.__anext__()
 
-    def _get(self) -> pathlib.Path:
+    def consume(self) -> pathlib.Path:
+        """Return the latest change once `ready` is complete.
+
+        Raises:
+            StopAsyncIteration: When the channel is closed.
+
+        Returns:
+            The next change that was received.
+        """
         change = self._changes.pop()
         # Tuple of (Change, path) returned by watchfiles
         if change is None or len(change) != 2:

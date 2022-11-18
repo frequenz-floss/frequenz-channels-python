@@ -44,7 +44,7 @@ class Merge(Receiver[T]):
         for task in self._pending:
             task.cancel()
 
-    async def _ready(self) -> None:
+    async def ready(self) -> None:
         """Wait until the receiver is ready with a value.
 
         Raises:
@@ -74,16 +74,16 @@ class Merge(Receiver[T]):
                     asyncio.create_task(self._receivers[name].__anext__(), name=name)
                 )
 
-    def _get(self) -> T:
-        """Return the latest value once `_ready` is complete.
+    def consume(self) -> T:
+        """Return the latest value once `ready` is complete.
 
         Raises:
-            EOFError: When called before a call to `_ready()` finishes.
+            EOFError: When called before a call to `ready()` finishes.
 
         Returns:
             The next value that was received.
         """
         if not self._results:
-            raise EOFError("_get called before _ready finished.")
+            raise EOFError("`consume` called before `ready` finished.")
 
         return self._results.popleft()

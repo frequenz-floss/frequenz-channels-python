@@ -69,25 +69,25 @@ class Receiver(ABC, Generic[T]):
         Raises:
             StopAsyncIteration: if the underlying channel is closed.
         """
-        await self._ready()
-        return self._get()
+        await self.ready()
+        return self.consume()
 
     @abstractmethod
-    async def _ready(self) -> None:
+    async def ready(self) -> None:
         """Wait until the receiver is ready with a value.
 
-        Once a call to `_ready` has finished, the value should be read with a call to
-        `_get()`.
+        Once a call to `ready()` has finished, the value should be read with a call to
+        `consume()`.
 
         Raises:
             StopAsyncIteration: if the underlying channel is closed.
         """
 
     @abstractmethod
-    def _get(self) -> T:
-        """Return the latest value once `_ready` is complete.
+    def consume(self) -> T:
+        """Return the latest value once `ready()` is complete.
 
-        `_ready()` must be called before each call to `_get()`.
+        `ready()` must be called before each call to `consume()`.
 
         Returns:
             The next value received.
@@ -193,14 +193,14 @@ class _Map(Receiver[U], Generic[T, U]):
         self._recv = recv
         self._transform = transform
 
-    async def _ready(self) -> None:
+    async def ready(self) -> None:
         """Wait until the receiver is ready with a value."""
-        await self._recv._ready()  # pylint: disable=protected-access
+        await self._recv.ready()  # pylint: disable=protected-access
 
-    def _get(self) -> U:
-        """Return a transformed value once `_ready()` is complete.
+    def consume(self) -> U:
+        """Return a transformed value once `ready()` is complete.
 
         Returns:
             The next value that was received.
         """
-        return self._transform(self._recv._get())  # pylint: disable=protected-access
+        return self._transform(self._recv.consume())  # pylint: disable=protected-access

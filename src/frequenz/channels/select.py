@@ -50,7 +50,7 @@ class _ReadyReceiver:
         """
         if self.recv is None:
             return _Selected(None)
-        return _Selected(self.recv._get())  # pylint: disable=protected-access
+        return _Selected(self.recv.consume())  # pylint: disable=protected-access
 
 
 class Select:
@@ -93,9 +93,7 @@ class Select:
         self._pending: Set[asyncio.Task[None]] = set()
 
         for name, recv in self._receivers.items():
-            # can replace __anext__() to anext() (Only Python 3.10>=)
-            ready = recv._ready()  # pylint: disable=unnecessary-dunder-call
-            self._pending.add(asyncio.create_task(ready, name=name))
+            self._pending.add(asyncio.create_task(recv.ready(), name=name))
 
         self._ready_count = 0
         self._prev_ready_count = 0
@@ -124,7 +122,7 @@ class Select:
                     if value is not None:
                         dropped_names.append(name)
                         if value.recv is not None:
-                            value.recv._get()  # pylint: disable=protected-access
+                            value.recv.consume()
                         self._result[name] = None
                 self._ready_count = 0
                 self._prev_ready_count = 0
@@ -159,7 +157,7 @@ class Select:
             # don't add a task for it again.
             if result is None:
                 continue
-            ready = recv._ready()  # pylint: disable=protected-access
+            ready = recv.ready()
             self._pending.add(asyncio.create_task(ready, name=name))
         return True
 

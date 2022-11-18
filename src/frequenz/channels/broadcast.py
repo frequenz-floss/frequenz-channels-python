@@ -249,11 +249,11 @@ class Receiver(BufferedReceiver[T]):
         """
         return len(self._q)
 
-    async def _ready(self) -> None:
+    async def ready(self) -> None:
         """Wait until the receiver is ready with a value.
 
         Raises:
-            EOFError: When called before a call to `_ready()` finishes.
+            EOFError: When called before a call to `ready()` finishes.
             StopAsyncIteration: if the underlying channel is closed.
         """
         if not self._active:
@@ -269,8 +269,8 @@ class Receiver(BufferedReceiver[T]):
             async with self._chan.recv_cv:
                 await self._chan.recv_cv.wait()
 
-    def _get(self) -> T:
-        """Return the latest value once `_ready` is complete.
+    def consume(self) -> T:
+        """Return the latest value once `ready` is complete.
 
         Returns:
             The next value that was received.

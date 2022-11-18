@@ -82,14 +82,14 @@ class BidirectionalHandle(Sender[T], Receiver[U]):
         """
         return await self._sender.send(msg)
 
-    async def _ready(self) -> None:
+    async def ready(self) -> None:
         """Wait until the receiver is ready with a value."""
-        await self._receiver._ready()  # pylint: disable=protected-access
+        await self._receiver.ready()  # pylint: disable=protected-access
 
-    def _get(self) -> U:
+    def consume(self) -> U:
         """Return the latest value once `_ready` is complete.
 
         Returns:
             The next value that was received.
         """
-        return self._receiver._get()  # pylint: disable=protected-access
+        return self._receiver.consume()  # pylint: disable=protected-access
