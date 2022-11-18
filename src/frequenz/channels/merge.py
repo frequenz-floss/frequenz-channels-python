@@ -7,7 +7,7 @@ import asyncio
 from collections import deque
 from typing import Any, Deque, Set
 
-from frequenz.channels.base_classes import Receiver, T
+from frequenz.channels.base_classes import ChannelClosedError, Receiver, T
 
 
 class Merge(Receiver[T]):
@@ -48,7 +48,7 @@ class Merge(Receiver[T]):
         """Wait until the receiver is ready with a value.
 
         Raises:
-            StopAsyncIteration: if the underlying channel is closed.
+            ChannelClosedError: if the underlying channel is closed.
         """
         # we use a while loop to continue to wait for new data, in case the
         # previous `wait` completed because a channel was closed.
@@ -58,7 +58,7 @@ class Merge(Receiver[T]):
                 return
 
             if len(self._pending) == 0:
-                raise StopAsyncIteration()
+                raise ChannelClosedError()
             done, self._pending = await asyncio.wait(
                 self._pending, return_when=asyncio.FIRST_COMPLETED
             )

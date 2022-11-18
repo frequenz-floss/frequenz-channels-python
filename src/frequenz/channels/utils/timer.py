@@ -7,7 +7,7 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from frequenz.channels.base_classes import Receiver
+from frequenz.channels.base_classes import ChannelClosedError, Receiver
 
 
 class Timer(Receiver[datetime]):
@@ -81,7 +81,7 @@ class Timer(Receiver[datetime]):
         """Return the current time (in UTC) once the next tick is due.
 
         Raises:
-            StopAsyncIteration: if [stop()][frequenz.channels.Timer.stop] has been
+            ChannelClosedError: if [stop()][frequenz.channels.Timer.stop] has been
                 called on the timer.
 
         Returns:
@@ -94,7 +94,7 @@ class Timer(Receiver[datetime]):
             return
 
         if self._stopped:
-            raise StopAsyncIteration()
+            raise ChannelClosedError()
         now = datetime.now(timezone.utc)
         diff = self._next_msg_time - now
         while diff.total_seconds() > 0:

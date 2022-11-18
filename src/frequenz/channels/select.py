@@ -13,7 +13,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Set, TypeVar
 
-from frequenz.channels.base_classes import Receiver
+from frequenz.channels.base_classes import ChannelClosedError, Receiver
 
 logger = logging.Logger(__name__)
 T = TypeVar("T")
@@ -147,7 +147,7 @@ class Select:
         for item in done:
             name = item.get_name()
             recv = self._receivers[name]
-            if isinstance(item.exception(), StopAsyncIteration):
+            if isinstance(item.exception(), ChannelClosedError):
                 result = None
             else:
                 result = recv
@@ -157,8 +157,7 @@ class Select:
             # don't add a task for it again.
             if result is None:
                 continue
-            ready = recv.ready()
-            self._pending.add(asyncio.create_task(ready, name=name))
+            self._pending.add(asyncio.create_task(recv.ready(), name=name))
         return True
 
     def __getattr__(self, name: str) -> Optional[Any]:

@@ -10,7 +10,7 @@ from typing import List, Optional, Set, Union
 from watchfiles import Change, awatch
 from watchfiles.main import FileChange
 
-from frequenz.channels.base_classes import Receiver
+from frequenz.channels.base_classes import ChannelClosedError, Receiver
 
 
 class EventType(Enum):
@@ -83,7 +83,7 @@ class FileWatcher(Receiver[pathlib.Path]):
         """Return the latest change once `ready` is complete.
 
         Raises:
-            StopAsyncIteration: When the channel is closed.
+            ChannelClosedError: When the channel is closed.
 
         Returns:
             The next change that was received.
@@ -92,7 +92,7 @@ class FileWatcher(Receiver[pathlib.Path]):
         change = self._changes.pop()
         # Tuple of (Change, path) returned by watchfiles
         if change is None or len(change) != 2:
-            raise StopAsyncIteration()
+            raise ChannelClosedError()
         _, path_str = change
         path = pathlib.Path(path_str)
         return path

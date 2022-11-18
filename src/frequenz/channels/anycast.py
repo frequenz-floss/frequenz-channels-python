@@ -9,6 +9,7 @@ from asyncio import Condition
 from collections import deque
 from typing import Deque, Generic, Optional
 
+from frequenz.channels.base_classes import ChannelClosedError
 from frequenz.channels.base_classes import Receiver as BaseReceiver
 from frequenz.channels.base_classes import Sender as BaseSender
 from frequenz.channels.base_classes import T
@@ -168,7 +169,7 @@ class Receiver(BaseReceiver[T]):
         """Wait until the receiver is ready with a value.
 
         Raises:
-            StopAsyncIteration: if the underlying channel is closed.
+            ChannelClosedError: if the underlying channel is closed.
         """
         # if a message is already ready, then return immediately.
         if self._next is not None:
@@ -176,7 +177,7 @@ class Receiver(BaseReceiver[T]):
 
         while len(self._chan.deque) == 0:
             if self._chan.closed:
-                raise StopAsyncIteration()
+                raise ChannelClosedError()
             async with self._chan.recv_cv:
                 await self._chan.recv_cv.wait()
         self._next = self._chan.deque.popleft()
@@ -185,9 +186,6 @@ class Receiver(BaseReceiver[T]):
 
     def consume(self) -> T:
         """Return the latest value once `ready()` is complete.
-
-        Raises:
-            EOFError: When called before a call to `ready()` finishes.
 
         Returns:
             The next value that was received.

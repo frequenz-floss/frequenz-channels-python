@@ -69,8 +69,11 @@ class Receiver(ABC, Generic[T]):
         Raises:
             StopAsyncIteration: if the underlying channel is closed.
         """
-        await self.ready()
-        return self.consume()
+        try:
+            await self.ready()
+            return self.consume()
+        except ChannelClosedError as exc:
+            raise StopAsyncIteration() from exc
 
     @abstractmethod
     async def ready(self) -> None:
@@ -80,7 +83,7 @@ class Receiver(ABC, Generic[T]):
         `consume()`.
 
         Raises:
-            StopAsyncIteration: if the underlying channel is closed.
+            ChannelClosedError: if the underlying channel is closed.
         """
 
     @abstractmethod
@@ -93,7 +96,7 @@ class Receiver(ABC, Generic[T]):
             The next value received.
 
         Raises:
-            StopAsyncIteration: if the underlying channel is closed.
+            ChannelClosedError: if the underlying channel is closed.
         """
 
     def __aiter__(self) -> Receiver[T]:

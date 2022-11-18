@@ -12,7 +12,7 @@ from collections import deque
 from typing import Deque, Dict, Generic, Optional
 from uuid import UUID, uuid4
 
-from frequenz.channels.base_classes import BufferedReceiver
+from frequenz.channels.base_classes import BufferedReceiver, ChannelClosedError
 from frequenz.channels.base_classes import Peekable as BasePeekable
 from frequenz.channels.base_classes import Sender as BaseSender
 from frequenz.channels.base_classes import T
@@ -253,8 +253,8 @@ class Receiver(BufferedReceiver[T]):
         """Wait until the receiver is ready with a value.
 
         Raises:
-            EOFError: When called before a call to `ready()` finishes.
-            StopAsyncIteration: if the underlying channel is closed.
+            EOFError: if this receiver is no longer active.
+            ChannelClosedError: if the underlying channel is closed.
         """
         if not self._active:
             raise EOFError("This receiver is no longer active.")
@@ -265,7 +265,7 @@ class Receiver(BufferedReceiver[T]):
         # consumed, then we return immediately.
         while len(self._q) == 0:
             if self._chan.closed:
-                raise StopAsyncIteration()
+                raise ChannelClosedError()
             async with self._chan.recv_cv:
                 await self._chan.recv_cv.wait()
 
