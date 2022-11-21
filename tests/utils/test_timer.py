@@ -9,7 +9,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Optional
 
-from frequenz.channels import Anycast, Select, Sender, Timer
+from frequenz.channels import Anycast, Sender
+from frequenz.channels.util import Select, Timer
 
 logger = logging.Logger(__name__)
 

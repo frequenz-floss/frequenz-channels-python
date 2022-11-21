@@ -12,10 +12,10 @@ from collections import deque
 from typing import Deque, Dict, Generic, Optional
 from uuid import UUID, uuid4
 
-from frequenz.channels.base_classes import BufferedReceiver, ChannelClosedError
-from frequenz.channels.base_classes import Peekable as BasePeekable
-from frequenz.channels.base_classes import Sender as BaseSender
-from frequenz.channels.base_classes import T
+from ._base_classes import BufferedReceiver, ChannelClosedError
+from ._base_classes import Peekable as BasePeekable
+from ._base_classes import Sender as BaseSender
+from ._base_classes import T
 
 logger = logging.Logger(__name__)
 
@@ -32,9 +32,9 @@ class Broadcast(Generic[T]):
     are thread-safe.  Because of this, `Broadcast` channels are thread-safe.
 
     When there are multiple channel receivers, they can be awaited
-    simultaneously using [Select][frequenz.channels.Select],
-    [Merge][frequenz.channels.Merge] or
-    [MergeNamed][frequenz.channels.MergeNamed].
+    simultaneously using [Select][frequenz.channels.util.Select],
+    [Merge][frequenz.channels.util.Merge] or
+    [MergeNamed][frequenz.channels.util.MergeNamed].
 
     Example:
         ``` python

@@ -6,8 +6,8 @@
 import os
 import pathlib
 
-from frequenz.channels import FileWatcher, Select, Timer
-from frequenz.channels.utils.file_watcher import EventType
+from frequenz.channels.util import FileWatcher, Select, Timer
+from frequenz.channels.util._file_watcher import EventType
 
 
 async def test_file_watcher(tmp_path: pathlib.Path) -> None:

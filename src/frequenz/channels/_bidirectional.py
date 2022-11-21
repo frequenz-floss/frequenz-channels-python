@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from typing import Generic
 
-from frequenz.channels.base_classes import Receiver, Sender, T, U
-from frequenz.channels.broadcast import Broadcast
+from ._base_classes import Receiver, Sender, T, U
+from ._broadcast import Broadcast
 
 
 class Bidirectional(Generic[T, U]):

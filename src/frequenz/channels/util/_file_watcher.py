@@ -10,7 +10,7 @@ from typing import List, Optional, Set, Union
 from watchfiles import Change, awatch
 from watchfiles.main import FileChange
 
-from frequenz.channels.base_classes import ChannelClosedError, Receiver
+from .._base_classes import ChannelClosedError, Receiver
 
 
 class EventType(Enum):

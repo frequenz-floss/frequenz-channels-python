@@ -30,11 +30,12 @@
 "part:channels":
   - any:
       - "src/frequenz/channels/**"
-      - "!src/frequenz/channels/select.py"
       - "!src/frequenz/channels/util/**"
 
 "part:receivers":
-  - "src/frequenz/channels/util/**"
+  - any:
+      - "src/frequenz/channels/util/**"
+      - "!src/frequenz/channels/util/_select.py"
 
 "part:select":
-  - "src/frequenz/channels/select.py"
+  - "src/frequenz/channels/util/_select.py"
