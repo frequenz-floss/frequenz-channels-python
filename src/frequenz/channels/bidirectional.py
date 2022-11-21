@@ -5,7 +5,7 @@
 
 from __future__ import annotations
 
-from typing import Generic, Optional
+from typing import Generic
 
 from frequenz.channels.base_classes import Receiver, Sender, T, U
 from frequenz.channels.broadcast import Broadcast
@@ -82,10 +82,14 @@ class BidirectionalHandle(Sender[T], Receiver[U]):
         """
         return await self._sender.send(msg)
 
-    async def receive(self) -> Optional[U]:
-        """Receive a value from the other side.
+    async def ready(self) -> None:
+        """Wait until the receiver is ready with a value."""
+        await self._receiver.ready()  # pylint: disable=protected-access
+
+    def consume(self) -> U:
+        """Return the latest value once `_ready` is complete.
 
         Returns:
-            Received value, or `None` if the channels are closed.
+            The next value that was received.
         """
-        return await self._receiver.receive()
+        return self._receiver.consume()  # pylint: disable=protected-access

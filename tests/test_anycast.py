@@ -5,7 +5,10 @@
 
 import asyncio
 
+import pytest
+
 from frequenz.channels import Anycast, Receiver, Sender
+from frequenz.channels.base_classes import ChannelClosedError
 
 
 async def test_anycast() -> None:
@@ -29,8 +32,9 @@ async def test_anycast() -> None:
 
     async def update_tracker_on_receive(receiver_id: int, chan: Receiver[int]) -> None:
         while True:
-            msg = await chan.receive()
-            if msg is None:
+            try:
+                msg = await chan.receive()
+            except ChannelClosedError:
                 return
             recv_trackers[receiver_id] += msg
             # without the sleep, decomissioning receivers temporarily, all
@@ -56,7 +60,8 @@ async def test_anycast() -> None:
     await receivers_runs
 
     assert await after_close_sender.send(5) is False
-    assert await after_close_receiver.receive() is None
+    with pytest.raises(ChannelClosedError):
+        await after_close_receiver.receive()
 
     actual_sum = 0
     for ctr in recv_trackers:
@@ -79,7 +84,8 @@ async def test_anycast_after_close() -> None:
 
     assert await sender.send(5) is False
     assert await receiver.receive() == 2
-    assert await receiver.receive() is None
+    with pytest.raises(ChannelClosedError):
+        await receiver.receive()
 
 
 async def test_anycast_full() -> None:

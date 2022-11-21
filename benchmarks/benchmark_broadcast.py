@@ -69,10 +69,7 @@ async def benchmark_broadcast(
     recv_trackers = [0]
 
     async def update_tracker_on_receive(chan: Receiver[int]) -> None:
-        while True:
-            msg = await chan.receive()
-            if msg is None:
-                return
+        async for _ in chan:
             recv_trackers[0] += 1
 
     receivers = []

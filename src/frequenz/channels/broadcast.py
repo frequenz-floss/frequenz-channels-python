@@ -12,7 +12,7 @@ from collections import deque
 from typing import Deque, Dict, Generic, Optional
 from uuid import UUID, uuid4
 
-from frequenz.channels.base_classes import BufferedReceiver
+from frequenz.channels.base_classes import BufferedReceiver, ChannelClosedError
 from frequenz.channels.base_classes import Peekable as BasePeekable
 from frequenz.channels.base_classes import Sender as BaseSender
 from frequenz.channels.base_classes import T
@@ -249,31 +249,33 @@ class Receiver(BufferedReceiver[T]):
         """
         return len(self._q)
 
-    async def receive(self) -> Optional[T]:
-        """Receive a message from the Broadcast channel.
-
-        Waits until there are messages available in the channel and returns
-        them.  If there are no remaining messages in the buffer and the channel
-        is closed, returns `None` immediately.
-
-        If [into_peekable()][frequenz.channels.Receiver.into_peekable] is called
-        on a broadcast `Receiver`, further calls to `receive`, will raise an
-        `EOFError`.
+    async def ready(self) -> None:
+        """Wait until the receiver is ready with a value.
 
         Raises:
-            EOFError: when the receiver has been converted into a `Peekable`.
-
-        Returns:
-            `None`, if the channel is closed, a message otherwise.
+            EOFError: if this receiver is no longer active.
+            ChannelClosedError: if the underlying channel is closed.
         """
         if not self._active:
             raise EOFError("This receiver is no longer active.")
 
+        # Use a while loop here, to handle spurious wakeups of condition variables.
+        #
+        # The condition also makes sure that if there are already messages ready to be
+        # consumed, then we return immediately.
         while len(self._q) == 0:
             if self._chan.closed:
-                return None
+                raise ChannelClosedError()
             async with self._chan.recv_cv:
                 await self._chan.recv_cv.wait()
+
+    def consume(self) -> T:
+        """Return the latest value once `ready` is complete.
+
+        Returns:
+            The next value that was received.
+        """
+        assert self._q, "calls to `consume()` must be follow a call to `ready()`"
         ret = self._q.popleft()
         return ret
 

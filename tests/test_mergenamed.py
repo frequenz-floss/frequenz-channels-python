@@ -27,7 +27,7 @@ async def test_mergenamed() -> None:
 
     merge = MergeNamed(**recvs)
     results: List[Tuple[str, int]] = []
-    while item := await merge.receive():
+    async for item in merge:
         results.append(item)
     await senders
     for ctr in range(5):

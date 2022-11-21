@@ -5,9 +5,9 @@
 
 import asyncio
 from collections import deque
-from typing import Any, Deque, Optional, Set
+from typing import Any, Deque, Set
 
-from frequenz.channels.base_classes import Receiver, T
+from frequenz.channels.base_classes import ChannelClosedError, Receiver, T
 
 
 class Merge(Receiver[T]):
@@ -34,7 +34,7 @@ class Merge(Receiver[T]):
         """
         self._receivers = {str(id): recv for id, recv in enumerate(args)}
         self._pending: Set[asyncio.Task[Any]] = {
-            asyncio.create_task(recv.receive(), name=name)
+            asyncio.create_task(recv.__anext__(), name=name)
             for name, recv in self._receivers.items()
         }
         self._results: Deque[T] = deque(maxlen=len(self._receivers))
@@ -44,31 +44,45 @@ class Merge(Receiver[T]):
         for task in self._pending:
             task.cancel()
 
-    async def receive(self) -> Optional[T]:
-        """Wait until there's a message in any of the channels.
+    async def ready(self) -> None:
+        """Wait until the receiver is ready with a value.
 
-        Returns:
-            The next message that was received, or `None`, if all channels have
-                closed.
+        Raises:
+            ChannelClosedError: if the underlying channel is closed.
         """
         # we use a while loop to continue to wait for new data, in case the
         # previous `wait` completed because a channel was closed.
         while True:
+            # if there are messages waiting to be consumed, return immediately.
             if len(self._results) > 0:
-                return self._results.popleft()
+                return
 
             if len(self._pending) == 0:
-                return None
+                raise ChannelClosedError()
             done, self._pending = await asyncio.wait(
                 self._pending, return_when=asyncio.FIRST_COMPLETED
             )
             for item in done:
                 name = item.get_name()
-                result = item.result()
                 # if channel is closed, don't add a task for it again.
-                if result is None:
+                if isinstance(item.exception(), StopAsyncIteration):
                     continue
+                result = item.result()
                 self._results.append(result)
                 self._pending.add(
-                    asyncio.create_task(self._receivers[name].receive(), name=name)
+                    # pylint: disable=unnecessary-dunder-call
+                    asyncio.create_task(self._receivers[name].__anext__(), name=name)
                 )
+
+    def consume(self) -> T:
+        """Return the latest value once `ready` is complete.
+
+        Raises:
+            EOFError: When called before a call to `ready()` finishes.
+
+        Returns:
+            The next value that was received.
+        """
+        assert self._results, "calls to `consume()` must be follow a call to `ready()`"
+
+        return self._results.popleft()

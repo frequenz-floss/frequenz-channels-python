@@ -8,8 +8,9 @@ from enum import Enum
 from typing import List, Optional, Set, Union
 
 from watchfiles import Change, awatch
+from watchfiles.main import FileChange
 
-from frequenz.channels.base_classes import Receiver
+from frequenz.channels.base_classes import ChannelClosedError, Receiver
 
 
 class EventType(Enum):
@@ -52,6 +53,7 @@ class FileWatcher(Receiver[pathlib.Path]):
                 and pathlib.Path(path_str).is_file()
             ),
         )
+        self._changes: Set[FileChange] = set()
 
     def __del__(self) -> None:
         """Cleanup registered watches.
@@ -62,19 +64,35 @@ class FileWatcher(Receiver[pathlib.Path]):
         """
         self._stop_event.set()
 
-    async def receive(self) -> Optional[pathlib.Path]:
+    async def ready(self) -> None:
         """Wait for the next file event and return its path.
+
+        Raises:
+            StopAsyncIteration: When the channel is closed.
 
         Returns:
             Path of next file.
         """
-        while True:
-            changes = await self._awatch.__anext__()
-            for change in changes:
-                # Tuple of (Change, path) returned by watchfiles
-                if change is None or len(change) != 2:
-                    return None
+        # if there are messages waiting to be consumed, return immediately.
+        if self._changes:
+            return
 
-                _, path_str = change
-                path = pathlib.Path(path_str)
-                return path
+        self._changes = await self._awatch.__anext__()
+
+    def consume(self) -> pathlib.Path:
+        """Return the latest change once `ready` is complete.
+
+        Raises:
+            ChannelClosedError: When the channel is closed.
+
+        Returns:
+            The next change that was received.
+        """
+        assert self._changes, "calls to `consume()` must be follow a call to `ready()`"
+        change = self._changes.pop()
+        # Tuple of (Change, path) returned by watchfiles
+        if change is None or len(change) != 2:
+            raise ChannelClosedError()
+        _, path_str = change
+        path = pathlib.Path(path_str)
+        return path

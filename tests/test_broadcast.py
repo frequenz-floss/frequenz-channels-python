@@ -9,6 +9,7 @@ from typing import Tuple
 import pytest
 
 from frequenz.channels import Broadcast, Receiver, Sender
+from frequenz.channels.base_classes import ChannelClosedError
 
 
 async def test_broadcast() -> None:
@@ -32,8 +33,9 @@ async def test_broadcast() -> None:
 
     async def update_tracker_on_receive(receiver_id: int, chan: Receiver[int]) -> None:
         while True:
-            msg = await chan.receive()
-            if msg is None:
+            try:
+                msg = await chan.receive()
+            except ChannelClosedError:
                 return
             recv_trackers[receiver_id] += msg
 
@@ -68,7 +70,8 @@ async def test_broadcast_after_close() -> None:
     await bcast.close()
 
     assert await sender.send(5) is False
-    assert await receiver.receive() is None
+    with pytest.raises(ChannelClosedError):
+        await receiver.receive()
 
 
 async def test_broadcast_overflow() -> None:
