@@ -568,8 +568,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.merge_named.MergeNamed.receive" class="md-nav__link">
-    receive()
+  <a href="#frequenz.channels.merge_named.MergeNamed.consume" class="md-nav__link">
+    consume()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequenz.channels.merge_named.MergeNamed.ready" class="md-nav__link">
+    ready()
   </a>
   
 </li>
@@ -790,8 +797,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.merge_named.MergeNamed.receive" class="md-nav__link">
-    receive()
+  <a href="#frequenz.channels.merge_named.MergeNamed.consume" class="md-nav__link">
+    consume()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequenz.channels.merge_named.MergeNamed.ready" class="md-nav__link">
+    ready()
   </a>
   
 </li>
@@ -932,7 +946,21 @@
 <span class="normal">58</span>
 <span class="normal">59</span>
 <span class="normal">60</span>
-<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">MergeNamed</span><span class="p">(</span><span class="n">Receiver</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">T</span><span class="p">]]):</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">MergeNamed</span><span class="p">(</span><span class="n">Receiver</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">T</span><span class="p">]]):</span>
     <span class="sd">&quot;&quot;&quot;Merge messages coming from multiple named channels into a single stream.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -943,7 +971,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_receivers</span> <span class="o">=</span> <span class="n">kwargs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">recv</span><span class="o">.</span><span class="n">receive</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">recv</span><span class="o">.</span><span class="fm">__anext__</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">recv</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_receivers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">:</span> <span class="n">Deque</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">T</span><span class="p">]]</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_receivers</span><span class="p">))</span>
@@ -953,34 +981,48 @@
         <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">:</span>
             <span class="n">task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">T</span><span class="p">]]:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Wait until there&#39;s a message in any of the channels.</span>
 
-<span class="sd">        Returns:</span>
-<span class="sd">            The next message that was received, or `None`, if all channels have</span>
-<span class="sd">                closed.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ChannelClosedError: when all the channels are closed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># we use a while loop to continue to wait for new data, in case the</span>
         <span class="c1"># previous `wait` completed because a channel was closed.</span>
         <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="c1"># if there are messages waiting to be consumed, return immediately.</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+                <span class="k">return</span>
 
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">None</span>
+                <span class="k">raise</span> <span class="n">ChannelClosedError</span><span class="p">()</span>
             <span class="n">done</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">,</span> <span class="n">return_when</span><span class="o">=</span><span class="n">asyncio</span><span class="o">.</span><span class="n">FIRST_COMPLETED</span>
             <span class="p">)</span>
             <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">done</span><span class="p">:</span>
                 <span class="n">name</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>
-                <span class="n">result</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
                 <span class="c1"># if channel is closed, don&#39;t add a task for it again.</span>
-                <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">exception</span><span class="p">(),</span> <span class="ne">StopAsyncIteration</span><span class="p">):</span>
                     <span class="k">continue</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">result</span><span class="p">))</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-                    <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_receivers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">receive</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+                    <span class="c1"># pylint: disable=unnecessary-dunder-call</span>
+                    <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_receivers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="fm">__anext__</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
                 <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
+        <span class="sd">&quot;&quot;&quot;Return the latest value once `ready` is complete.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            EOFError: When called before a call to `ready()` finishes.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The next value that was received, along with its name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">,</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
         </details>
 
@@ -1087,7 +1129,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_receivers</span> <span class="o">=</span> <span class="n">kwargs</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">asyncio</span><span class="o">.</span><span class="n">Task</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">recv</span><span class="o">.</span><span class="n">receive</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">recv</span><span class="o">.</span><span class="fm">__anext__</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">recv</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_receivers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
     <span class="p">}</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">:</span> <span class="n">Deque</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">T</span><span class="p">]]</span> <span class="o">=</span> <span class="n">deque</span><span class="p">(</span><span class="n">maxlen</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_receivers</span><span class="p">))</span>
@@ -1101,19 +1143,36 @@
 
 
 
-<h6 id="frequenz.channels.merge_named.MergeNamed.receive" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">receive</span><span class="p">()</span></code>
-  
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
-  </span>
+<h6 id="frequenz.channels.merge_named.MergeNamed.consume" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">consume</span><span class="p">()</span></code>
 
-<a href="#frequenz.channels.merge_named.MergeNamed.receive" class="headerlink" title="Permanent link">¤</a></h6>
+<a href="#frequenz.channels.merge_named.MergeNamed.consume" class="headerlink" title="Permanent link">¤</a></h6>
 
 
   <div class="doc doc-contents ">
   
-      <p>Wait until there's a message in any of the channels.</p>
+      <p>Return the latest value once <code>ready</code> is complete.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#EOFError">EOFError</a></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>When called before a call to <code>ready()</code> finishes.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
 
   <table>
     <thead>
@@ -1126,12 +1185,81 @@
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <span title="frequenz.channels.base_classes.T">T</span>]]</code>
+                  <code><a class="autorefs autorefs-external" title="typing.Tuple" href="https://docs.python.org/3/library/typing.html#typing.Tuple">Tuple</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a>, <span title="frequenz.channels.base_classes.T">T</span>]</code>
               </span>
           </td>
           <td class="doc-returns-details">
-            <p>The next message that was received, or <code>None</code>, if all channels have
-closed.</p>
+            <p>The next value that was received, along with its name.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>frequenz/channels/merge_named.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">T</span><span class="p">]:</span>
+    <span class="sd">&quot;&quot;&quot;Return the latest value once `ready` is complete.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        EOFError: When called before a call to `ready()` finishes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The next value that was received, along with its name.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">,</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
+
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h6 id="frequenz.channels.merge_named.MergeNamed.ready" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">ready</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#frequenz.channels.merge_named.MergeNamed.ready" class="headerlink" title="Permanent link">¤</a></h6>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Wait until there's a message in any of the channels.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-internal" title="frequenz.channels.base_classes.ChannelClosedError" href="../base_classes/#frequenz.channels.base_classes.ChannelClosedError">ChannelClosedError</a></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>when all the channels are closed.</p>
           </td>
         </tr>
     </tbody>
@@ -1166,33 +1294,35 @@ closed.</p>
 <span class="normal">58</span>
 <span class="normal">59</span>
 <span class="normal">60</span>
-<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">T</span><span class="p">]]:</span>
+<span class="normal">61</span>
+<span class="normal">62</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Wait until there&#39;s a message in any of the channels.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        The next message that was received, or `None`, if all channels have</span>
-<span class="sd">            closed.</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ChannelClosedError: when all the channels are closed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># we use a while loop to continue to wait for new data, in case the</span>
     <span class="c1"># previous `wait` completed because a channel was closed.</span>
     <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># if there are messages waiting to be consumed, return immediately.</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+            <span class="k">return</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">raise</span> <span class="n">ChannelClosedError</span><span class="p">()</span>
         <span class="n">done</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">wait</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">,</span> <span class="n">return_when</span><span class="o">=</span><span class="n">asyncio</span><span class="o">.</span><span class="n">FIRST_COMPLETED</span>
         <span class="p">)</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">done</span><span class="p">:</span>
             <span class="n">name</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
             <span class="c1"># if channel is closed, don&#39;t add a task for it again.</span>
-            <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">exception</span><span class="p">(),</span> <span class="ne">StopAsyncIteration</span><span class="p">):</span>
                 <span class="k">continue</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">result</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
-                <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_receivers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">receive</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+                <span class="c1"># pylint: disable=unnecessary-dunder-call</span>
+                <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_receivers</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="fm">__anext__</span><span class="p">(),</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
             <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
       </details>

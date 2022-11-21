@@ -637,8 +637,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.utils.timer.Timer.receive" class="md-nav__link">
-    receive()
+  <a href="#frequenz.channels.utils.timer.Timer.consume" class="md-nav__link">
+    consume()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequenz.channels.utils.timer.Timer.ready" class="md-nav__link">
+    ready()
   </a>
   
 </li>
@@ -792,8 +799,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.utils.timer.Timer.receive" class="md-nav__link">
-    receive()
+  <a href="#frequenz.channels.utils.timer.Timer.consume" class="md-nav__link">
+    consume()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequenz.channels.utils.timer.Timer.ready" class="md-nav__link">
+    ready()
   </a>
   
 </li>
@@ -1022,7 +1036,31 @@ certain interval:</p>
 <span class="normal"> 99</span>
 <span class="normal">100</span>
 <span class="normal">101</span>
-<span class="normal">102</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Timer</span><span class="p">(</span><span class="n">Receiver</span><span class="p">[</span><span class="n">datetime</span><span class="p">]):</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Timer</span><span class="p">(</span><span class="n">Receiver</span><span class="p">[</span><span class="n">datetime</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;A timer receiver that returns the timestamp every `interval` seconds.</span>
 
 <span class="sd">    Primarily for use with [Select][frequenz.channels.Select].</span>
@@ -1074,6 +1112,7 @@ certain interval:</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stopped</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_next_msg_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_now</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Reset the timer to start timing from `now`.&quot;&quot;&quot;</span>
@@ -1088,29 +1127,52 @@ certain interval:</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_stopped</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]:</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="sd">&quot;&quot;&quot;Return the current time (in UTC) once the next tick is due.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            ChannelClosedError: if [stop()][frequenz.channels.Timer.stop] has been</span>
+<span class="sd">                called on the timer.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            The time of the next tick in UTC or `None` if</span>
 <span class="sd">                [stop()][frequenz.channels.Timer.stop] has been called on the</span>
 <span class="sd">                timer.</span>
-
-<span class="sd">        Changelog:</span>
-<span class="sd">            * **v0.11.0:** Returns a timezone-aware datetime with UTC timezone</span>
-<span class="sd">              instead of a native datetime object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if there are messages waiting to be consumed, return immediately.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stopped</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">raise</span> <span class="n">ChannelClosedError</span><span class="p">()</span>
         <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
         <span class="n">diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_msg_time</span> <span class="o">-</span> <span class="n">now</span>
         <span class="k">while</span> <span class="n">diff</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">diff</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span>
             <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
             <span class="n">diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_msg_time</span> <span class="o">-</span> <span class="n">now</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="o">=</span> <span class="n">now</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_next_msg_time</span> <span class="o">=</span> <span class="n">now</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next_msg_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span>
 
+    <span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return the latest value once `ready` is complete.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            EOFError: When called before a call to `ready()` finishes.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The timestamp for the next tick.</span>
+
+<span class="sd">        Changelog:</span>
+<span class="sd">            * **v0.11.0:** Returns a timezone-aware datetime with UTC timezone</span>
+<span class="sd">              instead of a native datetime object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">),</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">now</span>
 </code></pre></div></td></tr></table></div>
         </details>
@@ -1174,7 +1236,8 @@ certain interval:</p>
 <span class="normal">61</span>
 <span class="normal">62</span>
 <span class="normal">63</span>
-<span class="normal">64</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">64</span>
+<span class="normal">65</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Create a `Timer` instance.</span>
 
 <span class="sd">    Args:</span>
@@ -1183,6 +1246,7 @@ certain interval:</p>
     <span class="bp">self</span><span class="o">.</span><span class="n">_stopped</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span> <span class="o">=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">interval</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_next_msg_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_now</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
       </details>
   </div>
@@ -1193,19 +1257,36 @@ certain interval:</p>
 
 
 
-<h6 id="frequenz.channels.utils.timer.Timer.receive" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">receive</span><span class="p">()</span></code>
-  
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
-  </span>
+<h6 id="frequenz.channels.utils.timer.Timer.consume" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">consume</span><span class="p">()</span></code>
 
-<a href="#frequenz.channels.utils.timer.Timer.receive" class="headerlink" title="Permanent link">¤</a></h6>
+<a href="#frequenz.channels.utils.timer.Timer.consume" class="headerlink" title="Permanent link">¤</a></h6>
 
 
   <div class="doc doc-contents ">
   
-      <p>Return the current time (in UTC) once the next tick is due.</p>
+      <p>Return the latest value once <code>ready</code> is complete.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#EOFError">EOFError</a></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>When called before a call to <code>ready()</code> finishes.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
 
   <table>
     <thead>
@@ -1218,13 +1299,11 @@ certain interval:</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<a class="autorefs autorefs-external" title="datetime.datetime" href="https://docs.python.org/3/library/datetime.html#datetime.datetime">datetime</a>]</code>
+                  <code><a class="autorefs autorefs-external" title="datetime.datetime" href="https://docs.python.org/3/library/datetime.html#datetime.datetime">datetime</a></code>
               </span>
           </td>
           <td class="doc-returns-details">
-            <p>The time of the next tick in UTC or <code>None</code> if
-<a class="autorefs autorefs-internal" href="#frequenz.channels.utils.timer.Timer.stop">stop()</a> has been called on the
-timer.</p>
+            <p>The timestamp for the next tick.</p>
           </td>
         </tr>
     </tbody>
@@ -1239,8 +1318,115 @@ timer.</p>
 </details>
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/utils/timer.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 79</span>
-<span class="normal"> 80</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return the latest value once `ready` is complete.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        EOFError: When called before a call to `ready()` finishes.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The timestamp for the next tick.</span>
+
+<span class="sd">    Changelog:</span>
+<span class="sd">        * **v0.11.0:** Returns a timezone-aware datetime with UTC timezone</span>
+<span class="sd">          instead of a native datetime object.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">),</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">now</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h6 id="frequenz.channels.utils.timer.Timer.ready" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">ready</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#frequenz.channels.utils.timer.Timer.ready" class="headerlink" title="Permanent link">¤</a></h6>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Return the current time (in UTC) once the next tick is due.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-internal" title="frequenz.channels.base_classes.ChannelClosedError" href="../../base_classes/#frequenz.channels.base_classes.ChannelClosedError">ChannelClosedError</a></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>if <a class="autorefs autorefs-internal" href="#frequenz.channels.utils.timer.Timer.stop">stop()</a> has been
+called on the timer.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code>None</code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The time of the next tick in UTC or <code>None</code> if
+<a class="autorefs autorefs-internal" href="#frequenz.channels.utils.timer.Timer.stop">stop()</a> has been called on the
+timer.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>frequenz/channels/utils/timer.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 80</span>
 <span class="normal"> 81</span>
 <span class="normal"> 82</span>
 <span class="normal"> 83</span>
@@ -1262,30 +1448,37 @@ timer.</p>
 <span class="normal"> 99</span>
 <span class="normal">100</span>
 <span class="normal">101</span>
-<span class="normal">102</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]:</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Return the current time (in UTC) once the next tick is due.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ChannelClosedError: if [stop()][frequenz.channels.Timer.stop] has been</span>
+<span class="sd">            called on the timer.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        The time of the next tick in UTC or `None` if</span>
 <span class="sd">            [stop()][frequenz.channels.Timer.stop] has been called on the</span>
 <span class="sd">            timer.</span>
-
-<span class="sd">    Changelog:</span>
-<span class="sd">        * **v0.11.0:** Returns a timezone-aware datetime with UTC timezone</span>
-<span class="sd">          instead of a native datetime object.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># if there are messages waiting to be consumed, return immediately.</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stopped</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">raise</span> <span class="n">ChannelClosedError</span><span class="p">()</span>
     <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
     <span class="n">diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_msg_time</span> <span class="o">-</span> <span class="n">now</span>
     <span class="k">while</span> <span class="n">diff</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">diff</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">())</span>
         <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
         <span class="n">diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_msg_time</span> <span class="o">-</span> <span class="n">now</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="o">=</span> <span class="n">now</span>
 
-    <span class="bp">self</span><span class="o">.</span><span class="n">_next_msg_time</span> <span class="o">=</span> <span class="n">now</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span>
-
-    <span class="k">return</span> <span class="n">now</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_next_msg_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span>
 </code></pre></div></td></tr></table></div>
       </details>
   </div>
@@ -1308,9 +1501,9 @@ timer.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/utils/timer.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">67</span>
+<span class="normal">68</span>
+<span class="normal">69</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Reset the timer to start timing from `now`.&quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_next_msg_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interval</span>
 </code></pre></div></td></tr></table></div>
@@ -1333,19 +1526,19 @@ timer.</p>
   
       <p>Stop the timer.</p>
 <p>Once <code>stop</code> has been called, all subsequent calls to
-<a class="autorefs autorefs-internal" href="#frequenz.channels.utils.timer.Timer.receive">receive()</a> will immediately return
+[receive()][frequenz.channels.Timer.receive] will immediately return
 <code>None</code>.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/utils/timer.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">70</span>
-<span class="normal">71</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">71</span>
 <span class="normal">72</span>
 <span class="normal">73</span>
 <span class="normal">74</span>
 <span class="normal">75</span>
 <span class="normal">76</span>
-<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">77</span>
+<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Stop the timer.</span>
 
 <span class="sd">    Once `stop` has been called, all subsequent calls to</span>

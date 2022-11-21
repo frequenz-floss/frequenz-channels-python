@@ -566,8 +566,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.bidirectional.BidirectionalHandle.receive" class="md-nav__link">
-    receive()
+  <a href="#frequenz.channels.bidirectional.BidirectionalHandle.consume" class="md-nav__link">
+    consume()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequenz.channels.bidirectional.BidirectionalHandle.ready" class="md-nav__link">
+    ready()
   </a>
   
 </li>
@@ -877,8 +884,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.bidirectional.BidirectionalHandle.receive" class="md-nav__link">
-    receive()
+  <a href="#frequenz.channels.bidirectional.BidirectionalHandle.consume" class="md-nav__link">
+    consume()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequenz.channels.bidirectional.BidirectionalHandle.ready" class="md-nav__link">
+    ready()
   </a>
   
 </li>
@@ -1361,7 +1375,11 @@
 <span class="normal">88</span>
 <span class="normal">89</span>
 <span class="normal">90</span>
-<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">BidirectionalHandle</span><span class="p">(</span><span class="n">Sender</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">U</span><span class="p">]):</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">BidirectionalHandle</span><span class="p">(</span><span class="n">Sender</span><span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">U</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;A handle to a [Bidirectional][frequenz.channels.Bidirectional] instance.</span>
 
 <span class="sd">    It can be used to send/receive values between the client and service.</span>
@@ -1388,13 +1406,17 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_sender</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">U</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Receive a value from the other side.</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Wait until the receiver is ready with a value.&quot;&quot;&quot;</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_receiver</span><span class="o">.</span><span class="n">ready</span><span class="p">()</span>  <span class="c1"># pylint: disable=protected-access</span>
+
+    <span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">U</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return the latest value once `_ready` is complete.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            Received value, or `None` if the channels are closed.</span>
+<span class="sd">            The next value that was received.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_receiver</span><span class="o">.</span><span class="n">receive</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_receiver</span><span class="o">.</span><span class="n">consume</span><span class="p">()</span>  <span class="c1"># pylint: disable=protected-access</span>
 </code></pre></div></td></tr></table></div>
         </details>
 
@@ -1488,19 +1510,15 @@
 
 
 
-<h6 id="frequenz.channels.bidirectional.BidirectionalHandle.receive" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">receive</span><span class="p">()</span></code>
-  
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
-  </span>
+<h6 id="frequenz.channels.bidirectional.BidirectionalHandle.consume" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">consume</span><span class="p">()</span></code>
 
-<a href="#frequenz.channels.bidirectional.BidirectionalHandle.receive" class="headerlink" title="Permanent link">¤</a></h6>
+<a href="#frequenz.channels.bidirectional.BidirectionalHandle.consume" class="headerlink" title="Permanent link">¤</a></h6>
 
 
   <div class="doc doc-contents ">
   
-      <p>Receive a value from the other side.</p>
+      <p>Return the latest value once <code>_ready</code> is complete.</p>
 
   <table>
     <thead>
@@ -1513,11 +1531,11 @@
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<span title="frequenz.channels.base_classes.U">U</span>]</code>
+                  <code><span title="frequenz.channels.base_classes.U">U</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
-            <p>Received value, or <code>None</code> if the channels are closed.</p>
+            <p>The next value that was received.</p>
           </td>
         </tr>
     </tbody>
@@ -1525,19 +1543,50 @@
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/bidirectional.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">89</span>
 <span class="normal">90</span>
-<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">U</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Receive a value from the other side.</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">U</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return the latest value once `_ready` is complete.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Received value, or `None` if the channels are closed.</span>
+<span class="sd">        The next value that was received.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_receiver</span><span class="o">.</span><span class="n">receive</span><span class="p">()</span>
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_receiver</span><span class="o">.</span><span class="n">consume</span><span class="p">()</span>  <span class="c1"># pylint: disable=protected-access</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h6 id="frequenz.channels.bidirectional.BidirectionalHandle.ready" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">ready</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#frequenz.channels.bidirectional.BidirectionalHandle.ready" class="headerlink" title="Permanent link">¤</a></h6>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Wait until the receiver is ready with a value.</p>
+
+      <details class="quote">
+        <summary>Source code in <code>frequenz/channels/bidirectional.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Wait until the receiver is ready with a value.&quot;&quot;&quot;</span>
+    <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_receiver</span><span class="o">.</span><span class="n">ready</span><span class="p">()</span>  <span class="c1"># pylint: disable=protected-access</span>
 </code></pre></div></td></tr></table></div>
       </details>
   </div>

@@ -545,8 +545,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.anycast.Receiver.receive" class="md-nav__link">
-    receive()
+  <a href="#frequenz.channels.anycast.Receiver.consume" class="md-nav__link">
+    consume()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequenz.channels.anycast.Receiver.ready" class="md-nav__link">
+    ready()
   </a>
   
 </li>
@@ -924,8 +931,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.anycast.Receiver.receive" class="md-nav__link">
-    receive()
+  <a href="#frequenz.channels.anycast.Receiver.consume" class="md-nav__link">
+    consume()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequenz.channels.anycast.Receiver.ready" class="md-nav__link">
+    ready()
   </a>
   
 </li>
@@ -1095,8 +1109,7 @@ simultaneously using <a class="autorefs autorefs-internal" href="../#frequenz.ch
 
         <details class="quote">
           <summary>Source code in <code>frequenz/channels/anycast.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 17</span>
-<span class="normal"> 18</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 18</span>
 <span class="normal"> 19</span>
 <span class="normal"> 20</span>
 <span class="normal"> 21</span>
@@ -1185,7 +1198,8 @@ simultaneously using <a class="autorefs autorefs-internal" href="../#frequenz.ch
 <span class="normal">104</span>
 <span class="normal">105</span>
 <span class="normal">106</span>
-<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Anycast</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<span class="normal">107</span>
+<span class="normal">108</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Anycast</span><span class="p">(</span><span class="n">Generic</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;A channel for sending data across async tasks.</span>
 
 <span class="sd">    Anycast channels support multiple senders and multiple receivers.  A message sent</span>
@@ -1334,8 +1348,7 @@ simultaneously using <a class="autorefs autorefs-internal" href="../#frequenz.ch
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/anycast.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">63</span>
-<span class="normal">64</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">64</span>
 <span class="normal">65</span>
 <span class="normal">66</span>
 <span class="normal">67</span>
@@ -1344,7 +1357,8 @@ simultaneously using <a class="autorefs autorefs-internal" href="../#frequenz.ch
 <span class="normal">70</span>
 <span class="normal">71</span>
 <span class="normal">72</span>
-<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maxsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">73</span>
+<span class="normal">74</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">maxsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Create an Anycast channel.</span>
 
 <span class="sd">    Args:</span>
@@ -1387,8 +1401,7 @@ immediately.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/anycast.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">75</span>
-<span class="normal">76</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">76</span>
 <span class="normal">77</span>
 <span class="normal">78</span>
 <span class="normal">79</span>
@@ -1403,7 +1416,8 @@ immediately.</p>
 <span class="normal">88</span>
 <span class="normal">89</span>
 <span class="normal">90</span>
-<span class="normal">91</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">91</span>
+<span class="normal">92</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Close the channel.</span>
 
 <span class="sd">    Any further attempts to [send()][frequenz.channels.Sender.send] data</span>
@@ -1463,13 +1477,13 @@ immediately.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/anycast.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">101</span>
-<span class="normal">102</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">102</span>
 <span class="normal">103</span>
 <span class="normal">104</span>
 <span class="normal">105</span>
 <span class="normal">106</span>
-<span class="normal">107</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_receiver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="normal">107</span>
+<span class="normal">108</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_receiver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Create a new receiver.</span>
 
 <span class="sd">    Returns:</span>
@@ -1519,13 +1533,13 @@ immediately.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/anycast.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">93</span>
-<span class="normal">94</span>
-<span class="normal">95</span>
-<span class="normal">96</span>
-<span class="normal">97</span>
-<span class="normal">98</span>
-<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_sender</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sender</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_sender</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sender</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Create a new sender.</span>
 
 <span class="sd">    Returns:</span>
@@ -1569,8 +1583,7 @@ method.</p>
 
         <details class="quote">
           <summary>Source code in <code>frequenz/channels/anycast.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">151</span>
-<span class="normal">152</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">152</span>
 <span class="normal">153</span>
 <span class="normal">154</span>
 <span class="normal">155</span>
@@ -1602,7 +1615,21 @@ method.</p>
 <span class="normal">181</span>
 <span class="normal">182</span>
 <span class="normal">183</span>
-<span class="normal">184</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Receiver</span><span class="p">(</span><span class="n">BaseReceiver</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Receiver</span><span class="p">(</span><span class="n">BaseReceiver</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;A receiver to receive messages from an Anycast channel.</span>
 
 <span class="sd">    Should not be created directly, but through the `Anycast.get_receiver()`</span>
@@ -1616,26 +1643,39 @@ method.</p>
 <span class="sd">            chan: A reference to the channel that this receiver belongs to.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span> <span class="o">=</span> <span class="n">chan</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Receive a message from the channel.</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Wait until the receiver is ready with a value.</span>
 
-<span class="sd">        Waits for an message to become available, and returns that message.</span>
-<span class="sd">        When there are multiple receivers for the channel, only one receiver</span>
-<span class="sd">        will receive each message.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            `None`, if the channel is closed, a message otherwise.</span>
+<span class="sd">        Raises:</span>
+<span class="sd">            ChannelClosedError: if the underlying channel is closed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># if a message is already ready, then return immediately.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
         <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">deque</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">None</span>
+                <span class="k">raise</span> <span class="n">ChannelClosedError</span><span class="p">()</span>
             <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">recv_cv</span><span class="p">:</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">recv_cv</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">deque</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">deque</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">send_cv</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">send_cv</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return the latest value once `ready()` is complete.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The next value that was received.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_next</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">),</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
+        <span class="n">next_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">next_val</span>
 </code></pre></div></td></tr></table></div>
         </details>
 
@@ -1690,19 +1730,21 @@ method.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/anycast.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">158</span>
-<span class="normal">159</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">159</span>
 <span class="normal">160</span>
 <span class="normal">161</span>
 <span class="normal">162</span>
 <span class="normal">163</span>
-<span class="normal">164</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chan</span><span class="p">:</span> <span class="n">Anycast</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chan</span><span class="p">:</span> <span class="n">Anycast</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Create a channel receiver.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        chan: A reference to the channel that this receiver belongs to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span> <span class="o">=</span> <span class="n">chan</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_next</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
       </details>
   </div>
@@ -1713,22 +1755,15 @@ method.</p>
 
 
 
-<h6 id="frequenz.channels.anycast.Receiver.receive" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">receive</span><span class="p">()</span></code>
-  
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-async"><code>async</code></small>
-  </span>
+<h6 id="frequenz.channels.anycast.Receiver.consume" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">consume</span><span class="p">()</span></code>
 
-<a href="#frequenz.channels.anycast.Receiver.receive" class="headerlink" title="Permanent link">¤</a></h6>
+<a href="#frequenz.channels.anycast.Receiver.consume" class="headerlink" title="Permanent link">¤</a></h6>
 
 
   <div class="doc doc-contents ">
   
-      <p>Receive a message from the channel.</p>
-<p>Waits for an message to become available, and returns that message.
-When there are multiple receivers for the channel, only one receiver
-will receive each message.</p>
+      <p>Return the latest value once <code>ready()</code> is complete.</p>
 
   <table>
     <thead>
@@ -1741,11 +1776,11 @@ will receive each message.</p>
         <tr>
           <td>
               <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<span title="frequenz.channels.base_classes.T">T</span>]</code>
+                  <code><span title="frequenz.channels.base_classes.T">T</span></code>
               </span>
           </td>
           <td class="doc-returns-details">
-            <p><code>None</code>, if the channel is closed, a message otherwise.</p>
+            <p>The next value that was received.</p>
           </td>
         </tr>
     </tbody>
@@ -1753,9 +1788,77 @@ will receive each message.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/anycast.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return the latest value once `ready()` is complete.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The next value that was received.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_next</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">),</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
+    <span class="n">next_val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_next</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="n">next_val</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h6 id="frequenz.channels.anycast.Receiver.ready" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">ready</span><span class="p">()</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#frequenz.channels.anycast.Receiver.ready" class="headerlink" title="Permanent link">¤</a></h6>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Wait until the receiver is ready with a value.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RAISES</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-internal" title="frequenz.channels.base_classes.ChannelClosedError" href="../base_classes/#frequenz.channels.base_classes.ChannelClosedError">ChannelClosedError</a></code>
+            </span>
+          </td>
+          <td class="doc-raises-details">
+            <p>if the underlying channel is closed.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>frequenz/channels/anycast.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">168</span>
 <span class="normal">169</span>
 <span class="normal">170</span>
 <span class="normal">171</span>
@@ -1771,25 +1874,25 @@ will receive each message.</p>
 <span class="normal">181</span>
 <span class="normal">182</span>
 <span class="normal">183</span>
-<span class="normal">184</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Receive a message from the channel.</span>
+<span class="normal">184</span>
+<span class="normal">185</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Wait until the receiver is ready with a value.</span>
 
-<span class="sd">    Waits for an message to become available, and returns that message.</span>
-<span class="sd">    When there are multiple receivers for the channel, only one receiver</span>
-<span class="sd">    will receive each message.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        `None`, if the channel is closed, a message otherwise.</span>
+<span class="sd">    Raises:</span>
+<span class="sd">        ChannelClosedError: if the underlying channel is closed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># if a message is already ready, then return immediately.</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+
     <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">deque</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">raise</span> <span class="n">ChannelClosedError</span><span class="p">()</span>
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">recv_cv</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">recv_cv</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-    <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">deque</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_next</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">deque</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
     <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">send_cv</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">send_cv</span><span class="o">.</span><span class="n">notify</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">ret</span>
 </code></pre></div></td></tr></table></div>
       </details>
   </div>
@@ -1827,8 +1930,7 @@ method.</p>
 
         <details class="quote">
           <summary>Source code in <code>frequenz/channels/anycast.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">110</span>
-<span class="normal">111</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">111</span>
 <span class="normal">112</span>
 <span class="normal">113</span>
 <span class="normal">114</span>
@@ -1865,7 +1967,8 @@ method.</p>
 <span class="normal">145</span>
 <span class="normal">146</span>
 <span class="normal">147</span>
-<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Sender</span><span class="p">(</span><span class="n">BaseSender</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<span class="normal">148</span>
+<span class="normal">149</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Sender</span><span class="p">(</span><span class="n">BaseSender</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;A sender to send messages to an Anycast channel.</span>
 
 <span class="sd">    Should not be created directly, but through the `Anycast.get_sender()`</span>
@@ -1958,13 +2061,13 @@ method.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/anycast.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">117</span>
-<span class="normal">118</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">118</span>
 <span class="normal">119</span>
 <span class="normal">120</span>
 <span class="normal">121</span>
 <span class="normal">122</span>
-<span class="normal">123</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chan</span><span class="p">:</span> <span class="n">Anycast</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">123</span>
+<span class="normal">124</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chan</span><span class="p">:</span> <span class="n">Anycast</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Create a channel sender.</span>
 
 <span class="sd">    Args:</span>
@@ -2046,8 +2149,7 @@ or not.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/anycast.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">125</span>
-<span class="normal">126</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">126</span>
 <span class="normal">127</span>
 <span class="normal">128</span>
 <span class="normal">129</span>
@@ -2069,7 +2171,8 @@ or not.</p>
 <span class="normal">145</span>
 <span class="normal">146</span>
 <span class="normal">147</span>
-<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="normal">148</span>
+<span class="normal">149</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Send a message across the channel.</span>
 
 <span class="sd">    To send, this method inserts the message into the Anycast channel&#39;s</span>

@@ -641,6 +641,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#frequenz.channels.broadcast.Receiver.consume" class="md-nav__link">
+    consume()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#frequenz.channels.broadcast.Receiver.enqueue" class="md-nav__link">
     enqueue()
   </a>
@@ -655,8 +662,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.broadcast.Receiver.receive" class="md-nav__link">
-    receive()
+  <a href="#frequenz.channels.broadcast.Receiver.ready" class="md-nav__link">
+    ready()
   </a>
   
 </li>
@@ -1046,6 +1053,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#frequenz.channels.broadcast.Receiver.consume" class="md-nav__link">
+    consume()
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#frequenz.channels.broadcast.Receiver.enqueue" class="md-nav__link">
     enqueue()
   </a>
@@ -1060,8 +1074,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.broadcast.Receiver.receive" class="md-nav__link">
-    receive()
+  <a href="#frequenz.channels.broadcast.Receiver.ready" class="md-nav__link">
+    ready()
   </a>
   
 </li>
@@ -1955,9 +1969,7 @@ consuming anything.</p>
 
         <details class="quote">
           <summary>Source code in <code>frequenz/channels/broadcast.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">294</span>
-<span class="normal">295</span>
-<span class="normal">296</span>
+          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">296</span>
 <span class="normal">297</span>
 <span class="normal">298</span>
 <span class="normal">299</span>
@@ -1978,7 +1990,9 @@ consuming anything.</p>
 <span class="normal">314</span>
 <span class="normal">315</span>
 <span class="normal">316</span>
-<span class="normal">317</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Peekable</span><span class="p">(</span><span class="n">BasePeekable</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Peekable</span><span class="p">(</span><span class="n">BasePeekable</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;A Peekable to peek into broadcast channels.</span>
 
 <span class="sd">    A Peekable provides a [peek()][frequenz.channels.Peekable] method that</span>
@@ -2056,13 +2070,13 @@ consuming anything.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/broadcast.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">302</span>
-<span class="normal">303</span>
-<span class="normal">304</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">304</span>
 <span class="normal">305</span>
 <span class="normal">306</span>
 <span class="normal">307</span>
-<span class="normal">308</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chan</span><span class="p">:</span> <span class="n">Broadcast</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">308</span>
+<span class="normal">309</span>
+<span class="normal">310</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chan</span><span class="p">:</span> <span class="n">Broadcast</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Create a `Peekable` instance.</span>
 
 <span class="sd">    Args:</span>
@@ -2113,14 +2127,14 @@ has been sent to the channel yet, or if the channel is closed.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/broadcast.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">310</span>
-<span class="normal">311</span>
-<span class="normal">312</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">312</span>
 <span class="normal">313</span>
 <span class="normal">314</span>
 <span class="normal">315</span>
 <span class="normal">316</span>
-<span class="normal">317</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">peek</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">peek</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Return the latest value that was sent to the channel.</span>
 
 <span class="sd">    Returns:</span>
@@ -2262,7 +2276,9 @@ method.</p>
 <span class="normal">288</span>
 <span class="normal">289</span>
 <span class="normal">290</span>
-<span class="normal">291</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Receiver</span><span class="p">(</span><span class="n">BufferedReceiver</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Receiver</span><span class="p">(</span><span class="n">BufferedReceiver</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;A receiver to receive messages from the broadcast channel.</span>
 
 <span class="sd">    Should not be created directly, but through the</span>
@@ -2319,31 +2335,33 @@ method.</p>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_q</span><span class="p">)</span>
 
-    <span class="k">async</span> <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
-        <span class="sd">&quot;&quot;&quot;Receive a message from the Broadcast channel.</span>
-
-<span class="sd">        Waits until there are messages available in the channel and returns</span>
-<span class="sd">        them.  If there are no remaining messages in the buffer and the channel</span>
-<span class="sd">        is closed, returns `None` immediately.</span>
-
-<span class="sd">        If [into_peekable()][frequenz.channels.Receiver.into_peekable] is called</span>
-<span class="sd">        on a broadcast `Receiver`, further calls to `receive`, will raise an</span>
-<span class="sd">        `EOFError`.</span>
+    <span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Wait until the receiver is ready with a value.</span>
 
 <span class="sd">        Raises:</span>
-<span class="sd">            EOFError: when the receiver has been converted into a `Peekable`.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            `None`, if the channel is closed, a message otherwise.</span>
+<span class="sd">            EOFError: if this receiver is no longer active.</span>
+<span class="sd">            ChannelClosedError: if the underlying channel is closed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">EOFError</span><span class="p">(</span><span class="s2">&quot;This receiver is no longer active.&quot;</span><span class="p">)</span>
 
+        <span class="c1"># Use a while loop here, to handle spurious wakeups of condition variables.</span>
+        <span class="c1">#</span>
+        <span class="c1"># The condition also makes sure that if there are already messages ready to be</span>
+        <span class="c1"># consumed, then we return immediately.</span>
         <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_q</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
-                <span class="k">return</span> <span class="kc">None</span>
+                <span class="k">raise</span> <span class="n">ChannelClosedError</span><span class="p">()</span>
             <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">recv_cv</span><span class="p">:</span>
                 <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">recv_cv</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;Return the latest value once `ready` is complete.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The next value that was received.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q</span><span class="p">,</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
         <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">ret</span>
 
@@ -2561,6 +2579,66 @@ belongs to.</p>
 
 
 
+<h6 id="frequenz.channels.broadcast.Receiver.consume" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">consume</span><span class="p">()</span></code>
+
+<a href="#frequenz.channels.broadcast.Receiver.consume" class="headerlink" title="Permanent link">¤</a></h6>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Return the latest value once <code>ready</code> is complete.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th><b>RETURNS</b></th>
+        <th><b>DESCRIPTION</b></th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+              <span class="doc-returns-annotation">
+                  <code><span title="frequenz.channels.base_classes.T">T</span></code>
+              </span>
+          </td>
+          <td class="doc-returns-details">
+            <p>The next value that was received.</p>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+      <details class="quote">
+        <summary>Source code in <code>frequenz/channels/broadcast.py</code></summary>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">272</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span>
+<span class="normal">277</span>
+<span class="normal">278</span>
+<span class="normal">279</span>
+<span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Return the latest value once `ready` is complete.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The next value that was received.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q</span><span class="p">,</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
+    <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">ret</span>
+</code></pre></div></td></tr></table></div>
+      </details>
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
 <h6 id="frequenz.channels.broadcast.Receiver.enqueue" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">enqueue</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></code>
 
@@ -2680,9 +2758,7 @@ the receiver will raise an exception.</p>
 
       <details class="quote">
         <summary>Source code in <code>frequenz/channels/broadcast.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">280</span>
-<span class="normal">281</span>
-<span class="normal">282</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">282</span>
 <span class="normal">283</span>
 <span class="normal">284</span>
 <span class="normal">285</span>
@@ -2691,7 +2767,9 @@ the receiver will raise an exception.</p>
 <span class="normal">288</span>
 <span class="normal">289</span>
 <span class="normal">290</span>
-<span class="normal">291</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">into_peekable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Peekable</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="normal">291</span>
+<span class="normal">292</span>
+<span class="normal">293</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">into_peekable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Peekable</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Convert the `Receiver` implementation into a `Peekable`.</span>
 
 <span class="sd">    Once this function has been called, the receiver will no longer be</span>
@@ -2713,25 +2791,19 @@ the receiver will raise an exception.</p>
 
 
 
-<h6 id="frequenz.channels.broadcast.Receiver.receive" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">receive</span><span class="p">()</span></code>
+<h6 id="frequenz.channels.broadcast.Receiver.ready" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">ready</span><span class="p">()</span></code>
   
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#frequenz.channels.broadcast.Receiver.receive" class="headerlink" title="Permanent link">¤</a></h6>
+<a href="#frequenz.channels.broadcast.Receiver.ready" class="headerlink" title="Permanent link">¤</a></h6>
 
 
   <div class="doc doc-contents ">
   
-      <p>Receive a message from the Broadcast channel.</p>
-<p>Waits until there are messages available in the channel and returns
-them.  If there are no remaining messages in the buffer and the channel
-is closed, returns <code>None</code> immediately.</p>
-<p>If <a class="autorefs autorefs-internal" href="../base_classes/#frequenz.channels.base_classes.Receiver.into_peekable">into_peekable()</a> is called
-on a broadcast <code>Receiver</code>, further calls to <code>receive</code>, will raise an
-<code>EOFError</code>.</p>
+      <p>Wait until the receiver is ready with a value.</p>
 
   <table>
     <thead>
@@ -2748,28 +2820,17 @@ on a broadcast <code>Receiver</code>, further calls to <code>receive</code>, wil
             </span>
           </td>
           <td class="doc-raises-details">
-            <p>when the receiver has been converted into a <code>Peekable</code>.</p>
+            <p>if this receiver is no longer active.</p>
           </td>
         </tr>
-    </tbody>
-  </table>
-
-  <table>
-    <thead>
-      <tr>
-        <th><b>RETURNS</b></th>
-        <th><b>DESCRIPTION</b></th>
-      </tr>
-    </thead>
-    <tbody>
         <tr>
           <td>
-              <span class="doc-returns-annotation">
-                  <code><a class="autorefs autorefs-external" title="typing.Optional" href="https://docs.python.org/3/library/typing.html#typing.Optional">Optional</a>[<span title="frequenz.channels.base_classes.T">T</span>]</code>
-              </span>
+            <span class="doc-raises-annotation">
+                <code><a class="autorefs autorefs-internal" title="frequenz.channels.base_classes.ChannelClosedError" href="../base_classes/#frequenz.channels.base_classes.ChannelClosedError">ChannelClosedError</a></code>
+            </span>
           </td>
-          <td class="doc-returns-details">
-            <p><code>None</code>, if the channel is closed, a message otherwise.</p>
+          <td class="doc-raises-details">
+            <p>if the underlying channel is closed.</p>
           </td>
         </tr>
     </tbody>
@@ -2795,41 +2856,25 @@ on a broadcast <code>Receiver</code>, further calls to <code>receive</code>, wil
 <span class="normal">267</span>
 <span class="normal">268</span>
 <span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span>
-<span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">receive</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
-    <span class="sd">&quot;&quot;&quot;Receive a message from the Broadcast channel.</span>
-
-<span class="sd">    Waits until there are messages available in the channel and returns</span>
-<span class="sd">    them.  If there are no remaining messages in the buffer and the channel</span>
-<span class="sd">    is closed, returns `None` immediately.</span>
-
-<span class="sd">    If [into_peekable()][frequenz.channels.Receiver.into_peekable] is called</span>
-<span class="sd">    on a broadcast `Receiver`, further calls to `receive`, will raise an</span>
-<span class="sd">    `EOFError`.</span>
+<span class="normal">270</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Wait until the receiver is ready with a value.</span>
 
 <span class="sd">    Raises:</span>
-<span class="sd">        EOFError: when the receiver has been converted into a `Peekable`.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        `None`, if the channel is closed, a message otherwise.</span>
+<span class="sd">        EOFError: if this receiver is no longer active.</span>
+<span class="sd">        ChannelClosedError: if the underlying channel is closed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">EOFError</span><span class="p">(</span><span class="s2">&quot;This receiver is no longer active.&quot;</span><span class="p">)</span>
 
+    <span class="c1"># Use a while loop here, to handle spurious wakeups of condition variables.</span>
+    <span class="c1">#</span>
+    <span class="c1"># The condition also makes sure that if there are already messages ready to be</span>
+    <span class="c1"># consumed, then we return immediately.</span>
     <span class="k">while</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_q</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">raise</span> <span class="n">ChannelClosedError</span><span class="p">()</span>
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">recv_cv</span><span class="p">:</span>
             <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_chan</span><span class="o">.</span><span class="n">recv_cv</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
-    <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_q</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">ret</span>
 </code></pre></div></td></tr></table></div>
       </details>
   </div>
