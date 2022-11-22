@@ -47,20 +47,13 @@ Exception classes:
 
 from . import util
 from ._anycast import Anycast
-from ._base_classes import (
-    ChannelClosedError,
-    ChannelError,
-    Peekable,
-    Receiver,
-    Sender,
-)
-from ._bidirectional import Bidirectional, BidirectionalHandle
+from ._base_classes import ChannelClosedError, ChannelError, Peekable, Receiver, Sender
+from ._bidirectional import Bidirectional
 from ._broadcast import Broadcast
 
 __all__ = [
     "Anycast",
     "Bidirectional",
-    "BidirectionalHandle",
     "Broadcast",
     "ChannelClosedError",
     "ChannelError",

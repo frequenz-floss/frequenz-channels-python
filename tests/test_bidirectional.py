@@ -5,7 +5,7 @@
 
 import asyncio
 
-from frequenz.channels import Bidirectional, BidirectionalHandle
+from frequenz.channels import Bidirectional
 
 
 async def test_request_response() -> None:
@@ -13,7 +13,7 @@ async def test_request_response() -> None:
 
     req_resp: Bidirectional[int, str] = Bidirectional("test_client", "test_service")
 
-    async def service(handle: BidirectionalHandle[str, int]) -> None:
+    async def service(handle: Bidirectional.Handle[str, int]) -> None:
         while True:
             num = await handle.receive()
             if num is None:
@@ -27,7 +27,7 @@ async def test_request_response() -> None:
         service(req_resp.service_handle),
     )
 
-    client_handle: BidirectionalHandle[int, str] = req_resp.client_handle
+    client_handle: Bidirectional.Handle[int, str] = req_resp.client_handle
 
     for ctr in range(-5, 5):
         await client_handle.send(ctr)
