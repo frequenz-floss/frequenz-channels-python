@@ -540,22 +540,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.broadcast.Broadcast.get_peekable" class="md-nav__link">
-    get_peekable()
+  <a href="#frequenz.channels.broadcast.Broadcast.new_peekable" class="md-nav__link">
+    new_peekable()
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.broadcast.Broadcast.get_receiver" class="md-nav__link">
-    get_receiver()
+  <a href="#frequenz.channels.broadcast.Broadcast.new_receiver" class="md-nav__link">
+    new_receiver()
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.broadcast.Broadcast.get_sender" class="md-nav__link">
-    get_sender()
+  <a href="#frequenz.channels.broadcast.Broadcast.new_sender" class="md-nav__link">
+    new_sender()
   </a>
   
 </li>
@@ -952,22 +952,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.broadcast.Broadcast.get_peekable" class="md-nav__link">
-    get_peekable()
+  <a href="#frequenz.channels.broadcast.Broadcast.new_peekable" class="md-nav__link">
+    new_peekable()
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.broadcast.Broadcast.get_receiver" class="md-nav__link">
-    get_receiver()
+  <a href="#frequenz.channels.broadcast.Broadcast.new_receiver" class="md-nav__link">
+    new_receiver()
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.broadcast.Broadcast.get_sender" class="md-nav__link">
-    get_sender()
+  <a href="#frequenz.channels.broadcast.Broadcast.new_sender" class="md-nav__link">
+    new_sender()
   </a>
   
 </li>
@@ -1233,8 +1233,8 @@ simultaneously using <a class="autorefs autorefs-internal" href="../#frequenz.ch
 
 <span class="n">bcast</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">Broadcast</span><span class="p">()</span>
 
-<span class="n">sender</span> <span class="o">=</span> <span class="n">bcast</span><span class="o">.</span><span class="n">get_sender</span><span class="p">()</span>
-<span class="n">receiver_1</span> <span class="o">=</span> <span class="n">bcast</span><span class="o">.</span><span class="n">get_receiver</span><span class="p">()</span>
+<span class="n">sender</span> <span class="o">=</span> <span class="n">bcast</span><span class="o">.</span><span class="n">new_sender</span><span class="p">()</span>
+<span class="n">receiver_1</span> <span class="o">=</span> <span class="n">bcast</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">()</span>
 
 <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">send</span><span class="p">(</span><span class="n">sender</span><span class="p">))</span>
 
@@ -1404,8 +1404,8 @@ simultaneously using <a class="autorefs autorefs-internal" href="../#frequenz.ch
 
 <span class="sd">        bcast = channel.Broadcast()</span>
 
-<span class="sd">        sender = bcast.get_sender()</span>
-<span class="sd">        receiver_1 = bcast.get_receiver()</span>
+<span class="sd">        sender = bcast.new_sender()</span>
+<span class="sd">        receiver_1 = bcast.new_receiver()</span>
 
 <span class="sd">        asyncio.create_task(send(sender))</span>
 
@@ -1423,7 +1423,7 @@ simultaneously using <a class="autorefs autorefs-internal" href="../#frequenz.ch
 <span class="sd">                of data sent through it.  Used to identify the channel in the</span>
 <span class="sd">                logs.</span>
 <span class="sd">            resend_latest: When True, every time a new receiver is created with</span>
-<span class="sd">                `get_receiver`, it will automatically get sent the latest value</span>
+<span class="sd">                `new_receiver`, it will automatically get sent the latest value</span>
 <span class="sd">                on the channel.  This allows new receivers on slow streams to</span>
 <span class="sd">                get the latest value as soon as they are created, without having</span>
 <span class="sd">                to wait for the next message on the channel to arrive.</span>
@@ -1452,7 +1452,7 @@ simultaneously using <a class="autorefs autorefs-internal" href="../#frequenz.ch
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">recv_cv</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">recv_cv</span><span class="o">.</span><span class="n">notify_all</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">get_sender</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sender</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">new_sender</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sender</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Create a new broadcast sender.</span>
 
 <span class="sd">        Returns:</span>
@@ -1460,7 +1460,7 @@ simultaneously using <a class="autorefs autorefs-internal" href="../#frequenz.ch
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Sender</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_receiver</span><span class="p">(</span>
+    <span class="k">def</span> <span class="nf">new_receiver</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">maxsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Create a new broadcast receiver.</span>
@@ -1485,7 +1485,7 @@ simultaneously using <a class="autorefs autorefs-internal" href="../#frequenz.ch
             <span class="n">recv</span><span class="o">.</span><span class="n">enqueue</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_latest</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">recv</span>
 
-    <span class="k">def</span> <span class="nf">get_peekable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Peekable</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">new_peekable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Peekable</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Create a new Peekable for the broadcast channel.</span>
 
 <span class="sd">        A Peekable provides a [peek()][frequenz.channels.Peekable.peek] method</span>
@@ -1551,7 +1551,7 @@ logs.</p>
           <td><code>resend_latest</code></td>
           <td class="doc-param-details">
             <p>When True, every time a new receiver is created with
-<code>get_receiver</code>, it will automatically get sent the latest value
+<code>new_receiver</code>, it will automatically get sent the latest value
 on the channel.  This allows new receivers on slow streams to
 get the latest value as soon as they are created, without having
 to wait for the next message on the channel to arrive.</p>
@@ -1599,7 +1599,7 @@ to wait for the next message on the channel to arrive.</p>
 <span class="sd">            of data sent through it.  Used to identify the channel in the</span>
 <span class="sd">            logs.</span>
 <span class="sd">        resend_latest: When True, every time a new receiver is created with</span>
-<span class="sd">            `get_receiver`, it will automatically get sent the latest value</span>
+<span class="sd">            `new_receiver`, it will automatically get sent the latest value</span>
 <span class="sd">            on the channel.  This allows new receivers on slow streams to</span>
 <span class="sd">            get the latest value as soon as they are created, without having</span>
 <span class="sd">            to wait for the next message on the channel to arrive.</span>
@@ -1682,10 +1682,10 @@ immediately.</p>
 
 
 
-<h6 id="frequenz.channels.broadcast.Broadcast.get_peekable" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">get_peekable</span><span class="p">()</span></code>
+<h6 id="frequenz.channels.broadcast.Broadcast.new_peekable" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">new_peekable</span><span class="p">()</span></code>
 
-<a href="#frequenz.channels.broadcast.Broadcast.get_peekable" class="headerlink" title="Permanent link">¤</a></h6>
+<a href="#frequenz.channels.broadcast.Broadcast.new_peekable" class="headerlink" title="Permanent link">¤</a></h6>
 
 
   <div class="doc doc-contents ">
@@ -1728,7 +1728,7 @@ without consuming anything.</p>
 <span class="normal">145</span>
 <span class="normal">146</span>
 <span class="normal">147</span>
-<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_peekable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Peekable</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">new_peekable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Peekable</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Create a new Peekable for the broadcast channel.</span>
 
 <span class="sd">    A Peekable provides a [peek()][frequenz.channels.Peekable.peek] method</span>
@@ -1749,10 +1749,10 @@ without consuming anything.</p>
 
 
 
-<h6 id="frequenz.channels.broadcast.Broadcast.get_receiver" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">get_receiver</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxsize</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span></code>
+<h6 id="frequenz.channels.broadcast.Broadcast.new_receiver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">new_receiver</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">maxsize</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span></code>
 
-<a href="#frequenz.channels.broadcast.Broadcast.get_receiver" class="headerlink" title="Permanent link">¤</a></h6>
+<a href="#frequenz.channels.broadcast.Broadcast.new_receiver" class="headerlink" title="Permanent link">¤</a></h6>
 
 
   <div class="doc doc-contents ">
@@ -1851,7 +1851,7 @@ get dropped just in this receiver.</p>
 <span class="normal">133</span>
 <span class="normal">134</span>
 <span class="normal">135</span>
-<span class="normal">136</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_receiver</span><span class="p">(</span>
+<span class="normal">136</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">new_receiver</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">maxsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Create a new broadcast receiver.</span>
@@ -1885,10 +1885,10 @@ get dropped just in this receiver.</p>
 
 
 
-<h6 id="frequenz.channels.broadcast.Broadcast.get_sender" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">get_sender</span><span class="p">()</span></code>
+<h6 id="frequenz.channels.broadcast.Broadcast.new_sender" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">new_sender</span><span class="p">()</span></code>
 
-<a href="#frequenz.channels.broadcast.Broadcast.get_sender" class="headerlink" title="Permanent link">¤</a></h6>
+<a href="#frequenz.channels.broadcast.Broadcast.new_sender" class="headerlink" title="Permanent link">¤</a></h6>
 
 
   <div class="doc doc-contents ">
@@ -1924,7 +1924,7 @@ get dropped just in this receiver.</p>
 <span class="normal">108</span>
 <span class="normal">109</span>
 <span class="normal">110</span>
-<span class="normal">111</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_sender</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sender</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="normal">111</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">new_sender</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sender</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Create a new broadcast sender.</span>
 
 <span class="sd">    Returns:</span>
@@ -2174,7 +2174,7 @@ has been sent to the channel yet, or if the channel is closed.</p>
   
       <p>A receiver to receive messages from the broadcast channel.</p>
 <p>Should not be created directly, but through the
-<a class="autorefs autorefs-internal" href="#frequenz.channels.broadcast.Broadcast.get_receiver">Broadcast.get_receiver()</a>
+<a class="autorefs autorefs-internal" href="#frequenz.channels.broadcast.Broadcast.new_receiver">Broadcast.new_receiver()</a>
 method.</p>
 
 
@@ -2282,7 +2282,7 @@ method.</p>
     <span class="sd">&quot;&quot;&quot;A receiver to receive messages from the broadcast channel.</span>
 
 <span class="sd">    Should not be created directly, but through the</span>
-<span class="sd">    [Broadcast.get_receiver()][frequenz.channels.Broadcast.get_receiver]</span>
+<span class="sd">    [Broadcast.new_receiver()][frequenz.channels.Broadcast.new_receiver]</span>
 <span class="sd">    method.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -2907,7 +2907,7 @@ the receiver will raise an exception.</p>
   
       <p>A sender to send messages to the broadcast channel.</p>
 <p>Should not be created directly, but through the
-<a class="autorefs autorefs-internal" href="#frequenz.channels.broadcast.Broadcast.get_sender">Broadcast.get_sender()</a>
+<a class="autorefs autorefs-internal" href="#frequenz.channels.broadcast.Broadcast.new_sender">Broadcast.new_sender()</a>
 method.</p>
 
 
@@ -2958,7 +2958,7 @@ method.</p>
     <span class="sd">&quot;&quot;&quot;A sender to send messages to the broadcast channel.</span>
 
 <span class="sd">    Should not be created directly, but through the</span>
-<span class="sd">    [Broadcast.get_sender()][frequenz.channels.Broadcast.get_sender]</span>
+<span class="sd">    [Broadcast.new_sender()][frequenz.channels.Broadcast.new_sender]</span>
 <span class="sd">    method.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 

@@ -498,15 +498,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.anycast.Anycast.get_receiver" class="md-nav__link">
-    get_receiver()
+  <a href="#frequenz.channels.anycast.Anycast.new_receiver" class="md-nav__link">
+    new_receiver()
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.anycast.Anycast.get_sender" class="md-nav__link">
-    get_sender()
+  <a href="#frequenz.channels.anycast.Anycast.new_sender" class="md-nav__link">
+    new_sender()
   </a>
   
 </li>
@@ -884,15 +884,15 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.anycast.Anycast.get_receiver" class="md-nav__link">
-    get_receiver()
+  <a href="#frequenz.channels.anycast.Anycast.new_receiver" class="md-nav__link">
+    new_receiver()
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#frequenz.channels.anycast.Anycast.get_sender" class="md-nav__link">
-    get_sender()
+  <a href="#frequenz.channels.anycast.Anycast.new_sender" class="md-nav__link">
+    new_sender()
   </a>
   
 </li>
@@ -1097,8 +1097,8 @@ simultaneously using <a class="autorefs autorefs-internal" href="../#frequenz.ch
 
 <span class="n">acast</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">Anycast</span><span class="p">()</span>
 
-<span class="n">sender</span> <span class="o">=</span> <span class="n">acast</span><span class="o">.</span><span class="n">get_sender</span><span class="p">()</span>
-<span class="n">receiver_1</span> <span class="o">=</span> <span class="n">acast</span><span class="o">.</span><span class="n">get_receiver</span><span class="p">()</span>
+<span class="n">sender</span> <span class="o">=</span> <span class="n">acast</span><span class="o">.</span><span class="n">new_sender</span><span class="p">()</span>
+<span class="n">receiver_1</span> <span class="o">=</span> <span class="n">acast</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">()</span>
 
 <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">send</span><span class="p">(</span><span class="n">sender</span><span class="p">))</span>
 
@@ -1234,8 +1234,8 @@ simultaneously using <a class="autorefs autorefs-internal" href="../#frequenz.ch
 
 <span class="sd">        acast = channel.Anycast()</span>
 
-<span class="sd">        sender = acast.get_sender()</span>
-<span class="sd">        receiver_1 = acast.get_receiver()</span>
+<span class="sd">        sender = acast.new_sender()</span>
+<span class="sd">        receiver_1 = acast.new_receiver()</span>
 
 <span class="sd">        asyncio.create_task(send(sender))</span>
 
@@ -1275,7 +1275,7 @@ simultaneously using <a class="autorefs autorefs-internal" href="../#frequenz.ch
         <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">recv_cv</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">recv_cv</span><span class="o">.</span><span class="n">notify_all</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">get_sender</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sender</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">new_sender</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sender</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Create a new sender.</span>
 
 <span class="sd">        Returns:</span>
@@ -1283,7 +1283,7 @@ simultaneously using <a class="autorefs autorefs-internal" href="../#frequenz.ch
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">Sender</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">get_receiver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+    <span class="k">def</span> <span class="nf">new_receiver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
         <span class="sd">&quot;&quot;&quot;Create a new receiver.</span>
 
 <span class="sd">        Returns:</span>
@@ -1444,10 +1444,10 @@ immediately.</p>
 
 
 
-<h6 id="frequenz.channels.anycast.Anycast.get_receiver" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">get_receiver</span><span class="p">()</span></code>
+<h6 id="frequenz.channels.anycast.Anycast.new_receiver" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">new_receiver</span><span class="p">()</span></code>
 
-<a href="#frequenz.channels.anycast.Anycast.get_receiver" class="headerlink" title="Permanent link">¤</a></h6>
+<a href="#frequenz.channels.anycast.Anycast.new_receiver" class="headerlink" title="Permanent link">¤</a></h6>
 
 
   <div class="doc doc-contents ">
@@ -1483,7 +1483,7 @@ immediately.</p>
 <span class="normal">105</span>
 <span class="normal">106</span>
 <span class="normal">107</span>
-<span class="normal">108</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_receiver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="normal">108</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">new_receiver</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Create a new receiver.</span>
 
 <span class="sd">    Returns:</span>
@@ -1500,10 +1500,10 @@ immediately.</p>
 
 
 
-<h6 id="frequenz.channels.anycast.Anycast.get_sender" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">get_sender</span><span class="p">()</span></code>
+<h6 id="frequenz.channels.anycast.Anycast.new_sender" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">new_sender</span><span class="p">()</span></code>
 
-<a href="#frequenz.channels.anycast.Anycast.get_sender" class="headerlink" title="Permanent link">¤</a></h6>
+<a href="#frequenz.channels.anycast.Anycast.new_sender" class="headerlink" title="Permanent link">¤</a></h6>
 
 
   <div class="doc doc-contents ">
@@ -1539,7 +1539,7 @@ immediately.</p>
 <span class="normal"> 97</span>
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
-<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">get_sender</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sender</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
+<span class="normal">100</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">new_sender</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sender</span><span class="p">[</span><span class="n">T</span><span class="p">]:</span>
     <span class="sd">&quot;&quot;&quot;Create a new sender.</span>
 
 <span class="sd">    Returns:</span>
@@ -1577,7 +1577,7 @@ immediately.</p>
 
   
       <p>A receiver to receive messages from an Anycast channel.</p>
-<p>Should not be created directly, but through the <code>Anycast.get_receiver()</code>
+<p>Should not be created directly, but through the <code>Anycast.new_receiver()</code>
 method.</p>
 
 
@@ -1632,7 +1632,7 @@ method.</p>
 <span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Receiver</span><span class="p">(</span><span class="n">BaseReceiver</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;A receiver to receive messages from an Anycast channel.</span>
 
-<span class="sd">    Should not be created directly, but through the `Anycast.get_receiver()`</span>
+<span class="sd">    Should not be created directly, but through the `Anycast.new_receiver()`</span>
 <span class="sd">    method.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -1924,7 +1924,7 @@ method.</p>
 
   
       <p>A sender to send messages to an Anycast channel.</p>
-<p>Should not be created directly, but through the <code>Anycast.get_sender()</code>
+<p>Should not be created directly, but through the <code>Anycast.ggetet_sender()</code>
 method.</p>
 
 
@@ -1971,7 +1971,7 @@ method.</p>
 <span class="normal">149</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Sender</span><span class="p">(</span><span class="n">BaseSender</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;A sender to send messages to an Anycast channel.</span>
 
-<span class="sd">    Should not be created directly, but through the `Anycast.get_sender()`</span>
+<span class="sd">    Should not be created directly, but through the `Anycast.ggetet_sender()`</span>
 <span class="sd">    method.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 

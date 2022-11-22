@@ -1050,12 +1050,12 @@
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_client_handle</span> <span class="o">=</span> <span class="n">BidirectionalHandle</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_request_channel</span><span class="o">.</span><span class="n">get_sender</span><span class="p">(),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_response_channel</span><span class="o">.</span><span class="n">get_receiver</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_request_channel</span><span class="o">.</span><span class="n">new_sender</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_response_channel</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">(),</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_service_handle</span> <span class="o">=</span> <span class="n">BidirectionalHandle</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_response_channel</span><span class="o">.</span><span class="n">get_sender</span><span class="p">(),</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_request_channel</span><span class="o">.</span><span class="n">get_receiver</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_response_channel</span><span class="o">.</span><span class="n">new_sender</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_request_channel</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">(),</span>
         <span class="p">)</span>
 
     <span class="nd">@property</span>
@@ -1175,12 +1175,12 @@
     <span class="p">)</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">_client_handle</span> <span class="o">=</span> <span class="n">BidirectionalHandle</span><span class="p">(</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_request_channel</span><span class="o">.</span><span class="n">get_sender</span><span class="p">(),</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_response_channel</span><span class="o">.</span><span class="n">get_receiver</span><span class="p">(),</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_request_channel</span><span class="o">.</span><span class="n">new_sender</span><span class="p">(),</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_response_channel</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">(),</span>
     <span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_service_handle</span> <span class="o">=</span> <span class="n">BidirectionalHandle</span><span class="p">(</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_response_channel</span><span class="o">.</span><span class="n">get_sender</span><span class="p">(),</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_request_channel</span><span class="o">.</span><span class="n">get_receiver</span><span class="p">(),</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_response_channel</span><span class="o">.</span><span class="n">new_sender</span><span class="p">(),</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_request_channel</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">(),</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
       </details>

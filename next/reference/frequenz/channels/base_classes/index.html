@@ -1983,7 +1983,7 @@ has been sent to the channel yet.</p>
 
 <span class="sd">        Raises:</span>
 <span class="sd">            NotImplementedError: when a `Receiver` implementation doesn&#39;t have</span>
-<span class="sd">                a custom `get_peekable` implementation.</span>
+<span class="sd">                a custom `into_peekable` implementation.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;This receiver does not implement `into_peekable`&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -2276,7 +2276,7 @@ usable, and calling <code>receive</code> on the receiver will raise an exception
           </td>
           <td class="doc-raises-details">
             <p>when a <code>Receiver</code> implementation doesn't have
-a custom <code>get_peekable</code> implementation.</p>
+a custom <code>into_peekable</code> implementation.</p>
           </td>
         </tr>
     </tbody>
@@ -2302,7 +2302,7 @@ a custom <code>get_peekable</code> implementation.</p>
 
 <span class="sd">    Raises:</span>
 <span class="sd">        NotImplementedError: when a `Receiver` implementation doesn&#39;t have</span>
-<span class="sd">            a custom `get_peekable` implementation.</span>
+<span class="sd">            a custom `into_peekable` implementation.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;This receiver does not implement `into_peekable`&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
