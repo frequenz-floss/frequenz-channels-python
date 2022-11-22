@@ -43,6 +43,8 @@ time.
 
 * The class `BidirectionalHandle` was moved to `Bidirectional.Handle`.
 
+* The class `EventType` was moved to `FileWatcher.EventType`.
+
 ## New Features
 
 <!-- Here goes the main new features and examples or instructions on how to use them -->

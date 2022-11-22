@@ -13,16 +13,15 @@ from watchfiles.main import FileChange
 from .._base_classes import ChannelClosedError, Receiver
 
 
-class EventType(Enum):
-    """Available types of changes to watch for."""
-
-    CREATE = Change.added
-    MODIFY = Change.modified
-    DELETE = Change.deleted
-
-
 class FileWatcher(Receiver[pathlib.Path]):
     """A channel receiver that watches for file events."""
+
+    class EventType(Enum):
+        """Available types of changes to watch for."""
+
+        CREATE = Change.added
+        MODIFY = Change.modified
+        DELETE = Change.deleted
 
     def __init__(
         self,
@@ -37,7 +36,7 @@ class FileWatcher(Receiver[pathlib.Path]):
                 all event types.
         """
         if event_types is None:
-            event_types = {EventType.CREATE, EventType.MODIFY, EventType.DELETE}
+            event_types = set(FileWatcher.EventType)  # all types
 
         self.event_types = event_types
         self._stop_event = asyncio.Event()
