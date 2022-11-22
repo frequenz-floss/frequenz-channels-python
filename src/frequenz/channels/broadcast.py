@@ -54,8 +54,8 @@ class Broadcast(Generic[T]):
 
         bcast = channel.Broadcast()
 
-        sender = bcast.get_sender()
-        receiver_1 = bcast.get_receiver()
+        sender = bcast.new_sender()
+        receiver_1 = bcast.new_receiver()
 
         asyncio.create_task(send(sender))
 
@@ -73,7 +73,7 @@ class Broadcast(Generic[T]):
                 of data sent through it.  Used to identify the channel in the
                 logs.
             resend_latest: When True, every time a new receiver is created with
-                `get_receiver`, it will automatically get sent the latest value
+                `new_receiver`, it will automatically get sent the latest value
                 on the channel.  This allows new receivers on slow streams to
                 get the latest value as soon as they are created, without having
                 to wait for the next message on the channel to arrive.
@@ -102,7 +102,7 @@ class Broadcast(Generic[T]):
         async with self.recv_cv:
             self.recv_cv.notify_all()
 
-    def get_sender(self) -> Sender[T]:
+    def new_sender(self) -> Sender[T]:
         """Create a new broadcast sender.
 
         Returns:
@@ -110,7 +110,7 @@ class Broadcast(Generic[T]):
         """
         return Sender(self)
 
-    def get_receiver(
+    def new_receiver(
         self, name: Optional[str] = None, maxsize: int = 50
     ) -> Receiver[T]:
         """Create a new broadcast receiver.
@@ -135,7 +135,7 @@ class Broadcast(Generic[T]):
             recv.enqueue(self._latest)
         return recv
 
-    def get_peekable(self) -> Peekable[T]:
+    def new_peekable(self) -> Peekable[T]:
         """Create a new Peekable for the broadcast channel.
 
         A Peekable provides a [peek()][frequenz.channels.Peekable.peek] method
@@ -152,7 +152,7 @@ class Sender(BaseSender[T]):
     """A sender to send messages to the broadcast channel.
 
     Should not be created directly, but through the
-    [Broadcast.get_sender()][frequenz.channels.Broadcast.get_sender]
+    [Broadcast.new_sender()][frequenz.channels.Broadcast.new_sender]
     method.
     """
 
@@ -196,7 +196,7 @@ class Receiver(BufferedReceiver[T]):
     """A receiver to receive messages from the broadcast channel.
 
     Should not be created directly, but through the
-    [Broadcast.get_receiver()][frequenz.channels.Broadcast.get_receiver]
+    [Broadcast.new_receiver()][frequenz.channels.Broadcast.new_receiver]
     method.
     """
 

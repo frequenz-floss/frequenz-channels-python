@@ -50,8 +50,8 @@ class Anycast(Generic[T]):
 
         acast = channel.Anycast()
 
-        sender = acast.get_sender()
-        receiver_1 = acast.get_receiver()
+        sender = acast.new_sender()
+        receiver_1 = acast.new_receiver()
 
         asyncio.create_task(send(sender))
 
@@ -91,7 +91,7 @@ class Anycast(Generic[T]):
         async with self.recv_cv:
             self.recv_cv.notify_all()
 
-    def get_sender(self) -> Sender[T]:
+    def new_sender(self) -> Sender[T]:
         """Create a new sender.
 
         Returns:
@@ -99,7 +99,7 @@ class Anycast(Generic[T]):
         """
         return Sender(self)
 
-    def get_receiver(self) -> Receiver[T]:
+    def new_receiver(self) -> Receiver[T]:
         """Create a new receiver.
 
         Returns:
@@ -111,7 +111,7 @@ class Anycast(Generic[T]):
 class Sender(BaseSender[T]):
     """A sender to send messages to an Anycast channel.
 
-    Should not be created directly, but through the `Anycast.get_sender()`
+    Should not be created directly, but through the `Anycast.ggetet_sender()`
     method.
     """
 
@@ -152,7 +152,7 @@ class Sender(BaseSender[T]):
 class Receiver(BaseReceiver[T]):
     """A receiver to receive messages from an Anycast channel.
 
-    Should not be created directly, but through the `Anycast.get_receiver()`
+    Should not be created directly, but through the `Anycast.new_receiver()`
     method.
     """
 

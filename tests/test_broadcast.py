@@ -41,12 +41,12 @@ async def test_broadcast() -> None:
 
     receivers = []
     for ctr in range(num_receivers):
-        receivers.append(update_tracker_on_receive(ctr, bcast.get_receiver()))
+        receivers.append(update_tracker_on_receive(ctr, bcast.new_receiver()))
 
     receivers_runs = asyncio.gather(*receivers)
     senders = []
     for ctr in range(num_senders):
-        senders.append(send_msg(bcast.get_sender()))
+        senders.append(send_msg(bcast.new_sender()))
 
     await asyncio.gather(*senders)
     await bcast.close()
@@ -64,8 +64,8 @@ async def test_broadcast_after_close() -> None:
     """Ensure closed channels can't get new messages."""
     bcast: Broadcast[int] = Broadcast("meter_5")
 
-    receiver = bcast.get_receiver()
-    sender = bcast.get_sender()
+    receiver = bcast.new_receiver()
+    sender = bcast.new_sender()
 
     await bcast.close()
 
@@ -80,10 +80,10 @@ async def test_broadcast_overflow() -> None:
 
     big_recv_size = 10
     small_recv_size = int(big_recv_size / 2)
-    sender = bcast.get_sender()
+    sender = bcast.new_sender()
 
-    big_receiver = bcast.get_receiver("named-recv", big_recv_size)
-    small_receiver = bcast.get_receiver(None, small_recv_size)
+    big_receiver = bcast.new_receiver("named-recv", big_recv_size)
+    small_receiver = bcast.new_receiver(None, small_recv_size)
 
     async def drain_receivers() -> Tuple[int, int]:
         big_sum = 0
@@ -129,11 +129,11 @@ async def test_broadcast_resend_latest() -> None:
     """Check if new receivers get the latest value when resend_latest is set."""
     bcast: Broadcast[int] = Broadcast("new_recv_test", resend_latest=True)
 
-    sender = bcast.get_sender()
-    old_recv = bcast.get_receiver()
+    sender = bcast.new_sender()
+    old_recv = bcast.new_receiver()
     for val in range(0, 10):
         await sender.send(val)
-    new_recv = bcast.get_receiver()
+    new_recv = bcast.new_receiver()
 
     await sender.send(100)
 
@@ -146,11 +146,11 @@ async def test_broadcast_no_resend_latest() -> None:
     """Ensure new receivers don't get the latest value when resend_latest isn't set."""
     bcast: Broadcast[int] = Broadcast("new_recv_test", resend_latest=False)
 
-    sender = bcast.get_sender()
-    old_recv = bcast.get_receiver()
+    sender = bcast.new_sender()
+    old_recv = bcast.new_receiver()
     for val in range(0, 10):
         await sender.send(val)
-    new_recv = bcast.get_receiver()
+    new_recv = bcast.new_receiver()
 
     await sender.send(100)
 
@@ -161,9 +161,9 @@ async def test_broadcast_no_resend_latest() -> None:
 async def test_broadcast_peek() -> None:
     """Ensure we are able to peek into broadcast channels."""
     bcast: Broadcast[int] = Broadcast("peek-test")
-    receiver = bcast.get_receiver()
+    receiver = bcast.new_receiver()
     peekable = receiver.into_peekable()
-    sender = bcast.get_sender()
+    sender = bcast.new_sender()
 
     with pytest.raises(EOFError):
         await receiver.receive()
@@ -188,8 +188,8 @@ async def test_broadcast_async_iterator() -> None:
     """Check that the broadcast receiver works as an async iterator."""
     bcast: Broadcast[int] = Broadcast("iter_test")
 
-    sender = bcast.get_sender()
-    receiver = bcast.get_receiver()
+    sender = bcast.new_sender()
+    receiver = bcast.new_receiver()
 
     async def send_values() -> None:
         for val in range(0, 10):
@@ -210,10 +210,10 @@ async def test_broadcast_async_iterator() -> None:
 async def test_broadcast_map() -> None:
     """Ensure map runs on all incoming messages."""
     chan = Broadcast[int]("input-chan")
-    sender = chan.get_sender()
+    sender = chan.new_sender()
 
     # transform int receiver into bool receiver.
-    receiver: Receiver[bool] = chan.get_receiver().map(lambda num: num > 10)
+    receiver: Receiver[bool] = chan.new_receiver().map(lambda num: num > 10)
 
     await sender.send(8)
     await sender.send(12)
@@ -225,10 +225,10 @@ async def test_broadcast_map() -> None:
 async def test_broadcast_receiver_drop() -> None:
     """Ensure deleted receivers get cleaned up."""
     chan = Broadcast[int]("input-chan")
-    sender = chan.get_sender()
+    sender = chan.new_sender()
 
-    receiver1 = chan.get_receiver()
-    receiver2 = chan.get_receiver()
+    receiver1 = chan.new_receiver()
+    receiver2 = chan.new_receiver()
 
     await sender.send(10)
 

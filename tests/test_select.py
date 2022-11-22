@@ -26,12 +26,12 @@ async def test_select() -> None:
         await chan3.close()
 
     senders = asyncio.create_task(
-        send(chan1.get_sender(), chan2.get_sender(), chan3.get_sender()),
+        send(chan1.new_sender(), chan2.new_sender(), chan3.new_sender()),
     )
     select = Select(
-        ch1=chan1.get_receiver(),
-        ch2=chan2.get_receiver(),
-        ch3=chan3.get_receiver(),
+        ch1=chan1.new_receiver(),
+        ch2=chan2.new_receiver(),
+        ch3=chan3.new_receiver(),
     )
 
     # only check for messages from all iterators but `ch3`.
