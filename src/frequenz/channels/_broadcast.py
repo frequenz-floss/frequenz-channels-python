@@ -12,8 +12,9 @@ from collections import deque
 from typing import Deque, Dict, Generic, Optional
 from uuid import UUID, uuid4
 
-from ._base_classes import BufferedReceiver, ChannelClosedError
+from ._base_classes import ChannelClosedError
 from ._base_classes import Peekable as BasePeekable
+from ._base_classes import Receiver as BaseReceiver
 from ._base_classes import Sender as BaseSender
 from ._base_classes import T
 
@@ -192,7 +193,7 @@ class Sender(BaseSender[T]):
         return True
 
 
-class Receiver(BufferedReceiver[T]):
+class Receiver(BaseReceiver[T]):
     """A receiver to receive messages from the broadcast channel.
 
     Should not be created directly, but through the

@@ -48,7 +48,6 @@ Exception classes:
 from . import util
 from ._anycast import Anycast
 from ._base_classes import (
-    BufferedReceiver,
     ChannelClosedError,
     ChannelError,
     Peekable,
@@ -63,7 +62,6 @@ __all__ = [
     "Bidirectional",
     "BidirectionalHandle",
     "Broadcast",
-    "BufferedReceiver",
     "ChannelClosedError",
     "ChannelError",
     "Peekable",

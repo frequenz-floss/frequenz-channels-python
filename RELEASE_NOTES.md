@@ -28,7 +28,6 @@ time.
   * `frequenz.channels.Bidirectional`
   * `frequenz.channels.BidirectionalHandle`
   * `frequenz.channels.Broadcast`
-  * `frequenz.channels.BufferedReceiver`
   * `frequenz.channels.Peekable`
   * `frequenz.channels.Receiver`
   * `frequenz.channels.Sender`
@@ -37,6 +36,11 @@ time.
   * `frequenz.channels.util.FileWatcher`
   * `frequenz.channels.util.Select`
   * `frequenz.channels.util.Timer`
+
+* The class `BufferedReceiver` was removed because the interface was really
+  intended for channel implementations. Users are not supposed to enqueue
+  messages to receiver but just receive from them. If you used it you can
+  implement it yourself.
 
 ## New Features
 
