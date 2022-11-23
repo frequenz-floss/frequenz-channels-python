@@ -1340,9 +1340,7 @@
 <span class="normal">92</span>
 <span class="normal">93</span>
 <span class="normal">94</span>
-<span class="normal">95</span>
-<span class="normal">96</span>
-<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">FileWatcher</span><span class="p">(</span><span class="n">Receiver</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]):</span>
+<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">FileWatcher</span><span class="p">(</span><span class="n">Receiver</span><span class="p">[</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">]):</span>
     <span class="sd">&quot;&quot;&quot;A channel receiver that watches for file events.&quot;&quot;&quot;</span>
 
     <span class="k">class</span> <span class="nc">EventType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
@@ -1419,8 +1417,6 @@
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changes</span><span class="p">,</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
         <span class="n">change</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changes</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
         <span class="c1"># Tuple of (Change, path) returned by watchfiles</span>
-        <span class="k">if</span> <span class="n">change</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">change</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ChannelClosedError</span><span class="p">()</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">path_str</span> <span class="o">=</span> <span class="n">change</span>
         <span class="n">path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path_str</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">path</span>
@@ -1727,9 +1723,7 @@ all event types.</p>
 <span class="normal">92</span>
 <span class="normal">93</span>
 <span class="normal">94</span>
-<span class="normal">95</span>
-<span class="normal">96</span>
-<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
+<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;Return the latest change once `ready` is complete.</span>
 
 <span class="sd">    Raises:</span>
@@ -1741,8 +1735,6 @@ all event types.</p>
     <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changes</span><span class="p">,</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
     <span class="n">change</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changes</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
     <span class="c1"># Tuple of (Change, path) returned by watchfiles</span>
-    <span class="k">if</span> <span class="n">change</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">change</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">ChannelClosedError</span><span class="p">()</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">path_str</span> <span class="o">=</span> <span class="n">change</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">path_str</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">path</span>
