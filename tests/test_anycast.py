@@ -7,8 +7,7 @@ import asyncio
 
 import pytest
 
-from frequenz.channels import Anycast, Receiver, Sender
-from frequenz.channels.base_classes import ChannelClosedError
+from frequenz.channels import Anycast, ChannelClosedError, Receiver, Sender
 
 
 async def test_anycast() -> None:

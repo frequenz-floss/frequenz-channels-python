@@ -7,13 +7,13 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from frequenz.channels.base_classes import ChannelClosedError, Receiver
+from .._base_classes import ChannelClosedError, Receiver
 
 
 class Timer(Receiver[datetime]):
     """A timer receiver that returns the timestamp every `interval` seconds.
 
-    Primarily for use with [Select][frequenz.channels.Select].
+    Primarily for use with [Select][frequenz.channels.util.Select].
 
     The timestamp generated is a timezone-aware datetime using UTC as timezone.
 
@@ -21,7 +21,7 @@ class Timer(Receiver[datetime]):
         When you want something to happen with a fixed period:
 
         ```python
-        timer = channel.Timer(30.0)
+        timer = Timer(30.0)
         select = Select(bat_1 = receiver1, timer = timer)
         while await select.ready():
             if msg := select.bat_1:
@@ -38,7 +38,7 @@ class Timer(Receiver[datetime]):
         certain interval:
 
         ```python
-        timer = channel.Timer(30.0)
+        timer = Timer(30.0)
         select = Select(bat_1 = receiver1, timer = timer)
         while await select.ready():
             timer.reset()
@@ -72,8 +72,8 @@ class Timer(Receiver[datetime]):
         """Stop the timer.
 
         Once `stop` has been called, all subsequent calls to
-        [receive()][frequenz.channels.Timer.receive] will immediately return
-        `None`.
+        [receive()][frequenz.channels.Receiver.receive] will immediately
+        return `None`.
         """
         self._stopped = True
 
@@ -81,13 +81,13 @@ class Timer(Receiver[datetime]):
         """Return the current time (in UTC) once the next tick is due.
 
         Raises:
-            ChannelClosedError: if [stop()][frequenz.channels.Timer.stop] has been
-                called on the timer.
+            ChannelClosedError: if [stop()][frequenz.channels.util.Timer.stop]
+                has been called on the timer.
 
         Returns:
             The time of the next tick in UTC or `None` if
-                [stop()][frequenz.channels.Timer.stop] has been called on the
-                timer.
+                [stop()][frequenz.channels.util.Timer.stop] has been called on
+                the timer.
         """
         # if there are messages waiting to be consumed, return immediately.
         if self._now is not None:

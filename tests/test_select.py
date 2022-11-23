@@ -6,7 +6,8 @@
 import asyncio
 from typing import List
 
-from frequenz.channels import Anycast, Select, Sender
+from frequenz.channels import Anycast, Sender
+from frequenz.channels.util import Select
 
 
 async def test_select() -> None:

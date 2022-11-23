@@ -164,18 +164,6 @@ class Peekable(ABC, Generic[T]):
         """
 
 
-class BufferedReceiver(Receiver[T]):
-    """A channel receiver with a buffer."""
-
-    @abstractmethod
-    def enqueue(self, msg: T) -> None:
-        """Put a message into this buffered receiver's queue.
-
-        Args:
-            msg: The message to be added to the queue.
-        """
-
-
 class _Map(Receiver[U], Generic[T, U]):
     """Apply a transform function on a channel receiver.
 

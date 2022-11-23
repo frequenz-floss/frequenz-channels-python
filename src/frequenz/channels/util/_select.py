@@ -13,7 +13,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Set, TypeVar
 
-from frequenz.channels.base_classes import ChannelClosedError, Receiver
+from .._base_classes import ChannelClosedError, Receiver
 
 logger = logging.Logger(__name__)
 T = TypeVar("T")
@@ -57,9 +57,9 @@ class Select:
     """Select the next available message from a group of Receivers.
 
     If `Select` was created with more `Receiver` than what are read in
-    the if-chain after each call to [ready()][frequenz.channels.Select.ready],
-    messages coming in the additional receivers are dropped, and
-    a warning message is logged.
+    the if-chain after each call to
+    [ready()][frequenz.channels.util.Select.ready], messages coming in the
+    additional receivers are dropped, and a warning message is logged.
 
     [Receiver][frequenz.channels.Receiver]s also function as `Receiver`.
 

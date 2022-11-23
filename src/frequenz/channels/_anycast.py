@@ -9,10 +9,10 @@ from asyncio import Condition
 from collections import deque
 from typing import Deque, Generic, Optional
 
-from frequenz.channels.base_classes import ChannelClosedError
-from frequenz.channels.base_classes import Receiver as BaseReceiver
-from frequenz.channels.base_classes import Sender as BaseSender
-from frequenz.channels.base_classes import T
+from ._base_classes import ChannelClosedError
+from ._base_classes import Receiver as BaseReceiver
+from ._base_classes import Sender as BaseSender
+from ._base_classes import T
 
 
 class Anycast(Generic[T]):
@@ -28,9 +28,9 @@ class Anycast(Generic[T]):
     thread-safe.
 
     When there are multiple channel receivers, they can be awaited
-    simultaneously using [Select][frequenz.channels.Select],
-    [Merge][frequenz.channels.Merge] or
-    [MergeNamed][frequenz.channels.MergeNamed].
+    simultaneously using [Select][frequenz.channels.util.Select],
+    [Merge][frequenz.channels.util.Merge] or
+    [MergeNamed][frequenz.channels.util.MergeNamed].
 
     Example:
         ``` python

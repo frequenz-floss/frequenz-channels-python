@@ -8,8 +8,7 @@ from typing import Tuple
 
 import pytest
 
-from frequenz.channels import Broadcast, Receiver, Sender
-from frequenz.channels.base_classes import ChannelClosedError
+from frequenz.channels import Broadcast, ChannelClosedError, Receiver, Sender
 
 
 async def test_broadcast() -> None:

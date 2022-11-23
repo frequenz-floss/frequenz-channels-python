@@ -6,8 +6,7 @@
 import os
 import pathlib
 
-from frequenz.channels import FileWatcher, Select, Timer
-from frequenz.channels.utils.file_watcher import EventType
+from frequenz.channels.util import FileWatcher, Select, Timer
 
 
 async def test_file_watcher(tmp_path: pathlib.Path) -> None:
@@ -45,7 +44,9 @@ async def test_file_watcher_change_types(tmp_path: pathlib.Path) -> None:
             Created by pytest.
     """
     filename = tmp_path / "test-file"
-    file_watcher = FileWatcher(paths=[str(tmp_path)], event_types={EventType.DELETE})
+    file_watcher = FileWatcher(
+        paths=[str(tmp_path)], event_types={FileWatcher.EventType.DELETE}
+    )
 
     select = Select(
         write_timer=Timer(0.1), deletion_timer=Timer(0.5), watcher=file_watcher

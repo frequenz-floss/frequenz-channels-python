@@ -18,6 +18,33 @@ time.
   `new_receiver()` and `new_sender()` respectively. This is to make it more
   clear that new objects are being created.
 
+* The public API surface has been reduced considerably to make it more clear
+  where to import symbols.  You should update your imports.  The new symbol
+  locations are:
+
+  * `frequenz.channels.Anycast`
+  * `frequenz.channels.Broadcast`
+  * `frequenz.channels.Anycast`
+  * `frequenz.channels.Bidirectional`
+  * `frequenz.channels.Broadcast`
+  * `frequenz.channels.Peekable`
+  * `frequenz.channels.Receiver`
+  * `frequenz.channels.Sender`
+  * `frequenz.channels.util.Merge`
+  * `frequenz.channels.util.MergeNamed`
+  * `frequenz.channels.util.FileWatcher`
+  * `frequenz.channels.util.Select`
+  * `frequenz.channels.util.Timer`
+
+* The class `BufferedReceiver` was removed because the interface was really
+  intended for channel implementations. Users are not supposed to enqueue
+  messages to receiver but just receive from them. If you used it you can
+  implement it yourself.
+
+* The class `BidirectionalHandle` was moved to `Bidirectional.Handle`.
+
+* The class `EventType` was moved to `FileWatcher.EventType`.
+
 ## New Features
 
 <!-- Here goes the main new features and examples or instructions on how to use them -->
