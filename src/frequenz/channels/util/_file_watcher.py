@@ -10,7 +10,7 @@ from typing import List, Optional, Set, Union
 from watchfiles import Change, awatch
 from watchfiles.main import FileChange
 
-from .._base_classes import ChannelClosedError, Receiver
+from .._base_classes import Receiver
 
 
 class FileWatcher(Receiver[pathlib.Path]):
@@ -90,8 +90,6 @@ class FileWatcher(Receiver[pathlib.Path]):
         assert self._changes, "calls to `consume()` must be follow a call to `ready()`"
         change = self._changes.pop()
         # Tuple of (Change, path) returned by watchfiles
-        if change is None or len(change) != 2:
-            raise ChannelClosedError()
         _, path_str = change
         path = pathlib.Path(path_str)
         return path
