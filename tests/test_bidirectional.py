@@ -11,6 +11,7 @@ from frequenz.channels import (
     Bidirectional,
     ChannelClosedError,
     ChannelError,
+    ReceiverError,
     SenderError,
 )
 
@@ -59,6 +60,23 @@ async def test_sender_error_chaining() -> None:
 
     with pytest.raises(SenderError, match="The channel was closed") as exc_info:
         await req_resp.service_handle.send("I'm closed!")
+
+    err = exc_info.value
+    cause = err.__cause__
+    assert isinstance(cause, ChannelError)
+    assert cause.args[0].startswith("Error in the underlying channel")
+    assert isinstance(cause.__cause__, ChannelClosedError)
+
+
+async def test_ready_error_chaining() -> None:
+    """Ensure bi-directional communication is possible."""
+
+    req_resp: Bidirectional[int, str] = Bidirectional("test_client", "test_service")
+
+    await req_resp._request_channel.close()  # pylint: disable=protected-access
+
+    with pytest.raises(ReceiverError, match="Receiver .* was stopped") as exc_info:
+        await req_resp.service_handle.ready()
 
     err = exc_info.value
     cause = err.__cause__

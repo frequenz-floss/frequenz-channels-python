@@ -7,7 +7,7 @@ import asyncio
 from collections import deque
 from typing import Any, Deque, Set
 
-from .._base_classes import ChannelClosedError, Receiver, T
+from .._base_classes import Receiver, ReceiverStoppedError, T
 
 
 class Merge(Receiver[T]):
@@ -58,7 +58,8 @@ class Merge(Receiver[T]):
         """Wait until the receiver is ready with a value.
 
         Raises:
-            ChannelClosedError: if the underlying channel is closed.
+            ReceiverStoppedError: if the receiver stopped producing messages.
+            ReceiverError: if there is some problem with the receiver.
         """
         # we use a while loop to continue to wait for new data, in case the
         # previous `wait` completed because a channel was closed.
@@ -68,7 +69,7 @@ class Merge(Receiver[T]):
                 return
 
             if len(self._pending) == 0:
-                raise ChannelClosedError()
+                raise ReceiverStoppedError(self)
             done, self._pending = await asyncio.wait(
                 self._pending, return_when=asyncio.FIRST_COMPLETED
             )
@@ -86,9 +87,6 @@ class Merge(Receiver[T]):
 
     def consume(self) -> T:
         """Return the latest value once `ready` is complete.
-
-        Raises:
-            EOFError: When called before a call to `ready()` finishes.
 
         Returns:
             The next value that was received.
