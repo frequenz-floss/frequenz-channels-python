@@ -20,6 +20,26 @@
 
 * Now exceptions are not raised in Receiver.ready() but in Receiver.consume() (receive() or the async iterator `anext`).
 
+* `Select` constructor now takes a variable number of receivers:
+
+  ```py
+  select = Select(recv1, recv2)
+  ```
+
+* `Select.ready()` is now an async iterator and yields a set of receivers that are ready to be consumed. Receivers must be explicitly consumed and if a ready receiver is not consumed, the ready message won't be discarded by select any more, it will wait indefinitely until it is consumed.
+
+  Example:
+
+  ```py
+  select = Select(recv1, recv2)
+  async for ready_set in select.ready():
+      if recv1 in ready_set:
+          msg = recv1.consume()
+	  # do whatever with msg, consume() can also raise an error as normal
+      if recv2 in ready_set:
+          msg = recv2.consume()
+  ```
+
 ## New Features
 
 * New exceptions were added:
