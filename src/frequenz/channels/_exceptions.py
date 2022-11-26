@@ -104,3 +104,12 @@ class ReceiverStoppedError(ReceiverError[T]):
                 error happened.
         """
         super().__init__(f"Receiver {receiver} was stopped", receiver)
+
+
+class ReceiverInvalidatedError(ReceiverError[T]):
+    """The [Receiver][frequenz.channels.Receiver] was invalidated.
+
+    This happens when the Receiver is converted
+    [into][frequenz.channels.Receiver.into_peekable]
+    a [Peekable][frequenz.channels.Peekable].
+    """

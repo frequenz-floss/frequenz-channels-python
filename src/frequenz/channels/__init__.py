@@ -55,6 +55,10 @@ Exception classes:
 
 * [ReceiverStoppedError][frequenz.channels.ReceiverStoppedError]: A receiver
   stopped producing messages.
+
+* [ReceiverInvalidatedError][frequenz.channels.ReceiverInvalidatedError]:
+  A receiver is not longer valid (for example if it was converted into
+  a peekable.
 """
 
 from . import util
@@ -67,6 +71,7 @@ from ._exceptions import (
     ChannelError,
     Error,
     ReceiverError,
+    ReceiverInvalidatedError,
     ReceiverStoppedError,
     SenderError,
 )
@@ -81,6 +86,7 @@ __all__ = [
     "Peekable",
     "Receiver",
     "ReceiverError",
+    "ReceiverInvalidatedError",
     "ReceiverStoppedError",
     "Sender",
     "SenderError",
