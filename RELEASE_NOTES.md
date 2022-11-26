@@ -10,7 +10,8 @@
 
 ## New Features
 
-<!-- Here goes the main new features and examples or instructions on how to use them -->
+* A new base exception `frequenz.channels.Error` was added. All exceptions from
+  this library inherit from this exception.
 
 ## Bug Fixes
 

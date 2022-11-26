@@ -38,6 +38,9 @@ Utilities:
 
 Exception classes:
 
+* [Error][frequenz.channels.Error]: Base class for all errors in this
+  library.
+
 * [ChannelError][frequenz.channels.ChannelError]: Base class for all errors
   related to channels.
 
@@ -47,7 +50,14 @@ Exception classes:
 
 from . import util
 from ._anycast import Anycast
-from ._base_classes import ChannelClosedError, ChannelError, Peekable, Receiver, Sender
+from ._base_classes import (
+    ChannelClosedError,
+    ChannelError,
+    Error,
+    Peekable,
+    Receiver,
+    Sender,
+)
 from ._bidirectional import Bidirectional
 from ._broadcast import Broadcast
 
@@ -57,6 +67,7 @@ __all__ = [
     "Broadcast",
     "ChannelClosedError",
     "ChannelError",
+    "Error",
     "Peekable",
     "Receiver",
     "Sender",
