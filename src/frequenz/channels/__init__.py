@@ -46,6 +46,9 @@ Exception classes:
 
 * [ChannelClosedError][frequenz.channels.ChannelClosedError]: Error raised when
   trying to operate (send, receive, etc.) through a closed channel.
+
+* [SenderError][frequenz.channels.SenderError]: Base class for all errors
+  related to senders.
 """
 
 from . import util
@@ -57,6 +60,7 @@ from ._base_classes import (
     Peekable,
     Receiver,
     Sender,
+    SenderError,
 )
 from ._bidirectional import Bidirectional
 from ._broadcast import Broadcast
@@ -71,5 +75,6 @@ __all__ = [
     "Peekable",
     "Receiver",
     "Sender",
+    "SenderError",
     "util",
 ]

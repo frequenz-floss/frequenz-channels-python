@@ -8,7 +8,13 @@ from typing import Tuple
 
 import pytest
 
-from frequenz.channels import Broadcast, ChannelClosedError, Receiver, Sender
+from frequenz.channels import (
+    Broadcast,
+    ChannelClosedError,
+    Receiver,
+    Sender,
+    SenderError,
+)
 
 
 async def test_broadcast() -> None:
@@ -68,7 +74,8 @@ async def test_broadcast_after_close() -> None:
 
     await bcast.close()
 
-    assert await sender.send(5) is False
+    with pytest.raises(SenderError):
+        await sender.send(5)
     with pytest.raises(ChannelClosedError):
         await receiver.receive()
 
