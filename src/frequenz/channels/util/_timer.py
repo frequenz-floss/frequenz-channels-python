@@ -7,7 +7,7 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from .._base_classes import ChannelClosedError, Receiver
+from .._base_classes import Receiver, ReceiverStoppedError
 
 
 class Timer(Receiver[datetime]):
@@ -80,21 +80,21 @@ class Timer(Receiver[datetime]):
     async def ready(self) -> None:
         """Return the current time (in UTC) once the next tick is due.
 
-        Raises:
-            ChannelClosedError: if [stop()][frequenz.channels.util.Timer.stop]
-                has been called on the timer.
-
         Returns:
             The time of the next tick in UTC or `None` if
                 [stop()][frequenz.channels.util.Timer.stop] has been called on
                 the timer.
+
+        Raises:
+            ReceiverStoppedError: if the receiver stopped producing messages.
+            ReceiverError: if there is some problem with the receiver.
         """
         # if there are messages waiting to be consumed, return immediately.
         if self._now is not None:
             return
 
         if self._stopped:
-            raise ChannelClosedError()
+            raise ReceiverStoppedError(self)
         now = datetime.now(timezone.utc)
         diff = self._next_msg_time - now
         while diff.total_seconds() > 0:
@@ -107,9 +107,6 @@ class Timer(Receiver[datetime]):
 
     def consume(self) -> datetime:
         """Return the latest value once `ready` is complete.
-
-        Raises:
-            EOFError: When called before a call to `ready()` finishes.
 
         Returns:
             The timestamp for the next tick.

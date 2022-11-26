@@ -10,7 +10,7 @@ from typing import List, Optional, Set, Union
 from watchfiles import Change, awatch
 from watchfiles.main import FileChange
 
-from .._base_classes import Receiver
+from .._base_classes import Receiver, ReceiverStoppedError
 
 
 class FileWatcher(Receiver[pathlib.Path]):
@@ -66,23 +66,24 @@ class FileWatcher(Receiver[pathlib.Path]):
     async def ready(self) -> None:
         """Wait for the next file event and return its path.
 
-        Raises:
-            StopAsyncIteration: When the channel is closed.
-
         Returns:
             Path of next file.
+
+        Raises:
+            ReceiverStoppedError: if the receiver stopped producing messages.
+            ReceiverError: if there is some problem with the receiver.
         """
         # if there are messages waiting to be consumed, return immediately.
         if self._changes:
             return
 
-        self._changes = await self._awatch.__anext__()
+        try:
+            self._changes = await self._awatch.__anext__()
+        except StopAsyncIteration as err:
+            raise ReceiverStoppedError(self) from err
 
     def consume(self) -> pathlib.Path:
         """Return the latest change once `ready` is complete.
-
-        Raises:
-            ChannelClosedError: When the channel is closed.
 
         Returns:
             The next change that was received.

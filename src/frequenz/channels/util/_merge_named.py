@@ -7,7 +7,7 @@ import asyncio
 from collections import deque
 from typing import Any, Deque, Set, Tuple
 
-from .._base_classes import ChannelClosedError, Receiver, T
+from .._base_classes import Receiver, ReceiverStoppedError, T
 
 
 class MergeNamed(Receiver[Tuple[str, T]]):
@@ -35,7 +35,8 @@ class MergeNamed(Receiver[Tuple[str, T]]):
         """Wait until there's a message in any of the channels.
 
         Raises:
-            ChannelClosedError: when all the channels are closed.
+            ReceiverStoppedError: if the receiver stopped producing messages.
+            ReceiverError: if there is some problem with the receiver.
         """
         # we use a while loop to continue to wait for new data, in case the
         # previous `wait` completed because a channel was closed.
@@ -45,7 +46,7 @@ class MergeNamed(Receiver[Tuple[str, T]]):
                 return
 
             if len(self._pending) == 0:
-                raise ChannelClosedError()
+                raise ReceiverStoppedError(self)
             done, self._pending = await asyncio.wait(
                 self._pending, return_when=asyncio.FIRST_COMPLETED
             )
@@ -63,9 +64,6 @@ class MergeNamed(Receiver[Tuple[str, T]]):
 
     def consume(self) -> Tuple[str, T]:
         """Return the latest value once `ready` is complete.
-
-        Raises:
-            EOFError: When called before a call to `ready()` finishes.
 
         Returns:
             The next value that was received, along with its name.

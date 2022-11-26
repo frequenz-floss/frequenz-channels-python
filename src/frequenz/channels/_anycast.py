@@ -11,6 +11,7 @@ from typing import Deque, Generic, Optional
 
 from ._base_classes import ChannelClosedError
 from ._base_classes import Receiver as BaseReceiver
+from ._base_classes import ReceiverStoppedError
 from ._base_classes import Sender as BaseSender
 from ._base_classes import SenderError, T
 
@@ -171,7 +172,8 @@ class Receiver(BaseReceiver[T]):
         """Wait until the receiver is ready with a value.
 
         Raises:
-            ChannelClosedError: if the underlying channel is closed.
+            ReceiverStoppedError: if the receiver stopped producing messages.
+            ReceiverError: if there is some problem with the receiver.
         """
         # if a message is already ready, then return immediately.
         if self._next is not None:
@@ -179,7 +181,7 @@ class Receiver(BaseReceiver[T]):
 
         while len(self._chan.deque) == 0:
             if self._chan.closed:
-                raise ChannelClosedError()
+                raise ReceiverStoppedError(self) from ChannelClosedError(self._chan)
             async with self._chan.recv_cv:
                 await self._chan.recv_cv.wait()
         self._next = self._chan.deque.popleft()

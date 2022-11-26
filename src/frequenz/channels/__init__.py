@@ -49,6 +49,12 @@ Exception classes:
 
 * [SenderError][frequenz.channels.SenderError]: Base class for all errors
   related to senders.
+
+* [ReceiverError][frequenz.channels.ReceiverError]: Base class for all errors
+  related to receivers.
+
+* [ReceiverStoppedError][frequenz.channels.ReceiverStoppedError]: A receiver
+  stopped producing messages.
 """
 
 from . import util
@@ -59,6 +65,8 @@ from ._base_classes import (
     Error,
     Peekable,
     Receiver,
+    ReceiverError,
+    ReceiverStoppedError,
     Sender,
     SenderError,
 )
@@ -74,6 +82,8 @@ __all__ = [
     "Error",
     "Peekable",
     "Receiver",
+    "ReceiverError",
+    "ReceiverStoppedError",
     "Sender",
     "SenderError",
     "util",

@@ -5,9 +5,17 @@
 
 from __future__ import annotations
 
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Union
 
-from ._base_classes import ChannelError, Receiver, Sender, SenderError, T, U
+from ._base_classes import (
+    ChannelError,
+    Receiver,
+    ReceiverError,
+    Sender,
+    SenderError,
+    T,
+    U,
+)
 from ._broadcast import Broadcast
 
 V = TypeVar("V")
@@ -67,8 +75,26 @@ class Bidirectional(Generic[T, U]):
                     err.__cause__ = this_chan_error
 
         async def ready(self) -> None:
-            """Wait until the receiver is ready with a value."""
-            await self._receiver.ready()  # pylint: disable=protected-access
+            """Wait until the receiver is ready with a value.
+
+            Raises:
+                ReceiverStoppedError: if the receiver stopped producing messages.
+                ReceiverError: if there is some problem with the receiver.
+            """
+            try:
+                await self._receiver.ready()  # pylint: disable=protected-access
+            except ReceiverError as err:
+                # If this comes from a channel error, then we inject another
+                # ChannelError having the information about the Bidirectional
+                # channel to hide (at least partially) the underlaying
+                # Broadcast channels we use.
+                if isinstance(err.__cause__, ChannelError):
+                    this_chan_error = ChannelError(
+                        f"Error in the underlying channel {err.__cause__.channel}: {err.__cause__}",
+                        self._chan,  # pylint: disable=protected-access
+                    )
+                    this_chan_error.__cause__ = err.__cause__
+                    err.__cause__ = this_chan_error
 
         def consume(self) -> W:
             """Return the latest value once `_ready` is complete.

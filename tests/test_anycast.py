@@ -7,7 +7,14 @@ import asyncio
 
 import pytest
 
-from frequenz.channels import Anycast, ChannelClosedError, Receiver, Sender, SenderError
+from frequenz.channels import (
+    Anycast,
+    ChannelClosedError,
+    Receiver,
+    ReceiverStoppedError,
+    Sender,
+    SenderError,
+)
 
 
 async def test_anycast() -> None:
@@ -29,11 +36,13 @@ async def test_anycast() -> None:
         for ctr in range(num_receivers):
             await chan.send(ctr + 1)
 
-    async def update_tracker_on_receive(receiver_id: int, chan: Receiver[int]) -> None:
+    async def update_tracker_on_receive(receiver_id: int, recv: Receiver[int]) -> None:
         while True:
             try:
-                msg = await chan.receive()
-            except ChannelClosedError:
+                msg = await recv.receive()
+            except ReceiverStoppedError as err:
+                assert err.receiver is recv
+                assert isinstance(err.__cause__, ChannelClosedError)
                 return
             recv_trackers[receiver_id] += msg
             # without the sleep, decomissioning receivers temporarily, all
@@ -60,8 +69,11 @@ async def test_anycast() -> None:
 
     with pytest.raises(SenderError):
         await after_close_sender.send(5)
-    with pytest.raises(ChannelClosedError):
+    with pytest.raises(ReceiverStoppedError) as excinfo:
         await after_close_receiver.receive()
+    assert excinfo.value.receiver is after_close_receiver
+    assert isinstance(excinfo.value.__cause__, ChannelClosedError)
+    assert excinfo.value.__cause__.channel is acast
 
     actual_sum = 0
     for ctr in recv_trackers:
@@ -86,7 +98,7 @@ async def test_anycast_after_close() -> None:
         await sender.send(5)
 
     assert await receiver.receive() == 2
-    with pytest.raises(ChannelClosedError):
+    with pytest.raises(ReceiverStoppedError):
         await receiver.receive()
 
 
