@@ -12,7 +12,7 @@ from frequenz.channels import (
     Broadcast,
     ChannelClosedError,
     Receiver,
-    ReceiverError,
+    ReceiverInvalidatedError,
     ReceiverStoppedError,
     Sender,
     SenderError,
@@ -178,7 +178,7 @@ async def test_broadcast_peek() -> None:
     peekable = receiver.into_peekable()
     sender = bcast.new_sender()
 
-    with pytest.raises(ReceiverError, match=r"This receiver is no longer active."):
+    with pytest.raises(ReceiverInvalidatedError):
         await receiver.receive()
 
     assert peekable.peek() is None

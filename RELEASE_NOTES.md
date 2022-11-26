@@ -14,7 +14,7 @@
   used as an async iterator) now `raise`s a `ReceiverError` and in particular
   a `ReceiverStoppedError` when the receiver has no more messages to receive.
   `Receiver.consume()` doesn't raise any exceptions.
-  Receivers raising `EOFError` now raise `ReceiverError` instead.
+  Receivers raising `EOFError` now raise `ReceiverInvalidatedError` instead.
 
 * For channels which senders raise an error when the channel is closed or which
   receivers stop receiving when the channel is closed, the
@@ -37,6 +37,9 @@
 
   * `ReceiverClosedError`: Raised when a receiver don't have more messages to
     receive.
+
+  * `ReceiverInvalidatedError`: Raised when a receiver was invalidated (for
+    example it was converted into a `Peekable`).
 
 ## Bug Fixes
 

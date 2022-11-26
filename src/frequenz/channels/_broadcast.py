@@ -18,7 +18,7 @@ from ._base_classes import Sender as BaseSender
 from ._base_classes import T
 from ._exceptions import (
     ChannelClosedError,
-    ReceiverError,
+    ReceiverInvalidatedError,
     ReceiverStoppedError,
     SenderError,
 )
@@ -262,10 +262,14 @@ class Receiver(BaseReceiver[T]):
 
         Raises:
             ReceiverStoppedError: if there is some problem with the receiver.
-            ReceiverError: if the receiver is not longer active.
+            ReceiverInvalidatedError: if the receiver was converted into
+                a peekable.
         """
         if not self._active:
-            raise ReceiverError("This receiver is no longer active.", self)
+            raise ReceiverInvalidatedError(
+                "This receiver was converted into a Peekable so it is not longer valid.",
+                self,
+            )
 
         # Use a while loop here, to handle spurious wakeups of condition variables.
         #
