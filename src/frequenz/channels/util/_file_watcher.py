@@ -10,7 +10,8 @@ from typing import List, Optional, Set, Union
 from watchfiles import Change, awatch
 from watchfiles.main import FileChange
 
-from .._base_classes import Receiver, ReceiverStoppedError
+from .._base_classes import Receiver
+from .._exceptions import ReceiverStoppedError
 
 
 class FileWatcher(Receiver[pathlib.Path]):

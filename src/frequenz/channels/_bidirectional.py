@@ -7,16 +7,9 @@ from __future__ import annotations
 
 from typing import Generic, TypeVar
 
-from ._base_classes import (
-    ChannelError,
-    Receiver,
-    ReceiverError,
-    Sender,
-    SenderError,
-    T,
-    U,
-)
+from ._base_classes import Receiver, Sender, T, U
 from ._broadcast import Broadcast
+from ._exceptions import ChannelError, ReceiverError, SenderError
 
 V = TypeVar("V")
 W = TypeVar("W")

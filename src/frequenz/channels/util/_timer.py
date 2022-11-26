@@ -7,7 +7,8 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from .._base_classes import Receiver, ReceiverStoppedError
+from .._base_classes import Receiver
+from .._exceptions import ReceiverStoppedError
 
 
 class Timer(Receiver[datetime]):
