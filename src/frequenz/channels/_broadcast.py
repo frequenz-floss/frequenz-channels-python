@@ -12,12 +12,16 @@ from collections import deque
 from typing import Deque, Dict, Generic, Optional
 from uuid import UUID, uuid4
 
-from ._base_classes import ChannelClosedError
 from ._base_classes import Peekable as BasePeekable
 from ._base_classes import Receiver as BaseReceiver
-from ._base_classes import ReceiverError, ReceiverStoppedError
 from ._base_classes import Sender as BaseSender
-from ._base_classes import SenderError, T
+from ._base_classes import T
+from ._exceptions import (
+    ChannelClosedError,
+    ReceiverError,
+    ReceiverStoppedError,
+    SenderError,
+)
 
 logger = logging.Logger(__name__)
 

@@ -59,19 +59,17 @@ Exception classes:
 
 from . import util
 from ._anycast import Anycast
-from ._base_classes import (
+from ._base_classes import Peekable, Receiver, Sender
+from ._bidirectional import Bidirectional
+from ._broadcast import Broadcast
+from ._exceptions import (
     ChannelClosedError,
     ChannelError,
     Error,
-    Peekable,
-    Receiver,
     ReceiverError,
     ReceiverStoppedError,
-    Sender,
     SenderError,
 )
-from ._bidirectional import Bidirectional
-from ._broadcast import Broadcast
 
 __all__ = [
     "Anycast",

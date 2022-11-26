@@ -9,11 +9,10 @@ from asyncio import Condition
 from collections import deque
 from typing import Deque, Generic, Optional
 
-from ._base_classes import ChannelClosedError
 from ._base_classes import Receiver as BaseReceiver
-from ._base_classes import ReceiverStoppedError
 from ._base_classes import Sender as BaseSender
-from ._base_classes import SenderError, T
+from ._base_classes import T
+from ._exceptions import ChannelClosedError, ReceiverStoppedError, SenderError
 
 
 class Anycast(Generic[T]):

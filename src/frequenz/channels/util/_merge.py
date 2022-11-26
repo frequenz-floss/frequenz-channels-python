@@ -7,7 +7,8 @@ import asyncio
 from collections import deque
 from typing import Any, Deque, Set
 
-from .._base_classes import Receiver, ReceiverStoppedError, T
+from .._base_classes import Receiver, T
+from .._exceptions import ReceiverStoppedError
 
 
 class Merge(Receiver[T]):
