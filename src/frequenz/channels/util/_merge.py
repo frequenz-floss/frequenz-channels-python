@@ -48,7 +48,7 @@ class Merge(Receiver[T]):
         """Wait until the receiver is ready with a value.
 
         Raises:
-            ChannelClosedError: if the underlying channel is closed.
+            ChannelClosedError: when all the merged channels are closed.
         """
         # we use a while loop to continue to wait for new data, in case the
         # previous `wait` completed because a channel was closed.
@@ -78,11 +78,15 @@ class Merge(Receiver[T]):
         """Return the latest value once `ready` is complete.
 
         Raises:
-            EOFError: When called before a call to `ready()` finishes.
+            ChannelClosedError: when all the merged channels are closed.
+            AssertionError: when `consume()` is called before `ready()`.
 
         Returns:
             The next value that was received.
         """
-        assert self._results, "calls to `consume()` must be follow a call to `ready()`"
+        if not self._results:
+            if not self._pending:
+                raise ChannelClosedError()
+            raise AssertionError("calls to `consume()` must follow a call to `ready()`")
 
         return self._results.popleft()

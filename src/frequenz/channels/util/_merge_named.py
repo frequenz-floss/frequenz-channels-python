@@ -35,7 +35,7 @@ class MergeNamed(Receiver[Tuple[str, T]]):
         """Wait until there's a message in any of the channels.
 
         Raises:
-            ChannelClosedError: when all the channels are closed.
+            ChannelClosedError: when all the merged channels are closed.
         """
         # we use a while loop to continue to wait for new data, in case the
         # previous `wait` completed because a channel was closed.
@@ -65,11 +65,15 @@ class MergeNamed(Receiver[Tuple[str, T]]):
         """Return the latest value once `ready` is complete.
 
         Raises:
-            EOFError: When called before a call to `ready()` finishes.
+            ChannelClosedError: when all the merged channels are closed.
+            AssertionError: when `consume()` is called before `ready()`.
 
         Returns:
             The next value that was received, along with its name.
         """
-        assert self._results, "calls to `consume()` must be follow a call to `ready()`"
+        if not self._results:
+            if not self._pending:
+                raise ChannelClosedError()
+            raise AssertionError("calls to `consume()` must follow a call to `ready()`")
 
         return self._results.popleft()
