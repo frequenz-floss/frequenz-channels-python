@@ -8,7 +8,15 @@ from typing import Tuple
 
 import pytest
 
-from frequenz.channels import Broadcast, ChannelClosedError, Receiver, Sender
+from frequenz.channels import (
+    Broadcast,
+    ChannelClosedError,
+    Receiver,
+    ReceiverInvalidatedError,
+    ReceiverStoppedError,
+    Sender,
+    SenderError,
+)
 
 
 async def test_broadcast() -> None:
@@ -30,11 +38,13 @@ async def test_broadcast() -> None:
         for ctr in range(num_receivers):
             await chan.send(ctr + 1)
 
-    async def update_tracker_on_receive(receiver_id: int, chan: Receiver[int]) -> None:
+    async def update_tracker_on_receive(receiver_id: int, recv: Receiver[int]) -> None:
         while True:
             try:
-                msg = await chan.receive()
-            except ChannelClosedError:
+                msg = await recv.receive()
+            except ReceiverStoppedError as err:
+                assert err.receiver is recv
+                assert isinstance(err.__cause__, ChannelClosedError)
                 return
             recv_trackers[receiver_id] += msg
 
@@ -68,9 +78,13 @@ async def test_broadcast_after_close() -> None:
 
     await bcast.close()
 
-    assert await sender.send(5) is False
-    with pytest.raises(ChannelClosedError):
+    with pytest.raises(SenderError):
+        await sender.send(5)
+    with pytest.raises(ReceiverStoppedError) as excinfo:
         await receiver.receive()
+    assert excinfo.value.receiver is receiver
+    assert isinstance(excinfo.value.__cause__, ChannelClosedError)
+    assert excinfo.value.__cause__.channel is bcast
 
 
 async def test_broadcast_overflow() -> None:
@@ -164,7 +178,7 @@ async def test_broadcast_peek() -> None:
     peekable = receiver.into_peekable()
     sender = bcast.new_sender()
 
-    with pytest.raises(EOFError):
+    with pytest.raises(ReceiverInvalidatedError):
         await receiver.receive()
 
     assert peekable.peek() is None

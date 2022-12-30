@@ -13,7 +13,8 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Set, TypeVar
 
-from .._base_classes import ChannelClosedError, Receiver
+from .._base_classes import Receiver
+from .._exceptions import ReceiverStoppedError
 
 logger = logging.Logger(__name__)
 T = TypeVar("T")
@@ -147,7 +148,7 @@ class Select:
         for item in done:
             name = item.get_name()
             recv = self._receivers[name]
-            if isinstance(item.exception(), ChannelClosedError):
+            if isinstance(item.exception(), ReceiverStoppedError):
                 result = None
             else:
                 result = recv

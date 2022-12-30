@@ -12,11 +12,16 @@ from collections import deque
 from typing import Deque, Dict, Generic, Optional
 from uuid import UUID, uuid4
 
-from ._base_classes import ChannelClosedError
 from ._base_classes import Peekable as BasePeekable
 from ._base_classes import Receiver as BaseReceiver
 from ._base_classes import Sender as BaseSender
 from ._base_classes import T
+from ._exceptions import (
+    ChannelClosedError,
+    ReceiverInvalidatedError,
+    ReceiverStoppedError,
+    SenderError,
+)
 
 logger = logging.Logger(__name__)
 
@@ -165,18 +170,21 @@ class Sender(BaseSender[T]):
         """
         self._chan = chan
 
-    async def send(self, msg: T) -> bool:
+    async def send(self, msg: T) -> None:
         """Send a message to all broadcast receivers.
 
         Args:
             msg: The message to be broadcast.
 
-        Returns:
-            Whether the message was sent, based on whether the broadcast
-                channel is open or not.
+        Raises:
+            SenderError: if the underlying channel was closed.
+                A [ChannelClosedError][frequenz.channels.ChannelClosedError] is
+                set as the cause.
         """
         if self._chan.closed:
-            return False
+            raise SenderError("The channel was closed", self) from ChannelClosedError(
+                self._chan
+            )
         # pylint: disable=protected-access
         self._chan._latest = msg
         stale_refs = []
@@ -190,7 +198,6 @@ class Sender(BaseSender[T]):
             del self._chan.receivers[name]
         async with self._chan.recv_cv:
             self._chan.recv_cv.notify_all()
-        return True
 
 
 class Receiver(BaseReceiver[T]):
@@ -254,11 +261,15 @@ class Receiver(BaseReceiver[T]):
         """Wait until the receiver is ready with a value.
 
         Raises:
-            EOFError: if this receiver is no longer active.
-            ChannelClosedError: if the underlying channel is closed.
+            ReceiverStoppedError: if there is some problem with the receiver.
+            ReceiverInvalidatedError: if the receiver was converted into
+                a peekable.
         """
         if not self._active:
-            raise EOFError("This receiver is no longer active.")
+            raise ReceiverInvalidatedError(
+                "This receiver was converted into a Peekable so it is not longer valid.",
+                self,
+            )
 
         # Use a while loop here, to handle spurious wakeups of condition variables.
         #
@@ -266,7 +277,7 @@ class Receiver(BaseReceiver[T]):
         # consumed, then we return immediately.
         while len(self._q) == 0:
             if self._chan.closed:
-                raise ChannelClosedError()
+                raise ReceiverStoppedError(self) from ChannelClosedError(self._chan)
             async with self._chan.recv_cv:
                 await self._chan.recv_cv.wait()
 

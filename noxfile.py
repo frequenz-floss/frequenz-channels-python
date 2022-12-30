@@ -66,7 +66,7 @@ def docstrings(session: nox.Session) -> None:
     # Darglint checks that function argument and return values are documented.
     # This is needed only for the `src` dir, so we exclude the other top level
     # dirs that contain code.
-    session.run("darglint", "src")
+    session.run("darglint", "-v2", "src")
 
 
 @nox.session

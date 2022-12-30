@@ -38,18 +38,43 @@ Utilities:
 
 Exception classes:
 
+* [Error][frequenz.channels.Error]: Base class for all errors in this
+  library.
+
 * [ChannelError][frequenz.channels.ChannelError]: Base class for all errors
   related to channels.
 
 * [ChannelClosedError][frequenz.channels.ChannelClosedError]: Error raised when
   trying to operate (send, receive, etc.) through a closed channel.
+
+* [SenderError][frequenz.channels.SenderError]: Base class for all errors
+  related to senders.
+
+* [ReceiverError][frequenz.channels.ReceiverError]: Base class for all errors
+  related to receivers.
+
+* [ReceiverStoppedError][frequenz.channels.ReceiverStoppedError]: A receiver
+  stopped producing messages.
+
+* [ReceiverInvalidatedError][frequenz.channels.ReceiverInvalidatedError]:
+  A receiver is not longer valid (for example if it was converted into
+  a peekable.
 """
 
 from . import util
 from ._anycast import Anycast
-from ._base_classes import ChannelClosedError, ChannelError, Peekable, Receiver, Sender
+from ._base_classes import Peekable, Receiver, Sender
 from ._bidirectional import Bidirectional
 from ._broadcast import Broadcast
+from ._exceptions import (
+    ChannelClosedError,
+    ChannelError,
+    Error,
+    ReceiverError,
+    ReceiverInvalidatedError,
+    ReceiverStoppedError,
+    SenderError,
+)
 
 __all__ = [
     "Anycast",
@@ -57,8 +82,13 @@ __all__ = [
     "Broadcast",
     "ChannelClosedError",
     "ChannelError",
+    "Error",
     "Peekable",
     "Receiver",
+    "ReceiverError",
+    "ReceiverInvalidatedError",
+    "ReceiverStoppedError",
     "Sender",
+    "SenderError",
     "util",
 ]
