@@ -11,6 +11,7 @@ from watchfiles import Change, awatch
 from watchfiles.main import FileChange
 
 from .._base_classes import Receiver
+from .._exceptions import ReceiverStoppedError
 
 
 class FileWatcher(Receiver[pathlib.Path]):
@@ -52,6 +53,7 @@ class FileWatcher(Receiver[pathlib.Path]):
                 and pathlib.Path(path_str).is_file()
             ),
         )
+        self._awatch_stopped_exc: Optional[Exception] = None
         self._changes: Set[FileChange] = set()
 
     def __del__(self) -> None:
@@ -63,30 +65,44 @@ class FileWatcher(Receiver[pathlib.Path]):
         """
         self._stop_event.set()
 
-    async def ready(self) -> None:
-        """Wait for the next file event and return its path.
+    async def ready(self) -> bool:
+        """Wait until the receiver is ready with a value or an error.
 
-        Raises:
-            StopAsyncIteration: When the channel is closed.
+        Once a call to `ready()` has finished, the value should be read with
+        a call to `consume()` (`receive()` or iterated over). The receiver will
+        remain ready (this method will return immediately) until it is
+        consumed.
 
         Returns:
-            Path of next file.
+            Whether the receiver is still active.
         """
         # if there are messages waiting to be consumed, return immediately.
         if self._changes:
-            return
+            return True
 
-        self._changes = await self._awatch.__anext__()
+        # if it was already stopped, return immediately.
+        if self._awatch_stopped_exc is not None:
+            return False
+
+        try:
+            self._changes = await self._awatch.__anext__()
+        except StopAsyncIteration as err:
+            self._awatch_stopped_exc = err
+
+        return True
 
     def consume(self) -> pathlib.Path:
         """Return the latest change once `ready` is complete.
 
-        Raises:
-            ChannelClosedError: When the channel is closed.
-
         Returns:
             The next change that was received.
+
+        Raises:
+            ReceiverStoppedError: if there is some problem with the receiver.
         """
+        if not self._changes and self._awatch_stopped_exc is not None:
+            raise ReceiverStoppedError(self) from self._awatch_stopped_exc
+
         assert self._changes, "calls to `consume()` must be follow a call to `ready()`"
         change = self._changes.pop()
         # Tuple of (Change, path) returned by watchfiles

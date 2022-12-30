@@ -6,7 +6,7 @@
 import asyncio
 from typing import List
 
-from frequenz.channels import Anycast, Sender
+from frequenz.channels import Anycast, ReceiverStoppedError, Sender
 from frequenz.channels.util import Select
 
 
@@ -29,27 +29,39 @@ async def test_select() -> None:
     senders = asyncio.create_task(
         send(chan1.new_sender(), chan2.new_sender(), chan3.new_sender()),
     )
-    select = Select(
-        ch1=chan1.new_receiver(),
-        ch2=chan2.new_receiver(),
-        ch3=chan3.new_receiver(),
-    )
+
+    recv1 = chan1.new_receiver()
+    recv2 = chan2.new_receiver()
+    recv3 = chan3.new_receiver()
+
+    select = Select(recv1, recv2, recv3)
 
     # only check for messages from all iterators but `ch3`.
     # it ensures iterators are not blocking channels in case they
     # are not being read from.
     results: List[int] = []
-    while await select.ready():
-        if item := select.ch1:
-            if val := item.inner:
-                results.append(val)
-            else:
+    async for ready_set in select.ready():
+        if recv1 in ready_set:
+            try:
+                msg = recv1.consume()
+            except ReceiverStoppedError:
                 results.append(-1)
-        elif item := select.ch2:
-            if val := item.inner:
-                results.append(val)
             else:
+                results.append(msg)
+
+        if recv2 in ready_set:
+            try:
+                msg = recv2.consume()
+            except ReceiverStoppedError:
                 results.append(-2)
+            else:
+                results.append(msg)
+
+        if recv3 in ready_set:
+            try:
+                _ = recv3.consume()
+            except ReceiverStoppedError:
+                pass
     await senders
 
     expected_results = [
@@ -68,9 +80,3 @@ async def test_select() -> None:
         -2,  # marks end of messages from channel 2
     ]
     assert results == expected_results
-    got_err = False
-    try:
-        item = select.unknown_channel
-    except KeyError:
-        got_err = True
-    assert got_err

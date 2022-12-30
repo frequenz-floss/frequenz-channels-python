@@ -55,6 +55,7 @@ async def test_timer() -> None:
     assert fail_count < len(test_cases)
 
 
+# pylint: disable=too-many-locals
 async def test_timer_reset() -> None:
     """Ensure timer resets function as expected."""
     chan1 = Anycast[int]()
@@ -68,18 +69,21 @@ async def test_timer_reset() -> None:
             await asyncio.sleep(reset_delta)
             await ch1.send(ctr)
 
-    timer = Timer(timer_delta)
-
     senders = asyncio.create_task(send(chan1.new_sender()))
-    select = Select(msg=chan1.new_receiver(), timer=timer)
+
+    timer = Timer(timer_delta)
+    msg_recv = chan1.new_receiver()
+
+    select = Select(msg_recv, timer)
 
     start_ts = datetime.now(timezone.utc)
     stop_ts: Optional[datetime] = None
-    while await select.ready():
-        if select.msg:
+    async for ready_set in select.ready():
+        if msg_recv in ready_set:
+            _ = msg_recv.consume()  # We need to consume the message
             timer.reset()
-        elif event_ts := select.timer:
-            stop_ts = event_ts.inner
+        if timer in ready_set:
+            stop_ts = timer.consume()
             break
 
     assert stop_ts is not None

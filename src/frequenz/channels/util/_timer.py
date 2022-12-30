@@ -7,7 +7,8 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from .._base_classes import ChannelClosedError, Receiver
+from .._base_classes import Receiver
+from .._exceptions import ReceiverStoppedError
 
 
 class Timer(Receiver[datetime]):
@@ -77,24 +78,24 @@ class Timer(Receiver[datetime]):
         """
         self._stopped = True
 
-    async def ready(self) -> None:
-        """Return the current time (in UTC) once the next tick is due.
+    async def ready(self) -> bool:
+        """Wait until the receiver is ready with a value or an error.
 
-        Raises:
-            ChannelClosedError: if [stop()][frequenz.channels.util.Timer.stop]
-                has been called on the timer.
+        Once a call to `ready()` has finished, the value should be read with
+        a call to `consume()` (`receive()` or iterated over). The receiver will
+        remain ready (this method will return immediately) until it is
+        consumed.
 
         Returns:
-            The time of the next tick in UTC or `None` if
-                [stop()][frequenz.channels.util.Timer.stop] has been called on
-                the timer.
+            Whether the receiver is still active.
         """
         # if there are messages waiting to be consumed, return immediately.
         if self._now is not None:
-            return
+            return True
 
         if self._stopped:
-            raise ChannelClosedError()
+            return False
+
         now = datetime.now(timezone.utc)
         diff = self._next_msg_time - now
         while diff.total_seconds() > 0:
@@ -105,19 +106,27 @@ class Timer(Receiver[datetime]):
 
         self._next_msg_time = self._now + self._interval
 
+        return True
+
     def consume(self) -> datetime:
         """Return the latest value once `ready` is complete.
 
-        Raises:
-            EOFError: When called before a call to `ready()` finishes.
-
         Returns:
-            The timestamp for the next tick.
+            The time of the next tick in UTC or `None` if
+                [stop()][frequenz.channels.util.Timer.stop] has been called on
+                the timer.
+
+        Raises:
+            ReceiverStoppedError: if the receiver stopped producing messages.
+            ReceiverError: if there is some problem with the receiver.
 
         Changelog:
             * **v0.11.0:** Returns a timezone-aware datetime with UTC timezone
               instead of a native datetime object.
         """
+        if self._stopped:
+            raise ReceiverStoppedError(self)
+
         assert (
             self._now is not None
         ), "calls to `consume()` must be follow a call to `ready()`"
