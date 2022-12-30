@@ -39,28 +39,39 @@ class Merge(Receiver[T]):
             for name, recv in self._receivers.items()
         }
         self._results: Deque[T] = deque(maxlen=len(self._receivers))
+        self._receiver_closed: bool = False
 
     def __del__(self) -> None:
         """Cleanup any pending tasks."""
         for task in self._pending:
             task.cancel()
 
-    async def ready(self) -> None:
-        """Wait until the receiver is ready with a value.
+    async def ready(self) -> bool:
+        """Wait until the receiver is ready with a value or an error.
 
-        Raises:
-            ReceiverStoppedError: if the receiver stopped producing messages.
-            ReceiverError: if there is some problem with the receiver.
+        Once a call to `ready()` has finished, the value should be read with
+        a call to `consume()` (`receive()` or iterated over). The receiver will
+        remain ready (this method will return immediately) until it is
+        consumed.
+
+        Returns:
+            Whether the receiver is still active.
         """
         # we use a while loop to continue to wait for new data, in case the
         # previous `wait` completed because a channel was closed.
         while True:
             # if there are messages waiting to be consumed, return immediately.
             if len(self._results) > 0:
-                return
+                return True
 
             if len(self._pending) == 0:
-                raise ReceiverStoppedError(self)
+                # We need to delay channel closing signaling to consume(), we
+                # can't check for self._chan.closed in consume() because we
+                # need to process pending messages that were delivered before
+                # closing.
+                self._receiver_closed = True
+                return False
+
             done, self._pending = await asyncio.wait(
                 self._pending, return_when=asyncio.FIRST_COMPLETED
             )
@@ -81,7 +92,14 @@ class Merge(Receiver[T]):
 
         Returns:
             The next value that was received.
+
+        Raises:
+            ReceiverStoppedError: if the receiver stopped producing messages.
+            ReceiverError: if there is some problem with the receiver.
         """
+        if not self._results and self._receiver_closed:
+            raise ReceiverStoppedError(self)
+
         assert self._results, "calls to `consume()` must be follow a call to `ready()`"
 
         return self._results.popleft()

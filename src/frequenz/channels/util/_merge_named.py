@@ -32,22 +32,28 @@ class MergeNamed(Receiver[Tuple[str, T]]):
         for task in self._pending:
             task.cancel()
 
-    async def ready(self) -> None:
-        """Wait until there's a message in any of the channels.
+    async def ready(self) -> bool:
+        """Wait until the receiver is ready with a value or an error.
 
-        Raises:
-            ReceiverStoppedError: if the receiver stopped producing messages.
-            ReceiverError: if there is some problem with the receiver.
+        Once a call to `ready()` has finished, the value should be read with
+        a call to `consume()` (`receive()` or iterated over). The receiver will
+        remain ready (this method will return immediately) until it is
+        consumed.
+
+        Returns:
+            Whether the receiver is still active.
         """
         # we use a while loop to continue to wait for new data, in case the
         # previous `wait` completed because a channel was closed.
         while True:
             # if there are messages waiting to be consumed, return immediately.
             if len(self._results) > 0:
-                return
+                return True
 
+            # if there are no more pending receivers, we return immediately.
             if len(self._pending) == 0:
-                raise ReceiverStoppedError(self)
+                return False
+
             done, self._pending = await asyncio.wait(
                 self._pending, return_when=asyncio.FIRST_COMPLETED
             )
@@ -63,12 +69,21 @@ class MergeNamed(Receiver[Tuple[str, T]]):
                     asyncio.create_task(self._receivers[name].__anext__(), name=name)
                 )
 
+            return True
+
     def consume(self) -> Tuple[str, T]:
         """Return the latest value once `ready` is complete.
 
         Returns:
-            The next value that was received, along with its name.
+            The next key, value that was received.
+
+        Raises:
+            ReceiverStoppedError: if the receiver stopped producing messages.
+            ReceiverError: if there is some problem with the receiver.
         """
+        if not self._results and not self._pending:
+            raise ReceiverStoppedError(self)
+
         assert self._results, "calls to `consume()` must be follow a call to `ready()`"
 
         return self._results.popleft()
