@@ -2,12 +2,16 @@
 
 ## Summary
 
+<!-- Here goes a general summary of what this release is about -->
+
 ## Upgrading
 
+<!-- Here goes notes on how to upgrade from previous versions, including if there are any depractions and what they should be replaced with -->
+
 ## New Features
-* Add method to stop Select.
+
+<!-- Here goes the main new features and examples or instructions on how to use them -->
 
 ## Bug Fixes
 
-* Deactivate Broadcast receivers that were transformed to peekable.
-
+<!-- Here goes notable bug fixes that are worth a special mention or explanation -->
