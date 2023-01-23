@@ -63,6 +63,9 @@ class Select:
 
     [Receiver][frequenz.channels.Receiver]s also function as `Receiver`.
 
+    When Select is no longer needed, then it should be stopped using
+    `self.stop()` method. This would cleanup any internal pending async tasks.
+
     Example:
         For example, if there are two receivers that you want to
         simultaneously wait on, this can be done with:
@@ -105,6 +108,13 @@ class Select:
         """Cleanup any pending tasks."""
         for task in self._pending:
             task.cancel()
+
+    async def stop(self) -> None:
+        """Stop the `Select` instance and cleanup any pending tasks."""
+        for task in self._pending:
+            task.cancel()
+        await asyncio.gather(*self._pending, return_exceptions=True)
+        self._pending = set()
 
     async def ready(self) -> bool:
         """Wait until there is a message in any of the receivers.
