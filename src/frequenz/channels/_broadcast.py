@@ -270,6 +270,12 @@ class Receiver(BaseReceiver[T]):
             async with self._chan.recv_cv:
                 await self._chan.recv_cv.wait()
 
+    def _deactivate(self) -> None:
+        """Set the receiver as inactive and remove it from the channel."""
+        self._active = False
+        if self._uuid in self._chan.receivers:
+            del self._chan.receivers[self._uuid]
+
     def consume(self) -> T:
         """Return the latest value once `ready` is complete.
 
@@ -290,7 +296,7 @@ class Receiver(BaseReceiver[T]):
         Returns:
             A `Peekable` instance.
         """
-        self._active = False
+        self._deactivate()
         return Peekable(self._chan)
 
 
