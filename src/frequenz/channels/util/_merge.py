@@ -24,6 +24,9 @@ class Merge(Receiver[T]):
             # do something with msg
             pass
         ```
+
+        When `merge` is no longer needed, then it should be stopped using
+        `self.stop()` method. This will cleanup any internal pending async tasks.
     """
 
     def __init__(self, *args: Receiver[T]) -> None:
@@ -43,6 +46,13 @@ class Merge(Receiver[T]):
         """Cleanup any pending tasks."""
         for task in self._pending:
             task.cancel()
+
+    async def stop(self) -> None:
+        """Stop the `Merge` instance and cleanup any pending tasks."""
+        for task in self._pending:
+            task.cancel()
+        await asyncio.gather(*self._pending, return_exceptions=True)
+        self._pending = set()
 
     async def ready(self) -> None:
         """Wait until the receiver is ready with a value.
