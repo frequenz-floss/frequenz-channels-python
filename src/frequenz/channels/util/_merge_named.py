@@ -11,7 +11,11 @@ from .._base_classes import ChannelClosedError, Receiver, T
 
 
 class MergeNamed(Receiver[Tuple[str, T]]):
-    """Merge messages coming from multiple named channels into a single stream."""
+    """Merge messages coming from multiple named channels into a single stream.
+
+    When `MergeNamed` is no longer needed, then it should be stopped using
+    `self.stop()` method. This will cleanup any internal pending async tasks.
+    """
 
     def __init__(self, **kwargs: Receiver[T]) -> None:
         """Create a `MergeNamed` instance.
@@ -30,6 +34,13 @@ class MergeNamed(Receiver[Tuple[str, T]]):
         """Cleanup any pending tasks."""
         for task in self._pending:
             task.cancel()
+
+    async def stop(self) -> None:
+        """Stop the `MergeNamed` instance and cleanup any pending tasks."""
+        for task in self._pending:
+            task.cancel()
+        await asyncio.gather(*self._pending, return_exceptions=True)
+        self._pending = set()
 
     async def ready(self) -> None:
         """Wait until there's a message in any of the channels.
