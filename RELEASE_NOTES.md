@@ -18,6 +18,8 @@
 
 * `ChannelClosedError` now requires the argument `channel` (before it was optional).
 
+* Now exceptions are not raised in Receiver.ready() but in Receiver.consume() (receive() or the async iterator `anext`).
+
 ## New Features
 
 * New exceptions were added:

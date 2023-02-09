@@ -68,15 +68,16 @@ async def test_sender_error_chaining() -> None:
     assert isinstance(cause.__cause__, ChannelClosedError)
 
 
-async def test_ready_error_chaining() -> None:
+async def test_consume_error_chaining() -> None:
     """Ensure bi-directional communication is possible."""
 
     req_resp: Bidirectional[int, str] = Bidirectional("test_client", "test_service")
 
     await req_resp._request_channel.close()  # pylint: disable=protected-access
 
+    await req_resp.service_handle.ready()
     with pytest.raises(ReceiverError, match="Receiver .* was stopped") as exc_info:
-        await req_resp.service_handle.ready()
+        _ = req_resp.service_handle.consume()
 
     err = exc_info.value
     cause = err.__cause__

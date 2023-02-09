@@ -49,15 +49,16 @@ class Receiver(ABC, Generic[T]):
             raise StopAsyncIteration() from exc
 
     @abstractmethod
-    async def ready(self) -> None:
-        """Wait until the receiver is ready with a value.
+    async def ready(self) -> bool:
+        """Wait until the receiver is ready with a value or an error.
 
-        Once a call to `ready()` has finished, the value should be read with a call to
-        `consume()`.
+        Once a call to `ready()` has finished, the value should be read with
+        a call to `consume()` (`receive()` or iterated over). The receiver will
+        remain ready (this method will return immediately) until it is
+        consumed.
 
-        Raises:
-            ReceiverStoppedError: if the receiver stopped producing messages.
-            ReceiverError: if there is some problem with the receiver.
+        Returns:
+            Whether the receiver is still active.
         """
 
     @abstractmethod
@@ -68,6 +69,10 @@ class Receiver(ABC, Generic[T]):
 
         Returns:
             The next value received.
+
+        Raises:
+            ReceiverStoppedError: if the receiver stopped producing messages.
+            ReceiverError: if there is some problem with the receiver.
         """
 
     def __aiter__(self) -> Receiver[T]:
@@ -81,12 +86,12 @@ class Receiver(ABC, Generic[T]):
     async def receive(self) -> T:
         """Receive a message from the channel.
 
+        Returns:
+            The received message.
+
         Raises:
             ReceiverStoppedError: if there is some problem with the receiver.
             ReceiverError: if there is some problem with the receiver.
-
-        Returns:
-            The received message.
 
         # noqa: DAR401 __cause__ (https://github.com/terrencepreilly/darglint/issues/181)
         """
@@ -169,14 +174,26 @@ class _Map(Receiver[U], Generic[T, U]):
         self._recv = recv
         self._transform = transform
 
-    async def ready(self) -> None:
-        """Wait until the receiver is ready with a value."""
-        await self._recv.ready()  # pylint: disable=protected-access
+    async def ready(self) -> bool:
+        """Wait until the receiver is ready with a value or an error.
+
+        Once a call to `ready()` has finished, the value should be read with
+        a call to `consume()` (`receive()` or iterated over). The receiver will
+        remain ready (this method will return immediately) until it is
+        consumed.
+
+        Returns:
+            Whether the receiver is still active.
+        """
+        return await self._recv.ready()  # pylint: disable=protected-access
 
     def consume(self) -> U:
         """Return a transformed value once `ready()` is complete.
 
         Returns:
             The next value that was received.
+
+        Raises:
+            ChannelClosedError: if the underlying channel is closed.
         """
         return self._transform(self._recv.consume())  # pylint: disable=protected-access

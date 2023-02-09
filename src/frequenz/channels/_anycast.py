@@ -167,32 +167,44 @@ class Receiver(BaseReceiver[T]):
         self._chan = chan
         self._next: Optional[T] = None
 
-    async def ready(self) -> None:
-        """Wait until the receiver is ready with a value.
+    async def ready(self) -> bool:
+        """Wait until the receiver is ready with a value or an error.
 
-        Raises:
-            ReceiverStoppedError: if the receiver stopped producing messages.
-            ReceiverError: if there is some problem with the receiver.
+        Once a call to `ready()` has finished, the value should be read with
+        a call to `consume()` (`receive()` or iterated over). The receiver will
+        remain ready (this method will return immediately) until it is
+        consumed.
+
+        Returns:
+            Whether the receiver is still active.
         """
         # if a message is already ready, then return immediately.
         if self._next is not None:
-            return
+            return True
 
         while len(self._chan.deque) == 0:
             if self._chan.closed:
-                raise ReceiverStoppedError(self) from ChannelClosedError(self._chan)
+                return False
             async with self._chan.recv_cv:
                 await self._chan.recv_cv.wait()
         self._next = self._chan.deque.popleft()
         async with self._chan.send_cv:
             self._chan.send_cv.notify(1)
+        return True
 
     def consume(self) -> T:
         """Return the latest value once `ready()` is complete.
 
         Returns:
             The next value that was received.
+
+        Raises:
+            ReceiverStoppedError: if the receiver stopped producing messages.
+            ReceiverError: if there is some problem with the receiver.
         """
+        if self._next is None and self._chan.closed:
+            raise ReceiverStoppedError(self) from ChannelClosedError(self._chan)
+
         assert (
             self._next is not None
         ), "calls to `consume()` must be follow a call to `ready()`"

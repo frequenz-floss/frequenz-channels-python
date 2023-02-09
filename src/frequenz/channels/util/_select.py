@@ -94,7 +94,7 @@ class Select:
             **kwargs: sequence of receivers
         """
         self._receivers = kwargs
-        self._pending: Set[asyncio.Task[None]] = set()
+        self._pending: Set[asyncio.Task[bool]] = set()
 
         for name, recv in self._receivers.items():
             self._pending.add(asyncio.create_task(recv.ready(), name=name))
@@ -126,6 +126,8 @@ class Select:
         Returns:
             Whether there are further messages or not.
         """
+        # This function will change radically soon
+        # pylint: disable=too-many-nested-blocks
         if self._ready_count > 0:
             if self._ready_count == self._prev_ready_count:
                 dropped_names: List[str] = []
@@ -133,7 +135,10 @@ class Select:
                     if value is not None:
                         dropped_names.append(name)
                         if value.recv is not None:
-                            value.recv.consume()
+                            try:
+                                value.recv.consume()
+                            except ReceiverStoppedError:
+                                pass
                         self._result[name] = None
                 self._ready_count = 0
                 self._prev_ready_count = 0
@@ -155,18 +160,19 @@ class Select:
         done, self._pending = await asyncio.wait(
             self._pending, return_when=asyncio.FIRST_COMPLETED
         )
-        for item in done:
-            name = item.get_name()
+        for task in done:
+            name = task.get_name()
             recv = self._receivers[name]
-            if isinstance(item.exception(), ReceiverStoppedError):
-                result = None
+            receiver_active = task.result()
+            if receiver_active:
+                ready_recv = recv
             else:
-                result = recv
+                ready_recv = None
             self._ready_count += 1
-            self._result[name] = _ReadyReceiver(result)
+            self._result[name] = _ReadyReceiver(ready_recv)
             # if channel or Receiver is closed
             # don't add a task for it again.
-            if result is None:
+            if not receiver_active:
                 continue
             self._pending.add(asyncio.create_task(recv.ready(), name=name))
         return True

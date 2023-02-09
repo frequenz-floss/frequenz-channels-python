@@ -68,15 +68,33 @@ class Bidirectional(Generic[T, U]):
                     err.__cause__ = this_chan_error
                 raise err
 
-        async def ready(self) -> None:
-            """Wait until the receiver is ready with a value.
+        async def ready(self) -> bool:
+            """Wait until the receiver is ready with a value or an error.
+
+            Once a call to `ready()` has finished, the value should be read with
+            a call to `consume()` (`receive()` or iterated over). The receiver will
+            remain ready (this method will return immediately) until it is
+            consumed.
+
+            Returns:
+                Whether the receiver is still active.
+            """
+            return await self._receiver.ready()  # pylint: disable=protected-access
+
+        def consume(self) -> W:
+            """Return the latest value once `_ready` is complete.
+
+            Returns:
+                The next value that was received.
 
             Raises:
-                ReceiverStoppedError: if the receiver stopped producing messages.
+                ReceiverStoppedError: if there is some problem with the receiver.
                 ReceiverError: if there is some problem with the receiver.
+
+            # noqa: DAR401 err (https://github.com/terrencepreilly/darglint/issues/181)
             """
             try:
-                await self._receiver.ready()  # pylint: disable=protected-access
+                return self._receiver.consume()  # pylint: disable=protected-access
             except ReceiverError as err:
                 # If this comes from a channel error, then we inject another
                 # ChannelError having the information about the Bidirectional
@@ -90,14 +108,6 @@ class Bidirectional(Generic[T, U]):
                     this_chan_error.__cause__ = err.__cause__
                     err.__cause__ = this_chan_error
                 raise err
-
-        def consume(self) -> W:
-            """Return the latest value once `_ready` is complete.
-
-            Returns:
-                The next value that was received.
-            """
-            return self._receiver.consume()  # pylint: disable=protected-access
 
     def __init__(self, client_id: str, service_id: str) -> None:
         """Create a `Bidirectional` instance.
