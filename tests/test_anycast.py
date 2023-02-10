@@ -7,7 +7,7 @@ import asyncio
 
 import pytest
 
-from frequenz.channels import Anycast, ChannelClosedError, Receiver, Sender
+from frequenz.channels import Anycast, ChannelClosedError, Receiver, Sender, SenderError
 
 
 async def test_anycast() -> None:
@@ -58,7 +58,8 @@ async def test_anycast() -> None:
     await acast.close()
     await receivers_runs
 
-    assert await after_close_sender.send(5) is False
+    with pytest.raises(SenderError):
+        await after_close_sender.send(5)
     with pytest.raises(ChannelClosedError):
         await after_close_receiver.receive()
 
@@ -77,11 +78,13 @@ async def test_anycast_after_close() -> None:
     receiver = acast.new_receiver()
     sender = acast.new_sender()
 
-    assert await sender.send(2) is True
+    await sender.send(2)
 
     await acast.close()
 
-    assert await sender.send(5) is False
+    with pytest.raises(SenderError):
+        await sender.send(5)
+
     assert await receiver.receive() == 2
     with pytest.raises(ChannelClosedError):
         await receiver.receive()

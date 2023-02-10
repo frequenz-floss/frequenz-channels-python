@@ -5,7 +5,14 @@
 
 import asyncio
 
-from frequenz.channels import Bidirectional
+import pytest
+
+from frequenz.channels import (
+    Bidirectional,
+    ChannelClosedError,
+    ChannelError,
+    SenderError,
+)
 
 
 async def test_request_response() -> None:
@@ -41,3 +48,20 @@ async def test_request_response() -> None:
 
     await client_handle.send(42)  # Stop the service task
     await service_task
+
+
+async def test_sender_error_chaining() -> None:
+    """Ensure bi-directional communication is possible."""
+
+    req_resp: Bidirectional[int, str] = Bidirectional("test_client", "test_service")
+
+    await req_resp._response_channel.close()  # pylint: disable=protected-access
+
+    with pytest.raises(SenderError, match="The channel was closed") as exc_info:
+        await req_resp.service_handle.send("I'm closed!")
+
+    err = exc_info.value
+    cause = err.__cause__
+    assert isinstance(cause, ChannelError)
+    assert cause.args[0].startswith("Error in the underlying channel")
+    assert isinstance(cause.__cause__, ChannelClosedError)

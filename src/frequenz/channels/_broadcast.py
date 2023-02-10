@@ -16,7 +16,7 @@ from ._base_classes import ChannelClosedError
 from ._base_classes import Peekable as BasePeekable
 from ._base_classes import Receiver as BaseReceiver
 from ._base_classes import Sender as BaseSender
-from ._base_classes import T
+from ._base_classes import SenderError, T
 
 logger = logging.Logger(__name__)
 
@@ -165,18 +165,21 @@ class Sender(BaseSender[T]):
         """
         self._chan = chan
 
-    async def send(self, msg: T) -> bool:
+    async def send(self, msg: T) -> None:
         """Send a message to all broadcast receivers.
 
         Args:
             msg: The message to be broadcast.
 
-        Returns:
-            Whether the message was sent, based on whether the broadcast
-                channel is open or not.
+        Raises:
+            SenderError: if the underlying channel was closed.
+                A [ChannelClosedError][frequenz.channels.ChannelClosedError] is
+                set as the cause.
         """
         if self._chan.closed:
-            return False
+            raise SenderError("The channel was closed", self) from ChannelClosedError(
+                self._chan
+            )
         # pylint: disable=protected-access
         self._chan._latest = msg
         stale_refs = []
@@ -190,7 +193,6 @@ class Sender(BaseSender[T]):
             del self._chan.receivers[name]
         async with self._chan.recv_cv:
             self._chan.recv_cv.notify_all()
-        return True
 
 
 class Receiver(BaseReceiver[T]):

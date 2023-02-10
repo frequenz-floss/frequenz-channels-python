@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Generic, TypeVar
 
-from ._base_classes import Receiver, Sender, T, U
+from ._base_classes import ChannelError, Receiver, Sender, SenderError, T, U
 from ._broadcast import Broadcast
 
 V = TypeVar("V")
@@ -23,26 +23,49 @@ class Bidirectional(Generic[T, U]):
         It can be used to send/receive values between the client and service.
         """
 
-        def __init__(self, sender: Sender[V], receiver: Receiver[W]) -> None:
+        def __init__(
+            self,
+            channel: Bidirectional[V, W] | Bidirectional[W, V],
+            sender: Sender[V],
+            receiver: Receiver[W],
+        ) -> None:
             """Create a `Bidirectional.Handle` instance.
 
             Args:
+                channel: The underlying channel.
                 sender: A sender to send values with.
                 receiver: A receiver to receive values from.
             """
+            self._chan = channel
             self._sender = sender
             self._receiver = receiver
 
-        async def send(self, msg: V) -> bool:
+        async def send(self, msg: V) -> None:
             """Send a value to the other side.
 
             Args:
                 msg: The value to send.
 
-            Returns:
-                Whether the send was successful or not.
+            Raises:
+                SenderError: if the underlying channel was closed.
+                    A [ChannelClosedError][frequenz.channels.ChannelClosedError]
+                    is set as the cause.
             """
-            return await self._sender.send(msg)
+            try:
+                await self._sender.send(msg)
+            except SenderError as err:
+                # If this comes from a channel error, then we inject another
+                # ChannelError having the information about the Bidirectional
+                # channel to hide (at least partially) the underlaying
+                # Broadcast channels we use.
+                if isinstance(err.__cause__, ChannelError):
+                    this_chan_error = ChannelError(
+                        f"Error in the underlying channel {err.__cause__.channel}: {err.__cause__}",
+                        self._chan,  # pylint: disable=protected-access
+                    )
+                    this_chan_error.__cause__ = err.__cause__
+                    err.__cause__ = this_chan_error
+                raise err
 
         async def ready(self) -> None:
             """Wait until the receiver is ready with a value."""
@@ -70,10 +93,12 @@ class Bidirectional(Generic[T, U]):
         )
 
         self._client_handle = Bidirectional.Handle(
+            self,
             self._request_channel.new_sender(),
             self._response_channel.new_receiver(),
         )
         self._service_handle = Bidirectional.Handle(
+            self,
             self._response_channel.new_sender(),
             self._request_channel.new_receiver(),
         )
