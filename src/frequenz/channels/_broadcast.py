@@ -12,11 +12,16 @@ from collections import deque
 from typing import Deque, Dict, Generic, Optional
 from uuid import UUID, uuid4
 
-from ._base_classes import ChannelClosedError
 from ._base_classes import Peekable as BasePeekable
 from ._base_classes import Receiver as BaseReceiver
 from ._base_classes import Sender as BaseSender
 from ._base_classes import T
+from ._exceptions import (
+    ChannelClosedError,
+    ReceiverInvalidatedError,
+    ReceiverStoppedError,
+    SenderError,
+)
 
 logger = logging.Logger(__name__)
 
@@ -165,18 +170,21 @@ class Sender(BaseSender[T]):
         """
         self._chan = chan
 
-    async def send(self, msg: T) -> bool:
+    async def send(self, msg: T) -> None:
         """Send a message to all broadcast receivers.
 
         Args:
             msg: The message to be broadcast.
 
-        Returns:
-            Whether the message was sent, based on whether the broadcast
-                channel is open or not.
+        Raises:
+            SenderError: if the underlying channel was closed.
+                A [ChannelClosedError][frequenz.channels.ChannelClosedError] is
+                set as the cause.
         """
         if self._chan.closed:
-            return False
+            raise SenderError("The channel was closed", self) from ChannelClosedError(
+                self._chan
+            )
         # pylint: disable=protected-access
         self._chan._latest = msg
         stale_refs = []
@@ -190,7 +198,6 @@ class Sender(BaseSender[T]):
             del self._chan.receivers[name]
         async with self._chan.recv_cv:
             self._chan.recv_cv.notify_all()
-        return True
 
 
 class Receiver(BaseReceiver[T]):
@@ -250,15 +257,24 @@ class Receiver(BaseReceiver[T]):
         """
         return len(self._q)
 
-    async def ready(self) -> None:
-        """Wait until the receiver is ready with a value.
+    async def ready(self) -> bool:
+        """Wait until the receiver is ready with a value or an error.
 
-        Raises:
-            EOFError: if this receiver is no longer active.
-            ChannelClosedError: if the underlying channel is closed.
+        Once a call to `ready()` has finished, the value should be read with
+        a call to `consume()` (`receive()` or iterated over). The receiver will
+        remain ready (this method will return immediately) until it is
+        consumed.
+
+        Returns:
+            Whether the receiver is still active.
         """
+        # if there are still messages to consume from the queue, return immediately
+        if self._q:
+            return True
+
+        # if it is not longer active, return immediately
         if not self._active:
-            raise EOFError("This receiver is no longer active.")
+            return False
 
         # Use a while loop here, to handle spurious wakeups of condition variables.
         #
@@ -266,9 +282,10 @@ class Receiver(BaseReceiver[T]):
         # consumed, then we return immediately.
         while len(self._q) == 0:
             if self._chan.closed:
-                raise ChannelClosedError()
+                return False
             async with self._chan.recv_cv:
                 await self._chan.recv_cv.wait()
+        return True
 
     def _deactivate(self) -> None:
         """Set the receiver as inactive and remove it from the channel."""
@@ -281,10 +298,23 @@ class Receiver(BaseReceiver[T]):
 
         Returns:
             The next value that was received.
+
+        Raises:
+            ReceiverStoppedError: if there is some problem with the receiver.
+            ReceiverInvalidatedError: if the receiver was converted into
+                a peekable.
         """
+        if not self._q and not self._active:
+            raise ReceiverInvalidatedError(
+                "This receiver was converted into a Peekable so it is not longer valid.",
+                self,
+            )
+
+        if not self._q and self._chan.closed:
+            raise ReceiverStoppedError(self) from ChannelClosedError(self._chan)
+
         assert self._q, "calls to `consume()` must be follow a call to `ready()`"
-        ret = self._q.popleft()
-        return ret
+        return self._q.popleft()
 
     def into_peekable(self) -> Peekable[T]:
         """Convert the `Receiver` implementation into a `Peekable`.

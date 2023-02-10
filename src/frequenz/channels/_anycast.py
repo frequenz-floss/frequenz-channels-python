@@ -9,10 +9,10 @@ from asyncio import Condition
 from collections import deque
 from typing import Deque, Generic, Optional
 
-from ._base_classes import ChannelClosedError
 from ._base_classes import Receiver as BaseReceiver
 from ._base_classes import Sender as BaseSender
 from ._base_classes import T
+from ._exceptions import ChannelClosedError, ReceiverStoppedError, SenderError
 
 
 class Anycast(Generic[T]):
@@ -123,7 +123,7 @@ class Sender(BaseSender[T]):
         """
         self._chan = chan
 
-    async def send(self, msg: T) -> bool:
+    async def send(self, msg: T) -> None:
         """Send a message across the channel.
 
         To send, this method inserts the message into the Anycast channel's
@@ -134,19 +134,21 @@ class Sender(BaseSender[T]):
         Args:
             msg: The message to be sent.
 
-        Returns:
-            Whether the message was sent, based on whether the channel is open
-                or not.
+        Raises:
+            SenderError: if the underlying channel was closed.
+                A [ChannelClosedError][frequenz.channels.ChannelClosedError] is
+                set as the cause.
         """
         if self._chan.closed:
-            return False
+            raise SenderError("The channel was closed", self) from ChannelClosedError(
+                self._chan
+            )
         while len(self._chan.deque) == self._chan.deque.maxlen:
             async with self._chan.send_cv:
                 await self._chan.send_cv.wait()
         self._chan.deque.append(msg)
         async with self._chan.recv_cv:
             self._chan.recv_cv.notify(1)
-        return True
 
 
 class Receiver(BaseReceiver[T]):
@@ -165,31 +167,44 @@ class Receiver(BaseReceiver[T]):
         self._chan = chan
         self._next: Optional[T] = None
 
-    async def ready(self) -> None:
-        """Wait until the receiver is ready with a value.
+    async def ready(self) -> bool:
+        """Wait until the receiver is ready with a value or an error.
 
-        Raises:
-            ChannelClosedError: if the underlying channel is closed.
+        Once a call to `ready()` has finished, the value should be read with
+        a call to `consume()` (`receive()` or iterated over). The receiver will
+        remain ready (this method will return immediately) until it is
+        consumed.
+
+        Returns:
+            Whether the receiver is still active.
         """
         # if a message is already ready, then return immediately.
         if self._next is not None:
-            return
+            return True
 
         while len(self._chan.deque) == 0:
             if self._chan.closed:
-                raise ChannelClosedError()
+                return False
             async with self._chan.recv_cv:
                 await self._chan.recv_cv.wait()
         self._next = self._chan.deque.popleft()
         async with self._chan.send_cv:
             self._chan.send_cv.notify(1)
+        return True
 
     def consume(self) -> T:
         """Return the latest value once `ready()` is complete.
 
         Returns:
             The next value that was received.
+
+        Raises:
+            ReceiverStoppedError: if the receiver stopped producing messages.
+            ReceiverError: if there is some problem with the receiver.
         """
+        if self._next is None and self._chan.closed:
+            raise ReceiverStoppedError(self) from ChannelClosedError(self._chan)
+
         assert (
             self._next is not None
         ), "calls to `consume()` must be follow a call to `ready()`"
