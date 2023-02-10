@@ -18,12 +18,14 @@ async def test_request_response() -> None:
             num = await handle.receive()
             if num is None:
                 break
+            if num == 42:
+                break
             if num >= 0:
                 await handle.send("positive")
             else:
                 await handle.send("negative")
 
-    asyncio.create_task(
+    service_task = asyncio.create_task(
         service(req_resp.service_handle),
     )
 
@@ -36,3 +38,6 @@ async def test_request_response() -> None:
             assert ret == "negative"
         else:
             assert ret == "positive"
+
+    await client_handle.send(42)  # Stop the service task
+    await service_task
