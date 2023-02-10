@@ -1,8 +1,8 @@
 # Frequenz channels
 
-[<img alt="GitHub Workflow Status" src="https://img.shields.io/github/workflow/status/frequenz-floss/frequenz-channels-python/frequenz-channels-python">](https://github.com/frequenz-floss/frequenz-channels-python/actions/workflows/ci.yaml)
-[<img alt="PyPI" src="https://img.shields.io/pypi/v/frequenz-channels">](https://pypi.org/project/frequenz-channels/)
-[<img alt="PyPI" src="https://img.shields.io/badge/docs-latest-informational">](https://frequenz-floss.github.io/frequenz-channels-python/)
+[![Build Status](https://github.com/frequenz-floss/frequenz-channels-python/actions/workflows/ci.yaml/badge.svg)](https://github.com/frequenz-floss/frequenz-channels-python/actions/workflows/ci.yaml)
+[![PyPI Package](https://img.shields.io/pypi/v/frequenz-channels)](https://pypi.org/project/frequenz-channels/)
+[![Docs](https://img.shields.io/badge/docs-latest-informational)](https://frequenz-floss.github.io/frequenz-channels-python/)
 
 This repository contains channel implementations for python.
 
