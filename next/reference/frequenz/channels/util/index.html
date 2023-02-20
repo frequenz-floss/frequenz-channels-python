@@ -1486,7 +1486,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changes</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_awatch_stopped_exc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ReceiverStoppedError</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">self._awatch_stopped_exc</span>
 
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changes</span><span class="p">,</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changes</span><span class="p">,</span> <span class="s2">&quot;`consume()` must be preceeded by a call to `ready()`&quot;</span>
         <span class="n">change</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changes</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
         <span class="c1"># Tuple of (Change, path) returned by watchfiles</span>
         <span class="n">_</span><span class="p">,</span> <span class="n">path_str</span> <span class="o">=</span> <span class="n">change</span>
@@ -1812,7 +1812,7 @@ all event types.</p>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changes</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_awatch_stopped_exc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">ReceiverStoppedError</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">self._awatch_stopped_exc</span>
 
-    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changes</span><span class="p">,</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
+    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changes</span><span class="p">,</span> <span class="s2">&quot;`consume()` must be preceeded by a call to `ready()`&quot;</span>
     <span class="n">change</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_changes</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
     <span class="c1"># Tuple of (Change, path) returned by watchfiles</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">path_str</span> <span class="o">=</span> <span class="n">change</span>
@@ -2156,7 +2156,7 @@ stream, by using <code>Merge</code> like this:</p>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ReceiverStoppedError</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">,</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">,</span> <span class="s2">&quot;`consume()` must be preceeded by a call to `ready()`&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
@@ -2371,7 +2371,7 @@ stream, by using <code>Merge</code> like this:</p>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">ReceiverStoppedError</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">,</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
+    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">,</span> <span class="s2">&quot;`consume()` must be preceeded by a call to `ready()`&quot;</span>
 
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
@@ -2736,7 +2736,7 @@ consumed.</p>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ReceiverStoppedError</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">,</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">,</span> <span class="s2">&quot;`consume()` must be preceeded by a call to `ready()`&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
@@ -2951,7 +2951,7 @@ consumed.</p>
     <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">ReceiverStoppedError</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
-    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">,</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
+    <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="p">,</span> <span class="s2">&quot;`consume()` must be preceeded by a call to `ready()`&quot;</span>
 
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_results</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>
 </code></pre></div></td></tr></table></div>
@@ -4209,7 +4209,7 @@ certain interval:</p>
 
         <span class="k">assert</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="p">),</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
+        <span class="p">),</span> <span class="s2">&quot;`consume()` must be preceeded by a call to `ready()`&quot;</span>
         <span class="n">now</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">now</span>
@@ -4414,7 +4414,7 @@ the timer.</p>
 
     <span class="k">assert</span> <span class="p">(</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-    <span class="p">),</span> <span class="s2">&quot;calls to `consume()` must be follow a call to `ready()`&quot;</span>
+    <span class="p">),</span> <span class="s2">&quot;`consume()` must be preceeded by a call to `ready()`&quot;</span>
     <span class="n">now</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_now</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">_now</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="n">now</span>
