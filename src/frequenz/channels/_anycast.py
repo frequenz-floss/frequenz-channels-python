@@ -207,7 +207,7 @@ class Receiver(BaseReceiver[T]):
 
         assert (
             self._next is not None
-        ), "calls to `consume()` must be follow a call to `ready()`"
+        ), "`consume()` must be preceeded by a call to `ready()`"
         next_val = self._next
         self._next = None
         return next_val

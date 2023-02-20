@@ -129,7 +129,7 @@ class Timer(Receiver[datetime]):
 
         assert (
             self._now is not None
-        ), "calls to `consume()` must be follow a call to `ready()`"
+        ), "`consume()` must be preceeded by a call to `ready()`"
         now = self._now
         self._now = None
         return now
