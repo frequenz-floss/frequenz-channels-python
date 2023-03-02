@@ -41,7 +41,7 @@ class Bidirectional(Generic[T, U]):
             self._sender = sender
             self._receiver = receiver
 
-        async def send(self, msg: V) -> None:
+        def send(self, msg: V) -> None:
             """Send a value to the other side.
 
             Args:
@@ -53,7 +53,7 @@ class Bidirectional(Generic[T, U]):
                     is set as the cause.
             """
             try:
-                await self._sender.send(msg)
+                self._sender.send(msg)
             except SenderError as err:
                 # If this comes from a channel error, then we inject another
                 # ChannelError having the information about the Bidirectional

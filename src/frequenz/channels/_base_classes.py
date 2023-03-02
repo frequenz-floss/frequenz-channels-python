@@ -18,7 +18,7 @@ class Sender(ABC, Generic[T]):
     """A channel Sender."""
 
     @abstractmethod
-    async def send(self, msg: T) -> None:
+    def send(self, msg: T) -> None:
         """Send a message to the channel.
 
         Args:

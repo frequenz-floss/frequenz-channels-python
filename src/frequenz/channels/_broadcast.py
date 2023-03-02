@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 import weakref
-from asyncio import Condition
+from asyncio import Event
 from collections import deque
 from typing import Deque, Dict, Generic, Optional
 from uuid import UUID, uuid4
@@ -87,7 +87,7 @@ class Broadcast(Generic[T]):
         self.name: str = name
         self._resend_latest = resend_latest
 
-        self.recv_cv: Condition = Condition()
+        self.recv_event: Event = Event()
         self.receivers: Dict[UUID, weakref.ReferenceType[Receiver[T]]] = {}
         self.closed: bool = False
         self._latest: Optional[T] = None
@@ -105,8 +105,7 @@ class Broadcast(Generic[T]):
         """
         self._latest = None
         self.closed = True
-        async with self.recv_cv:
-            self.recv_cv.notify_all()
+        self.recv_event.set()
 
     def new_sender(self) -> Sender[T]:
         """Create a new broadcast sender.
@@ -170,7 +169,7 @@ class Sender(BaseSender[T]):
         """
         self._chan = chan
 
-    async def send(self, msg: T) -> None:
+    def send(self, msg: T) -> None:
         """Send a message to all broadcast receivers.
 
         Args:
@@ -196,8 +195,7 @@ class Sender(BaseSender[T]):
             recv.enqueue(msg)
         for name in stale_refs:
             del self._chan.receivers[name]
-        async with self._chan.recv_cv:
-            self._chan.recv_cv.notify_all()
+        self._chan.recv_event.set()
 
 
 class Receiver(BaseReceiver[T]):
@@ -283,8 +281,8 @@ class Receiver(BaseReceiver[T]):
         while len(self._q) == 0:
             if self._chan.closed:
                 return False
-            async with self._chan.recv_cv:
-                await self._chan.recv_cv.wait()
+            self._chan.recv_event.clear()
+            await self._chan.recv_event.wait()
         return True
 
     def _deactivate(self) -> None:
