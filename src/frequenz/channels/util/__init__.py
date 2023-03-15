@@ -29,6 +29,7 @@ A module with several utilities to work with channels:
 from ._file_watcher import FileWatcher
 from ._merge import Merge
 from ._merge_named import MergeNamed
+from ._periodic_timer import PeriodicTimer
 from ._select import Select
 from ._timer import Timer
 
@@ -36,6 +37,7 @@ __all__ = [
     "FileWatcher",
     "Merge",
     "MergeNamed",
+    "PeriodicTimer",
     "Select",
     "Timer",
 ]
