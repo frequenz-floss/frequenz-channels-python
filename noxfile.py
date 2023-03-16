@@ -59,7 +59,7 @@ def mypy(session: nox.Session) -> None:
 @nox.session
 def docstrings(session: nox.Session) -> None:
     """Check docstring tone with pydocstyle and param descriptions with darglint."""
-    session.install("pydocstyle", "darglint", "toml")
+    session.install("pydocstyle", "darglint", "tomli")
 
     session.run("pydocstyle", *check_dirs, *check_files)
 
