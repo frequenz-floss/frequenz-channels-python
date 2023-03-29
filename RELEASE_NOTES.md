@@ -2,7 +2,9 @@
 
 ## Summary
 
-<!-- Here goes a general summary of what this release is about -->
+The main change in this release is the revamp of exception handling in general. New exceptions were created and `send()` now raises an exception too when it fails.
+
+Hopefully they are now used much more uniformly across the whole library.
 
 ## Upgrading
 
@@ -33,7 +35,3 @@
   * `ReceiverClosedError`: Raised when a receiver don't have more messages to receive.
 
   * `ReceiverInvalidatedError`: Raised when a receiver was invalidated (for example it was converted into a `Peekable`).
-
-## Bug Fixes
-
-<!-- Here goes notable bug fixes that are worth a special mention or explanation -->
