@@ -3,6 +3,8 @@
 
 """Tests for the Broadcast implementation."""
 
+from __future__ import annotations
+
 import asyncio
 from typing import Tuple
 
@@ -67,6 +69,23 @@ async def test_broadcast() -> None:
         assert ctr > 0
         actual_sum += ctr
     assert actual_sum == expected_sum
+
+
+async def test_broadcast_none_values() -> None:
+    """Ensure None values can be sent and received."""
+    bcast: Broadcast[int | None] = Broadcast("any_channel")
+
+    sender = bcast.new_sender()
+    receiver = bcast.new_receiver()
+
+    await sender.send(5)
+    assert await receiver.receive() == 5
+
+    await sender.send(None)
+    assert await receiver.receive() is None
+
+    await sender.send(10)
+    assert await receiver.receive() == 10
 
 
 async def test_broadcast_after_close() -> None:
