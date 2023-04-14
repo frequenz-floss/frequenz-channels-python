@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from asyncio import Condition
 from collections import deque
-from typing import Deque, Generic, Optional
+from typing import Deque, Generic, Type
 
 from ._base_classes import Receiver as BaseReceiver
 from ._base_classes import Sender as BaseSender
@@ -151,6 +151,10 @@ class Sender(BaseSender[T]):
             self._chan.recv_cv.notify(1)
 
 
+class _Empty:
+    """A sentinel value to indicate that a value has not been set."""
+
+
 class Receiver(BaseReceiver[T]):
     """A receiver to receive messages from an Anycast channel.
 
@@ -165,7 +169,7 @@ class Receiver(BaseReceiver[T]):
             chan: A reference to the channel that this receiver belongs to.
         """
         self._chan = chan
-        self._next: Optional[T] = None
+        self._next: T | Type[_Empty] = _Empty
 
     async def ready(self) -> bool:
         """Wait until the receiver is ready with a value or an error.
@@ -179,7 +183,7 @@ class Receiver(BaseReceiver[T]):
             Whether the receiver is still active.
         """
         # if a message is already ready, then return immediately.
-        if self._next is not None:
+        if self._next is not _Empty:
             return True
 
         while len(self._chan.deque) == 0:
@@ -202,12 +206,15 @@ class Receiver(BaseReceiver[T]):
             ReceiverStoppedError: if the receiver stopped producing messages.
             ReceiverError: if there is some problem with the receiver.
         """
-        if self._next is None and self._chan.closed:
+        if self._next is _Empty and self._chan.closed:
             raise ReceiverStoppedError(self) from ChannelClosedError(self._chan)
 
         assert (
-            self._next is not None
+            self._next is not _Empty
         ), "`consume()` must be preceeded by a call to `ready()`"
-        next_val = self._next
-        self._next = None
+        # mypy doesn't understand that the assert above ensures that self._next is not
+        # _Sentinel.  So we have to use a type ignore here.
+        next_val: T = self._next  # type: ignore[assignment]
+        self._next = _Empty
+
         return next_val
