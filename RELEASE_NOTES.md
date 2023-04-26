@@ -10,7 +10,7 @@
 
 ## New Features
 
-* A new receiver `util.PeriodicTimer` was added. This implements a periodic timer using `asyncio`'s monotonic clock.
+* A new receiver `util.PeriodicTimer` was added. This implements a periodic timer using `asyncio`'s monotonic clock and adds customizable behaviour on missed ticks.
 
 ## Bug Fixes
 

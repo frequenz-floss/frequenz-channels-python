@@ -28,14 +28,28 @@ def formatting(session: nox.Session) -> None:
 @nox.session
 def pylint(session: nox.Session) -> None:
     """Run pylint to do lint checks."""
-    session.install("-e", ".[docs]", "pylint", "pytest", "nox")
+    session.install(
+        "-e",
+        ".[docs]",
+        "pylint",
+        "pytest",
+        "nox",
+        "async-solipsism",
+    )
     session.run("pylint", *check_dirs, *check_files)
 
 
 @nox.session
 def mypy(session: nox.Session) -> None:
     """Run mypy to check type hints."""
-    session.install("-e", ".[docs]", "pytest", "nox", "mypy")
+    session.install(
+        "-e",
+        ".[docs]",
+        "pytest",
+        "nox",
+        "mypy",
+        "async-solipsism",
+    )
 
     common_args = [
         "--namespace-packages",
@@ -72,7 +86,13 @@ def docstrings(session: nox.Session) -> None:
 @nox.session
 def pytest(session: nox.Session) -> None:
     """Run all tests using pytest."""
-    session.install("pytest", "pytest-cov", "pytest-mock", "pytest-asyncio")
+    session.install(
+        "pytest",
+        "pytest-cov",
+        "pytest-mock",
+        "pytest-asyncio",
+        "async-solipsism",
+    )
     session.install("-e", ".")
     session.run(
         "pytest",

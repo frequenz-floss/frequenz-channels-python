@@ -76,3 +76,7 @@ src_paths = ["src", "examples", "tests"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 required_plugins = [ "pytest-asyncio", "pytest-mock" ]
+
+[[tool.mypy.overrides]]
+module = ["async_solipsism", "async_solipsism.*"]
+ignore_missing_imports = true
