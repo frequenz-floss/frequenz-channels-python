@@ -5,8 +5,9 @@
 
 import os
 import pathlib
+from datetime import timedelta
 
-from frequenz.channels.util import FileWatcher, Select, Timer
+from frequenz.channels.util import FileWatcher, PeriodicTimer, Select
 
 
 async def test_file_watcher(tmp_path: pathlib.Path) -> None:
@@ -22,7 +23,10 @@ async def test_file_watcher(tmp_path: pathlib.Path) -> None:
     number_of_writes = 0
     expected_number_of_writes = 3
 
-    select = Select(timer=Timer(0.1), file_watcher=file_watcher)
+    select = Select(
+        timer=PeriodicTimer(timedelta(seconds=0.1)),
+        file_watcher=file_watcher,
+    )
     while await select.ready():
         if msg := select.timer:
             filename.write_text(f"{msg.inner}")
@@ -49,7 +53,9 @@ async def test_file_watcher_change_types(tmp_path: pathlib.Path) -> None:
     )
 
     select = Select(
-        write_timer=Timer(0.1), deletion_timer=Timer(0.25), watcher=file_watcher
+        write_timer=PeriodicTimer(timedelta(seconds=0.1)),
+        deletion_timer=PeriodicTimer(timedelta(seconds=0.25)),
+        watcher=file_watcher,
     )
     number_of_deletes = 0
     number_of_write = 0
