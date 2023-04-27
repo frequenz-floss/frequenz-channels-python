@@ -49,15 +49,20 @@ async def test_file_watcher_change_types(tmp_path: pathlib.Path) -> None:
     )
 
     select = Select(
-        write_timer=Timer(0.1), deletion_timer=Timer(0.5), watcher=file_watcher
+        write_timer=Timer(0.1), deletion_timer=Timer(0.25), watcher=file_watcher
     )
-    number_of_receives = 0
+    number_of_deletes = 0
+    number_of_write = 0
     while await select.ready():
         if msg := select.write_timer:
             filename.write_text(f"{msg.inner}")
+            number_of_write += 1
         elif _ := select.deletion_timer:
             os.remove(filename)
         elif _ := select.watcher:
-            number_of_receives += 1
+            number_of_deletes += 1
             break
-    assert number_of_receives == 1
+
+    assert number_of_deletes == 1
+    # Can be more because the watcher could take some time to trigger
+    assert number_of_write >= 2
