@@ -5,15 +5,15 @@
 
 from __future__ import annotations
 
+import abc
 import asyncio
-import enum
 from datetime import timedelta
 
 from .._base_classes import Receiver
 from .._exceptions import ReceiverStoppedError
 
 
-class MissedTickBehavior(enum.Enum):
+class MissedTickBehavior(abc.ABC):
     """The behavior of the timer when it misses a tick.
 
     This is only relevant if the timer is not ready to trigger when it should
@@ -21,21 +21,118 @@ class MissedTickBehavior(enum.Enum):
     other tasks.
     """
 
-    TRIGGER_ALL = enum.auto()
+    @abc.abstractmethod
+    def calculate_next_tick_time(
+        self, *, now: float, interval: float, scheduled_tick_time: float
+    ) -> float:
+        """Calculate the next tick time according to `missed_tick_behavior`.
+
+        This method is called by `ready()` after it has determined that the
+        timer has triggered.  It will check if the timer has missed any ticks
+        and handle them according to `missed_tick_behavior`.
+
+        Args:
+            now: The current time.
+            interval: The interval between ticks.
+            scheduled_tick_time: The time the current tick was scheduled to
+                trigger.
+
+        Returns:
+            The next tick time according to `missed_tick_behavior`.
+        """
+        return 0.0  # dummy value to avoid darglint warnings
+
+
+class TriggerAllMissed(MissedTickBehavior):
     """Trigger all the missed ticks immediately until it catches up.
 
-    The start time of the timer will not change and the drift will also not be
-    accumulated.
+    Example:
+        Assume a timer with interval 1 second, the tick `T0` happens exactly
+        at time 0, the second tick, `T1`, happens at time 1.2 (0.2 seconds
+        late), so it trigges immediately.  The third tick, `T2`, happens at
+        time 2.3 (0.3 seconds late), so it also triggers immediately.  The
+        fourth tick, `T3`, happens at time 4.3 (1.3 seconds late), so it also
+        triggers immediately as well as the fifth tick, `T4`, which was also
+        already delayed (by 0.3 seconds), so it catches up.  The sixth tick,
+        `T5`, happens at 5.1 (0.1 seconds late), so it triggers immediately
+        again. The seventh tick, `T6`, happens at 6.0, right on time.
 
-    The `delay_tolerance` is ignored in this mode.
-
-    For example, if the timer missed 3 ticks exactly, then the timer will
-    trigger 4 times immediately: the first returned drift will be 3 * interval,
-    the second will be 2 * interval, the third will be 1 * interval and the
-    fourth will be 0 (assuming zero processing time for catching up).
+        ```
+        0         1         2         3         4  o      5         6
+        o---------|-o-------|--o------|---------|--o------|o--------o-----> time
+        T0          T1         T2                  T3      T5       T6
+                                                   T4
+        ```
     """
 
-    SKIP_AND_DRIFT = enum.auto()
+    def calculate_next_tick_time(
+        self, *, now: float, interval: float, scheduled_tick_time: float
+    ) -> float:
+        """Calculate the next tick time.
+
+        This method always returns `scheduled_tick_time + interval`, as all
+        ticks need to produce a trigger event.
+
+        Args:
+            now: The current time.
+            interval: The interval between ticks.
+            scheduled_tick_time: The time the current tick was scheduled to
+                trigger.
+
+        Returns:
+            The next tick time.
+        """
+        return scheduled_tick_time + interval
+
+
+class SkipMissedAndResync(MissedTickBehavior):
+    """Drop all the missed ticks, trigger immediately and resync with interval.
+
+    If ticks are missed, the timer will trigger immediately returing the drift
+    and it will schedule to trigger again on the next multiple of `interval`,
+    effectively skipping any missed ticks.
+
+    Example:
+        Assume a timer with interval 1 second, the tick `T0` happens exactly
+        at time 0, the second tick, `T1`, happens at time 1.2 (0.2 seconds
+        late), so it trigges immediately.  The third tick, `T2`, happens at
+        time 2.3 (0.3 seconds late), so it also triggers immediately.  The
+        fourth tick, `T3`, happens at time 4.3 (1.3 seconds late), so it also
+        triggers immediately but the fifth tick, `T4`, which was also
+        already delayed (by 0.3 seconds) is skipped.  The sixth tick,
+        `T5`, happens at 5.1 (0.1 seconds late), so it triggers immediately
+        again. The seventh tick, `T6`, happens at 6.0, right on time.
+
+        ```
+        0         1         2         3         4  o      5         6
+        o---------|-o-------|--o------|---------|--o------|o--------o-----> time
+        T0          T1         T2                  T3      T5       T6
+        ```
+    """
+
+    def calculate_next_tick_time(
+        self, *, now: float, interval: float, scheduled_tick_time: float
+    ) -> float:
+        """Calculate the next tick time.
+
+        Calculate the next multiple of `interval` after `scheduled_tick_time`.
+
+        Args:
+            now: The current time.
+            interval: The interval between ticks.
+            scheduled_tick_time: The time the current tick was scheduled to
+                trigger.
+
+        Returns:
+            The next tick time.
+        """
+        # We need to resync (align) the next tick time to the current time
+        drift = now - scheduled_tick_time
+        delta_to_next_tick = interval - (drift % interval)
+        return now + delta_to_next_tick
+
+
+class SkipMissedAndDrift(MissedTickBehavior):
     """Drop all the missed ticks, trigger immediately and reset.
 
     This will behave effectively as if the timer was `reset()` at the time it
@@ -43,28 +140,65 @@ class MissedTickBehavior(enum.Enum):
     accumulated each time a tick is delayed, but only the relative drift will
     be returned on each tick).
 
-    The reset happens only if the delay is larger than `delay_tolerance`.
+    The reset happens only if the delay is larger than `delay_tolerance`, so
+    it is possible to ignore small delays and not drift in those cases.
 
-    For example, if the timer missed 3 ticks exactly, then the first returned
-    drift will be 3 * interval, and the second will be 0 if there were no more
-    delays.
+    Example:
+        Assume a timer with interval 1 second and `delay_tolerance=0.1`, the
+        first tick, `T0`, happens exactly at time 0, the second tick, `T1`,
+        happens at time 1.2 (0.2 seconds late), so the timer triggers
+        immmediately but drifts a bit. The next tick, `T2.2`, happens at 2.3 seconds
+        (0.1 seconds late), so it also triggers immediately but it doesn't
+        drift because the delay is under the `delay_tolerance`. The next tick,
+        `T3.2`, triggers at 4.3 seconds (1.1 seconds late), so it also triggers
+        immediately but the timer drifts by 1.1 seconds and the tick `T4.2` is
+        skipped (not triggered). The next tick, `T5.3`, triggers at 5.3 seconds
+        so is right on time (no drift) and the same happens for tick `T6.3`,
+        which triggers at 6.3 seconds.
+
+        ```
+        0         1         2         3         4         5         6
+        o---------|-o-------|--o------|---------|--o------|--o------|--o--> time
+        T0          T1         T2.2                T3.2      T5.3      T6.3
+        ```
     """
 
-    SKIP_AND_RESYNC = enum.auto()
-    """Drop all the missed ticks, trigger immediately and resync with interval.
+    def __init__(self, *, delay_tolerance: timedelta = timedelta(0)):
+        """
+        Initialize the instance.
 
-    If ticks are missed, the timer will trigger immediately returing the drift
-    and it will schedule to trigger again on the next multiple of `interval`.
-    The start time of the timer will not change and the drift will also not be
-    accumulated.
+        Args:
+            delay_tolerance: The maximum delay that is tolerated before
+                starting to drift.  If a tick is delayed less than this, then
+                it is not considered a missed tick and the timer doesn't
+                accumulate this drift.
+        """
+        self.delay_tolerance: timedelta = delay_tolerance
+        """The maximum allowed delay before starting to drift."""
 
-    The missed ticks are only skipped if the delay is larger than
-    `delay_tolerance`.
+    def calculate_next_tick_time(
+        self, *, now: float, interval: float, scheduled_tick_time: float
+    ) -> float:
+        """Calculate the next tick time.
 
-    For example, if the timer missed 3 ticks exactly, then the first returned
-    drift will be 3 * interval but subsequent drifts will be 0 if the timer
-    ticks on time.
-    """
+        If the drift is larger than `delay_tolerance`, then it returns `now +
+        interval` (so the timer drifts), otherwise it returns
+        `scheduled_tick_time + interval` (we consider the delay too small and
+        avoid small drifts).
+
+        Args:
+            now: The current time.
+            interval: The interval between ticks.
+            scheduled_tick_time: The time the current tick was scheduled to
+                trigger.
+
+        Returns:
+            The next tick time.
+        """
+        drift = now - scheduled_tick_time
+        if drift > self.delay_tolerance.total_seconds():
+            return now + interval
+        return scheduled_tick_time + interval
 
 
 class PeriodicTimer(Receiver[timedelta]):
@@ -132,7 +266,6 @@ class PeriodicTimer(Receiver[timedelta]):
         timer = PeriodicTimer(timedelta(seconds=1.0),
             auto_start=False,
             missed_tick_behavior=MissedTickBehavior.SKIP_AND_DRIFT,
-            delay_tolerance=timedelta(0),
         )
         select = Select(bat_1=receiver1, heavy_process=receiver2, timeout=timer)
         while await select.ready():
@@ -162,8 +295,8 @@ class PeriodicTimer(Receiver[timedelta]):
         interval: timedelta,
         *,
         auto_start: bool = True,
-        missed_tick_behavior: MissedTickBehavior = MissedTickBehavior.TRIGGER_ALL,
-        delay_tolerance: timedelta | None = None,
+        # We can use an instance here because TriggerAllMissed is immutable
+        missed_tick_behavior: MissedTickBehavior = TriggerAllMissed(),
         loop: asyncio.AbstractEventLoop | None = None,
     ) -> None:
         """Create an instance.
@@ -179,13 +312,6 @@ class PeriodicTimer(Receiver[timedelta]):
             missed_tick_behavior: The behavior of the timer when it misses
                 a tick. See the documentation of `MissedTickBehavior` for
                 details.
-            delay_tolerance: The maximum delay that is tolerated before
-                adjusting ticks according to `missed_tick_behavior`.  If a tick
-                is delayed less than this, then it is not considered a missed
-                tick. If `None` it will be to 1% of the interval **unless**
-                `missed_tick_behavior` is `SKIP_AND_DRIFT`, in which case it
-                will be `timedelta(0)`. Bear in mind that some
-                `MissedTickBehavior.TRIGGER_ALL` ignores this value.
             loop: The event loop to use to track time. If `None`,
                 `asyncio.get_running_loop()` will be used.
 
@@ -201,20 +327,6 @@ class PeriodicTimer(Receiver[timedelta]):
 
         See the documentation of `MissedTickBehavior` for details.
         """
-
-        self._delay_tolerance: timedelta
-        """The maximum allowed delay before triggering `missed_tick_behavior`.
-
-        If a tick is delayed less than this, then it is not considered a missed
-        tick. Bear in mind that some `MissedTickBehavior`s ignore this value.
-        """
-        if delay_tolerance is None:
-            if missed_tick_behavior is MissedTickBehavior.SKIP_AND_DRIFT:
-                self._delay_tolerance = timedelta(0)
-            else:
-                self._delay_tolerance = interval / 100
-        else:
-            self._delay_tolerance = delay_tolerance
 
         self._loop: asyncio.AbstractEventLoop = (
             loop if loop is not None else asyncio.get_running_loop()
@@ -276,16 +388,6 @@ class PeriodicTimer(Receiver[timedelta]):
         return self._missed_tick_behavior
 
     @property
-    def delay_tolerance(self) -> timedelta:
-        """The maximum allowed delay before triggering `missed_tick_behavior`.
-
-        Returns:
-            The maximum allowed delay before triggering
-                `missed_tick_behavior`.
-        """
-        return self._delay_tolerance
-
-    @property
     def loop(self) -> asyncio.AbstractEventLoop:
         """The event loop used by the timer to track time.
 
@@ -318,6 +420,7 @@ class PeriodicTimer(Receiver[timedelta]):
         """
         self._stopped = False
         self._next_tick_time = self._loop.time() + self._interval.total_seconds()
+        self._current_drift = None
 
     def stop(self) -> None:
         """Stop the timer.
@@ -371,50 +474,18 @@ class PeriodicTimer(Receiver[timedelta]):
             await asyncio.sleep(time_to_next_tick)
             now = self._loop.time()
 
+        # If a stop was explicitly requested during the sleep, we bail out.
+        if self._stopped:
+            return False
+
         self._current_drift = timedelta(seconds=now - self._next_tick_time)
+        self._next_tick_time = self._missed_tick_behavior.calculate_next_tick_time(
+            now=now,
+            interval=self._interval.total_seconds(),
+            scheduled_tick_time=self._next_tick_time,
+        )
 
-        self._next_tick_time = self._calculate_next_tick_time(now)
-
-        assert False, "Unknown MissedTickBehavior"
-
-    def _calculate_next_tick_time(self, now: float) -> float:
-        """Calculate the next tick time according to `missed_tick_behavior`.
-
-        This method is called by `ready()` after it has determined that the
-        timer has triggered.  It will check if the timer has missed any ticks
-        and handle them according to `missed_tick_behavior`.
-
-        Args:
-            now: The current time.
-
-        Returns:
-            The next tick time according to `missed_tick_behavior`.
-        """
-        assert self._current_drift is not None
-        assert self._next_tick_time is not None
-
-        # If there is no relevant delay we just return the next tick time
-        if self._current_drift <= self._delay_tolerance:
-            return self._next_tick_time + self._interval.total_seconds()
-
-        # If we want to emit all the ticks, we just return next tick time
-        if self._missed_tick_behavior is MissedTickBehavior.TRIGGER_ALL:
-            return self._next_tick_time + self._interval.total_seconds()
-
-        # If we want to drift, we just return the next tick time relative to
-        # the current time
-        if self._missed_tick_behavior is MissedTickBehavior.SKIP_AND_DRIFT:
-            return now + self._interval.total_seconds()
-
-        # If we want to resync, we need to calculate the next tick time
-        # relative to the current time but aligned to the interval
-        if self._missed_tick_behavior is MissedTickBehavior.SKIP_AND_RESYNC:
-            # We need to resync (align) the next tick time to the current time
-            total_missed, reminder = divmod(self._current_drift, self._interval)
-            delta_to_next_tick = self._interval * (total_missed + 1) - reminder
-            return now + delta_to_next_tick.total_seconds()
-
-        assert False, "Unknown MissedTickBehavior"
+        return True
 
     def consume(self) -> timedelta:
         """Return the latest drift once `ready()` is complete.

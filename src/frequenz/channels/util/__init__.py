@@ -28,7 +28,13 @@ A module with several utilities to work with channels:
 from ._file_watcher import FileWatcher
 from ._merge import Merge
 from ._merge_named import MergeNamed
-from ._periodic_timer import MissedTickBehavior, PeriodicTimer
+from ._periodic_timer import (
+    MissedTickBehavior,
+    PeriodicTimer,
+    SkipMissedAndDrift,
+    SkipMissedAndResync,
+    TriggerAllMissed,
+)
 from ._select import Select
 
 __all__ = [
@@ -38,4 +44,7 @@ __all__ = [
     "MissedTickBehavior",
     "PeriodicTimer",
     "Select",
+    "SkipMissedAndDrift",
+    "SkipMissedAndResync",
+    "TriggerAllMissed",
 ]
