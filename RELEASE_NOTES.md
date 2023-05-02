@@ -22,7 +22,6 @@
     ```python
     new_timer = PeriodicTimer(timedelta(seconds=1.0),
         missed_ticks_behaviour=MissedTickBehavior.SKIP_AND_DRIFT,
-        delay_tolerance=timedelta(0),
     )
     drift = new_timer.receive()
     triggered_datetime = datetime.now(timezone.utc) - drift

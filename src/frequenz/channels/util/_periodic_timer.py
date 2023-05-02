@@ -79,9 +79,10 @@ class PeriodicTimer(Receiver[timedelta]):
     drift will be positive. A negative drift should be technically impossible,
     as the timer uses `asyncio`s loop monotonic clock.
 
-    If the timer is delayed too much (see `delay_tolerance`), then the timer
-    will behave according to the `missed_tick_behavior`. Missing ticks might
-    or might not trigger a message and the drift could be accumulated or not.
+    If the timer is delayed too much, then the timer will behave according to
+    the `missed_tick_behavior`. Missing ticks might or might not trigger
+    a message and the drift could be accumulated or not depending on the
+    chosen behavior.
 
     The timer accepts an optional `loop`, which will be used to track the time.
     If `loop` is `None`, then the running loop will be used (if there is no
@@ -123,8 +124,8 @@ class PeriodicTimer(Receiver[timedelta]):
                     timer.reset()
         ```
 
-        For timeouts it might be useful to use `MissedTickBehavior.SKIP_AND_DRIFT`
-        and `delay_tolerance=timedelta(0)`, so the timer always gets
+        For timeouts it might be useful to use
+        `MissedTickBehavior.SKIP_AND_DRIFT`, so the timer always gets
         automatically reset:
 
         ```python
@@ -179,10 +180,12 @@ class PeriodicTimer(Receiver[timedelta]):
                 a tick. See the documentation of `MissedTickBehavior` for
                 details.
             delay_tolerance: The maximum delay that is tolerated before
-                adjusting ticks according to `missed_tick_behavior`.  If
-                a tick is delayed less than this, then it is not considered
-                a missed tick. By default this is set to 1% of the interval.
-                Bear in mind that some `MissedTickBehavior`s ignore this value.
+                adjusting ticks according to `missed_tick_behavior`.  If a tick
+                is delayed less than this, then it is not considered a missed
+                tick. If `None` it will be to 1% of the interval **unless**
+                `missed_tick_behavior` is `SKIP_AND_DRIFT`, in which case it
+                will be `timedelta(0)`. Bear in mind that some
+                `MissedTickBehavior.TRIGGER_ALL` ignores this value.
             loop: The event loop to use to track time. If `None`,
                 `asyncio.get_running_loop()` will be used.
 
@@ -199,14 +202,19 @@ class PeriodicTimer(Receiver[timedelta]):
         See the documentation of `MissedTickBehavior` for details.
         """
 
-        self._delay_tolerance: timedelta = (
-            (interval / 100) if delay_tolerance is None else delay_tolerance
-        )
+        self._delay_tolerance: timedelta
         """The maximum allowed delay before triggering `missed_tick_behavior`.
 
         If a tick is delayed less than this, then it is not considered a missed
         tick. Bear in mind that some `MissedTickBehavior`s ignore this value.
         """
+        if delay_tolerance is None:
+            if missed_tick_behavior is MissedTickBehavior.SKIP_AND_DRIFT:
+                self._delay_tolerance = timedelta(0)
+            else:
+                self._delay_tolerance = interval / 100
+        else:
+            self._delay_tolerance = delay_tolerance
 
         self._loop: asyncio.AbstractEventLoop = (
             loop if loop is not None else asyncio.get_running_loop()
