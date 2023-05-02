@@ -373,27 +373,46 @@ class PeriodicTimer(Receiver[timedelta]):
 
         self._current_drift = timedelta(seconds=now - self._next_tick_time)
 
-        # There is no relevant delay or we want to emit all the ticks, we just
-        # calculate the next tick time and return.
-        if (
-            self._current_drift <= self._delay_tolerance
-            or self._missed_tick_behavior is MissedTickBehavior.TRIGGER_ALL
-        ):
-            self._next_tick_time = self._next_tick_time + self._interval.total_seconds()
-            return True
+        self._next_tick_time = self._calculate_next_tick_time(now)
 
-        # At this point we have a considerable delay and need to skip ticks
+        assert False, "Unknown MissedTickBehavior"
 
+    def _calculate_next_tick_time(self, now: float) -> float:
+        """Calculate the next tick time according to `missed_tick_behavior`.
+
+        This method is called by `ready()` after it has determined that the
+        timer has triggered.  It will check if the timer has missed any ticks
+        and handle them according to `missed_tick_behavior`.
+
+        Args:
+            now: The current time.
+
+        Returns:
+            The next tick time according to `missed_tick_behavior`.
+        """
+        assert self._current_drift is not None
+        assert self._next_tick_time is not None
+
+        # If there is no relevant delay we just return the next tick time
+        if self._current_drift <= self._delay_tolerance:
+            return self._next_tick_time + self._interval.total_seconds()
+
+        # If we want to emit all the ticks, we just return next tick time
+        if self._missed_tick_behavior is MissedTickBehavior.TRIGGER_ALL:
+            return self._next_tick_time + self._interval.total_seconds()
+
+        # If we want to drift, we just return the next tick time relative to
+        # the current time
         if self._missed_tick_behavior is MissedTickBehavior.SKIP_AND_DRIFT:
-            self.reset()
-            return True
+            return now + self._interval.total_seconds()
 
+        # If we want to resync, we need to calculate the next tick time
+        # relative to the current time but aligned to the interval
         if self._missed_tick_behavior is MissedTickBehavior.SKIP_AND_RESYNC:
             # We need to resync (align) the next tick time to the current time
             total_missed, reminder = divmod(self._current_drift, self._interval)
             delta_to_next_tick = self._interval * (total_missed + 1) - reminder
-            self._next_tick_time = now + delta_to_next_tick.total_seconds()
-            return True
+            return now + delta_to_next_tick.total_seconds()
 
         assert False, "Unknown MissedTickBehavior"
 
