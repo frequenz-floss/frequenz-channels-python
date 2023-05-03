@@ -1,7 +1,15 @@
 # License: MIT
 # Copyright © 2023 Frequenz Energy-as-a-Service GmbH
 
-"""A periodic timer receiver that ticks every `interval`."""
+"""A periodic timer receiver that ticks every `interval`.
+
+Note:
+    This module always use `int`s to represent time.  The time is always in
+    microseconds, so the timer resolution is 1 microsecond.
+
+    This is to avoid floating point errors when performing calculations with
+    time, which can lead to very hard to reproduce, and debug, issues.
+"""
 
 from __future__ import annotations
 
@@ -11,6 +19,21 @@ from datetime import timedelta
 
 from .._base_classes import Receiver
 from .._exceptions import ReceiverStoppedError
+
+
+def _to_microseconds(time: float | timedelta) -> int:
+    """Convert a time or a timedelta to microseconds.
+
+    Args:
+        time: The time to convert. If it is a `float`, it is assumed to be in
+            seconds.
+
+    Returns:
+        The time in microseconds.
+    """
+    if isinstance(time, timedelta):
+        time = time.total_seconds()
+    return round(time * 1_000_000)
 
 
 class MissedTickBehavior(abc.ABC):
@@ -23,8 +46,8 @@ class MissedTickBehavior(abc.ABC):
 
     @abc.abstractmethod
     def calculate_next_tick_time(
-        self, *, now: float, interval: float, scheduled_tick_time: float
-    ) -> float:
+        self, *, now: int, interval: int, scheduled_tick_time: int
+    ) -> int:
         """Calculate the next tick time according to `missed_tick_behavior`.
 
         This method is called by `ready()` after it has determined that the
@@ -32,15 +55,16 @@ class MissedTickBehavior(abc.ABC):
         and handle them according to `missed_tick_behavior`.
 
         Args:
-            now: The current time.
-            interval: The interval between ticks.
+            now: The current loop time (in microseconds).
+            interval: The interval between ticks (in microseconds).
             scheduled_tick_time: The time the current tick was scheduled to
-                trigger.
+                trigger (in microseconds).
 
         Returns:
-            The next tick time according to `missed_tick_behavior`.
+            The next tick time (in microseconds) according to
+                `missed_tick_behavior`.
         """
-        return 0.0  # dummy value to avoid darglint warnings
+        return 0  # dummy value to avoid darglint warnings
 
 
 class TriggerAllMissed(MissedTickBehavior):
@@ -66,21 +90,21 @@ class TriggerAllMissed(MissedTickBehavior):
     """
 
     def calculate_next_tick_time(
-        self, *, now: float, interval: float, scheduled_tick_time: float
-    ) -> float:
+        self, *, now: int, interval: int, scheduled_tick_time: int
+    ) -> int:
         """Calculate the next tick time.
 
         This method always returns `scheduled_tick_time + interval`, as all
         ticks need to produce a trigger event.
 
         Args:
-            now: The current time.
-            interval: The interval between ticks.
+            now: The current loop time (in microseconds).
+            interval: The interval between ticks (in microseconds).
             scheduled_tick_time: The time the current tick was scheduled to
-                trigger.
+                trigger (in microseconds).
 
         Returns:
-            The next tick time.
+            The next tick time (in microseconds).
         """
         return scheduled_tick_time + interval
 
@@ -111,20 +135,20 @@ class SkipMissedAndResync(MissedTickBehavior):
     """
 
     def calculate_next_tick_time(
-        self, *, now: float, interval: float, scheduled_tick_time: float
-    ) -> float:
+        self, *, now: int, interval: int, scheduled_tick_time: int
+    ) -> int:
         """Calculate the next tick time.
 
         Calculate the next multiple of `interval` after `scheduled_tick_time`.
 
         Args:
-            now: The current time.
-            interval: The interval between ticks.
+            now: The current loop time (in microseconds).
+            interval: The interval between ticks (in microseconds).
             scheduled_tick_time: The time the current tick was scheduled to
-                trigger.
+                trigger (in microseconds).
 
         Returns:
-            The next tick time.
+            The next tick time (in microseconds).
         """
         # We need to resync (align) the next tick time to the current time
         drift = now - scheduled_tick_time
@@ -165,7 +189,9 @@ class SkipMissedAndDrift(MissedTickBehavior):
 
     def __init__(self, *, delay_tolerance: timedelta = timedelta(0)):
         """
-        Initialize the instance.
+        Create an instance.
+
+        See the class documenation for more details.
 
         Args:
             delay_tolerance: The maximum delay that is tolerated before
@@ -173,12 +199,21 @@ class SkipMissedAndDrift(MissedTickBehavior):
                 it is not considered a missed tick and the timer doesn't
                 accumulate this drift.
         """
-        self.delay_tolerance: timedelta = delay_tolerance
+        self._tolerance: int = _to_microseconds(delay_tolerance)
         """The maximum allowed delay before starting to drift."""
 
+    @property
+    def delay_tolerance(self) -> timedelta:
+        """Return the maximum delay that is tolerated before starting to drift.
+
+        Returns:
+            The maximum delay that is tolerated before starting to drift.
+        """
+        return timedelta(microseconds=self._tolerance)
+
     def calculate_next_tick_time(
-        self, *, now: float, interval: float, scheduled_tick_time: float
-    ) -> float:
+        self, *, now: int, interval: int, scheduled_tick_time: int
+    ) -> int:
         """Calculate the next tick time.
 
         If the drift is larger than `delay_tolerance`, then it returns `now +
@@ -187,22 +222,25 @@ class SkipMissedAndDrift(MissedTickBehavior):
         avoid small drifts).
 
         Args:
-            now: The current time.
-            interval: The interval between ticks.
+            now: The current loop time (in microseconds).
+            interval: The interval between ticks (in microseconds).
             scheduled_tick_time: The time the current tick was scheduled to
-                trigger.
+                trigger (in microseconds).
 
         Returns:
-            The next tick time.
+            The next tick time (in microseconds).
         """
         drift = now - scheduled_tick_time
-        if drift > self.delay_tolerance.total_seconds():
+        if drift > self._tolerance:
             return now + interval
         return scheduled_tick_time + interval
 
 
 class PeriodicTimer(Receiver[timedelta]):
     """A periodic timer receiver that triggers every `interval` time.
+
+    The timer as microseconds resolution, so the `interval` must be at least
+    1 microsecond.
 
     The message it produces is a `timedelta` containing the drift of the timer,
     i.e. the difference between when the timer should have triggered and the time
@@ -304,7 +342,8 @@ class PeriodicTimer(Receiver[timedelta]):
         See the class documentation for details.
 
         Args:
-            interval: The time between timer ticks.
+            interval: The time between timer ticks. Must be at least
+                1 microsecond.
             auto_start: Whether the periodic timer should be started when the
                 instance is created. This can only be `True` if there is
                 already a running loop or an explicit `loop` that is running
@@ -318,8 +357,10 @@ class PeriodicTimer(Receiver[timedelta]):
         Raises:
             RuntimeError: if it was called without a loop and there is no
                 running loop.
+            ValueError: if `interval` is not positive or is smaller than 1
+                microsecond.
         """
-        self._interval: timedelta = interval
+        self._interval: int = _to_microseconds(interval)
         """The time to between timer ticks."""
 
         self._missed_tick_behavior: MissedTickBehavior = missed_tick_behavior
@@ -350,7 +391,7 @@ class PeriodicTimer(Receiver[timedelta]):
           a `ReceiverClosedError`.
         """
 
-        self._next_tick_time: float | None = None
+        self._next_tick_time: int | None = None
         """The absolute (monotonic) time when the timer should trigger.
 
         If this is `None`, it means the timer didn't start yet, but it should
@@ -366,6 +407,12 @@ class PeriodicTimer(Receiver[timedelta]):
         to wait again.
         """
 
+        if self._interval <= 0:
+            raise ValueError(
+                "The `interval` must be positive and at least 1 microsecond, "
+                f"not {interval} ({self._interval} microseconds)"
+            )
+
         if auto_start:
             self.reset()
 
@@ -376,7 +423,7 @@ class PeriodicTimer(Receiver[timedelta]):
         Returns:
             The interval between timer ticks.
         """
-        return self._interval
+        return timedelta(microseconds=self._interval)
 
     @property
     def missed_tick_behavior(self) -> MissedTickBehavior:
@@ -419,7 +466,7 @@ class PeriodicTimer(Receiver[timedelta]):
             RuntimeError: if it was called without a running loop.
         """
         self._stopped = False
-        self._next_tick_time = self._loop.time() + self._interval.total_seconds()
+        self._next_tick_time = self._now() + self._interval
         self._current_drift = None
 
     def stop(self) -> None:
@@ -433,10 +480,11 @@ class PeriodicTimer(Receiver[timedelta]):
         You can restart the timer with `reset()`.
         """
         self._stopped = True
-        self._next_tick_time = -1.0
+        # We need to make sure it's not None, otherwise `ready()` will start it
+        self._next_tick_time = self._now()
 
     async def ready(self) -> bool:
-        """Wait until the timer interval passed.
+        """Wait until the timer `interval` passed.
 
         Once a call to `ready()` has finished, the resulting tick information
         must be read with a call to `consume()` (`receive()` or iterated over)
@@ -467,21 +515,21 @@ class PeriodicTimer(Receiver[timedelta]):
         if self._stopped:
             return False
 
-        now = self._loop.time()
+        now = self._now()
         time_to_next_tick = self._next_tick_time - now
         # If we didn't reach the tick yet, sleep until we do.
         if time_to_next_tick > 0:
-            await asyncio.sleep(time_to_next_tick)
-            now = self._loop.time()
+            await asyncio.sleep(time_to_next_tick / 1_000_000)
+            now = self._now()
 
         # If a stop was explicitly requested during the sleep, we bail out.
         if self._stopped:
             return False
 
-        self._current_drift = timedelta(seconds=now - self._next_tick_time)
+        self._current_drift = timedelta(microseconds=now - self._next_tick_time)
         self._next_tick_time = self._missed_tick_behavior.calculate_next_tick_time(
             now=now,
-            interval=self._interval.total_seconds(),
+            interval=self._interval,
             scheduled_tick_time=self._next_tick_time,
         )
 
@@ -512,3 +560,11 @@ class PeriodicTimer(Receiver[timedelta]):
         drift = self._current_drift
         self._current_drift = None
         return drift
+
+    def _now(self) -> int:
+        """Return the current monotonic clock time in microseconds.
+
+        Returns:
+            The current monotonic clock time in microseconds.
+        """
+        return _to_microseconds(self._loop.time())
