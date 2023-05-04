@@ -35,6 +35,7 @@ def pylint(session: nox.Session) -> None:
         "pytest",
         "nox",
         "async-solipsism",
+        "hypothesis",
     )
     session.run("pylint", *check_dirs, *check_files)
 
@@ -49,6 +50,7 @@ def mypy(session: nox.Session) -> None:
         "nox",
         "mypy",
         "async-solipsism",
+        "hypothesis",
     )
 
     common_args = [
@@ -92,6 +94,7 @@ def pytest(session: nox.Session) -> None:
         "pytest-mock",
         "pytest-asyncio",
         "async-solipsism",
+        "hypothesis",
     )
     session.install("-e", ".")
     session.run(
