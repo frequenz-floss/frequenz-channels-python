@@ -199,9 +199,15 @@ class SkipMissedAndDrift(MissedTickPolicy):
                 starting to drift.  If a tick is delayed less than this, then
                 it is not considered a missed tick and the timer doesn't
                 accumulate this drift.
+
+        Raises:
+            ValueError: If `delay_tolerance` is negative.
         """
         self._tolerance: int = _to_microseconds(delay_tolerance)
         """The maximum allowed delay before starting to drift."""
+
+        if self._tolerance < 0:
+            raise ValueError("delay_tolerance must be positive")
 
     @property
     def delay_tolerance(self) -> timedelta:
