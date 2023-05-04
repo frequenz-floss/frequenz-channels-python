@@ -3,6 +3,8 @@
 
 """Tests for the Channel implementation."""
 
+from __future__ import annotations
+
 import asyncio
 
 import pytest
@@ -145,6 +147,23 @@ async def test_anycast_full() -> None:
         # should not timeout now, because we've just sent a value to the
         # channel.
         assert False
+
+
+async def test_anycast_none_values() -> None:
+    """Ensure None values can be sent and received."""
+    acast: Anycast[int | None] = Anycast()
+
+    sender = acast.new_sender()
+    receiver = acast.new_receiver()
+
+    await sender.send(5)
+    assert await receiver.receive() == 5
+
+    await sender.send(None)
+    assert await receiver.receive() is None
+
+    await sender.send(10)
+    assert await receiver.receive() == 10
 
 
 async def test_anycast_async_iterator() -> None:
