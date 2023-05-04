@@ -46,7 +46,7 @@ class MissedTickBehavior(abc.ABC):
 
     @abc.abstractmethod
     def calculate_next_tick_time(
-        self, *, now: int, interval: int, scheduled_tick_time: int
+        self, *, interval: int, scheduled_tick_time: int, now: int
     ) -> int:
         """Calculate the next tick time according to `missed_tick_behavior`.
 
@@ -55,10 +55,10 @@ class MissedTickBehavior(abc.ABC):
         and handle them according to `missed_tick_behavior`.
 
         Args:
-            now: The current loop time (in microseconds).
             interval: The interval between ticks (in microseconds).
             scheduled_tick_time: The time the current tick was scheduled to
                 trigger (in microseconds).
+            now: The current loop time (in microseconds).
 
         Returns:
             The next tick time (in microseconds) according to
@@ -90,7 +90,7 @@ class TriggerAllMissed(MissedTickBehavior):
     """
 
     def calculate_next_tick_time(
-        self, *, now: int, interval: int, scheduled_tick_time: int
+        self, *, now: int, scheduled_tick_time: int, interval: int
     ) -> int:
         """Calculate the next tick time.
 
@@ -99,9 +99,9 @@ class TriggerAllMissed(MissedTickBehavior):
 
         Args:
             now: The current loop time (in microseconds).
-            interval: The interval between ticks (in microseconds).
             scheduled_tick_time: The time the current tick was scheduled to
                 trigger (in microseconds).
+            interval: The interval between ticks (in microseconds).
 
         Returns:
             The next tick time (in microseconds).
@@ -135,7 +135,7 @@ class SkipMissedAndResync(MissedTickBehavior):
     """
 
     def calculate_next_tick_time(
-        self, *, now: int, interval: int, scheduled_tick_time: int
+        self, *, now: int, scheduled_tick_time: int, interval: int
     ) -> int:
         """Calculate the next tick time.
 
@@ -143,9 +143,9 @@ class SkipMissedAndResync(MissedTickBehavior):
 
         Args:
             now: The current loop time (in microseconds).
-            interval: The interval between ticks (in microseconds).
             scheduled_tick_time: The time the current tick was scheduled to
                 trigger (in microseconds).
+            interval: The interval between ticks (in microseconds).
 
         Returns:
             The next tick time (in microseconds).
@@ -212,7 +212,7 @@ class SkipMissedAndDrift(MissedTickBehavior):
         return timedelta(microseconds=self._tolerance)
 
     def calculate_next_tick_time(
-        self, *, now: int, interval: int, scheduled_tick_time: int
+        self, *, now: int, scheduled_tick_time: int, interval: int
     ) -> int:
         """Calculate the next tick time.
 
@@ -223,9 +223,9 @@ class SkipMissedAndDrift(MissedTickBehavior):
 
         Args:
             now: The current loop time (in microseconds).
-            interval: The interval between ticks (in microseconds).
             scheduled_tick_time: The time the current tick was scheduled to
                 trigger (in microseconds).
+            interval: The interval between ticks (in microseconds).
 
         Returns:
             The next tick time (in microseconds).
@@ -529,8 +529,8 @@ class PeriodicTimer(Receiver[timedelta]):
         self._current_drift = timedelta(microseconds=now - self._next_tick_time)
         self._next_tick_time = self._missed_tick_behavior.calculate_next_tick_time(
             now=now,
-            interval=self._interval,
             scheduled_tick_time=self._next_tick_time,
+            interval=self._interval,
         )
 
         return True
