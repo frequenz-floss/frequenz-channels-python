@@ -21,7 +21,7 @@
 
     ```python
     new_timer = PeriodicTimer(timedelta(seconds=1.0),
-        missed_ticks_behaviour=MissedTickBehavior.SKIP_AND_DRIFT,
+        missed_ticks_policy=SkipMissedAndDrift(),
     )
     drift = new_timer.receive()
     triggered_datetime = datetime.now(timezone.utc) - drift
@@ -31,11 +31,11 @@
 
   Also `PeriodicTimer` uses the `asyncio` loop monotonic clock and `Timer` used the wall clock (`datetime.now()`) to track time. This means that when using `async-solipsism` to test, `PeriodicTimer` will always trigger immediately regarless of the state of the wall clock.
 
-  **Note:** Before replacing this code blindly in all uses of `Timer`, please consider using the default `MissedTickBehavior.TRIGGER_ALL` or `MissedTickBehavior.SKIP_AND_RESYNC`, as the old `Timer` accumulated drift, which might not be what you want unless you are using it to implement timeouts.
+  **Note:** Before replacing this code blindly in all uses of `Timer`, please consider using the default `TriggerAllMissed()` or `SkipMissedAndResync()`, as the old `Timer` accumulated drift, which might not be what you want unless you are using it to implement timeouts.
 
 ## New Features
 
-* A new receiver `util.PeriodicTimer` was added. This implements a periodic timer using `asyncio`'s monotonic clock and adds customizable behaviour on missed ticks.
+* A new receiver `util.PeriodicTimer` was added. This implements a periodic timer using `asyncio`'s monotonic clock and adds customizable policies for handling missed ticks.
 
 ## Bug Fixes
 

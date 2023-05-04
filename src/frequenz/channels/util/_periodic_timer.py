@@ -36,8 +36,8 @@ def _to_microseconds(time: float | timedelta) -> int:
     return round(time * 1_000_000)
 
 
-class MissedTickBehavior(abc.ABC):
-    """The behavior of the timer when it misses a tick.
+class MissedTickPolicy(abc.ABC):
+    """A policy to handle timer missed ticks.
 
     This is only relevant if the timer is not ready to trigger when it should
     (an interval passed) which can happen if the event loop is busy processing
@@ -48,11 +48,11 @@ class MissedTickBehavior(abc.ABC):
     def calculate_next_tick_time(
         self, *, interval: int, scheduled_tick_time: int, now: int
     ) -> int:
-        """Calculate the next tick time according to `missed_tick_behavior`.
+        """Calculate the next tick time according to `missed_tick_policy`.
 
         This method is called by `ready()` after it has determined that the
         timer has triggered.  It will check if the timer has missed any ticks
-        and handle them according to `missed_tick_behavior`.
+        and handle them according to `missed_tick_policy`.
 
         Args:
             interval: The interval between ticks (in microseconds).
@@ -62,13 +62,13 @@ class MissedTickBehavior(abc.ABC):
 
         Returns:
             The next tick time (in microseconds) according to
-                `missed_tick_behavior`.
+                `missed_tick_policy`.
         """
         return 0  # dummy value to avoid darglint warnings
 
 
-class TriggerAllMissed(MissedTickBehavior):
-    """Trigger all the missed ticks immediately until it catches up.
+class TriggerAllMissed(MissedTickPolicy):
+    """A policy that triggers all the missed ticks immediately until it catches up.
 
     Example:
         Assume a timer with interval 1 second, the tick `T0` happens exactly
@@ -109,12 +109,13 @@ class TriggerAllMissed(MissedTickBehavior):
         return scheduled_tick_time + interval
 
 
-class SkipMissedAndResync(MissedTickBehavior):
-    """Drop all the missed ticks, trigger immediately and resync with interval.
+class SkipMissedAndResync(MissedTickPolicy):
+    """A policy that drops all the missed ticks, triggers immediately and resyncs.
 
     If ticks are missed, the timer will trigger immediately returing the drift
     and it will schedule to trigger again on the next multiple of `interval`,
-    effectively skipping any missed ticks.
+    effectively skipping any missed ticks, but resyncing with the original start
+    time.
 
     Example:
         Assume a timer with interval 1 second, the tick `T0` happens exactly
@@ -156,8 +157,8 @@ class SkipMissedAndResync(MissedTickBehavior):
         return now + delta_to_next_tick
 
 
-class SkipMissedAndDrift(MissedTickBehavior):
-    """Drop all the missed ticks, trigger immediately and reset.
+class SkipMissedAndDrift(MissedTickPolicy):
+    """A policy that drops all the missed ticks, triggers immediately and resets.
 
     This will behave effectively as if the timer was `reset()` at the time it
     had triggered last, so the start time will change (and the drift will be
@@ -252,9 +253,9 @@ class PeriodicTimer(Receiver[timedelta]):
     as the timer uses `asyncio`s loop monotonic clock.
 
     If the timer is delayed too much, then the timer will behave according to
-    the `missed_tick_behavior`. Missing ticks might or might not trigger
+    the `missed_tick_policy`. Missing ticks might or might not trigger
     a message and the drift could be accumulated or not depending on the
-    chosen behavior.
+    chosen policy.
 
     The timer accepts an optional `loop`, which will be used to track the time.
     If `loop` is `None`, then the running loop will be used (if there is no
@@ -296,14 +297,13 @@ class PeriodicTimer(Receiver[timedelta]):
                     timer.reset()
         ```
 
-        For timeouts it might be useful to use
-        `MissedTickBehavior.SKIP_AND_DRIFT`, so the timer always gets
-        automatically reset:
+        For timeouts it might be useful to use `SkipMissedAndDrift` policy, so
+        the timer always gets automatically reset:
 
         ```python
         timer = PeriodicTimer(timedelta(seconds=1.0),
             auto_start=False,
-            missed_tick_behavior=MissedTickBehavior.SKIP_AND_DRIFT,
+            missed_tick_policy=SkipMissedAndDrift(),
         )
         select = Select(bat_1=receiver1, heavy_process=receiver2, timeout=timer)
         while await select.ready():
@@ -334,7 +334,7 @@ class PeriodicTimer(Receiver[timedelta]):
         *,
         auto_start: bool = True,
         # We can use an instance here because TriggerAllMissed is immutable
-        missed_tick_behavior: MissedTickBehavior = TriggerAllMissed(),
+        missed_tick_policy: MissedTickPolicy = TriggerAllMissed(),
         loop: asyncio.AbstractEventLoop | None = None,
     ) -> None:
         """Create an instance.
@@ -348,8 +348,8 @@ class PeriodicTimer(Receiver[timedelta]):
                 instance is created. This can only be `True` if there is
                 already a running loop or an explicit `loop` that is running
                 was passed.
-            missed_tick_behavior: The behavior of the timer when it misses
-                a tick. See the documentation of `MissedTickBehavior` for
+            missed_tick_policy: The policy of the timer when it misses
+                a tick. See the documentation of `MissedTickPolicy` for
                 details.
             loop: The event loop to use to track time. If `None`,
                 `asyncio.get_running_loop()` will be used.
@@ -363,10 +363,10 @@ class PeriodicTimer(Receiver[timedelta]):
         self._interval: int = _to_microseconds(interval)
         """The time to between timer ticks."""
 
-        self._missed_tick_behavior: MissedTickBehavior = missed_tick_behavior
-        """The behavior of the timer when it misses a tick.
+        self._missed_tick_policy: MissedTickPolicy = missed_tick_policy
+        """The policy of the timer when it misses a tick.
 
-        See the documentation of `MissedTickBehavior` for details.
+        See the documentation of `MissedTickPolicy` for details.
         """
 
         self._loop: asyncio.AbstractEventLoop = (
@@ -426,13 +426,13 @@ class PeriodicTimer(Receiver[timedelta]):
         return timedelta(microseconds=self._interval)
 
     @property
-    def missed_tick_behavior(self) -> MissedTickBehavior:
-        """The behavior of the timer when it misses a tick.
+    def missed_tick_policy(self) -> MissedTickPolicy:
+        """The policy of the timer when it misses a tick.
 
         Returns:
-            The behavior of the timer when it misses a tick.
+            The policy of the timer when it misses a tick.
         """
-        return self._missed_tick_behavior
+        return self._missed_tick_policy
 
     @property
     def loop(self) -> asyncio.AbstractEventLoop:
@@ -527,7 +527,7 @@ class PeriodicTimer(Receiver[timedelta]):
             return False
 
         self._current_drift = timedelta(microseconds=now - self._next_tick_time)
-        self._next_tick_time = self._missed_tick_behavior.calculate_next_tick_time(
+        self._next_tick_time = self._missed_tick_policy.calculate_next_tick_time(
             now=now,
             scheduled_tick_time=self._next_tick_time,
             interval=self._interval,

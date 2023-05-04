@@ -29,7 +29,7 @@ from ._file_watcher import FileWatcher
 from ._merge import Merge
 from ._merge_named import MergeNamed
 from ._periodic_timer import (
-    MissedTickBehavior,
+    MissedTickPolicy,
     PeriodicTimer,
     SkipMissedAndDrift,
     SkipMissedAndResync,
@@ -41,7 +41,7 @@ __all__ = [
     "FileWatcher",
     "Merge",
     "MergeNamed",
-    "MissedTickBehavior",
+    "MissedTickPolicy",
     "PeriodicTimer",
     "Select",
     "SkipMissedAndDrift",

@@ -29,22 +29,22 @@ async def test_contruction() -> None:
     """TODO."""
     timer = PeriodicTimer(timedelta(seconds=1.0))
     assert timer.interval == timedelta(seconds=1.0)
-    assert isinstance(timer.missed_tick_behavior, TriggerAllMissed)
+    assert isinstance(timer.missed_tick_policy, TriggerAllMissed)
     assert timer.loop is asyncio.get_running_loop()
     assert timer.is_running is True
 
 
 async def test_contruction_auto_start() -> None:
     """TODO."""
-    behavior = TriggerAllMissed()
+    policy = TriggerAllMissed()
     timer = PeriodicTimer(
         timedelta(seconds=5.0),
         auto_start=False,
-        missed_tick_behavior=behavior,
+        missed_tick_policy=policy,
         loop=None,
     )
     assert timer.interval == timedelta(seconds=5.0)
-    assert timer.missed_tick_behavior is behavior
+    assert timer.missed_tick_policy is policy
     assert timer.loop is asyncio.get_running_loop()
     assert timer.is_running is False
 
@@ -175,7 +175,7 @@ async def test_skip_and_drift(
     tolerance = 0.1
     timer = PeriodicTimer(
         timedelta(seconds=interval),
-        missed_tick_behavior=SkipMissedAndDrift(
+        missed_tick_policy=SkipMissedAndDrift(
             delay_tolerance=timedelta(seconds=tolerance)
         ),
     )
