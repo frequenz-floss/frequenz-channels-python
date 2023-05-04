@@ -108,7 +108,8 @@ class Select:
     def __del__(self) -> None:
         """Cleanup any pending tasks."""
         for task in self._pending:
-            task.cancel()
+            if not task.done() and task.get_loop().is_running():
+                task.cancel()
 
     async def stop(self) -> None:
         """Stop the `Select` instance and cleanup any pending tasks."""
