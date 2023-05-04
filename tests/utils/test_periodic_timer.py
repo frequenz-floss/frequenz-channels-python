@@ -26,7 +26,7 @@ def event_loop() -> Iterator[async_solipsism.EventLoop]:
 
 
 async def test_contruction() -> None:
-    """TODO."""
+    """Test the construction of a periodic timer with default values."""
     timer = PeriodicTimer(timedelta(seconds=1.0))
     assert timer.interval == timedelta(seconds=1.0)
     assert isinstance(timer.missed_tick_policy, TriggerAllMissed)
@@ -35,7 +35,7 @@ async def test_contruction() -> None:
 
 
 async def test_contruction_auto_start() -> None:
-    """TODO."""
+    """Test the construction of a periodic timer with auto_start=False."""
     policy = TriggerAllMissed()
     timer = PeriodicTimer(
         timedelta(seconds=5.0),
@@ -52,7 +52,7 @@ async def test_contruction_auto_start() -> None:
 async def test_autostart(
     event_loop: async_solipsism.EventLoop,  # pylint: disable=redefined-outer-name
 ) -> None:
-    """TODO."""
+    """Test the autostart of a periodic timer."""
     timer = PeriodicTimer(timedelta(seconds=1.0))
 
     # We sleep some time, less than the interval, and then receive from the
@@ -76,7 +76,7 @@ async def test_no_autostart(
     start_method: _StartMethod,
     event_loop: async_solipsism.EventLoop,  # pylint: disable=redefined-outer-name
 ) -> None:
-    """TODO."""
+    """Test a periodic timer when it is not automatically started."""
     timer = PeriodicTimer(
         timedelta(seconds=1.0),
         auto_start=False,
@@ -109,7 +109,7 @@ async def test_no_autostart(
 async def test_trigger_all(
     event_loop: async_solipsism.EventLoop,  # pylint: disable=redefined-outer-name
 ) -> None:
-    """TODO."""
+    """Test a timer using the TriggerAllMissed policy."""
     interval = 1.0
     timer = PeriodicTimer(timedelta(seconds=interval))
 
@@ -170,7 +170,7 @@ async def test_trigger_all(
 async def test_skip_and_drift(
     event_loop: async_solipsism.EventLoop,  # pylint: disable=redefined-outer-name
 ) -> None:
-    """TODO."""
+    """Test the skip missed and drift policy."""
     interval = 1.0
     tolerance = 0.1
     timer = PeriodicTimer(
