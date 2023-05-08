@@ -7,7 +7,7 @@ import os
 import pathlib
 from datetime import timedelta
 
-from frequenz.channels.util import FileWatcher, Select, SkipMissedAndDrift, Timer
+from frequenz.channels.util import FileWatcher, Select, Timer
 
 
 async def test_file_watcher(tmp_path: pathlib.Path) -> None:
@@ -24,10 +24,7 @@ async def test_file_watcher(tmp_path: pathlib.Path) -> None:
     expected_number_of_writes = 3
 
     select = Select(
-        timer=Timer(
-            timedelta(seconds=0.1),
-            SkipMissedAndDrift(delay_tolerance=timedelta(0)),
-        ),
+        timer=Timer.timeout(timedelta(seconds=0.1)),
         file_watcher=file_watcher,
     )
     while await select.ready():
@@ -56,14 +53,8 @@ async def test_file_watcher_change_types(tmp_path: pathlib.Path) -> None:
     )
 
     select = Select(
-        write_timer=Timer(
-            timedelta(seconds=0.1),
-            SkipMissedAndDrift(delay_tolerance=timedelta(0)),
-        ),
-        deletion_timer=Timer(
-            timedelta(seconds=0.25),
-            SkipMissedAndDrift(delay_tolerance=timedelta(0)),
-        ),
+        write_timer=Timer.timeout(timedelta(seconds=0.1)),
+        deletion_timer=Timer.timeout(timedelta(seconds=0.25)),
         watcher=file_watcher,
     )
     number_of_deletes = 0

@@ -272,19 +272,22 @@ class Timer(Receiver[timedelta]):
     `receive()` or the async iterator interface to await for a new message will
     start the timer.
 
-    Example:
-        The most common use case is to just do something periodically:
+    For the most common cases, a specialized constructor is provided:
 
+    * [`periodic()`][frequenz.channels.util.Timer.periodic]
+    * [`timeout()`][frequenz.channels.util.Timer.timeout]
+
+    Example: Periodic timer example
         ```python
-        async for drift in Timer(timedelta(seconds=1.0), TriggerAllMissed()):
+        async for drift in Timer.periodic(timedelta(seconds=1.0)):
             print(f"The timer has triggered {drift=}")
         ```
 
-        But you can also use [Select][frequenz.channels.util.Select] to combine
-        it with other receivers, and even start it (semi) manually:
+        But you can also use [`Select`][frequenz.channels.util.Select] to combine it
+        with other receivers, and even start it (semi) manually:
 
         ```python
-        timer = Timer(timedelta(seconds=1.0), TriggerAllMissed(), auto_start=False)
+        timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
         # Do some other initialization, the timer will start automatically if
         # a message is awaited (or manually via `reset()`).
         select = Select(bat_1=receiver1, timer=timer)
@@ -303,11 +306,9 @@ class Timer(Receiver[timedelta]):
                     timer.reset()
         ```
 
-        For timeouts it might be useful to use `SkipMissedAndDrift` policy, so
-        the timer always gets automatically reset:
-
+    Example: Timeout example
         ```python
-        timer = Timer(timedelta(seconds=1.0), SkipMissedAndDrift(), auto_start=False)
+        timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
         select = Select(bat_1=receiver1, heavy_process=receiver2, timeout=timer)
         while await select.ready():
             if msg := select.bat_1:
@@ -417,6 +418,97 @@ class Timer(Receiver[timedelta]):
 
         if auto_start:
             self.reset()
+
+    @classmethod
+    def timeout(
+        cls,
+        delay: timedelta,
+        /,
+        *,
+        auto_start: bool = True,
+        loop: asyncio.AbstractEventLoop | None = None,
+    ) -> Timer:
+        """Create a timer useful for tracking timeouts.
+
+        This is basically a shortcut to create a timer with
+        `SkipMissedAndDrift(delay_tolerance=timedelta(0))` as the missed tick policy.
+
+        See the class documentation for details.
+
+        Args:
+            delay: The time until the timer ticks. Must be at least
+                1 microsecond.
+            auto_start: Whether the timer should be started when the
+                instance is created. This can only be `True` if there is
+                already a running loop or an explicit `loop` that is running
+                was passed.
+            loop: The event loop to use to track time. If `None`,
+                `asyncio.get_running_loop()` will be used.
+
+        Returns:
+            The timer instance.
+
+        Raises:
+            RuntimeError: if it was called without a loop and there is no
+                running loop.
+            ValueError: if `interval` is not positive or is smaller than 1
+                microsecond.
+        """
+        return Timer(
+            delay,
+            SkipMissedAndDrift(delay_tolerance=timedelta(0)),
+            auto_start=auto_start,
+            loop=loop,
+        )
+
+    @classmethod
+    def periodic(
+        cls,
+        period: timedelta,
+        /,
+        *,
+        skip_missed_ticks: bool = False,
+        auto_start: bool = True,
+        loop: asyncio.AbstractEventLoop | None = None,
+    ) -> Timer:
+        """Create a periodic timer.
+
+        This is basically a shortcut to create a timer with either
+        `TriggerAllMissed()` or `SkipMissedAndResync()` as the missed tick policy
+        (depending on `skip_missed_ticks`).
+
+        See the class documentation for details.
+
+        Args:
+            period: The time between timer ticks. Must be at least
+                1 microsecond.
+            skip_missed_ticks: Whether to skip missed ticks or trigger them
+                all until it catches up.
+            auto_start: Whether the timer should be started when the
+                instance is created. This can only be `True` if there is
+                already a running loop or an explicit `loop` that is running
+                was passed.
+            loop: The event loop to use to track time. If `None`,
+                `asyncio.get_running_loop()` will be used.
+
+        Returns:
+            The timer instance.
+
+        Raises:
+            RuntimeError: if it was called without a loop and there is no
+                running loop.
+            ValueError: if `interval` is not positive or is smaller than 1
+                microsecond.
+        """
+        missed_tick_policy = (
+            SkipMissedAndResync() if skip_missed_ticks else TriggerAllMissed()
+        )
+        return Timer(
+            period,
+            missed_tick_policy,
+            auto_start=auto_start,
+            loop=loop,
+        )
 
     @property
     def interval(self) -> timedelta:

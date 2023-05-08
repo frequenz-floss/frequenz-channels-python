@@ -267,6 +267,43 @@ async def test_timer_contruction_custom_args() -> None:
     assert timer.is_running is True
 
 
+async def test_timer_contruction_timeout_custom_args() -> None:
+    """Test the construction of a timeout timer with custom arguments."""
+    timer = Timer.timeout(
+        timedelta(seconds=5.0),
+        auto_start=True,
+        loop=None,
+    )
+    assert timer.interval == timedelta(seconds=5.0)
+    assert isinstance(timer.missed_tick_policy, SkipMissedAndDrift)
+    assert timer.missed_tick_policy.delay_tolerance == timedelta(0)
+    assert timer.loop is asyncio.get_running_loop()
+    assert timer.is_running is True
+
+
+async def test_timer_contruction_periodic_defaults() -> None:
+    """Test the construction of a periodic timer."""
+    timer = Timer.periodic(timedelta(seconds=5.0))
+    assert timer.interval == timedelta(seconds=5.0)
+    assert isinstance(timer.missed_tick_policy, TriggerAllMissed)
+    assert timer.loop is asyncio.get_running_loop()
+    assert timer.is_running is True
+
+
+async def test_timer_contruction_periodic_custom_args() -> None:
+    """Test the construction of a timeout timer with custom arguments."""
+    timer = Timer.periodic(
+        timedelta(seconds=5.0),
+        skip_missed_ticks=True,
+        auto_start=True,
+        loop=None,
+    )
+    assert timer.interval == timedelta(seconds=5.0)
+    assert isinstance(timer.missed_tick_policy, SkipMissedAndResync)
+    assert timer.loop is asyncio.get_running_loop()
+    assert timer.is_running is True
+
+
 async def test_timer_autostart(
     event_loop: async_solipsism.EventLoop,  # pylint: disable=redefined-outer-name
 ) -> None:
