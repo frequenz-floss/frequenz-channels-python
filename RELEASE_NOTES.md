@@ -2,7 +2,7 @@
 
 ## Summary
 
-<!-- Here goes a general summary of what this release is about -->
+This release adds support to pass `None` values via channels and revamps the `Timer` class to support custom policies for handling missed ticks and use the loop monotonic clock.
 
 ## Upgrading
 
@@ -35,6 +35,8 @@
 
 * `util.Timer` was replaced by a more generic implementation that allows for customizable policies to handle missed ticks.
 
+* Passing `None` values via channels is now supported.
+
 ## Bug Fixes
 
-<!-- Here goes notable bug fixes that are worth a special mention or explanation -->
+* `util.Select` / `util.Merge` / `util.MergeNamed`: Cancel pending tasks in `__del__` methods only if possible (the loop is not already closed).
