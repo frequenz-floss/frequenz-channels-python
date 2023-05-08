@@ -332,9 +332,9 @@ class Timer(Receiver[timedelta]):
 
     def __init__(
         self,
-        /,
         interval: timedelta,
         missed_tick_policy: MissedTickPolicy,
+        /,
         *,
         auto_start: bool = True,
         loop: asyncio.AbstractEventLoop | None = None,
