@@ -26,7 +26,7 @@ async def test_file_watcher(tmp_path: pathlib.Path) -> None:
     select = Select(
         timer=Timer(
             timedelta(seconds=0.1),
-            missed_tick_policy=SkipMissedAndDrift(delay_tolerance=timedelta(0)),
+            SkipMissedAndDrift(delay_tolerance=timedelta(0)),
         ),
         file_watcher=file_watcher,
     )
@@ -58,11 +58,11 @@ async def test_file_watcher_change_types(tmp_path: pathlib.Path) -> None:
     select = Select(
         write_timer=Timer(
             timedelta(seconds=0.1),
-            missed_tick_policy=SkipMissedAndDrift(delay_tolerance=timedelta(0)),
+            SkipMissedAndDrift(delay_tolerance=timedelta(0)),
         ),
         deletion_timer=Timer(
             timedelta(seconds=0.25),
-            missed_tick_policy=SkipMissedAndDrift(delay_tolerance=timedelta(0)),
+            SkipMissedAndDrift(delay_tolerance=timedelta(0)),
         ),
         watcher=file_watcher,
     )

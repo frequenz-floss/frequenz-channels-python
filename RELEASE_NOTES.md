@@ -20,9 +20,7 @@
   - New:
 
     ```python
-    new_timer = Timer(timedelta(seconds=1.0),
-        missed_ticks_policy=SkipMissedAndDrift(),
-    )
+    new_timer = Timer(timedelta(seconds=1.0), SkipMissedAndDrift())
     drift = new_timer.receive()
     triggered_datetime = datetime.now(timezone.utc) - drift
     ```

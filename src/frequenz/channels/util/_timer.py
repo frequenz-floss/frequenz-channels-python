@@ -276,7 +276,7 @@ class Timer(Receiver[timedelta]):
         The most common use case is to just do something periodically:
 
         ```python
-        async for drift in Timer(timedelta(seconds=1.0)):
+        async for drift in Timer(timedelta(seconds=1.0), TriggerAllMissed()):
             print(f"The timer has triggered {drift=}")
         ```
 
@@ -284,7 +284,7 @@ class Timer(Receiver[timedelta]):
         it with other receivers, and even start it (semi) manually:
 
         ```python
-        timer = Timer(timedelta(seconds=1.0), auto_start=False)
+        timer = Timer(timedelta(seconds=1.0), TriggerAllMissed(), auto_start=False)
         # Do some other initialization, the timer will start automatically if
         # a message is awaited (or manually via `reset()`).
         select = Select(bat_1=receiver1, timer=timer)
@@ -307,10 +307,7 @@ class Timer(Receiver[timedelta]):
         the timer always gets automatically reset:
 
         ```python
-        timer = Timer(timedelta(seconds=1.0),
-            auto_start=False,
-            missed_tick_policy=SkipMissedAndDrift(),
-        )
+        timer = Timer(timedelta(seconds=1.0), SkipMissedAndDrift(), auto_start=False)
         select = Select(bat_1=receiver1, heavy_process=receiver2, timeout=timer)
         while await select.ready():
             if msg := select.bat_1:
@@ -337,10 +334,9 @@ class Timer(Receiver[timedelta]):
         self,
         /,
         interval: timedelta,
+        missed_tick_policy: MissedTickPolicy,
         *,
         auto_start: bool = True,
-        # We can use an instance here because TriggerAllMissed is immutable
-        missed_tick_policy: MissedTickPolicy = TriggerAllMissed(),
         loop: asyncio.AbstractEventLoop | None = None,
     ) -> None:
         """Create an instance.
@@ -350,13 +346,13 @@ class Timer(Receiver[timedelta]):
         Args:
             interval: The time between timer ticks. Must be at least
                 1 microsecond.
+            missed_tick_policy: The policy of the timer when it misses
+                a tick. See the documentation of `MissedTickPolicy` for
+                details.
             auto_start: Whether the timer should be started when the
                 instance is created. This can only be `True` if there is
                 already a running loop or an explicit `loop` that is running
                 was passed.
-            missed_tick_policy: The policy of the timer when it misses
-                a tick. See the documentation of `MissedTickPolicy` for
-                details.
             loop: The event loop to use to track time. If `None`,
                 `asyncio.get_running_loop()` will be used.
 
