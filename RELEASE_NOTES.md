@@ -2,7 +2,7 @@
 
 ## Summary
 
-This release adds support to pass `None` values via channels and revamps the `Timer` class to support custom policies for handling missed ticks and use the loop monotonic clock.
+This release adds support to pass `None` values via channels and revamps the `Timer` class to support custom policies for handling missed ticks and use the loop monotonic clock.  There is also a fix for the `FileWatcher` which includes a change in behavior when reporting changes for deleted files.
 
 ## Upgrading
 
@@ -31,6 +31,14 @@ This release adds support to pass `None` values via channels and revamps the `Ti
 
   **Note:** Before replacing this code blindly in all uses of `Timer.timeout()`, please consider using the periodic timer constructor `Timer.periodic()` if you need a timer that triggers reliable on a periodic fashion, as the old `Timer` (and `Timer.timeout()`) accumulates drift, which might not be what you want.
 
+* `FileWatcher` now will emit events even if the file doesn't exist anymore.
+
+  Because the underlying library has a considerable delay in triggering filesystem events, it can happen that, for example, a `CREATE` event is received but at the time of receiving the file doesn't exist anymore (because if was removed just after creation and before the event was triggered).
+
+  Before the `FileWatcher` will only emit events when the file exists, but this doesn't work for `DELETE` events (clearly). Given the nature of this mechanism can lead to races easily, it is better to leave it to the user to decide when these situations happen and just report all events.
+
+  Therefore, you should now check a file receiving an event really exist before trying to operate on it.
+
 ## New Features
 
 * `util.Timer` was replaced by a more generic implementation that allows for customizable policies to handle missed ticks.
@@ -40,3 +48,7 @@ This release adds support to pass `None` values via channels and revamps the `Ti
 ## Bug Fixes
 
 * `util.Select` / `util.Merge` / `util.MergeNamed`: Cancel pending tasks in `__del__` methods only if possible (the loop is not already closed).
+
+* `FileWatcher` will now report `DELETE` events correctly.
+
+  Due to a bug, before this release `DELETE` events were only reported if the file was re-created before the event was triggered.
