@@ -1,7 +1,7 @@
 # License: MIT
 # Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-"""Tests for the periodic timer."""
+"""Tests for the timer."""
 
 from __future__ import annotations
 
@@ -16,9 +16,9 @@ import pytest
 from hypothesis import strategies as st
 
 from frequenz.channels.util import (
-    PeriodicTimer,
     SkipMissedAndDrift,
     SkipMissedAndResync,
+    Timer,
     TriggerAllMissed,
 )
 
@@ -214,7 +214,7 @@ def test_policy_skip_missed_and_drift_examples() -> None:
 
 async def test_timer_contruction_defaults() -> None:
     """Test the construction of a periodic timer with default values."""
-    timer = PeriodicTimer(timedelta(seconds=1.0))
+    timer = Timer(timedelta(seconds=1.0), missed_tick_policy=TriggerAllMissed())
     assert timer.interval == timedelta(seconds=1.0)
     assert isinstance(timer.missed_tick_policy, TriggerAllMissed)
     assert timer.loop is asyncio.get_running_loop()
@@ -224,7 +224,9 @@ async def test_timer_contruction_defaults() -> None:
 def test_timer_contruction_no_async() -> None:
     """Test the construction outside of async (using a custom loop)."""
     loop = async_solipsism.EventLoop()
-    timer = PeriodicTimer(timedelta(seconds=1.0), loop=loop)
+    timer = Timer(
+        timedelta(seconds=1.0), missed_tick_policy=TriggerAllMissed(), loop=loop
+    )
     assert timer.interval == timedelta(seconds=1.0)
     assert isinstance(timer.missed_tick_policy, TriggerAllMissed)
     assert timer.loop is loop
@@ -234,13 +236,13 @@ def test_timer_contruction_no_async() -> None:
 def test_timer_contruction_no_event_loop() -> None:
     """Test the construction outside of async (without a custom loop) fails."""
     with pytest.raises(RuntimeError, match="no running event loop"):
-        PeriodicTimer(timedelta(seconds=1.0))
+        Timer(timedelta(seconds=1.0), missed_tick_policy=TriggerAllMissed())
 
 
 async def test_timer_contruction_auto_start() -> None:
     """Test the construction of a periodic timer with auto_start=False."""
     policy = TriggerAllMissed()
-    timer = PeriodicTimer(
+    timer = Timer(
         timedelta(seconds=5.0),
         auto_start=False,
         missed_tick_policy=policy,
@@ -255,7 +257,7 @@ async def test_timer_contruction_auto_start() -> None:
 async def test_timer_contruction_custom_args() -> None:
     """Test the construction of a periodic timer with custom arguments."""
     policy = TriggerAllMissed()
-    timer = PeriodicTimer(
+    timer = Timer(
         timedelta(seconds=5.0),
         auto_start=True,
         missed_tick_policy=policy,
@@ -271,7 +273,7 @@ async def test_timer_autostart(
     event_loop: async_solipsism.EventLoop,  # pylint: disable=redefined-outer-name
 ) -> None:
     """Test the autostart of a periodic timer."""
-    timer = PeriodicTimer(timedelta(seconds=1.0))
+    timer = Timer(timedelta(seconds=1.0), missed_tick_policy=TriggerAllMissed())
 
     # We sleep some time, less than the interval, and then receive from the
     # timer, since it was automatically started at time 0, it should trigger at
@@ -295,8 +297,9 @@ async def test_timer_no_autostart(
     event_loop: async_solipsism.EventLoop,  # pylint: disable=redefined-outer-name
 ) -> None:
     """Test a periodic timer when it is not automatically started."""
-    timer = PeriodicTimer(
+    timer = Timer(
         timedelta(seconds=1.0),
+        missed_tick_policy=TriggerAllMissed(),
         auto_start=False,
     )
 
@@ -329,7 +332,7 @@ async def test_timer_trigger_all_missed(
 ) -> None:
     """Test a timer using the TriggerAllMissed policy."""
     interval = 1.0
-    timer = PeriodicTimer(timedelta(seconds=interval))
+    timer = Timer(timedelta(seconds=interval), missed_tick_policy=TriggerAllMissed())
 
     # We let the first tick be triggered on time
     drift = await timer.receive()
@@ -390,9 +393,7 @@ async def test_timer_skip_missed_and_resync(
 ) -> None:
     """Test a timer using the SkipMissedAndResync policy."""
     interval = 1.0
-    timer = PeriodicTimer(
-        timedelta(seconds=interval), missed_tick_policy=SkipMissedAndResync()
-    )
+    timer = Timer(timedelta(seconds=interval), missed_tick_policy=SkipMissedAndResync())
 
     # We let the first tick be triggered on time
     drift = await timer.receive()
@@ -444,7 +445,7 @@ async def test_timer_skip_missed_and_drift(
     """Test a timer using the SkipMissedAndDrift policy."""
     interval = 1.0
     tolerance = 0.1
-    timer = PeriodicTimer(
+    timer = Timer(
         timedelta(seconds=interval),
         missed_tick_policy=SkipMissedAndDrift(
             delay_tolerance=timedelta(seconds=tolerance)

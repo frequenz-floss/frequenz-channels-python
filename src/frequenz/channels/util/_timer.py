@@ -1,7 +1,7 @@
 # License: MIT
 # Copyright © 2023 Frequenz Energy-as-a-Service GmbH
 
-"""A periodic timer receiver that ticks every `interval`.
+"""A timer receiver that ticks every `interval`.
 
 Note:
     This module always use `int`s to represent time.  The time is always in
@@ -243,8 +243,8 @@ class SkipMissedAndDrift(MissedTickPolicy):
         return scheduled_tick_time + interval
 
 
-class PeriodicTimer(Receiver[timedelta]):
-    """A periodic timer receiver that triggers every `interval` time.
+class Timer(Receiver[timedelta]):
+    """A timer receiver that triggers every `interval` time.
 
     The timer as microseconds resolution, so the `interval` must be at least
     1 microsecond.
@@ -276,7 +276,7 @@ class PeriodicTimer(Receiver[timedelta]):
         The most common use case is to just do something periodically:
 
         ```python
-        async for drift in PeriodicTimer(timedelta(seconds=1.0)):
+        async for drift in Timer(timedelta(seconds=1.0)):
             print(f"The timer has triggered {drift=}")
         ```
 
@@ -284,7 +284,7 @@ class PeriodicTimer(Receiver[timedelta]):
         it with other receivers, and even start it (semi) manually:
 
         ```python
-        timer = PeriodicTimer(timedelta(seconds=1.0), auto_start=False)
+        timer = Timer(timedelta(seconds=1.0), auto_start=False)
         # Do some other initialization, the timer will start automatically if
         # a message is awaited (or manually via `reset()`).
         select = Select(bat_1=receiver1, timer=timer)
@@ -307,7 +307,7 @@ class PeriodicTimer(Receiver[timedelta]):
         the timer always gets automatically reset:
 
         ```python
-        timer = PeriodicTimer(timedelta(seconds=1.0),
+        timer = Timer(timedelta(seconds=1.0),
             auto_start=False,
             missed_tick_policy=SkipMissedAndDrift(),
         )
@@ -350,7 +350,7 @@ class PeriodicTimer(Receiver[timedelta]):
         Args:
             interval: The time between timer ticks. Must be at least
                 1 microsecond.
-            auto_start: Whether the periodic timer should be started when the
+            auto_start: Whether the timer should be started when the
                 instance is created. This can only be `True` if there is
                 already a running loop or an explicit `loop` that is running
                 was passed.

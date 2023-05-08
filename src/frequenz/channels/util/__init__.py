@@ -17,8 +17,8 @@ A module with several utilities to work with channels:
   multiple receivers into a single named stream, allowing to identify the
   origin of each message.
 
-* [PeriodicTimer][frequenz.channels.util.PeriodicTimer]:
-  A [receiver][frequenz.channels.Receiver] that ticks at regular intervals.
+* [Timer][frequenz.channels.util.Timer]:
+  A [receiver][frequenz.channels.Receiver] that ticks at certain intervals.
 
 * [Select][frequenz.channels.util.Select]: A helper to select the next
   available message for each [receiver][frequenz.channels.Receiver] in a group
@@ -28,21 +28,21 @@ A module with several utilities to work with channels:
 from ._file_watcher import FileWatcher
 from ._merge import Merge
 from ._merge_named import MergeNamed
-from ._periodic_timer import (
+from ._select import Select
+from ._timer import (
     MissedTickPolicy,
-    PeriodicTimer,
     SkipMissedAndDrift,
     SkipMissedAndResync,
+    Timer,
     TriggerAllMissed,
 )
-from ._select import Select
 
 __all__ = [
     "FileWatcher",
     "Merge",
     "MergeNamed",
     "MissedTickPolicy",
-    "PeriodicTimer",
+    "Timer",
     "Select",
     "SkipMissedAndDrift",
     "SkipMissedAndResync",
