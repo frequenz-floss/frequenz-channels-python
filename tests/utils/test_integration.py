@@ -36,7 +36,12 @@ async def test_file_watcher(tmp_path: pathlib.Path) -> None:
         if msg := select.timer:
             filename.write_text(f"{msg.inner}")
         elif msg := select.file_watcher:
-            assert msg.inner == filename
+            event_type = (
+                FileWatcher.EventType.CREATE
+                if number_of_writes == 0
+                else FileWatcher.EventType.MODIFY
+            )
+            assert msg.inner == FileWatcher.Event(type=event_type, path=filename)
             number_of_writes += 1
             # After receiving a write 3 times, unsubscribe from the writes channel
             if number_of_writes == expected_number_of_writes:

@@ -53,11 +53,18 @@ This release adds support to pass `None` values via channels and revamps the `Ti
 
   Therefore, you should now check a file receiving an event really exist before trying to operate on it.
 
+* `FileWatcher` reports the type of event observed in addition to the file path.
+
+  Previously, only the file path was reported. With this update, users can now determine if a file change is a creation, modification, or deletion.
+  Note that this change may require updates to your existing code that relies on `FileWatcher` as the new interface returns a `FileWatcher.Event` instead of just the file path.
+
 ## New Features
 
 * `util.Timer` was replaced by a more generic implementation that allows for customizable policies to handle missed ticks.
 
 * Passing `None` values via channels is now supported.
+
+* `FileWatcher.Event` was added to notify events when a file is created, modified, or deleted.
 
 ## Bug Fixes
 

@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import asyncio
 import pathlib
+from dataclasses import dataclass
 from enum import Enum
 
 from watchfiles import Change, awatch
@@ -16,7 +17,7 @@ from .._base_classes import Receiver
 from .._exceptions import ReceiverStoppedError
 
 
-class FileWatcher(Receiver[pathlib.Path]):
+class FileWatcher(Receiver["FileWatcher.Event"]):
     """A channel receiver that watches for file events."""
 
     class EventType(Enum):
@@ -25,6 +26,15 @@ class FileWatcher(Receiver[pathlib.Path]):
         CREATE = Change.added
         MODIFY = Change.modified
         DELETE = Change.deleted
+
+    @dataclass(frozen=True)
+    class Event:
+        """A file change event."""
+
+        type: FileWatcher.EventType
+        """The type of change that was observed."""
+        path: pathlib.Path
+        """The path where the change was observed."""
 
     def __init__(
         self,
@@ -104,11 +114,11 @@ class FileWatcher(Receiver[pathlib.Path]):
 
         return True
 
-    def consume(self) -> pathlib.Path:
-        """Return the latest change once `ready` is complete.
+    def consume(self) -> Event:
+        """Return the latest event once `ready` is complete.
 
         Returns:
-            The next change that was received.
+            The next event that was received.
 
         Raises:
             ReceiverStoppedError: if there is some problem with the receiver.
@@ -117,8 +127,8 @@ class FileWatcher(Receiver[pathlib.Path]):
             raise ReceiverStoppedError(self) from self._awatch_stopped_exc
 
         assert self._changes, "`consume()` must be preceeded by a call to `ready()`"
-        change = self._changes.pop()
         # Tuple of (Change, path) returned by watchfiles
-        _, path_str = change
-        path = pathlib.Path(path_str)
-        return path
+        change, path_str = self._changes.pop()
+        return FileWatcher.Event(
+            type=FileWatcher.EventType(change), path=pathlib.Path(path_str)
+        )
