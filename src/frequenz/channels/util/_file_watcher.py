@@ -46,15 +46,26 @@ class FileWatcher(Receiver[pathlib.Path]):
             for path in paths
         ]
         self._awatch = awatch(
-            *self._paths,
-            stop_event=self._stop_event,
-            watch_filter=lambda change, path_str: (
-                change in [event_type.value for event_type in event_types]  # type: ignore
-                and pathlib.Path(path_str).is_file()
-            ),
+            *self._paths, stop_event=self._stop_event, watch_filter=self._filter_events
         )
         self._awatch_stopped_exc: Optional[Exception] = None
         self._changes: Set[FileChange] = set()
+
+    def _filter_events(
+        self,
+        change: Change,
+        path: str,  # pylint: disable=unused-argument
+    ) -> bool:
+        """Filter events based on the event type and path.
+
+        Args:
+            change: The type of change to be notified.
+            path: The path of the file that changed.
+
+        Returns:
+            Whether the event should be notified.
+        """
+        return change in [event_type.value for event_type in self.event_types]
 
     def __del__(self) -> None:
         """Cleanup registered watches.
