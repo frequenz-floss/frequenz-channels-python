@@ -27,7 +27,21 @@ This release adds support to pass `None` values via channels and revamps the `Ti
 
   They are not **exactly** the same because the `triggered_datetime` in the second case will not be exactly when the timer had triggered, but that shouldn't be relevant, the important part is when your code can actually react to the timer trigger and to know how much drift there was to be able to take corrective actions.
 
-  Also the new `Timer` uses the `asyncio` loop monotonic clock and the old one used the wall clock (`datetime.now()`) to track time. This means that when using `async-solipsism` to test, the new `Timer` will always trigger immediately regarless of the state of the wall clock.
+  Also the new `Timer` uses the `asyncio` loop monotonic clock and the old one used the wall clock (`datetime.now()`) to track time. This means that when using `async-solipsism` to test, the new `Timer` will always trigger immediately regarless of the state of the wall clock.  This also means that we don't need to mock the wall clock with `time-machine` neither now.
+
+  With the previous timer one needed to create a separate task to run the timer, because otherwise it would block as it loops until the wall clock was at a specific time. Now the code will run like this:
+
+  ```python
+  timer = Timer.timeout(timedelta(seconds=1.0))
+  asyncio.sleep(0.5)  # Advances the loop monotonic clock by 0.5 seconds immediately
+  await drift = timer.receive()  # Advances the clock by 0.5 immediately too
+  assert drift == approx(timedelta(0))  # Because it could trigger exactly at the tick time
+
+  # Simulates a delay in the timer trigger time
+  asyncio.sleep(1.5)  # Advances the loop monotonic clock by 1.5 seconds immediately
+  await drift = timer.receive()  # The timer should have triggerd 0.5 seconds ago, so it doesn't even sleep
+  assert drift == approx(timedelta(seconds=0.5))  # Now we should observe a drift of 0.5 seconds
+  ```
 
   **Note:** Before replacing this code blindly in all uses of `Timer.timeout()`, please consider using the periodic timer constructor `Timer.periodic()` if you need a timer that triggers reliable on a periodic fashion, as the old `Timer` (and `Timer.timeout()`) accumulates drift, which might not be what you want.
 
