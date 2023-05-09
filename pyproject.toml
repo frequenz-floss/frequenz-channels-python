@@ -1,8 +1,8 @@
 [build-system]
 requires = [
-    "setuptools >= 65.3.0, < 66",
-    "setuptools_scm[toml] >= 7.0.5, < 8",
-    "wheel"
+  "setuptools >= 65.3.0, < 66",
+  "setuptools_scm[toml] >= 7.0.5, < 8",
+  "wheel",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -12,36 +12,34 @@ name = "frequenz-channels"
 description = "Channel implementations for Python"
 readme = "README.md"
 license = { text = "MIT" }
-keywords = [ "frequenz", "channel" ]
+keywords = ["frequenz", "channel"]
 classifiers = [
-   "Development Status :: 3 - Alpha",
-   "Intended Audience :: Developers",
-   "License :: OSI Approved :: MIT License",
-   "Programming Language :: Python :: 3",
-   "Programming Language :: Python :: 3 :: Only",
-   "Programming Language :: Python :: 3.8",
-   "Programming Language :: Python :: 3.9",
-   "Programming Language :: Python :: 3.10",
-   "Topic :: Software Development :: Libraries",
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Topic :: Software Development :: Libraries",
 ]
 requires-python = ">= 3.8, < 4"
-dependencies = [
-    "watchfiles >= 0.15.0",
-]
-dynamic = [ "version" ]
+dependencies = ["watchfiles >= 0.15.0"]
+dynamic = ["version"]
 
 [[project.authors]]
-name ="Frequenz Energy-as-a-Service GmbH"
+name = "Frequenz Energy-as-a-Service GmbH"
 email = "floss@frequenz.com"
 
 [project.optional-dependencies]
 docs = [
-    "mike >= 1.1.2, < 2",
-    "mkdocs-gen-files >= 0.4.0, < 0.5.0",
-    "mkdocs-literate-nav >= 0.4.0, < 0.5.0",
-    "mkdocs-material >= 8.5.7, < 9",
-    "mkdocs-section-index >= 0.3.4, < 0.4.0",
-    "mkdocstrings[python] >= 0.19.0, < 0.20.0",
+  "mike >= 1.1.2, < 2",
+  "mkdocs-gen-files >= 0.4.0, < 0.5.0",
+  "mkdocs-literate-nav >= 0.4.0, < 0.5.0",
+  "mkdocs-material >= 8.5.7, < 9",
+  "mkdocs-section-index >= 0.3.4, < 0.4.0",
+  "mkdocstrings[python] >= 0.19.0, < 0.20.0",
 ]
 
 [project.urls]
@@ -57,16 +55,16 @@ include-package-data = true
 version_scheme = "post-release"
 
 [tool.pylint.similarities]
-ignore-comments=['yes']
-ignore-docstrings=['yes']
-ignore-imports=['no']
-min-similarity-lines=40
+ignore-comments = ['yes']
+ignore-docstrings = ['yes']
+ignore-imports = ['no']
+min-similarity-lines = 40
 
 [tool.pylint.messages_control]
 # disable wrong-import-order, ungrouped-imports because it conflicts with isort
 disable = ["too-few-public-methods", "wrong-import-order", "ungrouped-imports"]
 [tool.pylint.'DESIGN']
-max-attributes=12
+max-attributes = 12
 
 [tool.isort]
 profile = "black"
@@ -75,4 +73,8 @@ src_paths = ["src", "examples", "tests"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
-required_plugins = [ "pytest-asyncio", "pytest-mock" ]
+required_plugins = ["pytest-asyncio", "pytest-mock"]
+
+[[tool.mypy.overrides]]
+module = ["async_solipsism", "async_solipsism.*"]
+ignore_missing_imports = true
