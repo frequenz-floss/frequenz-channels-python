@@ -2,10 +2,12 @@
 # Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
 """A Channel receiver for watching for new (or modified) files."""
+
+from __future__ import annotations
+
 import asyncio
 import pathlib
 from enum import Enum
-from typing import List, Optional, Set, Union
 
 from watchfiles import Change, awatch
 from watchfiles.main import FileChange
@@ -26,8 +28,8 @@ class FileWatcher(Receiver[pathlib.Path]):
 
     def __init__(
         self,
-        paths: List[Union[pathlib.Path, str]],
-        event_types: Optional[Set[EventType]] = None,
+        paths: list[pathlib.Path | str],
+        event_types: set[EventType] | None = None,
     ) -> None:
         """Create a `FileWatcher` instance.
 
@@ -48,8 +50,8 @@ class FileWatcher(Receiver[pathlib.Path]):
         self._awatch = awatch(
             *self._paths, stop_event=self._stop_event, watch_filter=self._filter_events
         )
-        self._awatch_stopped_exc: Optional[Exception] = None
-        self._changes: Set[FileChange] = set()
+        self._awatch_stopped_exc: Exception | None = None
+        self._changes: set[FileChange] = set()
 
     def _filter_events(
         self,
