@@ -71,7 +71,9 @@ async def test_file_watcher_receive_updates(
 
     for change in changes:
         recv_changes = await file_watcher.receive()
-        assert recv_changes == pathlib.Path(change[1])
+        event_type = FileWatcher.EventType(change[0])
+        path = pathlib.Path(change[1])
+        assert recv_changes == FileWatcher.Event(type=event_type, path=path)
 
 
 @hypothesis.given(event_types=st.sets(st.sampled_from(FileWatcher.EventType)))

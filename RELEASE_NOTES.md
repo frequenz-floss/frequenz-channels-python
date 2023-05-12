@@ -8,7 +8,7 @@ This release adds support to pass `None` values via channels and revamps the `Ti
 
 * `util.Timer` was replaced by a more generic implementation that allows for customizable policies to handle missed ticks.
 
-  If you were using `Timer` to implement timeouts, these two pices of code should be almost equivalent:
+  If you were using `Timer` to implement timeouts, these two pieces of code should be almost equivalent:
 
   - Old:
 
@@ -27,7 +27,7 @@ This release adds support to pass `None` values via channels and revamps the `Ti
 
   They are not **exactly** the same because the `triggered_datetime` in the second case will not be exactly when the timer had triggered, but that shouldn't be relevant, the important part is when your code can actually react to the timer trigger and to know how much drift there was to be able to take corrective actions.
 
-  Also the new `Timer` uses the `asyncio` loop monotonic clock and the old one used the wall clock (`datetime.now()`) to track time. This means that when using `async-solipsism` to test, the new `Timer` will always trigger immediately regarless of the state of the wall clock.  This also means that we don't need to mock the wall clock with `time-machine` either now.
+  Also the new `Timer` uses the `asyncio` loop monotonic clock and the old one used the wall clock (`datetime.now()`) to track time. This means that when using `async-solipsism` to test, the new `Timer` will always trigger immediately regardless of the state of the wall clock.  This also means that we don't need to mock the wall clock with `time-machine` either now.
 
   With the previous timer one needed to create a separate task to run the timer, because otherwise it would block as it loops until the wall clock was at a specific time. Now the code will run like this:
 
@@ -39,7 +39,7 @@ This release adds support to pass `None` values via channels and revamps the `Ti
 
   # Simulates a delay in the timer trigger time
   asyncio.sleep(1.5)  # Advances the loop monotonic clock by 1.5 seconds immediately
-  await drift = timer.receive()  # The timer should have triggerd 0.5 seconds ago, so it doesn't even sleep
+  await drift = timer.receive()  # The timer should have triggered 0.5 seconds ago, so it doesn't even sleep
   assert drift == approx(timedelta(seconds=0.5))  # Now we should observe a drift of 0.5 seconds
   ```
 
@@ -53,11 +53,18 @@ This release adds support to pass `None` values via channels and revamps the `Ti
 
   Therefore, you should now check a file receiving an event really exist before trying to operate on it.
 
+* `FileWatcher` reports the type of event observed in addition to the file path.
+
+  Previously, only the file path was reported. With this update, users can now determine if a file change is a creation, modification, or deletion.
+  Note that this change may require updates to your existing code that relies on `FileWatcher` as the new interface returns a `FileWatcher.Event` instead of just the file path.
+
 ## New Features
 
 * `util.Timer` was replaced by a more generic implementation that allows for customizable policies to handle missed ticks.
 
 * Passing `None` values via channels is now supported.
+
+* `FileWatcher.Event` was added to notify events when a file is created, modified, or deleted.
 
 ## Bug Fixes
 
