@@ -2522,7 +2522,7 @@ consumed.</p>
   
       <p>Merge messages coming from multiple channels into a single stream.</p>
 
-<details class="example">
+<details class="example" open>
   <summary>Example</summary>
   <p>For example, if there are two channel receivers with the same type,
 they can be awaited together, and their results merged into a single
@@ -3974,7 +3974,7 @@ additional receivers are dropped, and a warning message is logged.</p>
 <p>When Select is no longer needed, then it should be stopped using
 <code>self.stop()</code> method. This would cleanup any internal pending async tasks.</p>
 
-<details class="example">
+<details class="example" open>
   <summary>Example</summary>
   <p>For example, if there are two receivers that you want to
 simultaneously wait on, this can be done with:</p>
@@ -4768,7 +4768,7 @@ be returned on each tick).</p>
 <p>The reset happens only if the delay is larger than <code>delay_tolerance</code>, so
 it is possible to ignore small delays and not drift in those cases.</p>
 
-<details class="example">
+<details class="example" open>
   <summary>Example</summary>
   <p>Assume a timer with interval 1 second and <code>delay_tolerance=0.1</code>, the
 first tick, <code>T0</code>, happens exactly at time 0, the second tick, <code>T1</code>,
@@ -5296,7 +5296,7 @@ and it will schedule to trigger again on the next multiple of <code>interval</co
 effectively skipping any missed ticks, but resyncing with the original start
 time.</p>
 
-<details class="example">
+<details class="example" open>
   <summary>Example</summary>
   <p>Assume a timer with interval 1 second, the tick <code>T0</code> happens exactly
 at time 0, the second tick, <code>T1</code>, happens at time 1.2 (0.2 seconds
@@ -5603,7 +5603,7 @@ start the timer.</p>
 <li><a class="autorefs autorefs-internal" href="#frequenz.channels.util._timer.Timer.timeout"><code>timeout()</code></a></li>
 </ul>
 
-<details class="example">
+<details class="example" open>
   <summary>Periodic timer example</summary>
   <div class="highlight"><pre><span></span><code><span class="k">async</span> <span class="k">for</span> <span class="n">drift</span> <span class="ow">in</span> <span class="n">Timer</span><span class="o">.</span><span class="n">periodic</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)):</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The timer has triggered </span><span class="si">{</span><span class="n">drift</span><span class="si">=}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -5629,7 +5629,7 @@ with other receivers, and even start it (semi) manually:</p>
             <span class="n">timer</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
 </code></pre></div>
 </details>
-<details class="example">
+<details class="example" open>
   <summary>Timeout example</summary>
   <div class="highlight"><pre><span></span><code><span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">auto_start</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">select</span> <span class="o">=</span> <span class="n">Select</span><span class="p">(</span><span class="n">bat_1</span><span class="o">=</span><span class="n">receiver1</span><span class="p">,</span> <span class="n">heavy_process</span><span class="o">=</span><span class="n">receiver2</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timer</span><span class="p">)</span>
@@ -7901,7 +7901,7 @@ microsecond.</p>
   
       <p>A policy that triggers all the missed ticks immediately until it catches up.</p>
 
-<details class="example">
+<details class="example" open>
   <summary>Example</summary>
   <p>Assume a timer with interval 1 second, the tick <code>T0</code> happens exactly
 at time 0, the second tick, <code>T1</code>, happens at time 1.2 (0.2 seconds
