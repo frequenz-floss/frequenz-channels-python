@@ -287,6 +287,14 @@ class Timer(Receiver[timedelta]):
         with other receivers, and even start it (semi) manually:
 
         ```python
+        import logging
+        from frequenz.channels.util import Select
+        from frequenz.channels import Broadcast
+
+        timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
+        chan = Broadcast[int]("input-chan")
+        receiver1 = chan.new_receiver()
+
         timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
         # Do some other initialization, the timer will start automatically if
         # a message is awaited (or manually via `reset()`).
@@ -294,21 +302,31 @@ class Timer(Receiver[timedelta]):
         while await select.ready():
             if msg := select.bat_1:
                 if val := msg.inner:
-                    process_data(val)
+                    battery_soc = val
                 else:
-                    logging.warn("battery channel closed")
+                    logging.warning("battery channel closed")
             elif drift := select.timer:
                 # Print some regular battery data
-                print(f"Battery is charged at {battery.soc}%")
-                if stop_logging:
-                    timer.stop()
-                elif start_logging:
-                    timer.reset()
+                print(f"Battery is charged at {battery_soc}%")
         ```
 
     Example: Timeout example
         ```python
+        import logging
+        from frequenz.channels.util import Select
+        from frequenz.channels import Broadcast
+
+        def process_data(data: int):
+            logging.info("Processing data: %d", data)
+
+        def do_heavy_processing(data: int):
+            logging.info("Heavy processing data: %d", data)
+
         timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
+        chan1 = Broadcast[int]("input-chan-1")
+        chan2 = Broadcast[int]("input-chan-2")
+        receiver1 = chan1.new_receiver()
+        receiver2 = chan2.new_receiver()
         select = Select(bat_1=receiver1, heavy_process=receiver2, timeout=timer)
         while await select.ready():
             if msg := select.bat_1:
@@ -316,14 +334,14 @@ class Timer(Receiver[timedelta]):
                     process_data(val)
                     timer.reset()
                 else:
-                    logging.warn("battery channel closed")
+                    logging.warning("battery channel closed")
             if msg := select.heavy_process:
                 if val := msg.inner:
                     do_heavy_processing(val)
                 else:
-                    logging.warn("processing channel closed")
+                    logging.warning("processing channel closed")
             elif drift := select.timeout:
-                logging.warn("No data received in time")
+                logging.warning("No data received in time")
         ```
 
         In this case `do_heavy_processing` might take 2 seconds, and we don't
