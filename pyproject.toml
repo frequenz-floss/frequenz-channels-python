@@ -1,9 +1,5 @@
 [build-system]
-requires = [
-  "setuptools >= 65.3.0, < 66",
-  "setuptools_scm[toml] >= 7.0.5, < 8",
-  "wheel",
-]
+requires = ["setuptools == 65.3.0", "setuptools_scm[toml] == 7.0.5", "wheel"]
 build-backend = "setuptools.build_meta"
 
 
@@ -25,7 +21,7 @@ classifiers = [
   "Topic :: Software Development :: Libraries",
 ]
 requires-python = ">= 3.8, < 4"
-dependencies = ["watchfiles >= 0.15.0"]
+dependencies = ["watchfiles >= 0.15.0, < 0.16.0"]
 dynamic = ["version"]
 
 [[project.authors]]
@@ -34,12 +30,12 @@ email = "floss@frequenz.com"
 
 [project.optional-dependencies]
 docs = [
-  "mike >= 1.1.2, < 2",
-  "mkdocs-gen-files >= 0.4.0, < 0.5.0",
-  "mkdocs-literate-nav >= 0.4.0, < 0.5.0",
-  "mkdocs-material >= 8.5.7, < 9",
-  "mkdocs-section-index >= 0.3.4, < 0.4.0",
-  "mkdocstrings[python] >= 0.19.0, < 0.20.0",
+  "mike == 1.1.2",
+  "mkdocs-gen-files == 0.4.0",
+  "mkdocs-literate-nav == 0.4.0",
+  "mkdocs-material == 8.5.7",
+  "mkdocs-section-index == 0.3.4",
+  "mkdocstrings[python] == 0.19.0",
 ]
 
 [project.urls]
