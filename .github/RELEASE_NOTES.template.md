@@ -6,7 +6,7 @@
 
 ## Upgrading
 
-<!-- Here goes notes on how to upgrade from previous versions, including if there are any depractions and what they should be replaced with -->
+<!-- Here goes notes on how to upgrade from previous versions, including if there are any deprecations and what they should be replaced with -->
 
 ## New Features
 

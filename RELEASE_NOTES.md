@@ -6,7 +6,7 @@
 
 ## Upgrading
 
-<!-- Here goes notes on how to upgrade from previous versions, including if there are any depractions and what they should be replaced with -->
+* `FileWatcher` no longer accepts or sets `None` as the `event_types` argument. Instead, all available event types are now set by default while still providing the flexibility to customize the event types as needed.
 
 ## New Features
 

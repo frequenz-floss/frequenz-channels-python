@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import asyncio
 import pathlib
+from collections import abc
 from dataclasses import dataclass
 from enum import Enum
 
@@ -39,19 +40,16 @@ class FileWatcher(Receiver["FileWatcher.Event"]):
     def __init__(
         self,
         paths: list[pathlib.Path | str],
-        event_types: set[EventType] | None = None,
+        event_types: abc.Iterable[EventType] = frozenset(EventType),
     ) -> None:
         """Create a `FileWatcher` instance.
 
         Args:
             paths: Paths to watch for changes.
-            event_types: Types of events to watch for or `None` to watch for
+            event_types: Types of events to watch for. Defaults to watch for
                 all event types.
         """
-        if event_types is None:
-            event_types = set(FileWatcher.EventType)  # all types
-
-        self.event_types = event_types
+        self.event_types: frozenset[FileWatcher.EventType] = frozenset(event_types)
         self._stop_event = asyncio.Event()
         self._paths = [
             path if isinstance(path, pathlib.Path) else pathlib.Path(path)
