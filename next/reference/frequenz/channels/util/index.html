@@ -246,18 +246,11 @@
   
   
   
-    
-
-  
-  
-  
     <li class="md-tabs__item">
-      <a href="../" class="md-tabs__link md-tabs__link--active">
+      <a href="../../../conftest/" class="md-tabs__link md-tabs__link--active">
         API Reference
       </a>
     </li>
-  
-
   
 
       
@@ -366,6 +359,20 @@
               
   
   
+  
+    <li class="md-nav__item">
+      <a href="../../../conftest/" class="md-nav__link">
+        conftest
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
     
   
   
@@ -375,17 +382,17 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" checked>
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" checked>
       
       
       
-        <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+        <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
           frequenz
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="true">
-        <label class="md-nav__title" for="__nav_2_1">
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_2_2">
           <span class="md-nav__icon md-icon"></span>
           frequenz
         </label>
@@ -404,7 +411,7 @@
       
       
       
-      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1" checked>
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_1" checked>
       
       
       
@@ -413,14 +420,14 @@
         <div class="md-nav__link md-nav__link--index ">
           <a href="../">channels</a>
           
-            <label for="__nav_2_1_1">
+            <label for="__nav_2_2_1">
               <span class="md-nav__icon md-icon"></span>
             </label>
           
         </div>
       
-      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_1_1_label" aria-expanded="true">
-        <label class="md-nav__title" for="__nav_2_1_1">
+      <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_1_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_2_2_1">
           <span class="md-nav__icon md-icon"></span>
           channels
         </label>
@@ -2525,7 +2532,14 @@ consumed.</p>
   <p>For example, if there are two channel receivers with the same type,
 they can be awaited together, and their results merged into a single
 stream, by using <code>Merge</code> like this:</p>
-<div class="highlight"><pre><span></span><code><span class="n">merge</span> <span class="o">=</span> <span class="n">Merge</span><span class="p">(</span><span class="n">receiver1</span><span class="p">,</span> <span class="n">receiver2</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">frequenz.channels</span> <span class="kn">import</span> <span class="n">Broadcast</span>
+
+<span class="n">channel1</span> <span class="o">=</span> <span class="n">Broadcast</span><span class="p">[</span><span class="nb">int</span><span class="p">](</span><span class="s2">&quot;input-chan-1&quot;</span><span class="p">)</span>
+<span class="n">channel2</span> <span class="o">=</span> <span class="n">Broadcast</span><span class="p">[</span><span class="nb">int</span><span class="p">](</span><span class="s2">&quot;input-chan-2&quot;</span><span class="p">)</span>
+<span class="n">receiver1</span> <span class="o">=</span> <span class="n">channel1</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">()</span>
+<span class="n">receiver2</span> <span class="o">=</span> <span class="n">channel2</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">()</span>
+
+<span class="n">merge</span> <span class="o">=</span> <span class="n">Merge</span><span class="p">(</span><span class="n">receiver1</span><span class="p">,</span> <span class="n">receiver2</span><span class="p">)</span>
 <span class="k">while</span> <span class="n">msg</span> <span class="o">:=</span> <span class="k">await</span> <span class="n">merge</span><span class="o">.</span><span class="n">receive</span><span class="p">():</span>
     <span class="c1"># do something with msg</span>
     <span class="k">pass</span>
@@ -2633,7 +2647,14 @@ stream, by using <code>Merge</code> like this:</p>
 <span class="normal">108</span>
 <span class="normal">109</span>
 <span class="normal">110</span>
-<span class="normal">111</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Merge</span><span class="p">(</span><span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Merge</span><span class="p">(</span><span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge messages coming from multiple channels into a single stream.</span>
 
 <span class="sd">    Example:</span>
@@ -2642,6 +2663,13 @@ stream, by using <code>Merge</code> like this:</p>
 <span class="sd">        stream, by using `Merge` like this:</span>
 
 <span class="sd">        ```python</span>
+<span class="sd">        from frequenz.channels import Broadcast</span>
+
+<span class="sd">        channel1 = Broadcast[int](&quot;input-chan-1&quot;)</span>
+<span class="sd">        channel2 = Broadcast[int](&quot;input-chan-2&quot;)</span>
+<span class="sd">        receiver1 = channel1.new_receiver()</span>
+<span class="sd">        receiver2 = channel2.new_receiver()</span>
+
 <span class="sd">        merge = Merge(receiver1, receiver2)</span>
 <span class="sd">        while msg := await merge.receive():</span>
 <span class="sd">            # do something with msg</span>
@@ -2762,11 +2790,11 @@ stream, by using <code>Merge</code> like this:</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_merge.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">53</span>
+<span class="normal">54</span>
+<span class="normal">55</span>
+<span class="normal">56</span>
+<span class="normal">57</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Cleanup any pending tasks.&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">task</span><span class="o">.</span><span class="n">done</span><span class="p">()</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">get_loop</span><span class="p">()</span><span class="o">.</span><span class="n">is_running</span><span class="p">():</span>
@@ -2820,18 +2848,18 @@ stream, by using <code>Merge</code> like this:</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_merge.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">40</span>
 <span class="normal">41</span>
 <span class="normal">42</span>
 <span class="normal">43</span>
-<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span>
+<span class="normal">50</span>
+<span class="normal">51</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a `Merge` instance.</span>
 
 <span class="sd">    Args:</span>
@@ -2917,14 +2945,7 @@ stream, by using <code>Merge</code> like this:</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_merge.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">103</span>
 <span class="normal">104</span>
 <span class="normal">105</span>
 <span class="normal">106</span>
@@ -2932,7 +2953,14 @@ stream, by using <code>Merge</code> like this:</p>
 <span class="normal">108</span>
 <span class="normal">109</span>
 <span class="normal">110</span>
-<span class="normal">111</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the latest value once `ready` is complete.</span>
 
 <span class="sd">    Returns:</span>
@@ -2999,42 +3027,42 @@ consumed.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_merge.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wait until the receiver is ready with a value or an error.</span>
 
 <span class="sd">    Once a call to `ready()` has finished, the value should be read with</span>
@@ -3096,12 +3124,12 @@ consumed.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_merge.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">59</span>
+<span class="normal">60</span>
+<span class="normal">61</span>
+<span class="normal">62</span>
+<span class="normal">63</span>
+<span class="normal">64</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Stop the `Merge` instance and cleanup any pending tasks.&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">:</span>
         <span class="n">task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
@@ -3976,7 +4004,14 @@ additional receivers are dropped, and a warning message is logged.</p>
   <summary>Example</summary>
   <p>For example, if there are two receivers that you want to
 simultaneously wait on, this can be done with:</p>
-<div class="highlight"><pre><span></span><code><span class="n">select</span> <span class="o">=</span> <span class="n">Select</span><span class="p">(</span><span class="n">name1</span> <span class="o">=</span> <span class="n">receiver1</span><span class="p">,</span> <span class="n">name2</span> <span class="o">=</span> <span class="n">receiver2</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">frequenz.channels</span> <span class="kn">import</span> <span class="n">Broadcast</span>
+
+<span class="n">channel1</span> <span class="o">=</span> <span class="n">Broadcast</span><span class="p">[</span><span class="nb">int</span><span class="p">](</span><span class="s2">&quot;input-chan-1&quot;</span><span class="p">)</span>
+<span class="n">channel2</span> <span class="o">=</span> <span class="n">Broadcast</span><span class="p">[</span><span class="nb">int</span><span class="p">](</span><span class="s2">&quot;input-chan-2&quot;</span><span class="p">)</span>
+<span class="n">receiver1</span> <span class="o">=</span> <span class="n">channel1</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">()</span>
+<span class="n">receiver2</span> <span class="o">=</span> <span class="n">channel2</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">()</span>
+
+<span class="n">select</span> <span class="o">=</span> <span class="n">Select</span><span class="p">(</span><span class="n">name1</span> <span class="o">=</span> <span class="n">receiver1</span><span class="p">,</span> <span class="n">name2</span> <span class="o">=</span> <span class="n">receiver2</span><span class="p">)</span>
 <span class="k">while</span> <span class="k">await</span> <span class="n">select</span><span class="o">.</span><span class="n">ready</span><span class="p">():</span>
     <span class="k">if</span> <span class="n">msg</span> <span class="o">:=</span> <span class="n">select</span><span class="o">.</span><span class="n">name1</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">val</span> <span class="o">:=</span> <span class="n">msg</span><span class="o">.</span><span class="n">inner</span><span class="p">:</span>
@@ -4135,7 +4170,14 @@ simultaneously wait on, this can be done with:</p>
 <span class="normal">196</span>
 <span class="normal">197</span>
 <span class="normal">198</span>
-<span class="normal">199</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Select</span><span class="p">:</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Select</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Select the next available message from a group of Receivers.</span>
 
 <span class="sd">    If `Select` was created with more `Receiver` than what are read in</span>
@@ -4153,6 +4195,13 @@ simultaneously wait on, this can be done with:</p>
 <span class="sd">        simultaneously wait on, this can be done with:</span>
 
 <span class="sd">        ```python</span>
+<span class="sd">        from frequenz.channels import Broadcast</span>
+
+<span class="sd">        channel1 = Broadcast[int](&quot;input-chan-1&quot;)</span>
+<span class="sd">        channel2 = Broadcast[int](&quot;input-chan-2&quot;)</span>
+<span class="sd">        receiver1 = channel1.new_receiver()</span>
+<span class="sd">        receiver2 = channel2.new_receiver()</span>
+
 <span class="sd">        select = Select(name1 = receiver1, name2 = receiver2)</span>
 <span class="sd">        while await select.ready():</span>
 <span class="sd">            if msg := select.name1:</span>
@@ -4309,11 +4358,11 @@ simultaneously wait on, this can be done with:</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_select.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Cleanup any pending tasks.&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">:</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">task</span><span class="o">.</span><span class="n">done</span><span class="p">()</span> <span class="ow">and</span> <span class="n">task</span><span class="o">.</span><span class="n">get_loop</span><span class="p">()</span><span class="o">.</span><span class="n">is_running</span><span class="p">():</span>
@@ -4406,14 +4455,7 @@ simultaneously wait on, this can be done with:</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_select.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">188</span>
 <span class="normal">189</span>
 <span class="normal">190</span>
 <span class="normal">191</span>
@@ -4424,7 +4466,14 @@ simultaneously wait on, this can be done with:</p>
 <span class="normal">196</span>
 <span class="normal">197</span>
 <span class="normal">198</span>
-<span class="normal">199</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the latest unread message from a `Receiver`, if available.</span>
 
 <span class="sd">    Args:</span>
@@ -4492,14 +4541,7 @@ simultaneously wait on, this can be done with:</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_select.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 97</span>
 <span class="normal"> 98</span>
 <span class="normal"> 99</span>
 <span class="normal">100</span>
@@ -4508,7 +4550,14 @@ simultaneously wait on, this can be done with:</p>
 <span class="normal">103</span>
 <span class="normal">104</span>
 <span class="normal">105</span>
-<span class="normal">106</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a `Select` instance.</span>
 
 <span class="sd">    Args:</span>
@@ -4574,14 +4623,7 @@ receivers have closed.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_select.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">128</span>
 <span class="normal">129</span>
 <span class="normal">130</span>
 <span class="normal">131</span>
@@ -4632,7 +4674,14 @@ receivers have closed.</p>
 <span class="normal">176</span>
 <span class="normal">177</span>
 <span class="normal">178</span>
-<span class="normal">179</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wait until there is a message in any of the receivers.</span>
 
 <span class="sd">    Returns `True` if there is a message available, and `False` if all</span>
@@ -4717,12 +4766,12 @@ receivers have closed.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_select.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Stop the `Select` instance and cleanup any pending tasks.&quot;&quot;&quot;</span>
     <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pending</span><span class="p">:</span>
         <span class="n">task</span><span class="o">.</span><span class="n">cancel</span><span class="p">()</span>
@@ -5608,28 +5657,46 @@ start the timer.</p>
 </code></pre></div>
 <p>But you can also use <a class="autorefs autorefs-internal" href="#frequenz.channels.util.Select"><code>Select</code></a> to combine it
 with other receivers, and even start it (semi) manually:</p>
-<div class="highlight"><pre><span></span><code><span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">auto_start</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">frequenz.channels.util</span> <span class="kn">import</span> <span class="n">Select</span>
+<span class="kn">from</span> <span class="nn">frequenz.channels</span> <span class="kn">import</span> <span class="n">Broadcast</span>
+
+<span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">auto_start</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">chan</span> <span class="o">=</span> <span class="n">Broadcast</span><span class="p">[</span><span class="nb">int</span><span class="p">](</span><span class="s2">&quot;input-chan&quot;</span><span class="p">)</span>
+<span class="n">receiver1</span> <span class="o">=</span> <span class="n">chan</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">()</span>
+
+<span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">auto_start</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="c1"># Do some other initialization, the timer will start automatically if</span>
 <span class="c1"># a message is awaited (or manually via `reset()`).</span>
 <span class="n">select</span> <span class="o">=</span> <span class="n">Select</span><span class="p">(</span><span class="n">bat_1</span><span class="o">=</span><span class="n">receiver1</span><span class="p">,</span> <span class="n">timer</span><span class="o">=</span><span class="n">timer</span><span class="p">)</span>
 <span class="k">while</span> <span class="k">await</span> <span class="n">select</span><span class="o">.</span><span class="n">ready</span><span class="p">():</span>
     <span class="k">if</span> <span class="n">msg</span> <span class="o">:=</span> <span class="n">select</span><span class="o">.</span><span class="n">bat_1</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">val</span> <span class="o">:=</span> <span class="n">msg</span><span class="o">.</span><span class="n">inner</span><span class="p">:</span>
-            <span class="n">process_data</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+            <span class="n">battery_soc</span> <span class="o">=</span> <span class="n">val</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;battery channel closed&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;battery channel closed&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">drift</span> <span class="o">:=</span> <span class="n">select</span><span class="o">.</span><span class="n">timer</span><span class="p">:</span>
         <span class="c1"># Print some regular battery data</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Battery is charged at </span><span class="si">{</span><span class="n">battery</span><span class="o">.</span><span class="n">soc</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">stop_logging</span><span class="p">:</span>
-            <span class="n">timer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">start_logging</span><span class="p">:</span>
-            <span class="n">timer</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Battery is charged at </span><span class="si">{</span><span class="n">battery_soc</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
 </code></pre></div>
 </details>
 <details class="example" open>
   <summary>Timeout example</summary>
-  <div class="highlight"><pre><span></span><code><span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">auto_start</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+  <div class="highlight"><pre><span></span><code><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">from</span> <span class="nn">frequenz.channels.util</span> <span class="kn">import</span> <span class="n">Select</span>
+<span class="kn">from</span> <span class="nn">frequenz.channels</span> <span class="kn">import</span> <span class="n">Broadcast</span>
+
+<span class="k">def</span> <span class="nf">process_data</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing data: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">do_heavy_processing</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Heavy processing data: </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+<span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">auto_start</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">chan1</span> <span class="o">=</span> <span class="n">Broadcast</span><span class="p">[</span><span class="nb">int</span><span class="p">](</span><span class="s2">&quot;input-chan-1&quot;</span><span class="p">)</span>
+<span class="n">chan2</span> <span class="o">=</span> <span class="n">Broadcast</span><span class="p">[</span><span class="nb">int</span><span class="p">](</span><span class="s2">&quot;input-chan-2&quot;</span><span class="p">)</span>
+<span class="n">receiver1</span> <span class="o">=</span> <span class="n">chan1</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">()</span>
+<span class="n">receiver2</span> <span class="o">=</span> <span class="n">chan2</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">()</span>
 <span class="n">select</span> <span class="o">=</span> <span class="n">Select</span><span class="p">(</span><span class="n">bat_1</span><span class="o">=</span><span class="n">receiver1</span><span class="p">,</span> <span class="n">heavy_process</span><span class="o">=</span><span class="n">receiver2</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timer</span><span class="p">)</span>
 <span class="k">while</span> <span class="k">await</span> <span class="n">select</span><span class="o">.</span><span class="n">ready</span><span class="p">():</span>
     <span class="k">if</span> <span class="n">msg</span> <span class="o">:=</span> <span class="n">select</span><span class="o">.</span><span class="n">bat_1</span><span class="p">:</span>
@@ -5637,14 +5704,14 @@ with other receivers, and even start it (semi) manually:</p>
             <span class="n">process_data</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
             <span class="n">timer</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;battery channel closed&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;battery channel closed&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">msg</span> <span class="o">:=</span> <span class="n">select</span><span class="o">.</span><span class="n">heavy_process</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">val</span> <span class="o">:=</span> <span class="n">msg</span><span class="o">.</span><span class="n">inner</span><span class="p">:</span>
             <span class="n">do_heavy_processing</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;processing channel closed&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;processing channel closed&quot;</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">drift</span> <span class="o">:=</span> <span class="n">select</span><span class="o">.</span><span class="n">timeout</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;No data received in time&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No data received in time&quot;</span><span class="p">)</span>
 </code></pre></div>
 <p>In this case <code>do_heavy_processing</code> might take 2 seconds, and we don't
 want our timeout timer to trigger for the missed ticks, and want the
@@ -6071,7 +6138,25 @@ next tick to be relative to the time timer was last triggered.</p>
 <span class="normal">661</span>
 <span class="normal">662</span>
 <span class="normal">663</span>
-<span class="normal">664</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Timer</span><span class="p">(</span><span class="n">Receiver</span><span class="p">[</span><span class="n">timedelta</span><span class="p">]):</span>
+<span class="normal">664</span>
+<span class="normal">665</span>
+<span class="normal">666</span>
+<span class="normal">667</span>
+<span class="normal">668</span>
+<span class="normal">669</span>
+<span class="normal">670</span>
+<span class="normal">671</span>
+<span class="normal">672</span>
+<span class="normal">673</span>
+<span class="normal">674</span>
+<span class="normal">675</span>
+<span class="normal">676</span>
+<span class="normal">677</span>
+<span class="normal">678</span>
+<span class="normal">679</span>
+<span class="normal">680</span>
+<span class="normal">681</span>
+<span class="normal">682</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Timer</span><span class="p">(</span><span class="n">Receiver</span><span class="p">[</span><span class="n">timedelta</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A timer receiver that triggers every `interval` time.</span>
 
 <span class="sd">    The timer as microseconds resolution, so the `interval` must be at least</span>
@@ -6115,6 +6200,14 @@ next tick to be relative to the time timer was last triggered.</p>
 <span class="sd">        with other receivers, and even start it (semi) manually:</span>
 
 <span class="sd">        ```python</span>
+<span class="sd">        import logging</span>
+<span class="sd">        from frequenz.channels.util import Select</span>
+<span class="sd">        from frequenz.channels import Broadcast</span>
+
+<span class="sd">        timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)</span>
+<span class="sd">        chan = Broadcast[int](&quot;input-chan&quot;)</span>
+<span class="sd">        receiver1 = chan.new_receiver()</span>
+
 <span class="sd">        timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)</span>
 <span class="sd">        # Do some other initialization, the timer will start automatically if</span>
 <span class="sd">        # a message is awaited (or manually via `reset()`).</span>
@@ -6122,21 +6215,31 @@ next tick to be relative to the time timer was last triggered.</p>
 <span class="sd">        while await select.ready():</span>
 <span class="sd">            if msg := select.bat_1:</span>
 <span class="sd">                if val := msg.inner:</span>
-<span class="sd">                    process_data(val)</span>
+<span class="sd">                    battery_soc = val</span>
 <span class="sd">                else:</span>
-<span class="sd">                    logging.warn(&quot;battery channel closed&quot;)</span>
+<span class="sd">                    logging.warning(&quot;battery channel closed&quot;)</span>
 <span class="sd">            elif drift := select.timer:</span>
 <span class="sd">                # Print some regular battery data</span>
-<span class="sd">                print(f&quot;Battery is charged at {battery.soc}%&quot;)</span>
-<span class="sd">                if stop_logging:</span>
-<span class="sd">                    timer.stop()</span>
-<span class="sd">                elif start_logging:</span>
-<span class="sd">                    timer.reset()</span>
+<span class="sd">                print(f&quot;Battery is charged at {battery_soc}%&quot;)</span>
 <span class="sd">        ```</span>
 
 <span class="sd">    Example: Timeout example</span>
 <span class="sd">        ```python</span>
+<span class="sd">        import logging</span>
+<span class="sd">        from frequenz.channels.util import Select</span>
+<span class="sd">        from frequenz.channels import Broadcast</span>
+
+<span class="sd">        def process_data(data: int):</span>
+<span class="sd">            logging.info(&quot;Processing data: %d&quot;, data)</span>
+
+<span class="sd">        def do_heavy_processing(data: int):</span>
+<span class="sd">            logging.info(&quot;Heavy processing data: %d&quot;, data)</span>
+
 <span class="sd">        timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)</span>
+<span class="sd">        chan1 = Broadcast[int](&quot;input-chan-1&quot;)</span>
+<span class="sd">        chan2 = Broadcast[int](&quot;input-chan-2&quot;)</span>
+<span class="sd">        receiver1 = chan1.new_receiver()</span>
+<span class="sd">        receiver2 = chan2.new_receiver()</span>
 <span class="sd">        select = Select(bat_1=receiver1, heavy_process=receiver2, timeout=timer)</span>
 <span class="sd">        while await select.ready():</span>
 <span class="sd">            if msg := select.bat_1:</span>
@@ -6144,14 +6247,14 @@ next tick to be relative to the time timer was last triggered.</p>
 <span class="sd">                    process_data(val)</span>
 <span class="sd">                    timer.reset()</span>
 <span class="sd">                else:</span>
-<span class="sd">                    logging.warn(&quot;battery channel closed&quot;)</span>
+<span class="sd">                    logging.warning(&quot;battery channel closed&quot;)</span>
 <span class="sd">            if msg := select.heavy_process:</span>
 <span class="sd">                if val := msg.inner:</span>
 <span class="sd">                    do_heavy_processing(val)</span>
 <span class="sd">                else:</span>
-<span class="sd">                    logging.warn(&quot;processing channel closed&quot;)</span>
+<span class="sd">                    logging.warning(&quot;processing channel closed&quot;)</span>
 <span class="sd">            elif drift := select.timeout:</span>
-<span class="sd">                logging.warn(&quot;No data received in time&quot;)</span>
+<span class="sd">                logging.warning(&quot;No data received in time&quot;)</span>
 <span class="sd">        ```</span>
 
 <span class="sd">        In this case `do_heavy_processing` might take 2 seconds, and we don&#39;t</span>
@@ -6798,25 +6901,7 @@ microsecond.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_timer.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">334</span>
-<span class="normal">335</span>
-<span class="normal">336</span>
-<span class="normal">337</span>
-<span class="normal">338</span>
-<span class="normal">339</span>
-<span class="normal">340</span>
-<span class="normal">341</span>
-<span class="normal">342</span>
-<span class="normal">343</span>
-<span class="normal">344</span>
-<span class="normal">345</span>
-<span class="normal">346</span>
-<span class="normal">347</span>
-<span class="normal">348</span>
-<span class="normal">349</span>
-<span class="normal">350</span>
-<span class="normal">351</span>
-<span class="normal">352</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">352</span>
 <span class="normal">353</span>
 <span class="normal">354</span>
 <span class="normal">355</span>
@@ -6884,7 +6969,25 @@ microsecond.</p>
 <span class="normal">417</span>
 <span class="normal">418</span>
 <span class="normal">419</span>
-<span class="normal">420</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">420</span>
+<span class="normal">421</span>
+<span class="normal">422</span>
+<span class="normal">423</span>
+<span class="normal">424</span>
+<span class="normal">425</span>
+<span class="normal">426</span>
+<span class="normal">427</span>
+<span class="normal">428</span>
+<span class="normal">429</span>
+<span class="normal">430</span>
+<span class="normal">431</span>
+<span class="normal">432</span>
+<span class="normal">433</span>
+<span class="normal">434</span>
+<span class="normal">435</span>
+<span class="normal">436</span>
+<span class="normal">437</span>
+<span class="normal">438</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">interval</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">,</span>
     <span class="n">missed_tick_policy</span><span class="p">:</span> <span class="n">MissedTickPolicy</span><span class="p">,</span>
@@ -7039,31 +7142,31 @@ time when it actually did.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_timer.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">632</span>
-<span class="normal">633</span>
-<span class="normal">634</span>
-<span class="normal">635</span>
-<span class="normal">636</span>
-<span class="normal">637</span>
-<span class="normal">638</span>
-<span class="normal">639</span>
-<span class="normal">640</span>
-<span class="normal">641</span>
-<span class="normal">642</span>
-<span class="normal">643</span>
-<span class="normal">644</span>
-<span class="normal">645</span>
-<span class="normal">646</span>
-<span class="normal">647</span>
-<span class="normal">648</span>
-<span class="normal">649</span>
-<span class="normal">650</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">650</span>
 <span class="normal">651</span>
 <span class="normal">652</span>
 <span class="normal">653</span>
 <span class="normal">654</span>
 <span class="normal">655</span>
-<span class="normal">656</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">timedelta</span><span class="p">:</span>
+<span class="normal">656</span>
+<span class="normal">657</span>
+<span class="normal">658</span>
+<span class="normal">659</span>
+<span class="normal">660</span>
+<span class="normal">661</span>
+<span class="normal">662</span>
+<span class="normal">663</span>
+<span class="normal">664</span>
+<span class="normal">665</span>
+<span class="normal">666</span>
+<span class="normal">667</span>
+<span class="normal">668</span>
+<span class="normal">669</span>
+<span class="normal">670</span>
+<span class="normal">671</span>
+<span class="normal">672</span>
+<span class="normal">673</span>
+<span class="normal">674</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">timedelta</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the latest drift once `ready()` is complete.</span>
 
 <span class="sd">    Once the timer has triggered (`ready()` is done), this method returns the</span>
@@ -7249,25 +7352,7 @@ microsecond.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_timer.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">464</span>
-<span class="normal">465</span>
-<span class="normal">466</span>
-<span class="normal">467</span>
-<span class="normal">468</span>
-<span class="normal">469</span>
-<span class="normal">470</span>
-<span class="normal">471</span>
-<span class="normal">472</span>
-<span class="normal">473</span>
-<span class="normal">474</span>
-<span class="normal">475</span>
-<span class="normal">476</span>
-<span class="normal">477</span>
-<span class="normal">478</span>
-<span class="normal">479</span>
-<span class="normal">480</span>
-<span class="normal">481</span>
-<span class="normal">482</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">482</span>
 <span class="normal">483</span>
 <span class="normal">484</span>
 <span class="normal">485</span>
@@ -7296,7 +7381,25 @@ microsecond.</p>
 <span class="normal">508</span>
 <span class="normal">509</span>
 <span class="normal">510</span>
-<span class="normal">511</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">511</span>
+<span class="normal">512</span>
+<span class="normal">513</span>
+<span class="normal">514</span>
+<span class="normal">515</span>
+<span class="normal">516</span>
+<span class="normal">517</span>
+<span class="normal">518</span>
+<span class="normal">519</span>
+<span class="normal">520</span>
+<span class="normal">521</span>
+<span class="normal">522</span>
+<span class="normal">523</span>
+<span class="normal">524</span>
+<span class="normal">525</span>
+<span class="normal">526</span>
+<span class="normal">527</span>
+<span class="normal">528</span>
+<span class="normal">529</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span> <span class="nf">periodic</span><span class="p">(</span>
     <span class="bp">cls</span><span class="p">,</span>
     <span class="n">period</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">,</span>
@@ -7417,25 +7520,7 @@ until it is consumed.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_timer.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">580</span>
-<span class="normal">581</span>
-<span class="normal">582</span>
-<span class="normal">583</span>
-<span class="normal">584</span>
-<span class="normal">585</span>
-<span class="normal">586</span>
-<span class="normal">587</span>
-<span class="normal">588</span>
-<span class="normal">589</span>
-<span class="normal">590</span>
-<span class="normal">591</span>
-<span class="normal">592</span>
-<span class="normal">593</span>
-<span class="normal">594</span>
-<span class="normal">595</span>
-<span class="normal">596</span>
-<span class="normal">597</span>
-<span class="normal">598</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">598</span>
 <span class="normal">599</span>
 <span class="normal">600</span>
 <span class="normal">601</span>
@@ -7467,7 +7552,25 @@ until it is consumed.</p>
 <span class="normal">627</span>
 <span class="normal">628</span>
 <span class="normal">629</span>
-<span class="normal">630</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="normal">630</span>
+<span class="normal">631</span>
+<span class="normal">632</span>
+<span class="normal">633</span>
+<span class="normal">634</span>
+<span class="normal">635</span>
+<span class="normal">636</span>
+<span class="normal">637</span>
+<span class="normal">638</span>
+<span class="normal">639</span>
+<span class="normal">640</span>
+<span class="normal">641</span>
+<span class="normal">642</span>
+<span class="normal">643</span>
+<span class="normal">644</span>
+<span class="normal">645</span>
+<span class="normal">646</span>
+<span class="normal">647</span>
+<span class="normal">648</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wait until the timer `interval` passed.</span>
 
 <span class="sd">    Once a call to `ready()` has finished, the resulting tick information</span>
@@ -7564,20 +7667,20 @@ documentation for more details.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_timer.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">551</span>
-<span class="normal">552</span>
-<span class="normal">553</span>
-<span class="normal">554</span>
-<span class="normal">555</span>
-<span class="normal">556</span>
-<span class="normal">557</span>
-<span class="normal">558</span>
-<span class="normal">559</span>
-<span class="normal">560</span>
-<span class="normal">561</span>
-<span class="normal">562</span>
-<span class="normal">563</span>
-<span class="normal">564</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">569</span>
+<span class="normal">570</span>
+<span class="normal">571</span>
+<span class="normal">572</span>
+<span class="normal">573</span>
+<span class="normal">574</span>
+<span class="normal">575</span>
+<span class="normal">576</span>
+<span class="normal">577</span>
+<span class="normal">578</span>
+<span class="normal">579</span>
+<span class="normal">580</span>
+<span class="normal">581</span>
+<span class="normal">582</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Reset the timer to start timing from now.</span>
 
 <span class="sd">    If the timer was stopped, or not started yet, it will be started.</span>
@@ -7618,19 +7721,19 @@ a <code>ReceiverStoppedError</code>.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_timer.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">566</span>
-<span class="normal">567</span>
-<span class="normal">568</span>
-<span class="normal">569</span>
-<span class="normal">570</span>
-<span class="normal">571</span>
-<span class="normal">572</span>
-<span class="normal">573</span>
-<span class="normal">574</span>
-<span class="normal">575</span>
-<span class="normal">576</span>
-<span class="normal">577</span>
-<span class="normal">578</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">584</span>
+<span class="normal">585</span>
+<span class="normal">586</span>
+<span class="normal">587</span>
+<span class="normal">588</span>
+<span class="normal">589</span>
+<span class="normal">590</span>
+<span class="normal">591</span>
+<span class="normal">592</span>
+<span class="normal">593</span>
+<span class="normal">594</span>
+<span class="normal">595</span>
+<span class="normal">596</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Stop the timer.</span>
 
 <span class="sd">    Once `stop` has been called, all subsequent calls to `ready()` will</span>
@@ -7786,25 +7889,7 @@ microsecond.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_timer.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">422</span>
-<span class="normal">423</span>
-<span class="normal">424</span>
-<span class="normal">425</span>
-<span class="normal">426</span>
-<span class="normal">427</span>
-<span class="normal">428</span>
-<span class="normal">429</span>
-<span class="normal">430</span>
-<span class="normal">431</span>
-<span class="normal">432</span>
-<span class="normal">433</span>
-<span class="normal">434</span>
-<span class="normal">435</span>
-<span class="normal">436</span>
-<span class="normal">437</span>
-<span class="normal">438</span>
-<span class="normal">439</span>
-<span class="normal">440</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">440</span>
 <span class="normal">441</span>
 <span class="normal">442</span>
 <span class="normal">443</span>
@@ -7826,7 +7911,25 @@ microsecond.</p>
 <span class="normal">459</span>
 <span class="normal">460</span>
 <span class="normal">461</span>
-<span class="normal">462</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">462</span>
+<span class="normal">463</span>
+<span class="normal">464</span>
+<span class="normal">465</span>
+<span class="normal">466</span>
+<span class="normal">467</span>
+<span class="normal">468</span>
+<span class="normal">469</span>
+<span class="normal">470</span>
+<span class="normal">471</span>
+<span class="normal">472</span>
+<span class="normal">473</span>
+<span class="normal">474</span>
+<span class="normal">475</span>
+<span class="normal">476</span>
+<span class="normal">477</span>
+<span class="normal">478</span>
+<span class="normal">479</span>
+<span class="normal">480</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span> <span class="nf">timeout</span><span class="p">(</span>
     <span class="bp">cls</span><span class="p">,</span>
     <span class="n">delay</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">,</span>
