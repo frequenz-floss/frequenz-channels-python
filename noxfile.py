@@ -33,6 +33,7 @@ def pylint(session: nox.Session) -> None:
         ".[docs]",
         "pylint",
         "pytest",
+        "sybil",
         "nox",
         "async-solipsism",
         "hypothesis",
@@ -95,6 +96,8 @@ def pytest(session: nox.Session) -> None:
         "pytest-asyncio",
         "async-solipsism",
         "hypothesis",
+        "sybil",
+        "pylint",
     )
     session.install("-e", ".")
     session.run(

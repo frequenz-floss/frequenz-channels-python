@@ -72,6 +72,13 @@ class Select:
         simultaneously wait on, this can be done with:
 
         ```python
+        from frequenz.channels import Broadcast
+
+        channel1 = Broadcast[int]("input-chan-1")
+        channel2 = Broadcast[int]("input-chan-2")
+        receiver1 = channel1.new_receiver()
+        receiver2 = channel2.new_receiver()
+
         select = Select(name1 = receiver1, name2 = receiver2)
         while await select.ready():
             if msg := select.name1:
