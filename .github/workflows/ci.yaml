@@ -1,6 +1,15 @@
 name: frequenz-channels-python
 
-on: [pull_request, push, workflow_dispatch]
+on:
+  merge_group:
+  pull_request:
+  push:
+    branches-ignore:
+      # Ignore pushes to merge queues.
+      # We only want to test the merge commit (`merge_group` event), the hashes
+      # in the push were already tested by the PR checks
+      - 'gh-readonly-queue/**'
+  workflow_dispatch:
 
 env:
   DEFAULT_PYTHON_VERSION: "3.11"
