@@ -365,9 +365,10 @@ class Timer(Receiver[timedelta]):
         Args:
             interval: The time between timer ticks. Must be at least
                 1 microsecond.
-            missed_tick_policy: The policy of the timer when it misses
-                a tick. See the documentation of `MissedTickPolicy` for
-                details.
+            missed_tick_policy: The policy of the timer when it misses a tick.
+                Commonly one of `TriggerAllMissed`, `SkipMissedAndResync`, `SkipMissedAndDrift`
+                or a custom class deriving from `MissedTickPolicy`. See the
+                documentation of the each class for more details.
             auto_start: Whether the timer should be started when the
                 instance is created. This can only be `True` if there is
                 already a running loop or an explicit `loop` that is running
