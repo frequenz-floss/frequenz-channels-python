@@ -6156,7 +6156,8 @@ next tick to be relative to the time timer was last triggered.</p>
 <span class="normal">679</span>
 <span class="normal">680</span>
 <span class="normal">681</span>
-<span class="normal">682</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Timer</span><span class="p">(</span><span class="n">Receiver</span><span class="p">[</span><span class="n">timedelta</span><span class="p">]):</span>
+<span class="normal">682</span>
+<span class="normal">683</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">Timer</span><span class="p">(</span><span class="n">Receiver</span><span class="p">[</span><span class="n">timedelta</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;A timer receiver that triggers every `interval` time.</span>
 
 <span class="sd">    The timer as microseconds resolution, so the `interval` must be at least</span>
@@ -6278,9 +6279,10 @@ next tick to be relative to the time timer was last triggered.</p>
 <span class="sd">        Args:</span>
 <span class="sd">            interval: The time between timer ticks. Must be at least</span>
 <span class="sd">                1 microsecond.</span>
-<span class="sd">            missed_tick_policy: The policy of the timer when it misses</span>
-<span class="sd">                a tick. See the documentation of `MissedTickPolicy` for</span>
-<span class="sd">                details.</span>
+<span class="sd">            missed_tick_policy: The policy of the timer when it misses a tick.</span>
+<span class="sd">                Commonly one of `TriggerAllMissed`, `SkipMissedAndResync`, `SkipMissedAndDrift`</span>
+<span class="sd">                or a custom class deriving from `MissedTickPolicy`. See the</span>
+<span class="sd">                documentation of the each class for more details.</span>
 <span class="sd">            auto_start: Whether the timer should be started when the</span>
 <span class="sd">                instance is created. This can only be `True` if there is</span>
 <span class="sd">                already a running loop or an explicit `loop` that is running</span>
@@ -6816,9 +6818,10 @@ next tick to be relative to the time timer was last triggered.</p>
         <tr>
           <td><code>missed_tick_policy</code></td>
           <td class="doc-param-details">
-            <p>The policy of the timer when it misses
-a tick. See the documentation of <code>MissedTickPolicy</code> for
-details.</p>
+            <p>The policy of the timer when it misses a tick.
+Commonly one of <code>TriggerAllMissed</code>, <code>SkipMissedAndResync</code>, <code>SkipMissedAndDrift</code>
+or a custom class deriving from <code>MissedTickPolicy</code>. See the
+documentation of the each class for more details.</p>
             <p>
                 <span class="doc-param-annotation">
                   <b>TYPE:</b>
@@ -6987,7 +6990,8 @@ microsecond.</p>
 <span class="normal">435</span>
 <span class="normal">436</span>
 <span class="normal">437</span>
-<span class="normal">438</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">438</span>
+<span class="normal">439</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">interval</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">,</span>
     <span class="n">missed_tick_policy</span><span class="p">:</span> <span class="n">MissedTickPolicy</span><span class="p">,</span>
@@ -7003,9 +7007,10 @@ microsecond.</p>
 <span class="sd">    Args:</span>
 <span class="sd">        interval: The time between timer ticks. Must be at least</span>
 <span class="sd">            1 microsecond.</span>
-<span class="sd">        missed_tick_policy: The policy of the timer when it misses</span>
-<span class="sd">            a tick. See the documentation of `MissedTickPolicy` for</span>
-<span class="sd">            details.</span>
+<span class="sd">        missed_tick_policy: The policy of the timer when it misses a tick.</span>
+<span class="sd">            Commonly one of `TriggerAllMissed`, `SkipMissedAndResync`, `SkipMissedAndDrift`</span>
+<span class="sd">            or a custom class deriving from `MissedTickPolicy`. See the</span>
+<span class="sd">            documentation of the each class for more details.</span>
 <span class="sd">        auto_start: Whether the timer should be started when the</span>
 <span class="sd">            instance is created. This can only be `True` if there is</span>
 <span class="sd">            already a running loop or an explicit `loop` that is running</span>
@@ -7142,8 +7147,7 @@ time when it actually did.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_timer.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">650</span>
-<span class="normal">651</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">651</span>
 <span class="normal">652</span>
 <span class="normal">653</span>
 <span class="normal">654</span>
@@ -7166,7 +7170,8 @@ time when it actually did.</p>
 <span class="normal">671</span>
 <span class="normal">672</span>
 <span class="normal">673</span>
-<span class="normal">674</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">timedelta</span><span class="p">:</span>
+<span class="normal">674</span>
+<span class="normal">675</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">consume</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">timedelta</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the latest drift once `ready()` is complete.</span>
 
 <span class="sd">    Once the timer has triggered (`ready()` is done), this method returns the</span>
@@ -7352,8 +7357,7 @@ microsecond.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_timer.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">482</span>
-<span class="normal">483</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">483</span>
 <span class="normal">484</span>
 <span class="normal">485</span>
 <span class="normal">486</span>
@@ -7399,7 +7403,8 @@ microsecond.</p>
 <span class="normal">526</span>
 <span class="normal">527</span>
 <span class="normal">528</span>
-<span class="normal">529</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">529</span>
+<span class="normal">530</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span> <span class="nf">periodic</span><span class="p">(</span>
     <span class="bp">cls</span><span class="p">,</span>
     <span class="n">period</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">,</span>
@@ -7520,8 +7525,7 @@ until it is consumed.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_timer.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">598</span>
-<span class="normal">599</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">599</span>
 <span class="normal">600</span>
 <span class="normal">601</span>
 <span class="normal">602</span>
@@ -7570,7 +7574,8 @@ until it is consumed.</p>
 <span class="normal">645</span>
 <span class="normal">646</span>
 <span class="normal">647</span>
-<span class="normal">648</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="normal">648</span>
+<span class="normal">649</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Wait until the timer `interval` passed.</span>
 
 <span class="sd">    Once a call to `ready()` has finished, the resulting tick information</span>
@@ -7667,8 +7672,7 @@ documentation for more details.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_timer.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">569</span>
-<span class="normal">570</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">570</span>
 <span class="normal">571</span>
 <span class="normal">572</span>
 <span class="normal">573</span>
@@ -7680,7 +7684,8 @@ documentation for more details.</p>
 <span class="normal">579</span>
 <span class="normal">580</span>
 <span class="normal">581</span>
-<span class="normal">582</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">582</span>
+<span class="normal">583</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Reset the timer to start timing from now.</span>
 
 <span class="sd">    If the timer was stopped, or not started yet, it will be started.</span>
@@ -7721,8 +7726,7 @@ a <code>ReceiverStoppedError</code>.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_timer.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">584</span>
-<span class="normal">585</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">585</span>
 <span class="normal">586</span>
 <span class="normal">587</span>
 <span class="normal">588</span>
@@ -7733,7 +7737,8 @@ a <code>ReceiverStoppedError</code>.</p>
 <span class="normal">593</span>
 <span class="normal">594</span>
 <span class="normal">595</span>
-<span class="normal">596</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">596</span>
+<span class="normal">597</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Stop the timer.</span>
 
 <span class="sd">    Once `stop` has been called, all subsequent calls to `ready()` will</span>
@@ -7889,8 +7894,7 @@ microsecond.</p>
 
       <details class="quote">
         <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.3/x64/lib/python3.11/site-packages/frequenz/channels/util/_timer.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">440</span>
-<span class="normal">441</span>
+        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">441</span>
 <span class="normal">442</span>
 <span class="normal">443</span>
 <span class="normal">444</span>
@@ -7929,7 +7933,8 @@ microsecond.</p>
 <span class="normal">477</span>
 <span class="normal">478</span>
 <span class="normal">479</span>
-<span class="normal">480</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
+<span class="normal">480</span>
+<span class="normal">481</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@classmethod</span>
 <span class="k">def</span> <span class="nf">timeout</span><span class="p">(</span>
     <span class="bp">cls</span><span class="p">,</span>
     <span class="n">delay</span><span class="p">:</span> <span class="n">timedelta</span><span class="p">,</span>
