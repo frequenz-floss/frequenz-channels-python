@@ -66,6 +66,14 @@ class MissedTickPolicy(abc.ABC):
         """
         return 0  # dummy value to avoid darglint warnings
 
+    def __repr__(self) -> str:
+        """Return a string representation of the instance.
+
+        Returns:
+            The string representation of the instance.
+        """
+        return f"{type(self).__name__}()"
+
 
 class TriggerAllMissed(MissedTickPolicy):
     """A policy that triggers all the missed ticks immediately until it catches up.
@@ -241,6 +249,22 @@ class SkipMissedAndDrift(MissedTickPolicy):
         if drift > self._tolerance:
             return now + interval
         return scheduled_tick_time + interval
+
+    def __str__(self) -> str:
+        """Return a string representation of the instance.
+
+        Returns:
+            The string representation of the instance.
+        """
+        return f"{type(self).__name__}({self.delay_tolerance})"
+
+    def __repr__(self) -> str:
+        """Return a string representation of the instance.
+
+        Returns:
+            The string representation of the instance.
+        """
+        return f"{type(self).__name__}({self.delay_tolerance=})"
 
 
 class Timer(Receiver[timedelta]):
@@ -681,3 +705,22 @@ class Timer(Receiver[timedelta]):
             The current monotonic clock time in microseconds.
         """
         return _to_microseconds(self._loop.time())
+
+    def __str__(self) -> str:
+        """Return a string representation of the timer.
+
+        Returns:
+            The string representation of the timer.
+        """
+        return f"{type(self).__name__}({self.interval})"
+
+    def __repr__(self) -> str:
+        """Return a string representation of the timer.
+
+        Returns:
+            The string representation of the timer.
+        """
+        return (
+            f"{type(self).__name__}<{self.interval=}, {self.missed_tick_policy=}, "
+            f"{self.loop=}, {self.is_running=}>"
+        )
