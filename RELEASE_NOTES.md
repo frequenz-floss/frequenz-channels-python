@@ -6,7 +6,7 @@
 
 ## Upgrading
 
-<!-- Here goes notes on how to upgrade from previous versions, including if there are any deprecations and what they should be replaced with -->
+* The minimum supported Python version was bumped to 3.11, downstream projects will need to upgrade too to use this version.
 
 ## New Features
 
