@@ -11,7 +11,7 @@ is closed in case of `Receiver` class.
 import asyncio
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Set, TypeVar
+from typing import Any, TypeVar
 
 from .._base_classes import Receiver
 from .._exceptions import ReceiverStoppedError
@@ -28,7 +28,7 @@ class _Selected:
     receiver gets closed.
     """
 
-    inner: Optional[Any]
+    inner: Any
 
 
 @dataclass
@@ -41,7 +41,7 @@ class _ReadyReceiver:
     When a channel has closed,  `recv` should be `None`.
     """
 
-    recv: Optional[Receiver[Any]]
+    recv: Receiver[Any] | None
 
     def get(self) -> _Selected:
         """Consume a message from the receiver and return a `_Selected` object.
@@ -101,14 +101,14 @@ class Select:
             **kwargs: sequence of receivers
         """
         self._receivers = kwargs
-        self._pending: Set[asyncio.Task[bool]] = set()
+        self._pending: set[asyncio.Task[bool]] = set()
 
         for name, recv in self._receivers.items():
             self._pending.add(asyncio.create_task(recv.ready(), name=name))
 
         self._ready_count = 0
         self._prev_ready_count = 0
-        self._result: Dict[str, Optional[_ReadyReceiver]] = {
+        self._result: dict[str, _ReadyReceiver | None] = {
             name: None for name in self._receivers
         }
 
@@ -138,7 +138,7 @@ class Select:
         # pylint: disable=too-many-nested-blocks
         if self._ready_count > 0:
             if self._ready_count == self._prev_ready_count:
-                dropped_names: List[str] = []
+                dropped_names: list[str] = []
                 for name, value in self._result.items():
                     if value is not None:
                         dropped_names.append(name)
@@ -185,7 +185,7 @@ class Select:
             self._pending.add(asyncio.create_task(recv.ready(), name=name))
         return True
 
-    def __getattr__(self, name: str) -> Optional[Any]:
+    def __getattr__(self, name: str) -> Any:
         """Return the latest unread message from a `Receiver`, if available.
 
         Args:
