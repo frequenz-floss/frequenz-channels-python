@@ -23,12 +23,23 @@ A module with several utilities to work with channels:
 * [Select][frequenz.channels.util.Select]: A helper to select the next
   available message for each [receiver][frequenz.channels.Receiver] in a group
   of receivers.
+
+* [select][frequenz.channels.util.select]: A function to iterate over a group
+  of [receivers][frequenz.channels.Receiver] and select the next available value.
 """
 
 from ._file_watcher import FileWatcher
 from ._merge import Merge
 from ._merge_named import MergeNamed
-from ._select import Select
+from ._select import (
+    Select,
+    Selected,
+    SelectError,
+    SelectErrorGroup,
+    UnhandledSelectedError,
+    select,
+    selected_from,
+)
 from ._timer import (
     MissedTickPolicy,
     SkipMissedAndDrift,
@@ -42,9 +53,15 @@ __all__ = [
     "Merge",
     "MergeNamed",
     "MissedTickPolicy",
-    "Timer",
     "Select",
+    "SelectError",
+    "SelectErrorGroup",
+    "Selected",
     "SkipMissedAndDrift",
     "SkipMissedAndResync",
+    "Timer",
     "TriggerAllMissed",
+    "UnhandledSelectedError",
+    "select",
+    "selected_from",
 ]
