@@ -5,6 +5,9 @@
 
 A module with several utilities to work with channels:
 
+* [Event][frequenz.channels.util.Event]:
+  A [receiver][frequenz.channels.Receiver] that can be made ready through an event.
+
 * [FileWatcher][frequenz.channels.util.FileWatcher]:
   A [receiver][frequenz.channels.Receiver] that watches for file events.
 
@@ -28,6 +31,7 @@ A module with several utilities to work with channels:
   of [receivers][frequenz.channels.Receiver] and select the next available value.
 """
 
+from ._event import Event
 from ._file_watcher import FileWatcher
 from ._merge import Merge
 from ._merge_named import MergeNamed
@@ -49,6 +53,7 @@ from ._timer import (
 )
 
 __all__ = [
+    "Event",
     "FileWatcher",
     "Merge",
     "MergeNamed",
