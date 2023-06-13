@@ -17,8 +17,7 @@ async def test_file_watcher(tmp_path: pathlib.Path) -> None:
     """Ensure file watcher is returning paths on file events.
 
     Args:
-        tmp_path (pathlib.Path): A tmp directory to run the file watcher on.
-            Created by pytest.
+        tmp_path: A tmp directory to run the file watcher on. Created by pytest.
     """
     filename = tmp_path / "test-file"
     file_watcher = FileWatcher(paths=[str(tmp_path)])
@@ -56,8 +55,7 @@ async def test_file_watcher_deletes(tmp_path: pathlib.Path) -> None:
     the file doesn't exist.
 
     Args:
-        tmp_path (pathlib.Path): A tmp directory to run the file watcher on.
-            Created by pytest.
+        tmp_path: A tmp directory to run the file watcher on. Created by pytest.
     """
     filename = tmp_path / "test-file"
     file_watcher = FileWatcher(
