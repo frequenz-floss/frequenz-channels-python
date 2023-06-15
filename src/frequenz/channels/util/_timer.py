@@ -307,37 +307,37 @@ class Timer(Receiver[timedelta]):
             print(f"The timer has triggered {drift=}")
         ```
 
-        But you can also use [`Select`][frequenz.channels.util.Select] to combine it
-        with other receivers, and even start it (semi) manually:
+        But you can also use a [`Selector`][frequenz.channels.util.Selector] to combine
+        it with other receivers, and even start it (semi) manually:
 
         ```python
         import logging
-        from frequenz.channels.util import Select
+        from frequenz.channels.util import Selector, selected_from
         from frequenz.channels import Broadcast
 
         timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
         chan = Broadcast[int]("input-chan")
-        receiver1 = chan.new_receiver()
+        battery_data = chan.new_receiver()
 
         timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
         # Do some other initialization, the timer will start automatically if
         # a message is awaited (or manually via `reset()`).
-        select = Select(bat_1=receiver1, timer=timer)
-        while await select.ready():
-            if msg := select.bat_1:
-                if val := msg.inner:
-                    battery_soc = val
-                else:
-                    logging.warning("battery channel closed")
-            elif drift := select.timer:
-                # Print some regular battery data
-                print(f"Battery is charged at {battery_soc}%")
+        async with Selector(battery_data, timer) as selector:
+            async for selected in selector:
+                if selected_from(selected, battery_data):
+                    if selected.was_closed():
+                        logging.warning("battery channel closed")
+                        continue
+                    battery_soc = selected.value
+                elif selected_from(selected, timer):
+                    # Print some regular battery data
+                    print(f"Battery is charged at {battery_soc}%")
         ```
 
     Example: Timeout example
         ```python
         import logging
-        from frequenz.channels.util import Select
+        from frequenz.channels.util import Selector, selected_from
         from frequenz.channels import Broadcast
 
         def process_data(data: int):
@@ -349,23 +349,23 @@ class Timer(Receiver[timedelta]):
         timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
         chan1 = Broadcast[int]("input-chan-1")
         chan2 = Broadcast[int]("input-chan-2")
-        receiver1 = chan1.new_receiver()
-        receiver2 = chan2.new_receiver()
-        select = Select(bat_1=receiver1, heavy_process=receiver2, timeout=timer)
-        while await select.ready():
-            if msg := select.bat_1:
-                if val := msg.inner:
-                    process_data(val)
+        battery_data = chan1.new_receiver()
+        heavy_process = chan2.new_receiver()
+        async with Selector(battery_data, heavy_process, timer) as selector:
+            async for selected in selector:
+                if selected_from(selected, battery_data):
+                    if selected.was_closed():
+                        logging.warning("battery channel closed")
+                        continue
+                    process_data(selected.value)
                     timer.reset()
-                else:
-                    logging.warning("battery channel closed")
-            if msg := select.heavy_process:
-                if val := msg.inner:
-                    do_heavy_processing(val)
-                else:
-                    logging.warning("processing channel closed")
-            elif drift := select.timeout:
-                logging.warning("No data received in time")
+                elif selected_from(selected, heavy_process):
+                    if selected.was_closed():
+                        logging.warning("processing channel closed")
+                        continue
+                    do_heavy_processing(selected.value)
+                elif selected_from(selected, timer):
+                    logging.warning("No data received in time")
         ```
 
         In this case `do_heavy_processing` might take 2 seconds, and we don't
