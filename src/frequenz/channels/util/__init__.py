@@ -23,10 +23,6 @@ A module with several utilities to work with channels:
 * [Timer][frequenz.channels.util.Timer]:
   A [receiver][frequenz.channels.Receiver] that ticks at certain intervals.
 
-* [Select][frequenz.channels.util.Select]: A helper to select the next
-  available message for each [receiver][frequenz.channels.Receiver] in a group
-  of receivers.
-
 * [Selector][frequenz.channels.util.Selector]: A tool to iterate over the values of all
   [receivers][frequenz.channels.Receiver] as new values become available.
 """
@@ -36,7 +32,6 @@ from ._file_watcher import FileWatcher
 from ._merge import Merge
 from ._merge_named import MergeNamed
 from ._select import (
-    Select,
     Selected,
     SelectError,
     SelectErrorGroup,
@@ -59,7 +54,6 @@ __all__ = [
     "MergeNamed",
     "MissedTickPolicy",
     "Timer",
-    "Select",
     "SelectError",
     "SelectErrorGroup",
     "Selected",
