@@ -49,7 +49,7 @@ body:
         - Unit, integration and performance tests (part:tests)
         - Build script, CI, dependencies, etc. (part:tooling)
         - Channels, `Broadcast`, `Bidirectional`, etc. (part:channels)
-        - Select (part:select)
+        - Selector (part:selector)
         - Utility receivers, `Merge`, etc. (part:receivers)
     validations:
       required: true
