@@ -31,7 +31,7 @@ from ._event import Event
 from ._file_watcher import FileWatcher
 from ._merge import Merge
 from ._merge_named import MergeNamed
-from ._select import (
+from ._selector import (
     Selected,
     SelectError,
     SelectErrorGroup,
