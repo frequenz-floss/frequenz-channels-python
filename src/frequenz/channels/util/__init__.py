@@ -23,6 +23,9 @@ A module with several utilities to work with channels:
 * [Timer][frequenz.channels.util.Timer]:
   A [receiver][frequenz.channels.Receiver] that ticks at certain intervals.
 
+* [select][frequenz.channels.util.select]:  Iterate over the values of all
+  [receivers][frequenz.channels.Receiver] as new values become available.
+
 * [Selector][frequenz.channels.util.Selector]: A tool to iterate over the values of all
   [receivers][frequenz.channels.Receiver] as new values become available.
 """
@@ -37,6 +40,7 @@ from ._selector import (
     SelectErrorGroup,
     Selector,
     UnhandledSelectedError,
+    select,
     selected_from,
 )
 from ._timer import (
@@ -62,5 +66,6 @@ __all__ = [
     "SkipMissedAndResync",
     "TriggerAllMissed",
     "UnhandledSelectedError",
+    "select",
     "selected_from",
 ]

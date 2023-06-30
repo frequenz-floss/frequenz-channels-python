@@ -10,7 +10,7 @@ is closed in case of `Receiver` class.
 
 import asyncio
 from types import TracebackType
-from typing import Any, Generic, Self, TypeGuard, TypeVar, assert_never
+from typing import Any, AsyncIterator, Generic, Self, TypeGuard, TypeVar, assert_never
 
 from .._base_classes import Receiver
 from .._exceptions import ReceiverStoppedError
@@ -237,6 +237,166 @@ class SelectErrorGroup(BaseExceptionGroup[BaseException], SelectError):
 # but we couldn't find a way to make it work with `match`, and `match` is not yet
 # checked for exhaustiveness by `mypy` anyway, see:
 # https://github.com/python/mypy/issues/13597
+
+
+async def select(*receivers: Receiver[Any]) -> AsyncIterator[Selected[Any]]:
+    """Iterate over the values of all receivers as they receive new values.
+
+    This function is used to iterate over the values of all receivers as they receive
+    new values.  It is used in conjunction with the
+    [`Selected`][frequenz.channels.util.Selected] class and the
+    [`selected_from()`][frequenz.channels.util.selected_from] function to determine
+    which function to determine which receiver was selected in a select operation.
+
+    An exhaustiveness check is performed at runtime to make sure all selected receivers
+    are handled in the if-chain, so you should call `selected_from()` with all the
+    receivers passed to `select()` inside the select loop, even if you plan to ignore
+    a value, to signal `select()` that you are purposefully ignoring the value.
+
+    Note:
+        The `select()` function is intended to be used in cases where the set of
+        receivers is static and known beforehand.  If you need to dynamically add/remove
+        receivers from a select loop, there are a few alternatives.  Depending on your
+        use case, one or the other could work better for you:
+
+        * Use [`Merge`][frequenz.channels.util.Merge] or
+          [`MergeNamed`][frequenz.channels.util.MergeNamed]: this is useful when you
+          have and unknown number of receivers of the same type that can be handled as
+          a group.
+        * Use tasks to manage each recever individually: this is better if there are no
+          relationships between the receivers.
+        * Break the `select()` loop and start a new one with the new set of receivers
+          (this should be the last resort, as it has some performance implications
+           because the loop needs to be restarted).
+
+    Example:
+        ```python
+        import datetime
+        from typing import assert_never
+
+        from frequenz.channels import ReceiverStoppedError
+        from frequenz.channels.util import select, selected_from, Timer
+
+        timer1 = Timer.periodic(datetime.timedelta(seconds=1))
+        timer2 = Timer.timeout(datetime.timedelta(seconds=0.5))
+
+        async for selected in select(timer1, timer2):
+            if selected_from(selected, timer1):
+                # Beware: `selected.value` might raise an exception, you can always
+                # check for exceptions with `selected.exception` first or use
+                # a try-except block. You can also quickly check if the receiver was
+                # stopped and let any other unexpected exceptions bubble up.
+                if selected.was_stopped:
+                    print("timer1 was stopped")
+                    continue
+                print(f"timer1: now={datetime.datetime.now()} drift={selected.value}")
+                timer2.stop()
+            elif selected_from(selected, timer2):
+                # Explicitly handling of exceptions
+                match selected.exception:
+                    case ReceiverStoppedError():
+                        print("timer2 was stopped")
+                    case Exception() as exception:
+                        print(f"timer2: exception={exception}")
+                    case None:
+                        # All good, no exception, we can use `selected.value` safely
+                        print(
+                            f"timer2: now={datetime.datetime.now()} drift={selected.value}"
+                        )
+                    case _ as unhanded:
+                        assert_never(unhanded)
+            else:
+                # This is not necessary, as select() will check for exhaustiveness, but
+                # it is good practice to have it in case you forgot to handle a new
+                # receiver added to `select()` at a later point in time.
+                assert False
+        ```
+
+    Args:
+        *receivers: The receivers to select from.
+
+    Yields:
+        The currently selected item.
+
+    Raises:
+        UnhandledSelectedError: If a selected receiver was not handled in the if-chain.
+        SelectErrorGroup: If there is an error while finishing the select operation and
+            receivers fail while cleaning up.
+        SelectError: If there is an error while selecting receivers during normal
+            operation.  For example if a receiver raises an exception in the `ready()`
+            method.  Normal errors while receiving values are not raised, but reported
+            via the `Selected` instance.
+    """
+    receivers_map: dict[str, Receiver[Any]] = {str(hash(r)): r for r in receivers}
+    pending: set[asyncio.Task[bool]] = set()
+
+    try:
+        for name, recv in receivers_map.items():
+            pending.add(asyncio.create_task(recv.ready(), name=name))
+
+        while pending:
+            done, pending = await asyncio.wait(
+                pending, return_when=asyncio.FIRST_COMPLETED
+            )
+
+            for task in done:
+                receiver_active: bool = True
+                name = task.get_name()
+                recv = receivers_map[name]
+                if exception := task.exception():
+                    match exception:
+                        case asyncio.CancelledError():
+                            # If the receiver was cancelled, then it means we want to
+                            # exit the select loop, so we handle the receiver but we
+                            # don't add it back to the pending list.
+                            receiver_active = False
+                        case _ as exc:
+                            raise SelectError(f"Error while selecting {recv}") from exc
+
+                selected = Selected(recv)
+                yield selected
+                if not selected._handled:  # pylint: disable=protected-access
+                    raise UnhandledSelectedError(selected)
+
+                receiver_active = task.result()
+                if not receiver_active:
+                    continue
+
+                # Add back the receiver to the pending list
+                name = task.get_name()
+                recv = receivers_map[name]
+                pending.add(asyncio.create_task(recv.ready(), name=name))
+    finally:
+        await _stop_pending_tasks(pending)
+
+
+async def _stop_pending_tasks(pending: set[asyncio.Task[bool]]) -> None:
+    """Stop all pending tasks.
+
+    Args:
+        pending: The pending tasks to stop.
+
+    Raises:
+        SelectErrorGroup: If the receivers raise any exceptions.
+    """
+    if pending:
+        for task in pending:
+            task.cancel()
+        done, pending = await asyncio.wait(pending)
+        assert not pending
+        exceptions: list[BaseException] = []
+        for task in done:
+            if task.cancelled():
+                continue
+            if exception := task.exception():
+                exceptions.append(exception)
+        if exceptions:
+            # If the select loop is interrupted by a break or exception, then this
+            # exception will be actually swallowed, as the select() async generator
+            # will be collected by the asyncio loop. This shouldn't be too bad as
+            # errors produced by receivers will be re-raised when trying to use them
+            # again.
+            raise SelectErrorGroup("Some receivers failed when select()ing", exceptions)
 
 
 class Selector:
