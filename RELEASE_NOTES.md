@@ -22,7 +22,7 @@ The minimum Python supported version was bumped to 3.11 and the `Select` class r
   timer1 = Timer.periodic(datetime.timedelta(seconds=1))
   timer2 = Timer.timeout(datetime.timedelta(seconds=0.5))
 
-  async for selected in selector(timer1, timer2):
+  async for selected in select(timer1, timer2):
       if selected_from(selected, timer1):
           # Beware: `selected.value` might raise an exception, you can always
           # check for exceptions with `selected.exception` first or use
@@ -79,7 +79,7 @@ The minimum Python supported version was bumped to 3.11 and the `Select` class r
 
   asyncio.ensure_future(exit_after_10_seconds())
 
-  async for selected in selector(exit_event, other_receiver):
+  async for selected in select(exit_event, other_receiver):
       if selected_from(selected, exit_event):
           break
       if selected_from(selected, other_receiver):
