@@ -66,6 +66,14 @@ class MissedTickPolicy(abc.ABC):
         """
         return 0  # dummy value to avoid darglint warnings
 
+    def __repr__(self) -> str:
+        """Return a string representation of the instance.
+
+        Returns:
+            The string representation of the instance.
+        """
+        return f"{type(self).__name__}()"
+
 
 class TriggerAllMissed(MissedTickPolicy):
     """A policy that triggers all the missed ticks immediately until it catches up.
@@ -242,6 +250,22 @@ class SkipMissedAndDrift(MissedTickPolicy):
             return now + interval
         return scheduled_tick_time + interval
 
+    def __str__(self) -> str:
+        """Return a string representation of the instance.
+
+        Returns:
+            The string representation of the instance.
+        """
+        return f"{type(self).__name__}({self.delay_tolerance})"
+
+    def __repr__(self) -> str:
+        """Return a string representation of the instance.
+
+        Returns:
+            The string representation of the instance.
+        """
+        return f"{type(self).__name__}({self.delay_tolerance=})"
+
 
 class Timer(Receiver[timedelta]):
     """A timer receiver that triggers every `interval` time.
@@ -283,29 +307,28 @@ class Timer(Receiver[timedelta]):
             print(f"The timer has triggered {drift=}")
         ```
 
-        But you can also use [`Select`][frequenz.channels.util.Select] to combine it
-        with other receivers, and even start it (semi) manually:
+        But you can also use a [`select`][frequenz.channels.util.select] to combine
+        it with other receivers, and even start it (semi) manually:
 
         ```python
         import logging
-        from frequenz.channels.util import Select
+        from frequenz.channels.util import select, selected_from
         from frequenz.channels import Broadcast
 
         timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
         chan = Broadcast[int]("input-chan")
-        receiver1 = chan.new_receiver()
+        battery_data = chan.new_receiver()
 
         timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
         # Do some other initialization, the timer will start automatically if
         # a message is awaited (or manually via `reset()`).
-        select = Select(bat_1=receiver1, timer=timer)
-        while await select.ready():
-            if msg := select.bat_1:
-                if val := msg.inner:
-                    battery_soc = val
-                else:
+        async for selected in select(battery_data, timer):
+            if selected_from(selected, battery_data):
+                if selected.was_closed():
                     logging.warning("battery channel closed")
-            elif drift := select.timer:
+                    continue
+                battery_soc = selected.value
+            elif selected_from(selected, timer):
                 # Print some regular battery data
                 print(f"Battery is charged at {battery_soc}%")
         ```
@@ -313,7 +336,7 @@ class Timer(Receiver[timedelta]):
     Example: Timeout example
         ```python
         import logging
-        from frequenz.channels.util import Select
+        from frequenz.channels.util import select, selected_from
         from frequenz.channels import Broadcast
 
         def process_data(data: int):
@@ -325,22 +348,21 @@ class Timer(Receiver[timedelta]):
         timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
         chan1 = Broadcast[int]("input-chan-1")
         chan2 = Broadcast[int]("input-chan-2")
-        receiver1 = chan1.new_receiver()
-        receiver2 = chan2.new_receiver()
-        select = Select(bat_1=receiver1, heavy_process=receiver2, timeout=timer)
-        while await select.ready():
-            if msg := select.bat_1:
-                if val := msg.inner:
-                    process_data(val)
-                    timer.reset()
-                else:
+        battery_data = chan1.new_receiver()
+        heavy_process = chan2.new_receiver()
+        async for selected in select(battery_data, heavy_process, timer):
+            if selected_from(selected, battery_data):
+                if selected.was_closed():
                     logging.warning("battery channel closed")
-            if msg := select.heavy_process:
-                if val := msg.inner:
-                    do_heavy_processing(val)
-                else:
+                    continue
+                process_data(selected.value)
+                timer.reset()
+            elif selected_from(selected, heavy_process):
+                if selected.was_closed():
                     logging.warning("processing channel closed")
-            elif drift := select.timeout:
+                    continue
+                do_heavy_processing(selected.value)
+            elif selected_from(selected, timer):
                 logging.warning("No data received in time")
         ```
 
@@ -681,3 +703,22 @@ class Timer(Receiver[timedelta]):
             The current monotonic clock time in microseconds.
         """
         return _to_microseconds(self._loop.time())
+
+    def __str__(self) -> str:
+        """Return a string representation of the timer.
+
+        Returns:
+            The string representation of the timer.
+        """
+        return f"{type(self).__name__}({self.interval})"
+
+    def __repr__(self) -> str:
+        """Return a string representation of the timer.
+
+        Returns:
+            The string representation of the timer.
+        """
+        return (
+            f"{type(self).__name__}<{self.interval=}, {self.missed_tick_policy=}, "
+            f"{self.loop=}, {self.is_running=}>"
+        )

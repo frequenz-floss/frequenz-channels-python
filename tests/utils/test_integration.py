@@ -3,15 +3,13 @@
 
 """Integration tests for the `util` module."""
 
-from __future__ import annotations
-
 import os
 import pathlib
 from datetime import timedelta
 
 import pytest
 
-from frequenz.channels.util import FileWatcher, Select, Timer
+from frequenz.channels.util import FileWatcher, Timer, select, selected_from
 
 
 @pytest.mark.integration
@@ -19,29 +17,26 @@ async def test_file_watcher(tmp_path: pathlib.Path) -> None:
     """Ensure file watcher is returning paths on file events.
 
     Args:
-        tmp_path (pathlib.Path): A tmp directory to run the file watcher on.
-            Created by pytest.
+        tmp_path: A tmp directory to run the file watcher on. Created by pytest.
     """
     filename = tmp_path / "test-file"
-    file_watcher = FileWatcher(paths=[str(tmp_path)])
 
     number_of_writes = 0
     expected_number_of_writes = 3
 
-    select = Select(
-        timer=Timer.timeout(timedelta(seconds=0.1)),
-        file_watcher=file_watcher,
-    )
-    while await select.ready():
-        if msg := select.timer:
-            filename.write_text(f"{msg.inner}")
-        elif msg := select.file_watcher:
+    file_watcher = FileWatcher(paths=[str(tmp_path)])
+    timer = Timer.timeout(timedelta(seconds=0.1))
+
+    async for selected in select(file_watcher, timer):
+        if selected_from(selected, timer):
+            filename.write_text(f"{selected.value}")
+        elif selected_from(selected, file_watcher):
             event_type = (
                 FileWatcher.EventType.CREATE
                 if number_of_writes == 0
                 else FileWatcher.EventType.MODIFY
             )
-            assert msg.inner == FileWatcher.Event(type=event_type, path=filename)
+            assert selected.value == FileWatcher.Event(type=event_type, path=filename)
             number_of_writes += 1
             # After receiving a write 3 times, unsubscribe from the writes channel
             if number_of_writes == expected_number_of_writes:
@@ -58,19 +53,15 @@ async def test_file_watcher_deletes(tmp_path: pathlib.Path) -> None:
     the file doesn't exist.
 
     Args:
-        tmp_path (pathlib.Path): A tmp directory to run the file watcher on.
-            Created by pytest.
+        tmp_path: A tmp directory to run the file watcher on. Created by pytest.
     """
     filename = tmp_path / "test-file"
     file_watcher = FileWatcher(
         paths=[str(tmp_path)], event_types={FileWatcher.EventType.DELETE}
     )
+    write_timer = Timer.timeout(timedelta(seconds=0.1))
+    deletion_timer = Timer.timeout(timedelta(seconds=0.25))
 
-    select = Select(
-        write_timer=Timer.timeout(timedelta(seconds=0.1)),
-        deletion_timer=Timer.timeout(timedelta(seconds=0.25)),
-        watcher=file_watcher,
-    )
     number_of_write = 0
     number_of_deletes = 0
     number_of_events = 0
@@ -91,19 +82,19 @@ async def test_file_watcher_deletes(tmp_path: pathlib.Path) -> None:
     # W: Write
     # D: Delete
     # E: FileWatcher Event
-    while await select.ready():
-        if msg := select.write_timer:
+    async for selected in select(file_watcher, write_timer, deletion_timer):
+        if selected_from(selected, write_timer):
             if number_of_write >= 2 and number_of_events == 0:
                 continue
-            filename.write_text(f"{msg.inner}")
+            filename.write_text(f"{selected.value}")
             number_of_write += 1
-        elif _ := select.deletion_timer:
+        elif selected_from(selected, deletion_timer):
             # Avoid removing the file twice
             if not pathlib.Path(filename).is_file():
                 continue
             os.remove(filename)
             number_of_deletes += 1
-        elif _ := select.watcher:
+        elif selected_from(selected, file_watcher):
             number_of_events += 1
             if number_of_events >= 2:
                 break

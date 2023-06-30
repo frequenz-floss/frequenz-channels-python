@@ -28,7 +28,7 @@ class Anycast(Generic[T]):
     thread-safe.
 
     When there are multiple channel receivers, they can be awaited
-    simultaneously using [Select][frequenz.channels.util.Select],
+    simultaneously using [select][frequenz.channels.util.select],
     [Merge][frequenz.channels.util.Merge] or
     [MergeNamed][frequenz.channels.util.MergeNamed].
 

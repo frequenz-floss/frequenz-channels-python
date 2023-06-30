@@ -5,6 +5,9 @@
 
 A module with several utilities to work with channels:
 
+* [Event][frequenz.channels.util.Event]:
+  A [receiver][frequenz.channels.Receiver] that can be made ready through an event.
+
 * [FileWatcher][frequenz.channels.util.FileWatcher]:
   A [receiver][frequenz.channels.Receiver] that watches for file events.
 
@@ -20,15 +23,22 @@ A module with several utilities to work with channels:
 * [Timer][frequenz.channels.util.Timer]:
   A [receiver][frequenz.channels.Receiver] that ticks at certain intervals.
 
-* [Select][frequenz.channels.util.Select]: A helper to select the next
-  available message for each [receiver][frequenz.channels.Receiver] in a group
-  of receivers.
+* [select][frequenz.channels.util.select]:  Iterate over the values of all
+  [receivers][frequenz.channels.Receiver] as new values become available.
 """
 
+from ._event import Event
 from ._file_watcher import FileWatcher
 from ._merge import Merge
 from ._merge_named import MergeNamed
-from ._select import Select
+from ._select import (
+    Selected,
+    SelectError,
+    SelectErrorGroup,
+    UnhandledSelectedError,
+    select,
+    selected_from,
+)
 from ._timer import (
     MissedTickPolicy,
     SkipMissedAndDrift,
@@ -38,13 +48,19 @@ from ._timer import (
 )
 
 __all__ = [
+    "Event",
     "FileWatcher",
     "Merge",
     "MergeNamed",
     "MissedTickPolicy",
-    "Timer",
-    "Select",
+    "SelectError",
+    "SelectErrorGroup",
+    "Selected",
     "SkipMissedAndDrift",
     "SkipMissedAndResync",
+    "Timer",
     "TriggerAllMissed",
+    "UnhandledSelectedError",
+    "select",
+    "selected_from",
 ]
