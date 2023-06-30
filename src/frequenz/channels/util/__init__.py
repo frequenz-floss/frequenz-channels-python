@@ -25,9 +25,6 @@ A module with several utilities to work with channels:
 
 * [select][frequenz.channels.util.select]:  Iterate over the values of all
   [receivers][frequenz.channels.Receiver] as new values become available.
-
-* [Selector][frequenz.channels.util.Selector]: A tool to iterate over the values of all
-  [receivers][frequenz.channels.Receiver] as new values become available.
 """
 
 from ._event import Event
@@ -38,7 +35,6 @@ from ._selector import (
     Selected,
     SelectError,
     SelectErrorGroup,
-    Selector,
     UnhandledSelectedError,
     select,
     selected_from,
@@ -60,7 +56,6 @@ __all__ = [
     "SelectError",
     "SelectErrorGroup",
     "Selected",
-    "Selector",
     "SkipMissedAndDrift",
     "SkipMissedAndResync",
     "Timer",

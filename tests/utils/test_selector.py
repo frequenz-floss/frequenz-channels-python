@@ -1,7 +1,7 @@
 # License: MIT
 # Copyright © 2023 Frequenz Energy-as-a-Service GmbH
 
-"""Tests for the Selector implementation."""
+"""Tests for the select implementation."""
 
 from unittest import mock
 
