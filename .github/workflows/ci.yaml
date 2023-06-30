@@ -4,6 +4,8 @@ on:
   merge_group:
   pull_request:
   push:
+    tags:
+      - '*'
     branches-ignore:
       # Ignore pushes to merge queues.
       # We only want to test the merge commit (`merge_group` event), the hashes
