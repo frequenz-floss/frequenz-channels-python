@@ -18,7 +18,7 @@ class Event(_base_classes.Receiver[None]):
     [`consume()`][frequenz.channels.Receiver.consume]d.
 
     The receiver can be completely stopped by calling
-    [`stop()`][frequenz.channels.Receiver.stop].
+    [`stop()`][frequenz.channels.util.Event.stop].
 
     Example:
         ```python
