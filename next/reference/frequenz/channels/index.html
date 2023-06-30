@@ -1228,7 +1228,7 @@ through a sender will be received by exactly one receiver.</p>
 <p>Uses an <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/collections.html#collections.deque">deque</a> internally, so Anycast channels are not
 thread-safe.</p>
 <p>When there are multiple channel receivers, they can be awaited
-simultaneously using <a class="autorefs autorefs-internal" href="util/#frequenz.channels.util.Select">Select</a>,
+simultaneously using <a class="autorefs autorefs-internal" href="util/#frequenz.channels.util.select">select</a>,
 <a class="autorefs autorefs-internal" href="util/#frequenz.channels.util.Merge">Merge</a> or
 <a class="autorefs autorefs-internal" href="util/#frequenz.channels.util.MergeNamed">MergeNamed</a>.</p>
 
@@ -1365,7 +1365,7 @@ simultaneously using <a class="autorefs autorefs-internal" href="util/#frequenz.
 <span class="sd">    thread-safe.</span>
 
 <span class="sd">    When there are multiple channel receivers, they can be awaited</span>
-<span class="sd">    simultaneously using [Select][frequenz.channels.util.Select],</span>
+<span class="sd">    simultaneously using [select][frequenz.channels.util.select],</span>
 <span class="sd">    [Merge][frequenz.channels.util.Merge] or</span>
 <span class="sd">    [MergeNamed][frequenz.channels.util.MergeNamed].</span>
 
@@ -2917,7 +2917,7 @@ receivers.</p>
 append/pop operations on either side of a <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/collections.html#collections.deque">deque</a>, which
 are thread-safe.  Because of this, <code>Broadcast</code> channels are thread-safe.</p>
 <p>When there are multiple channel receivers, they can be awaited
-simultaneously using <a class="autorefs autorefs-internal" href="util/#frequenz.channels.util.Select">Select</a>,
+simultaneously using <a class="autorefs autorefs-internal" href="util/#frequenz.channels.util.select">select</a>,
 <a class="autorefs autorefs-internal" href="util/#frequenz.channels.util.Merge">Merge</a> or
 <a class="autorefs autorefs-internal" href="util/#frequenz.channels.util.MergeNamed">MergeNamed</a>.</p>
 
@@ -3088,7 +3088,7 @@ simultaneously using <a class="autorefs autorefs-internal" href="util/#frequenz.
 <span class="sd">    are thread-safe.  Because of this, `Broadcast` channels are thread-safe.</span>
 
 <span class="sd">    When there are multiple channel receivers, they can be awaited</span>
-<span class="sd">    simultaneously using [Select][frequenz.channels.util.Select],</span>
+<span class="sd">    simultaneously using [select][frequenz.channels.util.select],</span>
 <span class="sd">    [Merge][frequenz.channels.util.Merge] or</span>
 <span class="sd">    [MergeNamed][frequenz.channels.util.MergeNamed].</span>
 
