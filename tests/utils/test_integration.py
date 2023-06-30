@@ -9,7 +9,7 @@ from datetime import timedelta
 
 import pytest
 
-from frequenz.channels.util import FileWatcher, Selector, Timer, selected_from
+from frequenz.channels.util import FileWatcher, Timer, select, selected_from
 
 
 @pytest.mark.integration
@@ -27,23 +27,20 @@ async def test_file_watcher(tmp_path: pathlib.Path) -> None:
     file_watcher = FileWatcher(paths=[str(tmp_path)])
     timer = Timer.timeout(timedelta(seconds=0.1))
 
-    async with Selector(file_watcher, timer) as selector:
-        async for selected in selector:
-            if selected_from(selected, timer):
-                filename.write_text(f"{selected.value}")
-            elif selected_from(selected, file_watcher):
-                event_type = (
-                    FileWatcher.EventType.CREATE
-                    if number_of_writes == 0
-                    else FileWatcher.EventType.MODIFY
-                )
-                assert selected.value == FileWatcher.Event(
-                    type=event_type, path=filename
-                )
-                number_of_writes += 1
-                # After receiving a write 3 times, unsubscribe from the writes channel
-                if number_of_writes == expected_number_of_writes:
-                    break
+    async for selected in select(file_watcher, timer):
+        if selected_from(selected, timer):
+            filename.write_text(f"{selected.value}")
+        elif selected_from(selected, file_watcher):
+            event_type = (
+                FileWatcher.EventType.CREATE
+                if number_of_writes == 0
+                else FileWatcher.EventType.MODIFY
+            )
+            assert selected.value == FileWatcher.Event(type=event_type, path=filename)
+            number_of_writes += 1
+            # After receiving a write 3 times, unsubscribe from the writes channel
+            if number_of_writes == expected_number_of_writes:
+                break
 
     assert number_of_writes == expected_number_of_writes
 
@@ -85,23 +82,22 @@ async def test_file_watcher_deletes(tmp_path: pathlib.Path) -> None:
     # W: Write
     # D: Delete
     # E: FileWatcher Event
-    async with Selector(file_watcher, write_timer, deletion_timer) as selector:
-        async for selected in selector:
-            if selected_from(selected, write_timer):
-                if number_of_write >= 2 and number_of_events == 0:
-                    continue
-                filename.write_text(f"{selected.value}")
-                number_of_write += 1
-            elif selected_from(selected, deletion_timer):
-                # Avoid removing the file twice
-                if not pathlib.Path(filename).is_file():
-                    continue
-                os.remove(filename)
-                number_of_deletes += 1
-            elif selected_from(selected, file_watcher):
-                number_of_events += 1
-                if number_of_events >= 2:
-                    break
+    async for selected in select(file_watcher, write_timer, deletion_timer):
+        if selected_from(selected, write_timer):
+            if number_of_write >= 2 and number_of_events == 0:
+                continue
+            filename.write_text(f"{selected.value}")
+            number_of_write += 1
+        elif selected_from(selected, deletion_timer):
+            # Avoid removing the file twice
+            if not pathlib.Path(filename).is_file():
+                continue
+            os.remove(filename)
+            number_of_deletes += 1
+        elif selected_from(selected, file_watcher):
+            number_of_events += 1
+            if number_of_events >= 2:
+                break
 
     assert number_of_deletes == 2
     # Can be more because the watcher could take some time to trigger
