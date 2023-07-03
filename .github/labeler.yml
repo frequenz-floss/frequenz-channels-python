@@ -9,6 +9,7 @@
 "part:docs": 
   - "**/*.md"
   - "docs/**"
+  - "examples/**"
   - LICENSE
 
 "part:tests":
@@ -18,14 +19,13 @@
   - "**/*.ini"
   - "**/*.toml"
   - "**/*.yaml"
-  - "*requirements*.txt"
+  - "**/*.yml"
   - ".git*"
   - ".git*/**"
+  - docs/*.py
   - CODEOWNERS
   - MANIFEST.in
-  - docs/mkdocstrings_autoapi.py
   - noxfile.py
-  - setup.py
 
 "part:channels":
   - any:

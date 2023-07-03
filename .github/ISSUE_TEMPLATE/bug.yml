@@ -5,7 +5,9 @@ name: Report something is not working properly 🐛
 description:
   Use this if there is something that is not working properly.  If you are not
   sure or you need help making something work, please ask a question instead.
-labels: priority:❓, type:bug
+labels:
+  - "priority:❓"
+  - "type:bug"
 body:
   - type: markdown
     attributes:
@@ -59,6 +61,6 @@ body:
       label: Extra information
       description:
         Please write here any extra information you think it might be relevant,
-        e.g., if this didn't happened before, or if you suspect where the
-        problem might be.
+        e.g., if this didn't happen before, or if you suspect where the problem
+        might be.
       placeholder: Any extra information you think it might be relevant.
