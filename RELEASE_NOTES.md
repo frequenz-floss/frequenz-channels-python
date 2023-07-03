@@ -1,4 +1,4 @@
-# Frequenz Channels Release Notes
+# Frequenz channels Release Notes
 
 ## Summary
 

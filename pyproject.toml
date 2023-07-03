@@ -1,14 +1,20 @@
-[build-system]
-requires = ["setuptools == 65.3.0", "setuptools_scm[toml] == 7.0.5", "wheel"]
-build-backend = "setuptools.build_meta"
+# License: MIT
+# Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
+[build-system]
+requires = [
+  "setuptools == 67.7.2",
+  "setuptools_scm[toml] == 7.1.0",
+  "frequenz-repo-config[lib] == 0.3.0",
+]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "frequenz-channels"
 description = "Channel implementations for Python"
 readme = "README.md"
 license = { text = "MIT" }
-keywords = ["frequenz", "channel"]
+keywords = ["frequenz", "python", "lib", "channels", "channel"]
 classifiers = [
   "Development Status :: 3 - Alpha",
   "Intended Audience :: Developers",
@@ -16,9 +22,13 @@ classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
   "Topic :: Software Development :: Libraries",
+  "Typing :: Typed",
 ]
 requires-python = ">= 3.11, < 4"
-dependencies = ["watchfiles >= 0.15.0, < 0.20.0"]
+dependencies = [
+  "typing-extensions >= 4.5.0, < 5",
+  "watchfiles >= 0.15.0, < 0.20.0",
+]
 dynamic = ["version"]
 
 [[project.authors]]
@@ -26,7 +36,13 @@ name = "Frequenz Energy-as-a-Service GmbH"
 email = "floss@frequenz.com"
 
 [project.optional-dependencies]
-docs = [
+dev-docstrings = [
+  "pydocstyle == 6.3.0",
+  "darglint == 1.8.1",
+  "tomli == 2.0.1",      # Needed by pydocstyle to read pyproject.toml
+]
+dev-formatting = ["black == 23.3.0", "isort == 5.12.0"]
+dev-mkdocs = [
   "mike == 1.1.2",
   "mkdocs-gen-files == 0.5.0",
   "mkdocs-literate-nav == 0.6.0",
@@ -34,18 +50,46 @@ docs = [
   "mkdocs-section-index == 0.3.5",
   "mkdocstrings[python] == 0.22.0",
 ]
+dev-mypy = [
+  "mypy == 1.2.0",
+  # For checking the noxfile, docs/ script, and tests
+  "frequenz-channels[dev-mkdocs,dev-noxfile,dev-pytest]",
+]
+dev-noxfile = ["nox == 2023.4.22", "frequenz-repo-config[lib] == 0.3.0"]
+dev-pylint = [
+  "pylint == 2.17.3",
+  # For checking the noxfile, docs/ script, and tests
+  "frequenz-channels[dev-mkdocs,dev-noxfile,dev-pytest]",
+]
+dev-pytest = [
+  "pytest == 7.3.1",
+  "async-solipsism == 0.5",
+  "hypothesis == 6.80.0",
+  "pytest-asyncio == 0.21.0",
+  "pytest-mock == 3.10.0",
+  # For checking docs examples
+  "sybil == 5.0.2",
+  "pylint == 2.17.3",
+]
+dev = [
+  "frequenz-channels[dev-mkdocs,dev-docstrings,dev-formatting,dev-mkdocs,dev-mypy,dev-noxfile,dev-pylint,dev-pytest]",
+]
 
 [project.urls]
 Changelog = "https://github.com/frequenz-floss/frequenz-channels-python/releases"
-Repository = "https://github.com/frequenz-floss/frequenz-channels-python"
 Issues = "https://github.com/frequenz-floss/frequenz-channels-python/issues"
+Repository = "https://github.com/frequenz-floss/frequenz-channels-python"
 Support = "https://github.com/frequenz-floss/frequenz-channels-python/discussions/categories/support"
 
-[tool.setuptools]
-include-package-data = true
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
 
-[tool.setuptools_scm]
-version_scheme = "post-release"
+[tool.isort]
+profile = "black"
+line_length = 88
+src_paths = ["src", "examples", "tests"]
 
 [tool.pylint.similarities]
 ignore-comments = ['yes']
@@ -54,17 +98,15 @@ ignore-imports = ['no']
 min-similarity-lines = 40
 
 [tool.pylint.messages_control]
-# disable wrong-import-order, ungrouped-imports because it conflicts with isort
-disable = ["too-few-public-methods", "wrong-import-order", "ungrouped-imports"]
-[tool.pylint.'DESIGN']
-max-attributes = 12
-
-[tool.isort]
-profile = "black"
-line_length = 88
-src_paths = ["src", "examples", "tests"]
+disable = [
+  "too-few-public-methods",
+  # disabled because it conflicts with isort
+  "wrong-import-order",
+  "ungrouped-imports",
+]
 
 [tool.pytest.ini_options]
+testpaths = ["tests", "src"] # src for docs examples
 asyncio_mode = "auto"
 required_plugins = ["pytest-asyncio", "pytest-mock"]
 markers = [
@@ -72,5 +114,8 @@ markers = [
 ]
 
 [[tool.mypy.overrides]]
-module = ["async_solipsism", "async_solipsism.*"]
+module = ["async_solipsism", "async_solipsism.*", "sybil", "sybil.*"]
 ignore_missing_imports = true
+
+[tool.setuptools_scm]
+version_scheme = "post-release"
