@@ -49,6 +49,7 @@ dev-mkdocs = [
   "mkdocs-material == 9.1.17",
   "mkdocs-section-index == 0.3.5",
   "mkdocstrings[python] == 0.22.0",
+  "frequenz-repo-config[lib] == 0.3.0",
 ]
 dev-mypy = [
   "mypy == 1.2.0",
