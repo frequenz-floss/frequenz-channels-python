@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Frequenz's channels implementation for Python.">
+        <meta name="description" content="Channel implementations for Python">
       
       
         <meta name="author" content="Frequenz Energy-as-a-Service GmbH">
@@ -21,7 +21,7 @@
     
     
       
-        <title>Development - Frequenz's channels for Python</title>
+        <title>Contributing - Frequenz channels</title>
       
     
     
@@ -94,7 +94,7 @@
             <div class="md-banner__inner md-grid md-typeset">
               
   You're not viewing the latest (stable) version.
-  <a href="../.."> 
+  <a href="../..">
     <strong>Click here to go to latest (stable) version</strong>
   </a>
 
@@ -109,7 +109,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="Frequenz&#39;s channels for Python" class="md-header__button md-logo" aria-label="Frequenz's channels for Python" data-md-component="logo">
+    <a href=".." title="Frequenz channels" class="md-header__button md-logo" aria-label="Frequenz channels" data-md-component="logo">
       
   <img src="../logo.png" alt="logo">
 
@@ -121,13 +121,13 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Frequenz's channels for Python
+            Frequenz channels
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Development
+              Contributing
             
           </span>
         </div>
@@ -259,7 +259,7 @@
 
   <li class="md-tabs__item">
     <a href="./" class="md-tabs__link md-tabs__link--active">
-      Development
+      Contributing
     </a>
   </li>
 
@@ -285,12 +285,12 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="Frequenz&#39;s channels for Python" class="md-nav__button md-logo" aria-label="Frequenz's channels for Python" data-md-component="logo">
+    <a href=".." title="Frequenz channels" class="md-nav__button md-logo" aria-label="Frequenz channels" data-md-component="logo">
       
   <img src="../logo.png" alt="logo">
 
     </a>
-    Frequenz's channels for Python
+    Frequenz channels
   </label>
   
     <div class="md-nav__source">
@@ -477,12 +477,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Development
+          Contributing
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Development
+        Contributing
       </a>
       
         
@@ -511,6 +511,26 @@
   <a href="#local-development" class="md-nav__link">
     Local development
   </a>
+  
+    <nav class="md-nav" aria-label="Local development">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-tests-checks-individually" class="md-nav__link">
+    Running tests / checks individually
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-the-documentation" class="md-nav__link">
+    Building the documentation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -567,6 +587,26 @@
     Local development
   </a>
   
+    <nav class="md-nav" aria-label="Local development">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-tests-checks-individually" class="md-nav__link">
+    Running tests / checks individually
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-the-documentation" class="md-nav__link">
+    Building the documentation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -594,7 +634,7 @@
   
 
 
-<h1 id="contributing-to-frequenz-channels">Contributing to <code>frequenz-channels</code><a class="headerlink" href="#contributing-to-frequenz-channels" title="Permanent link">¤</a></h1>
+<h1 id="contributing-to-frequenz-channels">Contributing to Frequenz channels<a class="headerlink" href="#contributing-to-frequenz-channels" title="Permanent link">¤</a></h1>
 <h2 id="build">Build<a class="headerlink" href="#build" title="Permanent link">¤</a></h2>
 <p>You can use <code>build</code> to simply build the source and binary distribution:</p>
 <div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>build
@@ -605,12 +645,36 @@ python<span class="w"> </span>-m<span class="w"> </span>build
 all the dependencies too):</p>
 <div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
 </code></pre></div>
-<p>You can also use <code>nox</code> to run the tests and other checks:</p>
-<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>nox
+<p>Or you can install all development dependencies (<code>mypy</code>, <code>pylint</code>, <code>pytest</code>,
+etc.) in one go too:
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>dev<span class="o">]</span>
+</code></pre></div></p>
+<p>If you don't want to install all the dependencies, you can also use <code>nox</code> to
+run the tests and other checks creating its own virtual environments:</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.<span class="o">[</span>dev-noxfile<span class="o">]</span>
 nox
 </code></pre></div>
-<p>To build the documentation, first install the dependencies:</p>
-<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>docs<span class="o">]</span>
+<p>You can also use <code>nox -R</code> to reuse the current testing environment to speed up
+test at the expense of a higher chance to end up with a dirty test environment.</p>
+<h3 id="running-tests-checks-individually">Running tests / checks individually<a class="headerlink" href="#running-tests-checks-individually" title="Permanent link">¤</a></h3>
+<p>For a better development test cycle you can install the runtime and test
+dependencies and run <code>pytest</code> manually.</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>.<span class="o">[</span>dev-pytest<span class="o">]</span><span class="w">  </span><span class="c1"># included in .[dev] too</span>
+
+<span class="c1"># And for example</span>
+pytest<span class="w"> </span>tests/test_*.py
+</code></pre></div>
+<p>Or you can use <code>nox</code>:</p>
+<div class="highlight"><pre><span></span><code>nox<span class="w"> </span>-R<span class="w"> </span>-s<span class="w"> </span>pytest<span class="w"> </span>--<span class="w"> </span>test/test_*.py
+</code></pre></div>
+<p>The same appliest to <code>pylint</code> or <code>mypy</code> for example:</p>
+<div class="highlight"><pre><span></span><code>nox<span class="w"> </span>-R<span class="w"> </span>-s<span class="w"> </span>pylint<span class="w"> </span>--<span class="w"> </span>test/test_*.py
+nox<span class="w"> </span>-R<span class="w"> </span>-s<span class="w"> </span>mypy<span class="w"> </span>--<span class="w"> </span>test/test_*.py
+</code></pre></div>
+<h3 id="building-the-documentation">Building the documentation<a class="headerlink" href="#building-the-documentation" title="Permanent link">¤</a></h3>
+<p>To build the documentation, first install the dependencies (if you didn't
+install all <code>dev</code> dependencies):</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.<span class="o">[</span>dev-mkdocs<span class="o">]</span>
 </code></pre></div>
 <p>Then you can build the documentation (it will be written in the <code>site/</code>
 directory):</p>
@@ -654,9 +718,9 @@ GitHub pages produced for your fork.</p>
 </li>
 <li>
 <p>Update the <code>RELEASE_NOTES.md</code> file if it is not complete, up to date, and
-   clean from template comments (<code>&lt;!-- ... -&gt;</code>) and empty sections. Submit
-   a pull request if an update is needed, wait until it is merged, and update
-   the latest head you want to create a release from to get the new merged pull
+   remove template comments (<code>&lt;!-- ... -&gt;</code>) and empty sections. Submit a pull
+   request if an update is needed, wait until it is merged, and update the
+   latest head you want to create a release from to get the new merged pull
    request.</p>
 </li>
 <li>
@@ -665,7 +729,7 @@ GitHub pages produced for your fork.</p>
    for example:</p>
 </li>
 </ol>
-<div class="highlight"><pre><span></span><code>git<span class="w"> </span>tag<span class="w"> </span>-s<span class="w"> </span>-F<span class="w"> </span>RELEASE_NOTES.md<span class="w"> </span>v0.0.1
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>tag<span class="w"> </span>-s<span class="w"> </span>--cleanup<span class="o">=</span>whitespace<span class="w"> </span>-F<span class="w"> </span>RELEASE_NOTES.md<span class="w"> </span>v0.0.1
 </code></pre></div>
 <ol>
 <li>
@@ -675,10 +739,9 @@ GitHub pages produced for your fork.</p>
 <p>A GitHub action will test the tag and if all goes well it will create
    a <a href="https://github.com/frequenz-floss/frequenz-channels-python/releases">GitHub
    Release</a>,
-   create a new
-   <a href="https://github.com/frequenz-floss/frequenz-channels-python/discussions/categories/announcements">announcement</a>
-   about the release, and upload a new package to
-   <a href="https://pypi.org/project/frequenz-channels/">PyPI</a> automatically.</p>
+   and upload a new package to
+   <a href="https://pypi.org/project/frequenz-channels/">PyPI</a>
+   automatically.</p>
 </li>
 <li>
 <p>Once this is done, reset the <code>RELEASE_NOTES.md</code> with the template:</p>
@@ -717,7 +780,7 @@ GitHub pages produced for your fork.</p>
       <div class="md-copyright">
   
     <div class="md-copyright__highlight">
-      Frequenz Energy-as-a-Service GmbH
+      Copyright © 2022 Frequenz Energy-as-a-Service GmbH
     </div>
   
   
