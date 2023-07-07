@@ -25,8 +25,13 @@ class FileWatcher(Receiver["FileWatcher.Event"]):
         """Available types of changes to watch for."""
 
         CREATE = Change.added
+        """A new file was created."""
+
         MODIFY = Change.modified
+        """An existing file was modified."""
+
         DELETE = Change.deleted
+        """An existing file was deleted."""
 
     @dataclass(frozen=True)
     class Event:
