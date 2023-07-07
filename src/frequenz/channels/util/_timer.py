@@ -270,36 +270,49 @@ class SkipMissedAndDrift(MissedTickPolicy):
 class Timer(Receiver[timedelta]):
     """A timer receiver that triggers every `interval` time.
 
-    The timer as microseconds resolution, so the `interval` must be at least
+    The timer as microseconds resolution, so the
+    [`interval`][frequenz.channels.util.Timer.interval] must be at least
     1 microsecond.
 
-    The message it produces is a `timedelta` containing the drift of the timer,
-    i.e. the difference between when the timer should have triggered and the time
-    when it actually triggered.
+    The message it produces is a [`timedelta`][datetime.timedelta] containing the drift
+    of the timer, i.e. the difference between when the timer should have triggered and
+    the time when it actually triggered.
 
     This drift will likely never be `0`, because if there is a task that is
     running when it should trigger, the timer will be delayed. In this case the
     drift will be positive. A negative drift should be technically impossible,
-    as the timer uses `asyncio`s loop monotonic clock.
+    as the timer uses [`asyncio`][asyncio]s loop monotonic clock.
 
-    If the timer is delayed too much, then the timer will behave according to
-    the `missed_tick_policy`. Missing ticks might or might not trigger
-    a message and the drift could be accumulated or not depending on the
-    chosen policy.
+    If the timer is delayed too much, then the timer will behave according to the
+    [`missed_tick_policy`][frequenz.channels.util.Timer.missed_tick_policy]. Missing
+    ticks might or might not trigger a message and the drift could be accumulated or not
+    depending on the chosen policy.
 
-    The timer accepts an optional `loop`, which will be used to track the time.
-    If `loop` is `None`, then the running loop will be used (if there is no
-    running loop most calls will raise a `RuntimeError`).
+    These are the currently built-in available policies:
 
-    Starting the timer can be delayed if necessary by using `auto_start=False`
-    (for example until we have a running loop). A call to `reset()`, `ready()`,
-    `receive()` or the async iterator interface to await for a new message will
-    start the timer.
+    * [`SkipMissedAndDrift`][frequenz.channels.util.SkipMissedAndDrift]
+    * [`SkipMissedAndResync`][frequenz.channels.util.SkipMissedAndResync]
+    * [`TriggerAllMissed`][frequenz.channels.util.TriggerAllMissed]
 
     For the most common cases, a specialized constructor is provided:
 
-    * [`periodic()`][frequenz.channels.util.Timer.periodic]
-    * [`timeout()`][frequenz.channels.util.Timer.timeout]
+    * [`periodic()`][frequenz.channels.util.Timer.periodic] (uses the
+      [`TriggerAllMissed`][frequenz.channels.util.TriggerAllMissed] or
+      [`SkipMissedAndResync`][frequenz.channels.util.SkipMissedAndResync] policy)
+    * [`timeout()`][frequenz.channels.util.Timer.timeout] (uses the
+      [`SkipMissedAndDrift`][frequenz.channels.util.SkipMissedAndDrift] policy)
+
+    The timer accepts an optional [`loop`][frequenz.channels.util.Timer.loop], which
+    will be used to track the time. If `loop` is `None`, then the running loop will be
+    used (if there is no running loop most calls will raise
+    a [`RuntimeError`][RuntimeError]).
+
+    Starting the timer can be delayed if necessary by using `auto_start=False`
+    (for example until we have a running loop). A call to
+    [`reset()`][frequenz.channels.util.Timer.reset],
+    [`ready()`][frequenz.channels.util.Timer.ready],
+    [`receive()`][frequenz.channels.util.Timer.receive] or the async iterator interface
+    to await for a new message will start the timer.
 
     Example: Periodic timer example
         ```python
