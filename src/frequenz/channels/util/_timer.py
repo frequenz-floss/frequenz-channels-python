@@ -270,7 +270,7 @@ class SkipMissedAndDrift(MissedTickPolicy):
 class Timer(Receiver[timedelta]):
     """A timer receiver that triggers every `interval` time.
 
-    The timer as microseconds resolution, so the
+    The timer has microseconds resolution, so the
     [`interval`][frequenz.channels.util.Timer.interval] must be at least
     1 microsecond.
 
