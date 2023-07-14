@@ -18,7 +18,7 @@ _T = TypeVar("_T")
 
 
 class Selected(Generic[_T]):
-    """A result of a [`select`][frequenz.channels.util.select] iteration.
+    """A result of a [`select()`][frequenz.channels.util.select] iteration.
 
     The selected receiver is consumed immediately and the received value is stored in
     the instance, unless there was an exception while receiving the value, in which case
@@ -28,7 +28,7 @@ class Selected(Generic[_T]):
     [`selected_from()`][frequenz.channels.util.selected_from] function to determine
     which receiver was selected.
 
-    Please see [`select`][frequenz.channels.util.select] for an example.
+    Please see [`select()`][frequenz.channels.util.select] for an example.
     """
 
     class _EmptyResult:
@@ -141,7 +141,7 @@ class Selected(Generic[_T]):
 def selected_from(
     selected: Selected[Any], receiver: Receiver[_T]
 ) -> TypeGuard[Selected[_T]]:
-    """Check if the given receiver was selected by [`select`][frequenz.channels.util.select].
+    """Check if the given receiver was selected by [`select()`][frequenz.channels.util.select].
 
     This function is used in conjunction with the
     [`Selected`][frequenz.channels.util.Selected] class to determine which receiver was
@@ -150,7 +150,7 @@ def selected_from(
     It also works as a [type guard][typing.TypeGuard] to narrow the type of the
     `Selected` instance to the type of the receiver.
 
-    Please see [`select`][frequenz.channels.util.select] for an example.
+    Please see [`select()`][frequenz.channels.util.select] for an example.
 
     Args:
         selected: The result of a `select()` iteration.
@@ -165,7 +165,7 @@ def selected_from(
 
 
 class SelectError(BaseException):
-    """A base exception for [`select`][frequenz.channels.util.select].
+    """A base exception for [`select()`][frequenz.channels.util.select].
 
     This exception is raised when a `select()` iteration fails.  It is raised as
     a single exception when one receiver fails during normal operation (while calling
@@ -196,7 +196,7 @@ class UnhandledSelectedError(SelectError, Generic[_T]):
 class SelectErrorGroup(BaseExceptionGroup[BaseException], SelectError):
     """An exception group for [`select()`][frequenz.channels.util.select] operation.
 
-    This exception group is raised when a [`select()`] loops fails while cleaning up
+    This exception group is raised when a `select()` loops fails while cleaning up
     runing tasts to check for ready receivers.
     """
 
