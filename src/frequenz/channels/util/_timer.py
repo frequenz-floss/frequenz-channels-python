@@ -283,7 +283,7 @@ class Timer(Receiver[timedelta]):
     drift will be positive. A negative drift should be technically impossible,
     as the timer uses [`asyncio`][asyncio]s loop monotonic clock.
 
-    If the timer is delayed too much, then the timer will behave according to the
+    If the timer is delayed too much, then it will behave according to the
     [`missed_tick_policy`][frequenz.channels.util.Timer.missed_tick_policy]. Missing
     ticks might or might not trigger a message and the drift could be accumulated or not
     depending on the chosen policy.
