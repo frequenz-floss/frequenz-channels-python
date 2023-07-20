@@ -21,7 +21,8 @@
       "local_extensions.pypi_package_name",
       "local_extensions.python_package",
       "local_extensions.src_path",
-      "local_extensions.title"
+      "local_extensions.title",
+      "local_extensions.as_identifier"
     ],
     "_template": "gh:frequenz-floss/frequenz-repo-config-python"
   }
