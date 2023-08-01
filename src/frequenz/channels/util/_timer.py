@@ -391,6 +391,7 @@ class Timer(Receiver[timedelta]):
         /,
         *,
         auto_start: bool = True,
+        start_delay: timedelta = timedelta(0),
         loop: asyncio.AbstractEventLoop | None = None,
     ) -> None:
         """Create an instance.
@@ -408,6 +409,9 @@ class Timer(Receiver[timedelta]):
                 instance is created. This can only be `True` if there is
                 already a running loop or an explicit `loop` that is running
                 was passed.
+            start_delay: The delay before the timer should start. If `auto_start` is
+                `False`, an exception is raised. This has microseconds resolution,
+                anything smaller than a microsecond means no delay.
             loop: The event loop to use to track time. If `None`,
                 `asyncio.get_running_loop()` will be used.
 
@@ -415,11 +419,17 @@ class Timer(Receiver[timedelta]):
             RuntimeError: if it was called without a loop and there is no
                 running loop.
             ValueError: if `interval` is not positive or is smaller than 1
-                microsecond.
+                microsecond; if `start_delay` is negative or `start_delay` was specified
+                but `auto_start` is `False`.
         """
         if interval < timedelta(microseconds=1):
             raise ValueError(
                 f"The `interval` must be positive and at least 1 microsecond, not {interval}"
+            )
+
+        if start_delay > timedelta(0) and auto_start is False:
+            raise ValueError(
+                "`auto_start` must be `True` if a `start_delay` is specified"
             )
 
         self._interval: int = _to_microseconds(interval)
@@ -470,7 +480,7 @@ class Timer(Receiver[timedelta]):
         """
 
         if auto_start:
-            self.reset()
+            self.reset(start_delay=start_delay)
 
     @classmethod
     def timeout(
@@ -479,6 +489,7 @@ class Timer(Receiver[timedelta]):
         /,
         *,
         auto_start: bool = True,
+        start_delay: timedelta = timedelta(0),
         loop: asyncio.AbstractEventLoop | None = None,
     ) -> Timer:
         """Create a timer useful for tracking timeouts.
@@ -495,6 +506,9 @@ class Timer(Receiver[timedelta]):
                 instance is created. This can only be `True` if there is
                 already a running loop or an explicit `loop` that is running
                 was passed.
+            start_delay: The delay before the timer should start. If `auto_start` is
+                `False`, an exception is raised. This has microseconds resolution,
+                anything smaller than a microsecond means no delay.
             loop: The event loop to use to track time. If `None`,
                 `asyncio.get_running_loop()` will be used.
 
@@ -505,12 +519,14 @@ class Timer(Receiver[timedelta]):
             RuntimeError: if it was called without a loop and there is no
                 running loop.
             ValueError: if `interval` is not positive or is smaller than 1
-                microsecond.
+                microsecond; if `start_delay` is negative or `start_delay` was specified
+                but `auto_start` is `False`.
         """
         return Timer(
             delay,
             SkipMissedAndDrift(delay_tolerance=timedelta(0)),
             auto_start=auto_start,
+            start_delay=start_delay,
             loop=loop,
         )
 
@@ -522,6 +538,7 @@ class Timer(Receiver[timedelta]):
         *,
         skip_missed_ticks: bool = False,
         auto_start: bool = True,
+        start_delay: timedelta = timedelta(0),
         loop: asyncio.AbstractEventLoop | None = None,
     ) -> Timer:
         """Create a periodic timer.
@@ -541,6 +558,9 @@ class Timer(Receiver[timedelta]):
                 instance is created. This can only be `True` if there is
                 already a running loop or an explicit `loop` that is running
                 was passed.
+            start_delay: The delay before the timer should start. If `auto_start` is
+                `False`, an exception is raised. This has microseconds resolution,
+                anything smaller than a microsecond means no delay.
             loop: The event loop to use to track time. If `None`,
                 `asyncio.get_running_loop()` will be used.
 
@@ -551,7 +571,8 @@ class Timer(Receiver[timedelta]):
             RuntimeError: if it was called without a loop and there is no
                 running loop.
             ValueError: if `interval` is not positive or is smaller than 1
-                microsecond.
+                microsecond; if `start_delay` is negative or `start_delay` was specified
+                but `auto_start` is `False`.
         """
         missed_tick_policy = (
             SkipMissedAndResync() if skip_missed_ticks else TriggerAllMissed()
@@ -560,6 +581,7 @@ class Timer(Receiver[timedelta]):
             period,
             missed_tick_policy,
             auto_start=auto_start,
+            start_delay=start_delay,
             loop=loop,
         )
 
@@ -601,19 +623,28 @@ class Timer(Receiver[timedelta]):
         """
         return not self._stopped
 
-    def reset(self) -> None:
-        """Reset the timer to start timing from now.
+    def reset(self, *, start_delay: timedelta = timedelta(0)) -> None:
+        """Reset the timer to start timing from now (plus an optional delay).
 
         If the timer was stopped, or not started yet, it will be started.
 
-        This can only be called with a running loop, see the class
-        documentation for more details.
+        This can only be called with a running loop, see the class documentation for
+        more details.
+
+        Args:
+            start_delay: The delay before the timer should start. This has microseconds
+                resolution, anything smaller than a microsecond means no delay.
 
         Raises:
             RuntimeError: if it was called without a running loop.
+            ValueError: if `start_delay` is negative.
         """
+        start_delay_ms = _to_microseconds(start_delay)
+
+        if start_delay_ms < 0:
+            raise ValueError(f"`start_delay` can't be negative, got {start_delay}")
         self._stopped = False
-        self._next_tick_time = self._now() + self._interval
+        self._next_tick_time = self._now() + start_delay_ms + self._interval
         self._current_drift = None
 
     def stop(self) -> None:

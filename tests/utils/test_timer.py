@@ -296,12 +296,51 @@ async def test_timer_contruction_periodic_custom_args() -> None:
         timedelta(seconds=5.0),
         skip_missed_ticks=True,
         auto_start=True,
+        start_delay=timedelta(seconds=1.0),
         loop=None,
     )
     assert timer.interval == timedelta(seconds=5.0)
     assert isinstance(timer.missed_tick_policy, SkipMissedAndResync)
     assert timer.loop is asyncio.get_running_loop()
     assert timer.is_running is True
+
+
+async def test_timer_contruction_wrong_args() -> None:
+    """Test the construction of a timeout timer with wrong arguments."""
+    with pytest.raises(
+        ValueError,
+        match="^The `interval` must be positive and at least 1 microsecond, not -1 day, 23:59:55$",
+    ):
+        _ = Timer.periodic(
+            timedelta(seconds=-5.0),
+            skip_missed_ticks=True,
+            auto_start=True,
+            loop=None,
+        )
+
+    with pytest.raises(
+        ValueError,
+        match="^`start_delay` can't be negative, got -1 day, 23:59:59$",
+    ):
+        _ = Timer.periodic(
+            timedelta(seconds=5.0),
+            skip_missed_ticks=True,
+            auto_start=True,
+            start_delay=timedelta(seconds=-1.0),
+            loop=None,
+        )
+
+    with pytest.raises(
+        ValueError,
+        match="^`auto_start` must be `True` if a `start_delay` is specified$",
+    ):
+        _ = Timer.periodic(
+            timedelta(seconds=5.0),
+            skip_missed_ticks=True,
+            auto_start=False,
+            start_delay=timedelta(seconds=1.0),
+            loop=None,
+        )
 
 
 async def test_timer_autostart(
@@ -317,6 +356,28 @@ async def test_timer_autostart(
     drift = await timer.receive()
     assert drift == pytest.approx(timedelta(seconds=0.0))
     assert event_loop.time() == pytest.approx(1.0)
+
+
+async def test_timer_autostart_with_delay(
+    event_loop: async_solipsism.EventLoop,  # pylint: disable=redefined-outer-name
+) -> None:
+    """Test the autostart of a periodic timer with a delay."""
+    timer = Timer(
+        timedelta(seconds=1.0), TriggerAllMissed(), start_delay=timedelta(seconds=0.5)
+    )
+
+    # We sleep some time, less than the interval plus the delay, and then receive from
+    # the timer, since it was automatically started at time 0.5, it should trigger at
+    # time 1.5 without any drift
+    await asyncio.sleep(1.2)
+    drift = await timer.receive()
+    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert event_loop.time() == pytest.approx(1.5)
+
+    # Still the next tick should be at 2.5 (every second)
+    drift = await timer.receive()
+    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert event_loop.time() == pytest.approx(2.5)
 
 
 class _StartMethod(enum.Enum):
