@@ -417,6 +417,11 @@ class Timer(Receiver[timedelta]):
             ValueError: if `interval` is not positive or is smaller than 1
                 microsecond.
         """
+        if interval < timedelta(microseconds=1):
+            raise ValueError(
+                f"The `interval` must be positive and at least 1 microsecond, not {interval}"
+            )
+
         self._interval: int = _to_microseconds(interval)
         """The time to between timer ticks."""
 
@@ -463,12 +468,6 @@ class Timer(Receiver[timedelta]):
         `consume()` will set it back to `None` to tell `ready()` that it needs
         to wait again.
         """
-
-        if self._interval <= 0:
-            raise ValueError(
-                "The `interval` must be positive and at least 1 microsecond, "
-                f"not {interval} ({self._interval} microseconds)"
-            )
 
         if auto_start:
             self.reset()
