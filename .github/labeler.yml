@@ -22,7 +22,7 @@
   - "**/*.yml"
   - ".git*"
   - ".git*/**"
-  - docs/*.py
+  - "docs/*.py"
   - CODEOWNERS
   - MANIFEST.in
   - noxfile.py
