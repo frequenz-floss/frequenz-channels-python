@@ -103,6 +103,7 @@ plugins:
             show_root_members_full_path: true
             show_source: true
           import:
+            # See https://mkdocstrings.github.io/python/usage/#import for details
             - https://docs.python.org/3/objects.inv
             - https://typing-extensions.readthedocs.io/en/stable/objects.inv
   - search
