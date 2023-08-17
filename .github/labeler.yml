@@ -13,6 +13,7 @@
   - LICENSE
 
 "part:tests":
+  - "**/conftest.py"
   - "tests/**"
 
 "part:tooling":
@@ -20,6 +21,7 @@
   - "**/*.toml"
   - "**/*.yaml"
   - "**/*.yml"
+  - "**/conftest.py"
   - ".editorconfig"
   - ".git*"
   - ".git*/**"

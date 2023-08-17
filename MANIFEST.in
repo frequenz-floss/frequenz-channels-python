@@ -3,6 +3,7 @@ exclude .darglint
 exclude .editorconfig
 exclude noxfile.py
 exclude CODEOWNERS
+exclude src/conftest.py
 recursive-exclude .github *
 recursive-exclude tests *
 recursive-exclude benchmarks *
