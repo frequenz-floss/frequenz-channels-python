@@ -68,9 +68,6 @@ markdown_extensions:
       anchor_linenums: true
       line_spans: __span
       pygments_lang_class: true
-  - pymdownx.superfences
-  - pymdownx.tasklist
-  - pymdownx.tabbed
   - pymdownx.keys
   - pymdownx.snippets:
       check_paths: true
@@ -79,6 +76,8 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: "!!python/name:pymdownx.superfences.fence_code_format"
+  - pymdownx.tabbed
+  - pymdownx.tasklist
   - toc:
       permalink: "¤"
 
