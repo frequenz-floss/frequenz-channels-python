@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import weakref
 from asyncio import Condition
@@ -139,6 +140,15 @@ class Broadcast(Generic[T]):
         self.receivers[uuid] = weakref.ref(recv)
         if self._resend_latest and self._latest is not None:
             recv.enqueue(self._latest)
+
+        if len(self.receivers) == 1:
+
+            async def notify() -> None:
+                async with self.recv_cv:
+                    self.recv_cv.notify_all()
+
+            asyncio.create_task(notify())
+
         return recv
 
     def new_peekable(self) -> Peekable[T]:
@@ -152,6 +162,16 @@ class Broadcast(Generic[T]):
             A Peekable to peek into the broadcast channel with.
         """
         return Peekable(self)
+
+    async def wait_for_receiver(self) -> None:
+        """Wait until there is at least one receiver on the channel.
+
+        This method is useful when you want to wait for a receiver to be created
+        before sending data to the channel.
+        """
+        while len(self.receivers) == 0:
+            async with self.recv_cv:
+                await self.recv_cv.wait()
 
 
 class Sender(BaseSender[T]):
