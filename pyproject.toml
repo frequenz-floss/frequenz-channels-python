@@ -90,7 +90,7 @@ include = '\.pyi?$'
 [tool.isort]
 profile = "black"
 line_length = 88
-src_paths = ["src", "examples", "tests"]
+src_paths = ["benchmarks", "examples", "src", "tests"]
 
 [tool.pylint.similarities]
 ignore-comments = ['yes']
