@@ -52,7 +52,7 @@ dev-mkdocs = [
   "frequenz-repo-config[lib] == 0.4.0",
 ]
 dev-mypy = [
-  "mypy == 1.5.0",
+  "mypy == 1.5.1",
   # For checking the noxfile, docs/ script, and tests
   "frequenz-channels[dev-mkdocs,dev-noxfile,dev-pytest]",
 ]
