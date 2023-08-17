@@ -1,5 +1,6 @@
 {
   "cookiecutter": {
+    "Introduction": "",
     "type": "lib",
     "name": "channels",
     "description": "Channel implementations for Python",
