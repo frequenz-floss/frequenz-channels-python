@@ -20,6 +20,7 @@
   - "**/*.toml"
   - "**/*.yaml"
   - "**/*.yml"
+  - ".editorconfig"
   - ".git*"
   - ".git*/**"
   - "docs/*.py"

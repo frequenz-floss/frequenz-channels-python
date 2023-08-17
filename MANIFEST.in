@@ -1,5 +1,6 @@
 exclude .gitignore
 exclude .darglint
+exclude .editorconfig
 exclude noxfile.py
 exclude CODEOWNERS
 recursive-exclude .github *
