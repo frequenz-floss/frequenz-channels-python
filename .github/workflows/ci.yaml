@@ -36,7 +36,7 @@ jobs:
 
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -60,7 +60,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Fetch sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Git user and e-mail
         uses: frequenz-floss/setup-git-user@v2
@@ -166,7 +166,7 @@ jobs:
 
       - name: Fetch sources
         if: steps.mike-metadata.outputs.version
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Git user and e-mail
         if: steps.mike-metadata.outputs.version
