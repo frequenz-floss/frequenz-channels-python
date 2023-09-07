@@ -4,7 +4,6 @@
 """Tests for the Merge implementation."""
 
 import asyncio
-from typing import List
 
 from frequenz.channels import Anycast, Sender
 from frequenz.channels.util import Merge
@@ -26,7 +25,7 @@ async def test_merge() -> None:
     senders = asyncio.create_task(send(chan1.new_sender(), chan2.new_sender()))
 
     merge = Merge(chan1.new_receiver(), chan2.new_receiver())
-    results: List[int] = []
+    results: list[int] = []
     async for item in merge:
         results.append(item)
     await senders
@@ -37,5 +36,5 @@ async def test_merge() -> None:
         # order, where N is the number of channels.  This only works in this
         # example because the `send` method sends values in immeidate
         # succession.
-        assert set((results[idx : idx + 2])) == {ctr + 1, ctr + 101}
+        assert set(results[idx : idx + 2]) == {ctr + 1, ctr + 101}
     assert results[-1] == 1000

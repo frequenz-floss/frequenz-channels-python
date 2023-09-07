@@ -7,7 +7,6 @@ Code examples are often wrapped in triple backticks (```) within our docstrings.
 This plugin extracts these code examples and validates them using pylint.
 """
 
-from __future__ import annotations
 
 import ast
 import os

@@ -9,7 +9,7 @@ import logging
 import weakref
 from asyncio import Condition
 from collections import deque
-from typing import Deque, Dict, Generic, Optional
+from typing import Deque, Generic
 from uuid import UUID, uuid4
 
 from ._base_classes import Peekable as BasePeekable
@@ -88,9 +88,9 @@ class Broadcast(Generic[T]):
         self._resend_latest = resend_latest
 
         self.recv_cv: Condition = Condition()
-        self.receivers: Dict[UUID, weakref.ReferenceType[Receiver[T]]] = {}
+        self.receivers: dict[UUID, weakref.ReferenceType[Receiver[T]]] = {}
         self.closed: bool = False
-        self._latest: Optional[T] = None
+        self._latest: T | None = None
 
     async def close(self) -> None:
         """Close the Broadcast channel.
@@ -116,9 +116,7 @@ class Broadcast(Generic[T]):
         """
         return Sender(self)
 
-    def new_receiver(
-        self, name: Optional[str] = None, maxsize: int = 50
-    ) -> Receiver[T]:
+    def new_receiver(self, name: str | None = None, maxsize: int = 50) -> Receiver[T]:
         """Create a new broadcast receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -346,7 +344,7 @@ class Peekable(BasePeekable[T]):
         """
         self._chan = chan
 
-    def peek(self) -> Optional[T]:
+    def peek(self) -> T | None:
         """Return the latest value that was sent to the channel.
 
         Returns:

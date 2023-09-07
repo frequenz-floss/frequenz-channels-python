@@ -4,7 +4,6 @@
 """Tests for the MergeNamed implementation."""
 
 import asyncio
-from typing import List, Tuple
 
 from frequenz.channels import Anycast, Sender
 from frequenz.channels.util import MergeNamed
@@ -27,7 +26,7 @@ async def test_mergenamed() -> None:
     recvs = {"chan1": chan1.new_receiver(), "chan2": chan2.new_receiver()}
 
     merge = MergeNamed(**recvs)
-    results: List[Tuple[str, int]] = []
+    results: list[tuple[str, int]] = []
     async for item in merge:
         results.append(item)
     await senders
@@ -38,7 +37,7 @@ async def test_mergenamed() -> None:
         # order, where N is the number of channels.  This only works in this
         # example because the `send` method sends values in immeidate
         # succession.
-        assert set((results[idx : idx + 2])) == {
+        assert set(results[idx : idx + 2]) == {
             ("chan1", ctr + 1),
             ("chan2", ctr + 101),
         }

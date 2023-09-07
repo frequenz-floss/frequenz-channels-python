@@ -3,10 +3,8 @@
 
 """Tests for the Broadcast implementation."""
 
-from __future__ import annotations
 
 import asyncio
-from typing import Tuple
 
 import pytest
 
@@ -117,7 +115,7 @@ async def test_broadcast_overflow() -> None:
     big_receiver = bcast.new_receiver("named-recv", big_recv_size)
     small_receiver = bcast.new_receiver(None, small_recv_size)
 
-    async def drain_receivers() -> Tuple[int, int]:
+    async def drain_receivers() -> tuple[int, int]:
         big_sum = 0
         small_sum = 0
         while len(big_receiver) > 0:

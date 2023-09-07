@@ -5,13 +5,13 @@
 
 import asyncio
 from collections import deque
-from typing import Any, Deque, Set, Tuple
+from typing import Any, Deque
 
 from .._base_classes import Receiver, T
 from .._exceptions import ReceiverStoppedError
 
 
-class MergeNamed(Receiver[Tuple[str, T]]):
+class MergeNamed(Receiver[tuple[str, T]]):
     """Merge messages coming from multiple named channels into a single stream.
 
     When `MergeNamed` is no longer needed, then it should be stopped using
@@ -25,11 +25,11 @@ class MergeNamed(Receiver[Tuple[str, T]]):
             **kwargs: sequence of channel receivers.
         """
         self._receivers = kwargs
-        self._pending: Set[asyncio.Task[Any]] = {
+        self._pending: set[asyncio.Task[Any]] = {
             asyncio.create_task(recv.__anext__(), name=name)
             for name, recv in self._receivers.items()
         }
-        self._results: Deque[Tuple[str, T]] = deque(maxlen=len(self._receivers))
+        self._results: Deque[tuple[str, T]] = deque(maxlen=len(self._receivers))
 
     def __del__(self) -> None:
         """Cleanup any pending tasks."""
@@ -81,7 +81,7 @@ class MergeNamed(Receiver[Tuple[str, T]]):
                     asyncio.create_task(self._receivers[name].__anext__(), name=name)
                 )
 
-    def consume(self) -> Tuple[str, T]:
+    def consume(self) -> tuple[str, T]:
         """Return the latest value once `ready` is complete.
 
         Returns:

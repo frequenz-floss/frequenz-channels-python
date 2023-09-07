@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from asyncio import Condition
 from collections import deque
-from typing import Deque, Generic, Type
+from typing import Deque, Generic
 
 from ._base_classes import Receiver as BaseReceiver
 from ._base_classes import Sender as BaseSender
@@ -169,7 +169,7 @@ class Receiver(BaseReceiver[T]):
             chan: A reference to the channel that this receiver belongs to.
         """
         self._chan = chan
-        self._next: T | Type[_Empty] = _Empty
+        self._next: T | type[_Empty] = _Empty
 
     async def ready(self) -> bool:
         """Wait until the receiver is ready with a value or an error.

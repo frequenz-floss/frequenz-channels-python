@@ -3,7 +3,6 @@
 
 """Tests for `channel.FileWatcher`."""
 
-from __future__ import annotations
 
 import pathlib
 from collections.abc import AsyncGenerator, Iterator, Sequence
