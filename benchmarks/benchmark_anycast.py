@@ -6,7 +6,8 @@
 import asyncio
 import csv
 import timeit
-from typing import Any, Coroutine, Dict, List, Tuple
+from collections.abc import Coroutine
+from typing import Any, Dict, List, Tuple
 
 from frequenz.channels import Anycast, Receiver, Sender
 
@@ -40,7 +41,7 @@ async def benchmark_anycast(
     Returns:
         int: Total number of messages received by all channels.
     """
-    channels: List[Anycast[int]] = [Anycast(buffer_size) for _ in range(num_channels)]
+    channels: list[Anycast[int]] = [Anycast(buffer_size) for _ in range(num_channels)]
     senders = [
         asyncio.create_task(send_msg(num_messages, bcast.new_sender()))
         for bcast in channels
@@ -68,7 +69,7 @@ async def benchmark_anycast(
     return recv_trackers[0]
 
 
-def time_async_task(task: Coroutine[Any, Any, int]) -> Tuple[float, Any]:
+def time_async_task(task: Coroutine[Any, Any, int]) -> tuple[float, Any]:
     """Run a task and return the time taken and the result.
 
     Args:
@@ -87,7 +88,7 @@ def run_one(
     num_messages: int,
     num_receivers: int,
     buffer_size: int,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Run a single benchmark."""
     runtime, total_msgs = time_async_task(
         benchmark_anycast(num_channels, num_messages, num_receivers, buffer_size)

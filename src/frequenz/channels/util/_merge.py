@@ -44,7 +44,7 @@ class Merge(Receiver[T]):
             *args: sequence of channel receivers.
         """
         self._receivers = {str(id): recv for id, recv in enumerate(args)}
-        self._pending: Set[asyncio.Task[Any]] = {
+        self._pending: set[asyncio.Task[Any]] = {
             asyncio.create_task(recv.__anext__(), name=name)
             for name, recv in self._receivers.items()
         }

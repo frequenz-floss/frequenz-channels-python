@@ -9,7 +9,8 @@ is closed in case of `Receiver` class.
 """
 
 import asyncio
-from typing import Any, AsyncIterator, Generic, TypeGuard, TypeVar
+from collections.abc import AsyncIterator
+from typing import Any, Generic, TypeGuard, TypeVar
 
 from .._base_classes import Receiver
 from .._exceptions import ReceiverStoppedError

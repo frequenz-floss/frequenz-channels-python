@@ -6,8 +6,9 @@
 import asyncio
 import csv
 import timeit
+from collections.abc import Callable, Coroutine
 from functools import partial
-from typing import Any, Callable, Coroutine, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 from frequenz.channels import Broadcast, Receiver, Sender
 
@@ -60,8 +61,8 @@ async def benchmark_broadcast(
     Returns:
         int: Total number of messages received by all receivers.
     """
-    channels: List[Broadcast[int]] = [Broadcast("meter") for _ in range(num_channels)]
-    senders: List[asyncio.Task[Any]] = [
+    channels: list[Broadcast[int]] = [Broadcast("meter") for _ in range(num_channels)]
+    senders: list[asyncio.Task[Any]] = [
         asyncio.create_task(send_msg(num_messages, bcast.new_sender()))
         for bcast in channels
     ]
@@ -103,7 +104,7 @@ async def benchmark_single_task_broadcast(
     Returns:
         int: Total number of messages received by all receivers.
     """
-    channels: List[Broadcast[int]] = [Broadcast("meter") for _ in range(num_channels)]
+    channels: list[Broadcast[int]] = [Broadcast("meter") for _ in range(num_channels)]
     senders = [b.new_sender() for b in channels]
     recv_tracker = 0
 
@@ -122,7 +123,7 @@ async def benchmark_single_task_broadcast(
     return recv_tracker
 
 
-def time_async_task(task: Coroutine[Any, Any, int]) -> Tuple[float, Any]:
+def time_async_task(task: Coroutine[Any, Any, int]) -> tuple[float, Any]:
     """Run a task and return the time taken and the result.
 
     Args:
@@ -144,7 +145,7 @@ def run_one(
     num_receivers: int,
     tasks_used: str,
     interval_between_messages: float,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Run a single benchmark."""
     runtime, total_msgs = time_async_task(
         benchmark_method(num_channels, num_messages, num_receivers)

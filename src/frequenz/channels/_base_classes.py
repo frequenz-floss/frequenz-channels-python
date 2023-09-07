@@ -6,7 +6,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Callable, Generic, Optional, TypeVar
+from collections.abc import Callable
+from typing import Generic, Optional, TypeVar
 
 from ._exceptions import ReceiverStoppedError
 
@@ -145,7 +146,7 @@ class Peekable(ABC, Generic[T]):
     """
 
     @abstractmethod
-    def peek(self) -> Optional[T]:
+    def peek(self) -> T | None:
         """Return the latest value that was sent to the channel.
 
         Returns:
