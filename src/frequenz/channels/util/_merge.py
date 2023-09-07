@@ -5,7 +5,7 @@
 
 import asyncio
 from collections import deque
-from typing import Any, Deque, Set
+from typing import Any, Deque
 
 from .._base_classes import Receiver, T
 from .._exceptions import ReceiverStoppedError

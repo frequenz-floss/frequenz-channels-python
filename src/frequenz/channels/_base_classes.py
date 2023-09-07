@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from collections.abc import Callable
-from typing import Generic, Optional, TypeVar
+from typing import Generic, TypeVar
 
 from ._exceptions import ReceiverStoppedError
 

@@ -8,7 +8,7 @@ import csv
 import timeit
 from collections.abc import Callable, Coroutine
 from functools import partial
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 from frequenz.channels import Broadcast, Receiver, Sender
 

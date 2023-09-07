@@ -7,7 +7,7 @@ import asyncio
 import csv
 import timeit
 from collections.abc import Coroutine
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 from frequenz.channels import Anycast, Receiver, Sender
 

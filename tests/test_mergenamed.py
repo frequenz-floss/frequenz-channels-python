@@ -4,7 +4,6 @@
 """Tests for the MergeNamed implementation."""
 
 import asyncio
-from typing import List, Tuple
 
 from frequenz.channels import Anycast, Sender
 from frequenz.channels.util import MergeNamed

@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from asyncio import Condition
 from collections import deque
-from typing import Deque, Generic, Type
+from typing import Deque, Generic
 
 from ._base_classes import Receiver as BaseReceiver
 from ._base_classes import Sender as BaseSender

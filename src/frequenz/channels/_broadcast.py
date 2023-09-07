@@ -9,7 +9,7 @@ import logging
 import weakref
 from asyncio import Condition
 from collections import deque
-from typing import Deque, Dict, Generic, Optional
+from typing import Deque, Generic
 from uuid import UUID, uuid4
 
 from ._base_classes import Peekable as BasePeekable
