@@ -1,5 +1,6 @@
 {
   "cookiecutter": {
+    "Introduction": "",
     "type": "lib",
     "name": "channels",
     "description": "Channel implementations for Python",
@@ -13,17 +14,6 @@
     "pypi_package_name": "frequenz-channels",
     "github_repo_name": "frequenz-channels-python",
     "default_codeowners": "@frequenz-floss/python-sdk-team",
-    "_extensions": [
-      "jinja2_time.TimeExtension",
-      "local_extensions.default_codeowners",
-      "local_extensions.github_repo_name",
-      "local_extensions.keywords",
-      "local_extensions.pypi_package_name",
-      "local_extensions.python_package",
-      "local_extensions.src_path",
-      "local_extensions.title",
-      "local_extensions.as_identifier"
-    ],
     "_template": "gh:frequenz-floss/frequenz-repo-config-python"
   }
 }
