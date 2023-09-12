@@ -63,7 +63,7 @@ dev-pylint = [
   "frequenz-channels[dev-mkdocs,dev-noxfile,dev-pytest]",
 ]
 dev-pytest = [
-  "pytest == 7.4.1",
+  "pytest == 7.4.2",
   "async-solipsism == 0.5",
   "hypothesis == 6.84.2",
   "pytest-asyncio == 0.21.1",
