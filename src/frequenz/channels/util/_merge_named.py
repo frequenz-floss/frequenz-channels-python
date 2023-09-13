@@ -94,6 +94,6 @@ class MergeNamed(Receiver[tuple[str, T]]):
         if not self._results and not self._pending:
             raise ReceiverStoppedError(self)
 
-        assert self._results, "`consume()` must be preceeded by a call to `ready()`"
+        assert self._results, "`consume()` must be preceded by a call to `ready()`"
 
         return self._results.popleft()

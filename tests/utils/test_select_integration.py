@@ -356,7 +356,7 @@ class TestSelect:
         self,
         start_run_multiple_ready: asyncio.Task[None],  # pylint: disable=unused-argument
     ) -> None:
-        """Test that multiple ready receviers are handled properly.
+        """Test that multiple ready receivers are handled properly.
 
         Also test that the loop waits forever if there are no more receivers ready.
         """
@@ -401,7 +401,7 @@ class TestSelect:
                         assert False, "Should not reach this point"
         except asyncio.TimeoutError:
             assert self.loop.time() == 15
-            # This happened after time == 3, but the loop never resumes becuase
+            # This happened after time == 3, but the loop never resumes because
             # there is nothing ready, so we need to check it after the timeout.
             assert received == {
                 self.recv1.name,

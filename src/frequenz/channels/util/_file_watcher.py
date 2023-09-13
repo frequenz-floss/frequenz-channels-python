@@ -129,7 +129,7 @@ class FileWatcher(Receiver["FileWatcher.Event"]):
         if not self._changes and self._awatch_stopped_exc is not None:
             raise ReceiverStoppedError(self) from self._awatch_stopped_exc
 
-        assert self._changes, "`consume()` must be preceeded by a call to `ready()`"
+        assert self._changes, "`consume()` must be preceded by a call to `ready()`"
         # Tuple of (Change, path) returned by watchfiles
         change, path_str = self._changes.pop()
         return FileWatcher.Event(

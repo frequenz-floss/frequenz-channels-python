@@ -311,7 +311,7 @@ class Receiver(BaseReceiver[T]):
         if not self._q and self._chan.closed:
             raise ReceiverStoppedError(self) from ChannelClosedError(self._chan)
 
-        assert self._q, "`consume()` must be preceeded by a call to `ready()`"
+        assert self._q, "`consume()` must be preceded by a call to `ready()`"
         return self._q.popleft()
 
     def into_peekable(self) -> Peekable[T]:

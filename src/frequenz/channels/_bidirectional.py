@@ -57,7 +57,7 @@ class Bidirectional(Generic[T, U]):
             except SenderError as err:
                 # If this comes from a channel error, then we inject another
                 # ChannelError having the information about the Bidirectional
-                # channel to hide (at least partially) the underlaying
+                # channel to hide (at least partially) the underlying
                 # Broadcast channels we use.
                 if isinstance(err.__cause__, ChannelError):
                     this_chan_error = ChannelError(
@@ -98,7 +98,7 @@ class Bidirectional(Generic[T, U]):
             except ReceiverError as err:
                 # If this comes from a channel error, then we inject another
                 # ChannelError having the information about the Bidirectional
-                # channel to hide (at least partially) the underlaying
+                # channel to hide (at least partially) the underlying
                 # Broadcast channels we use.
                 if isinstance(err.__cause__, ChannelError):
                     this_chan_error = ChannelError(

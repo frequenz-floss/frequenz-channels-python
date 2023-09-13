@@ -211,7 +211,7 @@ def test_policy_skip_missed_and_drift_examples() -> None:
     )
 
 
-async def test_timer_contruction_defaults() -> None:
+async def test_timer_construction_defaults() -> None:
     """Test the construction of a periodic timer with default values."""
     timer = Timer(timedelta(seconds=1.0), TriggerAllMissed())
     assert timer.interval == timedelta(seconds=1.0)
@@ -220,7 +220,7 @@ async def test_timer_contruction_defaults() -> None:
     assert timer.is_running is True
 
 
-def test_timer_contruction_no_async() -> None:
+def test_timer_construction_no_async() -> None:
     """Test the construction outside of async (using a custom loop)."""
     loop = async_solipsism.EventLoop()
     timer = Timer(timedelta(seconds=1.0), TriggerAllMissed(), loop=loop)
@@ -230,13 +230,13 @@ def test_timer_contruction_no_async() -> None:
     assert timer.is_running is True
 
 
-def test_timer_contruction_no_event_loop() -> None:
+def test_timer_construction_no_event_loop() -> None:
     """Test the construction outside of async (without a custom loop) fails."""
     with pytest.raises(RuntimeError, match="no running event loop"):
         Timer(timedelta(seconds=1.0), TriggerAllMissed())
 
 
-async def test_timer_contruction_auto_start() -> None:
+async def test_timer_construction_auto_start() -> None:
     """Test the construction of a periodic timer with auto_start=False."""
     policy = TriggerAllMissed()
     timer = Timer(
@@ -251,7 +251,7 @@ async def test_timer_contruction_auto_start() -> None:
     assert timer.is_running is False
 
 
-async def test_timer_contruction_custom_args() -> None:
+async def test_timer_construction_custom_args() -> None:
     """Test the construction of a periodic timer with custom arguments."""
     policy = TriggerAllMissed()
     timer = Timer(
@@ -266,7 +266,7 @@ async def test_timer_contruction_custom_args() -> None:
     assert timer.is_running is True
 
 
-async def test_timer_contruction_timeout_custom_args() -> None:
+async def test_timer_construction_timeout_custom_args() -> None:
     """Test the construction of a timeout timer with custom arguments."""
     timer = Timer.timeout(
         timedelta(seconds=5.0),
@@ -280,7 +280,7 @@ async def test_timer_contruction_timeout_custom_args() -> None:
     assert timer.is_running is True
 
 
-async def test_timer_contruction_periodic_defaults() -> None:
+async def test_timer_construction_periodic_defaults() -> None:
     """Test the construction of a periodic timer."""
     timer = Timer.periodic(timedelta(seconds=5.0))
     assert timer.interval == timedelta(seconds=5.0)
@@ -289,7 +289,7 @@ async def test_timer_contruction_periodic_defaults() -> None:
     assert timer.is_running is True
 
 
-async def test_timer_contruction_periodic_custom_args() -> None:
+async def test_timer_construction_periodic_custom_args() -> None:
     """Test the construction of a timeout timer with custom arguments."""
     timer = Timer.periodic(
         timedelta(seconds=5.0),
@@ -304,7 +304,7 @@ async def test_timer_contruction_periodic_custom_args() -> None:
     assert timer.is_running is True
 
 
-async def test_timer_contruction_wrong_args() -> None:
+async def test_timer_construction_wrong_args() -> None:
     """Test the construction of a timeout timer with wrong arguments."""
     with pytest.raises(
         ValueError,

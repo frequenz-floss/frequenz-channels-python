@@ -111,7 +111,7 @@ class Anycast(Generic[T]):
 class Sender(BaseSender[T]):
     """A sender to send messages to an Anycast channel.
 
-    Should not be created directly, but through the `Anycast.ggetet_sender()`
+    Should not be created directly, but through the `Anycast.new_sender()`
     method.
     """
 
@@ -211,7 +211,7 @@ class Receiver(BaseReceiver[T]):
 
         assert (
             self._next is not _Empty
-        ), "`consume()` must be preceeded by a call to `ready()`"
+        ), "`consume()` must be preceded by a call to `ready()`"
         # mypy doesn't understand that the assert above ensures that self._next is not
         # _Sentinel.  So we have to use a type ignore here.
         next_val: T = self._next  # type: ignore[assignment]
