@@ -1,7 +1,7 @@
 # License: MIT
 # Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-"""A Channel receiver for watching for new (or modified) files."""
+"""A Channel receiver for watching for new, modified or deleted files."""
 
 from __future__ import annotations
 
@@ -55,6 +55,8 @@ class FileWatcher(Receiver["FileWatcher.Event"]):
                 all event types.
         """
         self.event_types: frozenset[FileWatcher.EventType] = frozenset(event_types)
+        """The types of events to watch for."""
+
         self._stop_event = asyncio.Event()
         self._paths = [
             path if isinstance(path, pathlib.Path) else pathlib.Path(path)

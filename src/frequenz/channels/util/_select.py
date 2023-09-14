@@ -192,6 +192,7 @@ class UnhandledSelectedError(SelectError, Generic[_T]):
         recv = selected._recv  # pylint: disable=protected-access
         super().__init__(f"Selected receiver {recv} was not handled in the if-chain")
         self.selected = selected
+        """The selected receiver that was not handled."""
 
 
 class SelectErrorGroup(BaseExceptionGroup[BaseException], SelectError):

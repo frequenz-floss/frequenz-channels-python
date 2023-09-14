@@ -68,10 +68,34 @@ class Anycast(Generic[T]):
             maxsize: Size of the channel's buffer.
         """
         self.limit: int = maxsize
+        """The maximum number of values that can be stored in the channel's buffer.
+
+        If the length of channel's buffer reaches the limit, then the sender
+        blocks at the [send()][frequenz.channels.Sender.send] method until
+        a value is consumed.
+        """
+
         self.deque: Deque[T] = deque(maxlen=maxsize)
+        """The channel's buffer."""
+
         self.send_cv: Condition = Condition()
+        """The condition to wait for free space in the channel's buffer.
+
+        If the channel's buffer is full, then the sender waits for values to
+        get consumed using this condition until there's some free space
+        available in the channel's buffer.
+        """
+
         self.recv_cv: Condition = Condition()
+        """The condition to wait for values in the channel's buffer.
+
+        If the channel's buffer is empty, then the receiver waits for values
+        using this condition until there's a value available in the channel's
+        buffer.
+        """
+
         self.closed: bool = False
+        """Whether the channel is closed."""
 
     async def close(self) -> None:
         """Close the channel.
@@ -79,7 +103,7 @@ class Anycast(Generic[T]):
         Any further attempts to [send()][frequenz.channels.Sender.send] data
         will return `False`.
 
-        Receivers will still be able to drain the pending items on the channel,
+        Receivers will still be able to drain the pending values on the channel,
         but after that, subsequent
         [receive()][frequenz.channels.Receiver.receive] calls will return `None`
         immediately.
@@ -122,6 +146,7 @@ class Sender(BaseSender[T]):
             chan: A reference to the channel that this sender belongs to.
         """
         self._chan = chan
+        """The channel that this sender belongs to."""
 
     async def send(self, msg: T) -> None:
         """Send a message across the channel.
@@ -169,6 +194,8 @@ class Receiver(BaseReceiver[T]):
             chan: A reference to the channel that this receiver belongs to.
         """
         self._chan = chan
+        """The channel that this receiver belongs to."""
+
         self._next: T | type[_Empty] = _Empty
 
     async def ready(self) -> bool:

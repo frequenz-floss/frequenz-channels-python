@@ -43,6 +43,7 @@ class ChannelError(Error):
         """
         super().__init__(message)
         self.channel: Any = channel
+        """The channel where the error happened."""
 
 
 class ChannelClosedError(ChannelError):
@@ -73,6 +74,7 @@ class SenderError(Error, Generic[T]):
         """
         super().__init__(message)
         self.sender: _base_classes.Sender[T] = sender
+        """The sender where the error happened."""
 
 
 class ReceiverError(Error, Generic[T]):
@@ -91,6 +93,7 @@ class ReceiverError(Error, Generic[T]):
         """
         super().__init__(message)
         self.receiver: _base_classes.Receiver[T] = receiver
+        """The receiver where the error happened."""
 
 
 class ReceiverStoppedError(ReceiverError[T]):

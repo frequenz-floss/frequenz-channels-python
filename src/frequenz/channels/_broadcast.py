@@ -85,12 +85,25 @@ class Broadcast(Generic[T]):
                 to wait for the next message on the channel to arrive.
         """
         self.name: str = name
+        """The name of the broadcast channel.
+
+        Only used for debugging purposes.
+        """
+
         self._resend_latest = resend_latest
+        """Whether to resend the latest value to new receivers."""
 
         self.recv_cv: Condition = Condition()
+        """The condition to wait for data in the channel's buffer."""
+
         self.receivers: dict[UUID, weakref.ReferenceType[Receiver[T]]] = {}
+        """The receivers attached to the channel, indexed by their UUID."""
+
         self.closed: bool = False
+        """Whether the channel is closed."""
+
         self._latest: T | None = None
+        """The latest value sent to the channel."""
 
     async def close(self) -> None:
         """Close the Broadcast channel.
@@ -167,6 +180,7 @@ class Sender(BaseSender[T]):
             chan: A reference to the broadcast channel this sender belongs to.
         """
         self._chan = chan
+        """The broadcast channel this sender belongs to."""
 
     async def send(self, msg: T) -> None:
         """Send a message to all broadcast receivers.
@@ -222,11 +236,26 @@ class Receiver(BaseReceiver[T]):
                 belongs to.
         """
         self._uuid = uuid
+        """The UUID to identify the receiver in the broadcast channel's list of receivers."""
+
         self._name = name
+        """The name to identify the receiver.
+
+        Only used for debugging purposes.
+        """
+
         self._chan = chan
+        """The broadcast channel that this receiver belongs to."""
+
         self._q: Deque[T] = deque(maxlen=maxsize)
+        """The receiver's internal message queue."""
 
         self._active = True
+        """Whether the receiver is still active.
+
+        If this receiver is converted into a Peekable, it will neither be
+        considered valid nor active.
+        """
 
     def enqueue(self, msg: T) -> None:
         """Put a message into this receiver's queue.
@@ -343,6 +372,7 @@ class Peekable(BasePeekable[T]):
             chan: The broadcast channel this Peekable will try to peek into.
         """
         self._chan = chan
+        """The broadcast channel this Peekable will try to peek into."""
 
     def peek(self) -> T | None:
         """Return the latest value that was sent to the channel.

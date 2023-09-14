@@ -1,7 +1,7 @@
 # License: MIT
 # Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-"""Baseclasses for Channel Sender and Receiver."""
+"""Base classes for Channel Sender and Receiver."""
 
 from __future__ import annotations
 
@@ -169,11 +169,13 @@ class _Map(Receiver[U], Generic[T, U]):
 
         Args:
             recv: The input receiver.
-            transform: The function to run on the input
-                data.
+            transform: The function to run on the input data.
         """
         self._recv = recv
+        """The input receiver."""
+
         self._transform = transform
+        """The function to run on the input data."""
 
     async def ready(self) -> bool:
         """Wait until the receiver is ready with a value or an error.
