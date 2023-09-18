@@ -62,7 +62,8 @@ python3 -m venv .venv
 
     This will create the virtual environment and activate it automatically for you.
 
-Now you can install Frequenz Channels by using `pip`:
+Now you can install Frequenz Channels by using `pip` (if you don't have `pip` installed
+you can follow [the official instructions](https://pip.pypa.io/en/stable/installation/)):
 
 ```sh
 python3 -m pip install frequenz-channels
