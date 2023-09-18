@@ -40,6 +40,11 @@ Then, just install using `pip`:
 python3 -m pip install frequenz-channels
 ```
 
+## Documentation
+
+For more information, please visit the [documentation
+website](https://frequenz-floss.github.io/frequenz-channels-python/).
+
 ## Contributing
 
 If you want to know how to build this project and contribute to it, please
