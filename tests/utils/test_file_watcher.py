@@ -29,6 +29,7 @@ class _FakeAwatch:
                 function.
         """
         self.changes: Sequence[FileChange] = changes
+        """The sequence of file changes."""
 
     async def fake_awatch(
         self, *paths: str, **kwargs: Any  # pylint: disable=unused-argument

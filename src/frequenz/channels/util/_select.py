@@ -192,13 +192,14 @@ class UnhandledSelectedError(SelectError, Generic[_T]):
         recv = selected._recv  # pylint: disable=protected-access
         super().__init__(f"Selected receiver {recv} was not handled in the if-chain")
         self.selected = selected
+        """The selected receiver that was not handled."""
 
 
 class SelectErrorGroup(BaseExceptionGroup[BaseException], SelectError):
     """An exception group for [`select()`][frequenz.channels.util.select] operation.
 
     This exception group is raised when a `select()` loops fails while cleaning up
-    runing tasts to check for ready receivers.
+    running tests to check for ready receivers.
     """
 
 

@@ -41,7 +41,7 @@ class Event(_base_classes.Receiver[None]):
             if selected_from(selected, other_receiver):
                 print(selected.value)
             else:
-                assert False, "Unknow receiver selected"
+                assert False, "Unknown receiver selected"
         ```
     """
 

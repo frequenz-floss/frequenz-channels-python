@@ -29,7 +29,7 @@ async def test_broadcast() -> None:
     expected_sum = num_senders * num_receivers * num_receivers * (num_receivers + 1) / 2
 
     # a list of `num_receivers` elements, where each element with get
-    # incremented by values the corrosponding receiver receives.  Once the run
+    # incremented by values the corresponding receiver receives.  Once the run
     # finishes, we will check if their sum equals `expected_sum`.
     recv_trackers = [0] * num_receivers
 

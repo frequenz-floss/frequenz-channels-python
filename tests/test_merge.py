@@ -34,7 +34,7 @@ async def test_merge() -> None:
         # It is hard to get messages from multiple channels in the same order,
         # so we use a `set` to check the next N messages are the same, in any
         # order, where N is the number of channels.  This only works in this
-        # example because the `send` method sends values in immeidate
+        # example because the `send` method sends values in immediate
         # succession.
         assert set(results[idx : idx + 2]) == {ctr + 1, ctr + 101}
     assert results[-1] == 1000

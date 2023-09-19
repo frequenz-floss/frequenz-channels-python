@@ -38,8 +38,13 @@ class Bidirectional(Generic[T, U]):
                 receiver: A receiver to receive values from.
             """
             self._chan = channel
+            """The underlying channel."""
+
             self._sender = sender
+            """The sender to send values with."""
+
             self._receiver = receiver
+            """The receiver to receive values from."""
 
         async def send(self, msg: V) -> None:
             """Send a value to the other side.
@@ -57,7 +62,7 @@ class Bidirectional(Generic[T, U]):
             except SenderError as err:
                 # If this comes from a channel error, then we inject another
                 # ChannelError having the information about the Bidirectional
-                # channel to hide (at least partially) the underlaying
+                # channel to hide (at least partially) the underlying
                 # Broadcast channels we use.
                 if isinstance(err.__cause__, ChannelError):
                     this_chan_error = ChannelError(
@@ -98,7 +103,7 @@ class Bidirectional(Generic[T, U]):
             except ReceiverError as err:
                 # If this comes from a channel error, then we inject another
                 # ChannelError having the information about the Bidirectional
-                # channel to hide (at least partially) the underlaying
+                # channel to hide (at least partially) the underlying
                 # Broadcast channels we use.
                 if isinstance(err.__cause__, ChannelError):
                     this_chan_error = ChannelError(
@@ -117,21 +122,29 @@ class Bidirectional(Generic[T, U]):
             service_id: A name for the service end of the channels.
         """
         self._client_id = client_id
+        """The name for the client, used to name the channels."""
+
         self._request_channel: Broadcast[T] = Broadcast(f"req_{service_id}_{client_id}")
+        """The channel to send requests."""
+
         self._response_channel: Broadcast[U] = Broadcast(
             f"resp_{service_id}_{client_id}"
         )
+        """The channel to send responses."""
 
         self._client_handle = Bidirectional.Handle(
             self,
             self._request_channel.new_sender(),
             self._response_channel.new_receiver(),
         )
+        """The handle for the client side to send/receive values."""
+
         self._service_handle = Bidirectional.Handle(
             self,
             self._response_channel.new_sender(),
             self._request_channel.new_receiver(),
         )
+        """The handle for the service side to send/receive values."""
 
     @property
     def client_handle(self) -> Bidirectional.Handle[T, U]:

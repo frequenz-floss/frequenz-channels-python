@@ -25,11 +25,16 @@ class MergeNamed(Receiver[tuple[str, T]]):
             **kwargs: sequence of channel receivers.
         """
         self._receivers = kwargs
+        """The sequence of channel receivers to get the messages to merge."""
+
         self._pending: set[asyncio.Task[Any]] = {
             asyncio.create_task(recv.__anext__(), name=name)
             for name, recv in self._receivers.items()
         }
+        """The set of pending tasks to merge messages."""
+
         self._results: Deque[tuple[str, T]] = deque(maxlen=len(self._receivers))
+        """The internal buffer of merged messages."""
 
     def __del__(self) -> None:
         """Cleanup any pending tasks."""
@@ -94,6 +99,6 @@ class MergeNamed(Receiver[tuple[str, T]]):
         if not self._results and not self._pending:
             raise ReceiverStoppedError(self)
 
-        assert self._results, "`consume()` must be preceeded by a call to `ready()`"
+        assert self._results, "`consume()` must be preceded by a call to `ready()`"
 
         return self._results.popleft()

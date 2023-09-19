@@ -81,7 +81,7 @@ class TriggerAllMissed(MissedTickPolicy):
     Example:
         Assume a timer with interval 1 second, the tick `T0` happens exactly
         at time 0, the second tick, `T1`, happens at time 1.2 (0.2 seconds
-        late), so it trigges immediately.  The third tick, `T2`, happens at
+        late), so it triggers immediately.  The third tick, `T2`, happens at
         time 2.3 (0.3 seconds late), so it also triggers immediately.  The
         fourth tick, `T3`, happens at time 4.3 (1.3 seconds late), so it also
         triggers immediately as well as the fifth tick, `T4`, which was also
@@ -120,7 +120,7 @@ class TriggerAllMissed(MissedTickPolicy):
 class SkipMissedAndResync(MissedTickPolicy):
     """A policy that drops all the missed ticks, triggers immediately and resyncs.
 
-    If ticks are missed, the timer will trigger immediately returing the drift
+    If ticks are missed, the timer will trigger immediately returning the drift
     and it will schedule to trigger again on the next multiple of `interval`,
     effectively skipping any missed ticks, but resyncing with the original start
     time.
@@ -128,7 +128,7 @@ class SkipMissedAndResync(MissedTickPolicy):
     Example:
         Assume a timer with interval 1 second, the tick `T0` happens exactly
         at time 0, the second tick, `T1`, happens at time 1.2 (0.2 seconds
-        late), so it trigges immediately.  The third tick, `T2`, happens at
+        late), so it triggers immediately.  The third tick, `T2`, happens at
         time 2.3 (0.3 seconds late), so it also triggers immediately.  The
         fourth tick, `T3`, happens at time 4.3 (1.3 seconds late), so it also
         triggers immediately but the fifth tick, `T4`, which was also
@@ -180,7 +180,7 @@ class SkipMissedAndDrift(MissedTickPolicy):
         Assume a timer with interval 1 second and `delay_tolerance=0.1`, the
         first tick, `T0`, happens exactly at time 0, the second tick, `T1`,
         happens at time 1.2 (0.2 seconds late), so the timer triggers
-        immmediately but drifts a bit. The next tick, `T2.2`, happens at 2.3 seconds
+        immediately but drifts a bit. The next tick, `T2.2`, happens at 2.3 seconds
         (0.1 seconds late), so it also triggers immediately but it doesn't
         drift because the delay is under the `delay_tolerance`. The next tick,
         `T3.2`, triggers at 4.3 seconds (1.1 seconds late), so it also triggers
@@ -200,7 +200,7 @@ class SkipMissedAndDrift(MissedTickPolicy):
         """
         Create an instance.
 
-        See the class documenation for more details.
+        See the class documentation for more details.
 
         Args:
             delay_tolerance: The maximum delay that is tolerated before
