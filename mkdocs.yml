@@ -112,5 +112,4 @@ plugins:
 # Preview controls
 watch:
   - "src"
-  - README.md
   - CONTRIBUTING.md
