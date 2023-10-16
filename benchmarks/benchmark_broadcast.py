@@ -44,7 +44,7 @@ async def fast_sender(num_messages: int, chan: Sender[int]) -> None:
 
 
 async def benchmark_broadcast(
-    send_msg: Callable[[int, Sender[int]], Coroutine[Any, Any, int]],
+    send_msg: Callable[[int, Sender[int]], Coroutine[Any, Any, None]],
     num_channels: int,
     num_messages: int,
     num_receivers: int,
