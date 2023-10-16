@@ -84,7 +84,7 @@ class Broadcast(Generic[T]):
                 get the latest value as soon as they are created, without having
                 to wait for the next message on the channel to arrive.
         """
-        self.name: str = name
+        self._name: str = name
         """The name of the broadcast channel.
 
         Only used for debugging purposes.
@@ -93,13 +93,13 @@ class Broadcast(Generic[T]):
         self._resend_latest = resend_latest
         """Whether to resend the latest value to new receivers."""
 
-        self.recv_cv: Condition = Condition()
+        self._recv_cv: Condition = Condition()
         """The condition to wait for data in the channel's buffer."""
 
-        self.receivers: dict[UUID, weakref.ReferenceType[Receiver[T]]] = {}
+        self._receivers: dict[UUID, weakref.ReferenceType[Receiver[T]]] = {}
         """The receivers attached to the channel, indexed by their UUID."""
 
-        self.closed: bool = False
+        self._closed: bool = False
         """Whether the channel is closed."""
 
         self._latest: T | None = None
@@ -117,9 +117,9 @@ class Broadcast(Generic[T]):
         immediately.
         """
         self._latest = None
-        self.closed = True
-        async with self.recv_cv:
-            self.recv_cv.notify_all()
+        self._closed = True
+        async with self._recv_cv:
+            self._recv_cv.notify_all()
 
     def new_sender(self) -> Sender[T]:
         """Create a new broadcast sender.
@@ -147,7 +147,7 @@ class Broadcast(Generic[T]):
         if name is None:
             name = str(uuid)
         recv: Receiver[T] = Receiver(uuid, name, maxsize, self)
-        self.receivers[uuid] = weakref.ref(recv)
+        self._receivers[uuid] = weakref.ref(recv)
         if self._resend_latest and self._latest is not None:
             recv.enqueue(self._latest)
         return recv
@@ -193,23 +193,24 @@ class Sender(BaseSender[T]):
                 A [ChannelClosedError][frequenz.channels.ChannelClosedError] is
                 set as the cause.
         """
-        if self._chan.closed:
+        # pylint: disable=protected-access
+        if self._chan._closed:
             raise SenderError("The channel was closed", self) from ChannelClosedError(
                 self._chan
             )
-        # pylint: disable=protected-access
         self._chan._latest = msg
         stale_refs = []
-        for name, recv_ref in self._chan.receivers.items():
+        for name, recv_ref in self._chan._receivers.items():
             recv = recv_ref()
             if recv is None:
                 stale_refs.append(name)
                 continue
             recv.enqueue(msg)
         for name in stale_refs:
-            del self._chan.receivers[name]
-        async with self._chan.recv_cv:
-            self._chan.recv_cv.notify_all()
+            del self._chan._receivers[name]
+        async with self._chan._recv_cv:
+            self._chan._recv_cv.notify_all()
+        # pylint: enable=protected-access
 
 
 class Receiver(BaseReceiver[T]):
@@ -271,7 +272,7 @@ class Receiver(BaseReceiver[T]):
             self._q.popleft()
             logger.warning(
                 "Broadcast receiver [%s:%s] is full. Oldest message was dropped.",
-                self._chan.name,
+                self._chan._name,  # pylint: disable=protected-access
                 self._name,
             )
         self._q.append(msg)
@@ -307,18 +308,22 @@ class Receiver(BaseReceiver[T]):
         #
         # The condition also makes sure that if there are already messages ready to be
         # consumed, then we return immediately.
+        # pylint: disable=protected-access
         while len(self._q) == 0:
-            if self._chan.closed:
+            if self._chan._closed:
                 return False
-            async with self._chan.recv_cv:
-                await self._chan.recv_cv.wait()
+            async with self._chan._recv_cv:
+                await self._chan._recv_cv.wait()
         return True
+        # pylint: enable=protected-access
 
     def _deactivate(self) -> None:
         """Set the receiver as inactive and remove it from the channel."""
         self._active = False
-        if self._uuid in self._chan.receivers:
-            del self._chan.receivers[self._uuid]
+        # pylint: disable=protected-access
+        if self._uuid in self._chan._receivers:
+            del self._chan._receivers[self._uuid]
+        # pylint: enable=protected-access
 
     def consume(self) -> T:
         """Return the latest value once `ready` is complete.
@@ -337,7 +342,7 @@ class Receiver(BaseReceiver[T]):
                 self,
             )
 
-        if not self._q and self._chan.closed:
+        if not self._q and self._chan._closed:  # pylint: disable=protected-access
             raise ReceiverStoppedError(self) from ChannelClosedError(self._chan)
 
         assert self._q, "`consume()` must be preceded by a call to `ready()`"

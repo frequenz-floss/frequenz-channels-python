@@ -265,10 +265,12 @@ async def test_broadcast_receiver_drop() -> None:
     assert 10 == await receiver1.receive()
     assert 10 == await receiver2.receive()
 
-    assert len(chan.receivers) == 2
+    # pylint: disable=protected-access
+    assert len(chan._receivers) == 2
 
     del receiver2
 
     await sender.send(20)
 
-    assert len(chan.receivers) == 1
+    assert len(chan._receivers) == 1
+    # pylint: enable=protected-access

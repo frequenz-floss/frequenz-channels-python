@@ -67,7 +67,7 @@ class Anycast(Generic[T]):
         Args:
             maxsize: Size of the channel's buffer.
         """
-        self.limit: int = maxsize
+        self._limit: int = maxsize
         """The maximum number of values that can be stored in the channel's buffer.
 
         If the length of channel's buffer reaches the limit, then the sender
@@ -75,10 +75,10 @@ class Anycast(Generic[T]):
         a value is consumed.
         """
 
-        self.deque: Deque[T] = deque(maxlen=maxsize)
+        self._deque: Deque[T] = deque(maxlen=maxsize)
         """The channel's buffer."""
 
-        self.send_cv: Condition = Condition()
+        self._send_cv: Condition = Condition()
         """The condition to wait for free space in the channel's buffer.
 
         If the channel's buffer is full, then the sender waits for values to
@@ -86,7 +86,7 @@ class Anycast(Generic[T]):
         available in the channel's buffer.
         """
 
-        self.recv_cv: Condition = Condition()
+        self._recv_cv: Condition = Condition()
         """The condition to wait for values in the channel's buffer.
 
         If the channel's buffer is empty, then the receiver waits for values
@@ -94,7 +94,7 @@ class Anycast(Generic[T]):
         buffer.
         """
 
-        self.closed: bool = False
+        self._closed: bool = False
         """Whether the channel is closed."""
 
     async def close(self) -> None:
@@ -109,11 +109,11 @@ class Anycast(Generic[T]):
         immediately.
 
         """
-        self.closed = True
-        async with self.send_cv:
-            self.send_cv.notify_all()
-        async with self.recv_cv:
-            self.recv_cv.notify_all()
+        self._closed = True
+        async with self._send_cv:
+            self._send_cv.notify_all()
+        async with self._recv_cv:
+            self._recv_cv.notify_all()
 
     def new_sender(self) -> Sender[T]:
         """Create a new sender.
@@ -164,16 +164,18 @@ class Sender(BaseSender[T]):
                 A [ChannelClosedError][frequenz.channels.ChannelClosedError] is
                 set as the cause.
         """
-        if self._chan.closed:
+        # pylint: disable=protected-access
+        if self._chan._closed:
             raise SenderError("The channel was closed", self) from ChannelClosedError(
                 self._chan
             )
-        while len(self._chan.deque) == self._chan.deque.maxlen:
-            async with self._chan.send_cv:
-                await self._chan.send_cv.wait()
-        self._chan.deque.append(msg)
-        async with self._chan.recv_cv:
-            self._chan.recv_cv.notify(1)
+        while len(self._chan._deque) == self._chan._deque.maxlen:
+            async with self._chan._send_cv:
+                await self._chan._send_cv.wait()
+        self._chan._deque.append(msg)
+        async with self._chan._recv_cv:
+            self._chan._recv_cv.notify(1)
+        # pylint: enable=protected-access
 
 
 class _Empty:
@@ -213,14 +215,16 @@ class Receiver(BaseReceiver[T]):
         if self._next is not _Empty:
             return True
 
-        while len(self._chan.deque) == 0:
-            if self._chan.closed:
+        # pylint: disable=protected-access
+        while len(self._chan._deque) == 0:
+            if self._chan._closed:
                 return False
-            async with self._chan.recv_cv:
-                await self._chan.recv_cv.wait()
-        self._next = self._chan.deque.popleft()
-        async with self._chan.send_cv:
-            self._chan.send_cv.notify(1)
+            async with self._chan._recv_cv:
+                await self._chan._recv_cv.wait()
+        self._next = self._chan._deque.popleft()
+        async with self._chan._send_cv:
+            self._chan._send_cv.notify(1)
+        # pylint: enable=protected-access
         return True
 
     def consume(self) -> T:
@@ -233,7 +237,9 @@ class Receiver(BaseReceiver[T]):
             ReceiverStoppedError: if the receiver stopped producing messages.
             ReceiverError: if there is some problem with the receiver.
         """
-        if self._next is _Empty and self._chan.closed:
+        if (  # pylint: disable=protected-access
+            self._next is _Empty and self._chan._closed
+        ):
             raise ReceiverStoppedError(self) from ChannelClosedError(self._chan)
 
         assert (
