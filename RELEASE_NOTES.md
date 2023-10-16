@@ -6,7 +6,7 @@ The `Timer` now can be started with a delay.
 
 ## Upgrading
 
-<!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
+* Internal variable names in the `Anycast` and `Broadcast` implementations are now private.
 
 ## New Features
 
