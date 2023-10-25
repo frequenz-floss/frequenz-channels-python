@@ -90,7 +90,7 @@ class Broadcast(Generic[T]):
         Only used for debugging purposes.
         """
 
-        self._resend_latest = resend_latest
+        self.resend_latest = resend_latest
         """Whether to resend the latest value to new receivers."""
 
         self._recv_cv: Condition = Condition()
@@ -148,7 +148,7 @@ class Broadcast(Generic[T]):
             name = str(uuid)
         recv: Receiver[T] = Receiver(uuid, name, maxsize, self)
         self._receivers[uuid] = weakref.ref(recv)
-        if self._resend_latest and self._latest is not None:
+        if self.resend_latest and self._latest is not None:
             recv.enqueue(self._latest)
         return recv
 
