@@ -194,7 +194,9 @@ class _Map(Receiver[U], Generic[T, U]):
         """
         return await self._recv.ready()  # pylint: disable=protected-access
 
-    def consume(self) -> U:
+    # We need a noqa here because the docs have a Raises section but the code doesn't
+    # explicitly raise anything.
+    def consume(self) -> U:  # noqa: DOC502
         """Return a transformed value once `ready()` is complete.
 
         Returns:
