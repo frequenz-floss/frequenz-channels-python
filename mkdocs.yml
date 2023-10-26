@@ -24,9 +24,9 @@ theme:
   features:
     - content.code.annotate
     - content.code.copy
+    - navigation.footer
     - navigation.indexes
     - navigation.instant
-    - navigation.footer
     - navigation.tabs
     - navigation.top
     - navigation.tracking
