@@ -130,6 +130,10 @@ class Receiver(ABC, Generic[T]):
         Once this function has been called, the receiver will no longer be
         usable, and calling `receive` on the receiver will raise an exception.
 
+        Returns:
+            A `Peekable` that can be used to peek at the latest value in the
+                channel.
+
         Raises:
             NotImplementedError: when a `Receiver` implementation doesn't have
                 a custom `into_peekable` implementation.
