@@ -13,7 +13,6 @@
     "python_package": "frequenz.channels",
     "pypi_package_name": "frequenz-channels",
     "github_repo_name": "frequenz-channels-python",
-    "default_codeowners": "@frequenz-floss/python-sdk-team",
-    "_template": "gh:frequenz-floss/frequenz-repo-config-python"
+    "default_codeowners": "@frequenz-floss/python-sdk-team"
   }
 }

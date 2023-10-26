@@ -5,7 +5,7 @@
 requires = [
   "setuptools == 68.1.0",
   "setuptools_scm[toml] == 7.1.0",
-  "frequenz-repo-config[lib] == 0.5.2",
+  "frequenz-repo-config[lib] == 0.7.1",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -36,27 +36,32 @@ name = "Frequenz Energy-as-a-Service GmbH"
 email = "floss@frequenz.com"
 
 [project.optional-dependencies]
-dev-docstrings = [
+dev-flake8 = [
+  "flake8 == 6.1.0",
+  "flake8-docstrings == 1.7.0",
+  "flake8-pyproject == 1.2.3",  # For reading the flake8 config from pyproject.toml
+  "pydoclint == 0.3.2",
   "pydocstyle == 6.3.0",
-  "darglint == 1.8.1",
-  "tomli == 2.0.1",      # Needed by pydocstyle to read pyproject.toml
 ]
 dev-formatting = ["black == 23.10.1", "isort == 5.12.0"]
 dev-mkdocs = [
+  "black == 23.10.1",
+  "Markdown==3.4.4",
   "mike == 1.1.2",
   "mkdocs-gen-files == 0.5.0",
   "mkdocs-literate-nav == 0.6.1",
   "mkdocs-material == 9.3.2",
-  "mkdocs-section-index == 0.3.8",
+  "mkdocs-macros-plugin == 1.0.4",
   "mkdocstrings[python] == 0.23.0",
-  "frequenz-repo-config[lib] == 0.5.2",
+  "frequenz-repo-config[lib] == 0.7.1",
 ]
 dev-mypy = [
   "mypy == 1.6.1",
+  "types-Markdown == 3.4.2.10",
   # For checking the noxfile, docs/ script, and tests
   "frequenz-channels[dev-mkdocs,dev-noxfile,dev-pytest]",
 ]
-dev-noxfile = ["nox == 2023.4.22", "frequenz-repo-config[lib] == 0.5.2"]
+dev-noxfile = ["nox == 2023.4.22", "frequenz-repo-config[lib] == 0.7.1"]
 dev-pylint = [
   "pylint == 2.17.7",
   # For checking the noxfile, docs/ script, and tests
@@ -66,15 +71,16 @@ dev-pytest = [
   "pytest == 7.4.3",
   "async-solipsism == 0.5",
   "hypothesis == 6.88.1",
+  "frequenz-repo-config[extra-lint-examples] == 0.7.1",
   "pytest-asyncio == 0.21.1",
-  "frequenz-repo-config[extra-lint-examples] == 0.5.2",
   "pytest-mock == 3.12.0",
 ]
 dev = [
-  "frequenz-channels[dev-mkdocs,dev-docstrings,dev-formatting,dev-mkdocs,dev-mypy,dev-noxfile,dev-pylint,dev-pytest]",
+  "frequenz-channels[dev-mkdocs,dev-flake8,dev-formatting,dev-mkdocs,dev-mypy,dev-noxfile,dev-pylint,dev-pytest]",
 ]
 
 [project.urls]
+Documentation = "https://frequenz-floss.github.io/frequenz-channels-python/"
 Changelog = "https://github.com/frequenz-floss/frequenz-channels-python/releases"
 Issues = "https://github.com/frequenz-floss/frequenz-channels-python/issues"
 Repository = "https://github.com/frequenz-floss/frequenz-channels-python"
@@ -89,6 +95,23 @@ include = '\.pyi?$'
 profile = "black"
 line_length = 88
 src_paths = ["benchmarks", "examples", "src", "tests"]
+
+[tool.flake8]
+# We give some flexibility to go over 88, there are cases like long URLs or
+# code in documenation that have extra indentation. Black will still take care
+# of making everything that can be 88 wide, 88 wide.
+max-line-length = 100
+extend-ignore = [
+  "E203", # Whitespace before ':' (conflicts with black)
+  "W503", # Line break before binary operator (conflicts with black)
+]
+# pydoclint options
+style = "google"
+check-return-types = false
+check-yield-types = false
+arg-type-hints-in-docstring = false
+arg-type-hints-in-signature = true
+allow-init-docstring = true
 
 [tool.pylint.similarities]
 ignore-comments = ['yes']
@@ -105,6 +128,10 @@ disable = [
   # pylint's unsubscriptable check is buggy and is not needed because
   # it is a type-check, for which we already have mypy.
   "unsubscriptable-object",
+  # Checked by flake8
+  "line-too-long",
+  "unused-variable",
+  "unnecessary-lambda-assignment",
 ]
 
 [tool.pytest.ini_options]
@@ -115,8 +142,26 @@ markers = [
   "integration: integration tests (deselect with '-m \"not integration\"')",
 ]
 
+[tool.mypy]
+explicit_package_bases = true
+namespace_packages = true
+# This option disables mypy cache, and it is sometimes useful to enable it if
+# you are getting weird intermittent error, or error in the CI but not locally
+# (or vice versa). In particular errors saying that type: ignore is not
+# used but getting the original ignored error when removing the type: ignore.
+# See for example: https://github.com/python/mypy/issues/2960
+#no_incremental = true
+packages = ["frequenz.channels"]
+strict = true
+
 [[tool.mypy.overrides]]
-module = ["async_solipsism", "async_solipsism.*", "sybil", "sybil.*"]
+module = [
+  "async_solipsism",
+  "async_solipsism.*",
+  "mkdocs_macros.*",
+  "sybil",
+  "sybil.*",
+]
 ignore_missing_imports = true
 
 [tool.setuptools_scm]

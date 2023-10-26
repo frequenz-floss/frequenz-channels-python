@@ -20,6 +20,14 @@ Frequenz Channels are mostly designed after [Go
 channels](https://tour.golang.org/concurrency/2) but it also borrows ideas from
 [Rust channels](https://doc.rust-lang.org/book/ch16-02-message-passing.html).
 
+## Supported Platforms
+
+The following platforms are officially supported (tested):
+
+- **Python:** 3.11
+- **Operating System:** Ubuntu Linux 20.04
+- **Architectures:** amd64, arm64
+
 ## Quick Start
 
 We assume you are on a system with Python available. If that is not the case,

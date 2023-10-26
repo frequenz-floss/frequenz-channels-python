@@ -3,8 +3,8 @@ updates:
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: "daily"
-      time: "07:00"
+      interval: "monthly"
+      day: "thursday"
     labels:
       - "part:tooling"
       - "type:tech-debt"
@@ -13,12 +13,29 @@ updates:
     versioning-strategy: auto
     # Allow up to 10 open pull requests for updates to dependency versions
     open-pull-requests-limit: 10
+    # We group production and development ("optional" in the context of
+    # pyproject.toml) dependency updates when they are patch and minor updates,
+    # so we end up with less PRs being generated.
+    # Major updates are still managed, but they'll create one PR per
+    # dependency, as major updates are expected to be breaking, it is better to
+    # manage them individually.
+    groups:
+      required:
+        dependency-type: "production"
+        update-types:
+          - "minor"
+          - "patch"
+      optional:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
-      time: "06:00"
+      interval: "monthly"
+      day: "thursday"
     labels:
       - "part:tooling"
       - "type:tech-debt"

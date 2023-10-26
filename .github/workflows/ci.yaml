@@ -13,6 +13,7 @@ on:
       # We only want to test the merge commit (`merge_group` event), the hashes
       # in the push were already tested by the PR checks
       - 'gh-readonly-queue/**'
+      - 'dependabot/**'
   workflow_dispatch:
 
 env:
@@ -32,9 +33,17 @@ jobs:
           - ubuntu-20.04
         python:
           - "3.11"
+        nox-session:
+          # To speed things up a bit we use the special ci_checks_max session
+          # that uses the same venv to run multiple linting sessions
+          - "ci_checks_max"
+          - "pytest_min"
     runs-on: ${{ matrix.os }}
 
     steps:
+      - name: Print environment (debug)
+        run: env
+
       - name: Fetch sources
         uses: actions/checkout@v4
         with:
@@ -50,12 +59,151 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -e .[dev-noxfile]
+          pip freeze
+
+      - name: Create nox venv
+        env:
+          NOX_SESSION: ${{ matrix.nox-session }}
+        run: nox --install-only -e "$NOX_SESSION"
+
+      - name: Print pip freeze for nox venv (debug)
+        env:
+          NOX_SESSION: ${{ matrix.nox-session }}
+        run: |
+          . ".nox/$NOX_SESSION/bin/activate"
+          pip freeze
+          deactivate
 
       - name: Run nox
-        # To speed things up a bit we use the special ci_checks_max session
-        # that uses the same venv to run multiple linting sessions
-        run: nox -e ci_checks_max pytest_min
+        env:
+          NOX_SESSION: ${{ matrix.nox-session }}
+        run: nox -R -e "$NOX_SESSION"
         timeout-minutes: 10
+
+  # This job runs if all the `nox` matrix jobs ran and succeeded.
+  # It is only used to have a single job that we can require in branch
+  # protection rules, so we don't have to update the protection rules each time
+  # we add or remove a job from the matrix.
+  nox-all:
+    # The job name should match the name of the `nox` job.
+    name: Test with nox
+    needs: ["nox"]
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Return true
+        run: "true"
+
+  nox-cross-arch:
+    name: Cross-arch tests with nox
+    if: github.event_name != 'pull_request'
+    strategy:
+      fail-fast: false
+      # Before adding new items to this matrix, make sure that a dockerfile
+      # exists for the combination of items in the matrix.
+      # Refer to .github/containers/nox-cross-arch/README.md to learn how to
+      # add and name new dockerfiles.
+      matrix:
+        arch:
+          - arm64
+        os:
+          - ubuntu-20.04
+        python:
+          - "3.11"
+        nox-session:
+          - "pytest_min"
+          - "pytest_max"
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Fetch sources
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: linux/${{ matrix.arch }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # This is a workaround to prevent the cache from growing indefinitely.
+      # https://docs.docker.com/build/ci/github-actions/cache/#local-cache
+      # https://github.com/docker/build-push-action/issues/252
+      # https://github.com/moby/buildkit/issues/1896
+      - name: Cache container layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-nox-${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.python }}
+
+      - name: Build image
+        uses: docker/build-push-action@v5
+        with:
+          context: .github/containers/nox-cross-arch
+          file: .github/containers/nox-cross-arch/${{ matrix.arch }}-${{ matrix.os }}-python-${{ matrix.python }}.Dockerfile
+          platforms: linux/${{ matrix.arch }}
+          tags: localhost/nox-cross-arch:latest
+          push: false
+          load: true
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      # Refer to the workaround mentioned above
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+      # Cache pip downloads
+      - name: Cache pip downloads
+        uses: actions/cache@v3
+        with:
+          path: /tmp/pip-cache
+          key: nox-${{ matrix.nox-session }}-${{ matrix.arch }}-${{ matrix.os }}-${{ matrix.python }}-${{ hashFiles('**/pyproject.toml') }}
+
+      # This ensures that the docker container has access to the pip cache.
+      # Changing the user in the docker-run step causes it to fail due to
+      # incorrect permissions. Setting the ownership of the pip cache to root
+      # before running is a workaround to this issue.
+      - name: Set pip cache owners to root for docker
+        run: if [[ -e /tmp/pip-cache ]]; then sudo chown -R root:root /tmp/pip-cache; fi
+
+      - name: Run nox
+        run: |
+          docker run \
+            --rm \
+            -v $(pwd):/${{ github.workspace }} \
+            -v /tmp/pip-cache:/root/.cache/pip \
+            -w ${{ github.workspace }} \
+            --net=host \
+            --platform linux/${{ matrix.arch }} \
+            localhost/nox-cross-arch:latest \
+            bash -c "pip install -e .[dev-noxfile]; nox --install-only -e ${{ matrix.nox-session }}; pip freeze; nox -e ${{ matrix.nox-session }}"
+        timeout-minutes: 30
+
+      # This ensures that the runner has access to the pip cache.
+      - name: Reset pip cache ownership
+        if: always()
+        run: sudo chown -R $USER:$USER /tmp/pip-cache
+
+  # This job runs if all the `nox-cross-arch` matrix jobs ran and succeeded.
+  # As the `nox-all` job, its main purpose is to provide a single point of
+  # reference in branch protection rules, similar to how `nox-all` operates.
+  # However, there's a crucial difference: the `nox-cross-arch` job is omitted
+  # in PRs. Without the `nox-cross-arch-all` job, the inner matrix wouldn't be
+  # expanded in such scenarios. This would lead to the CI indefinitely waiting
+  # for these jobs to complete due to the branch protection rules, essentially
+  # causing it to hang. This behavior is tied to a recognized GitHub matrices
+  # issue when certain jobs are skipped. For a deeper understanding, refer to:
+  # https://github.com/orgs/community/discussions/9141
+  nox-cross-arch-all:
+    # The job name should match the name of the `nox-cross-arch` job.
+    name: Cross-arch tests with nox
+    needs: ["nox-cross-arch"]
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Return true
+        run: "true"
 
   build:
     name: Build distribution packages
@@ -76,6 +224,7 @@ jobs:
         run: |
           python -m pip install -U pip
           python -m pip install -U build
+          pip freeze
 
       - name: Build the source and binary distribution
         run: python -m build
@@ -86,6 +235,31 @@ jobs:
           name: dist-packages
           path: dist/
           if-no-files-found: error
+
+  test-installation:
+    name: Test package installation in different architectures
+    needs: ["build"]
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Fetch sources
+        uses: actions/checkout@v4
+      - name: Download package
+        uses: actions/download-artifact@v3
+        with:
+          name: dist-packages
+          path: dist
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+      - name: Set up docker-buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Test Installation
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: .github/containers/test-installation/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          tags: localhost/test-installation
+          push: false
 
   test-docs:
     name: Test documentation website generation
@@ -110,6 +284,7 @@ jobs:
         run: |
           python -m pip install -U pip
           python -m pip install .[dev-mkdocs]
+          pip freeze
 
       - name: Generate the documentation
         env:
@@ -127,83 +302,74 @@ jobs:
 
   publish-docs:
     name: Publish documentation website to GitHub pages
-    needs: ["nox", "build"]
+    needs: ["nox-all", "nox-cross-arch-all", "test-installation"]
     if: github.event_name == 'push'
     runs-on: ubuntu-20.04
     permissions:
       contents: write
     steps:
-      - name: Calculate and check version
-        id: mike-metadata
-        env:
-          REF: ${{ github.ref }}
-          REF_NAME: ${{ github.ref_name }}
-          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
-        run: |
-          aliases=
-          version=
-          if test "$REF_NAME" = "$DEFAULT_BRANCH"
-          then
-            version=next
-          # A tag that starts with vX.Y or X.Y
-          elif echo "$REF" | grep -q '^refs/tags' && echo "$REF_NAME" | grep -Pq '^v?\d+\.\d+\.'
-          then
-            if echo "$REF_NAME" | grep -Pq -- "-" # pre-release
-            then
-              echo "::notice title=Documentation was not published::" \
-                "The tag '$REF_NAME' looks like a pre-release."
-              exit 0
-            fi
-            version=$(echo "$REF_NAME" | sed -r 's/^(v?[0-9]+\.[0-9]+)\..*$/\1/') # vX.Y
-            major=$(echo "$REF_NAME" | sed -r 's/^(v?[0-9]+)\..*$/\1/') # vX
-            default_major=$(echo "$DEFAULT_BRANCH" | sed -r 's/^(v?[0-9]+)\..*$/\1/') # vX
-            aliases=$major
-            if test "$major" = "$default_major"
-            then
-              aliases="$aliases latest"
-            fi
-          else
-            echo "::warning title=Documentation was not published::" \
-              "Don't know how to handle '$REF' to make 'mike' version."
-            exit 0
-          fi
-          echo "version=$version" >> $GITHUB_OUTPUT
-          echo "aliases=$aliases" >> $GITHUB_OUTPUT
-
       - name: Fetch sources
-        if: steps.mike-metadata.outputs.version
         uses: actions/checkout@v4
         with:
           submodules: true
 
       - name: Setup Git user and e-mail
-        if: steps.mike-metadata.outputs.version
         uses: frequenz-floss/setup-git-user@v2
 
       - name: Set up Python
-        if: steps.mike-metadata.outputs.version
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.DEFAULT_PYTHON_VERSION }}
           cache: 'pip'
 
       - name: Install build dependencies
-        if: steps.mike-metadata.outputs.version
         run: |
           python -m pip install -U pip
           python -m pip install .[dev-mkdocs]
+          pip freeze
+
+      - name: Calculate and check version
+        id: mike-version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPO: ${{ github.repository }}
+          GIT_REF: ${{ github.ref }}
+          GIT_SHA: ${{ github.sha }}
+        run: |
+          python -m frequenz.repo.config.cli.version.mike.info
 
       - name: Fetch the gh-pages branch
-        if: steps.mike-metadata.outputs.version
+        if: steps.mike-version.outputs.version
         run: git fetch origin gh-pages --depth=1
 
-      - name: Publish site
-        if: steps.mike-metadata.outputs.version
+      - name: Build site
+        if: steps.mike-version.outputs.version
         env:
-          VERSION: ${{ steps.mike-metadata.outputs.version }}
-          ALIASES: ${{ steps.mike-metadata.outputs.aliases }}
+          VERSION: ${{ steps.mike-version.outputs.version }}
+          TITLE: ${{ steps.mike-version.outputs.title }}
+          ALIASES: ${{ steps.mike-version.outputs.aliases }}
+          # This is not ideal, we need to define all these variables here
+          # because we need to calculate all the repository version information
+          # to be able to show the correct versions in the documentation when
+          # building it.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPO: ${{ github.repository }}
+          GIT_REF: ${{ github.ref }}
+          GIT_SHA: ${{ github.sha }}
         run: |
-          mike deploy --push --update-aliases "$VERSION" $ALIASES
+          mike deploy --update-aliases --title "$TITLE" "$VERSION" $ALIASES
+
+      - name: Sort site versions
+        if: steps.mike-version.outputs.version
+        run: |
+          git checkout gh-pages
+          python -m frequenz.repo.config.cli.version.mkdocs.sort versions.json
+          git commit -a -m "Sort versions.json"
+
+      - name: Publish site
+        if: steps.mike-version.outputs.version
+        run: |
+          git push origin gh-pages
 
   create-github-release:
     name: Create GitHub release
