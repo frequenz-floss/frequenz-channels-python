@@ -20,7 +20,6 @@ from frequenz.channels import (
 
 async def test_anycast() -> None:
     """Ensure sent messages are received by one receiver."""
-
     acast: Anycast[int] = Anycast()
 
     num_receivers = 5

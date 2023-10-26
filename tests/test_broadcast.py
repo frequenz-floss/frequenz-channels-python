@@ -21,7 +21,6 @@ from frequenz.channels import (
 
 async def test_broadcast() -> None:
     """Ensure sent messages are received by all receivers."""
-
     bcast: Broadcast[int] = Broadcast("meter_5")
 
     num_receivers = 5
