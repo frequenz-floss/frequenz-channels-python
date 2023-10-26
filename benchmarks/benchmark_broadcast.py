@@ -17,8 +17,8 @@ async def component_sender(num_messages: int, chan: Sender[int]) -> None:
     """Send a message to the channel every 0.2 seconds.
 
     Args:
-        num_messages (int): Number of messages to send.
-        chan (Sender[int]): Channel sender to send the messages to.
+        num_messages: Number of messages to send.
+        chan: Channel sender to send the messages to.
     """
     for ctr in range(num_messages):
         await chan.send(ctr)
@@ -29,8 +29,8 @@ async def fast_sender(num_messages: int, chan: Sender[int]) -> None:
     """Send messages to the channel continuously.
 
     Args:
-        num_messages (int): Number of messages to send.
-        chan (Sender[int]): Channel sender to send messages to.
+        num_messages: Number of messages to send.
+        chan: Channel sender to send messages to.
     """
     for ctr in range(num_messages):
         await chan.send(ctr)
@@ -52,14 +52,14 @@ async def benchmark_broadcast(
     """Benchmark with senders and receivers running in separate tasks.
 
     Args:
-        send_msg (Callable): Method to use as sender (component_sender or
+        send_msg: Method to use as sender (component_sender or
             fast_sender).
-        num_channels (int): Number of channels to create.
-        num_messages (int): Number of messages to send per channel.
-        num_receivers (int): Number of broadcast receivers per channel.
+        num_channels: Number of channels to create.
+        num_messages: Number of messages to send per channel.
+        num_receivers: Number of broadcast receivers per channel.
 
     Returns:
-        int: Total number of messages received by all receivers.
+        Total number of messages received by all receivers.
     """
     channels: list[Broadcast[int]] = [Broadcast("meter") for _ in range(num_channels)]
     senders: list[asyncio.Task[Any]] = [
@@ -97,12 +97,12 @@ async def benchmark_single_task_broadcast(
     """Benchmark with senders and receivers invoked from the same task.
 
     Args:
-        num_channels (int): number of channels to create.
-        num_messages (int): number of messages to send per channel.
-        num_receivers (int): number of broadcast receivers per channel.
+        num_channels: number of channels to create.
+        num_messages: number of messages to send per channel.
+        num_receivers: number of broadcast receivers per channel.
 
     Returns:
-        int: Total number of messages received by all receivers.
+        Total number of messages received by all receivers.
     """
     channels: list[Broadcast[int]] = [Broadcast("meter") for _ in range(num_channels)]
     senders = [b.new_sender() for b in channels]
@@ -127,10 +127,10 @@ def time_async_task(task: Coroutine[Any, Any, int]) -> tuple[float, Any]:
     """Run a task and return the time taken and the result.
 
     Args:
-        task (asyncio.Task): Task to run.
+        task: Task to run.
 
     Returns:
-        (float, Any): Run time in fractional seconds, task return value.
+        Run time in fractional seconds, task return value.
     """
     start = timeit.default_timer()
     ret = asyncio.run(task)
