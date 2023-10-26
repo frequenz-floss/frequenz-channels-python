@@ -77,7 +77,7 @@ async def test_anycast() -> None:
 
     actual_sum = 0
     for ctr in recv_trackers:
-        ## ensure all receivers have got messages
+        # ensure all receivers have got messages
         assert ctr > 0
         actual_sum += ctr
     assert actual_sum == expected_sum
