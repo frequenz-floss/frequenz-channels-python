@@ -75,14 +75,15 @@ class Broadcast(Generic[T]):
         """Create a Broadcast channel.
 
         Args:
-            name: A name for the broadcast channel, typically based on the type
-                of data sent through it.  Used to identify the channel in the
-                logs.
+            name: A name for the broadcast channel, typically based on the type of data
+                sent through it.  Used to identify the channel in the logs.
             resend_latest: When True, every time a new receiver is created with
-                `new_receiver`, it will automatically get sent the latest value
-                on the channel.  This allows new receivers on slow streams to
-                get the latest value as soon as they are created, without having
-                to wait for the next message on the channel to arrive.
+                `new_receiver`, it will automatically get sent the latest value on the
+                channel.  This allows new receivers on slow streams to get the latest
+                value as soon as they are created, without having to wait for the next
+                message on the channel to arrive.  It is safe to be set in
+                data/reporting channels, but is not recommended for use in channels that
+                stream control instructions.
         """
         self._name: str = name
         """The name of the broadcast channel.
@@ -90,8 +91,19 @@ class Broadcast(Generic[T]):
         Only used for debugging purposes.
         """
 
-        self.resend_latest = resend_latest
-        """Whether to resend the latest value to new receivers."""
+        self.resend_latest: bool = resend_latest
+        """Whether to resend the latest value to new receivers.
+
+        It is `False` by default.
+
+        When `True`, every time a new receiver is created with `new_receiver`, it will
+        automatically get sent the latest value on the channel.  This allows new
+        receivers on slow streams to get the latest value as soon as they are created,
+        without having to wait for the next message on the channel to arrive.
+
+        It is safe to be set in data/reporting channels, but is not recommended for use
+        in channels that stream control instructions.
+        """
 
         self._recv_cv: Condition = Condition()
         """The condition to wait for data in the channel's buffer."""
