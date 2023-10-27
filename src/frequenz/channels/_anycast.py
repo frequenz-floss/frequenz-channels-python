@@ -73,14 +73,6 @@ class Anycast(Generic[T]):
         Args:
             maxsize: Size of the channel's buffer.
         """
-        self._limit: int = maxsize
-        """The maximum number of values that can be stored in the channel's buffer.
-
-        If the length of channel's buffer reaches the limit, then the sender
-        blocks at the [send()][frequenz.channels.Sender.send] method until
-        a value is consumed.
-        """
-
         self._deque: deque[T] = deque(maxlen=maxsize)
         """The channel's buffer."""
 
