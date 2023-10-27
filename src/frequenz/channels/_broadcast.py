@@ -317,9 +317,8 @@ class Receiver(BaseReceiver[T]):
         if len(self._q) == self._q.maxlen:
             self._q.popleft()
             logger.warning(
-                "Broadcast receiver [%s:%s] is full. Oldest message was dropped.",
-                self._chan._name,  # pylint: disable=protected-access
-                self._name,
+                "Broadcast receiver [%s] is full. Oldest message was dropped.",
+                self,
             )
         self._q.append(msg)
 
