@@ -22,8 +22,8 @@ class Merge(Receiver[T]):
         ```python
         from frequenz.channels import Broadcast
 
-        channel1 = Broadcast[int]("input-chan-1")
-        channel2 = Broadcast[int]("input-chan-2")
+        channel1 = Broadcast[int](name="input-chan-1")
+        channel2 = Broadcast[int](name="input-chan-2")
         receiver1 = channel1.new_receiver()
         receiver2 = channel2.new_receiver()
 

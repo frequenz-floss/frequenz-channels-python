@@ -329,7 +329,7 @@ class Timer(Receiver[timedelta]):
         from frequenz.channels import Broadcast
 
         timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
-        chan = Broadcast[int]("input-chan")
+        chan = Broadcast[int](name="input-chan")
         battery_data = chan.new_receiver()
 
         timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
@@ -359,8 +359,8 @@ class Timer(Receiver[timedelta]):
             logging.info("Heavy processing data: %d", data)
 
         timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
-        chan1 = Broadcast[int]("input-chan-1")
-        chan2 = Broadcast[int]("input-chan-2")
+        chan1 = Broadcast[int](name="input-chan-1")
+        chan2 = Broadcast[int](name="input-chan-2")
         battery_data = chan1.new_receiver()
         heavy_process = chan2.new_receiver()
         async for selected in select(battery_data, heavy_process, timer):

@@ -122,11 +122,13 @@ class Bidirectional(Generic[T, U]):
         self._client_id: str = client_id
         """The name for the client, used to name the channels."""
 
-        self._request_channel: Broadcast[T] = Broadcast(f"req_{service_id}_{client_id}")
+        self._request_channel: Broadcast[T] = Broadcast(
+            name=f"req_{service_id}_{client_id}"
+        )
         """The channel to send requests."""
 
         self._response_channel: Broadcast[U] = Broadcast(
-            f"resp_{service_id}_{client_id}"
+            name=f"resp_{service_id}_{client_id}"
         )
         """The channel to send responses."""
 
