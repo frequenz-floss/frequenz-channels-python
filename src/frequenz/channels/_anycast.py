@@ -67,14 +67,23 @@ class Anycast(Generic[T]):
         Check the `tests` and `benchmarks` directories for more examples.
     """
 
-    def __init__(self, *, limit: int = 10) -> None:
+    def __init__(self, *, name: str, limit: int = 10) -> None:
         """Create an Anycast channel.
 
         Args:
+            name: The name of the channel. This is for logging purposes, and it will be
+                shown in the string representation of the channel.
             limit: The size of the internal buffer in number of messages.  If the buffer
                 is full, then the senders will block until the receivers consume the
                 messages in the buffer.
         """
+        self._name: str = name
+        """The name of the channel.
+
+        This is for logging purposes, and it will be shown in the string representation
+        of the channel.
+        """
+
         self._deque: deque[T] = deque(maxlen=limit)
         """The channel's buffer."""
 
@@ -96,6 +105,15 @@ class Anycast(Generic[T]):
 
         self._closed: bool = False
         """Whether the channel is closed."""
+
+    @property
+    def name(self) -> str:
+        """The name of this channel.
+
+        This is for debugging purposes, it will be shown in the string representation
+        of this channel.
+        """
+        return self._name
 
     @property
     def is_closed(self) -> bool:

@@ -20,7 +20,7 @@ from frequenz.channels import (
 
 async def test_anycast() -> None:
     """Ensure sent messages are received by one receiver."""
-    acast: Anycast[int] = Anycast()
+    acast: Anycast[int] = Anycast(name="test")
 
     num_receivers = 5
     num_senders = 5
@@ -85,7 +85,7 @@ async def test_anycast() -> None:
 
 async def test_anycast_after_close() -> None:
     """Ensure closed channels can't get new messages."""
-    acast: Anycast[int] = Anycast()
+    acast: Anycast[int] = Anycast(name="test")
 
     receiver = acast.new_receiver()
     sender = acast.new_sender()
@@ -106,7 +106,7 @@ async def test_anycast_full() -> None:
     """Ensure send calls to a full channel are blocked."""
     buffer_size = 10
     timeout = 0.2
-    acast: Anycast[int] = Anycast(limit=buffer_size)
+    acast: Anycast[int] = Anycast(name="test", limit=buffer_size)
 
     receiver = acast.new_receiver()
     sender = acast.new_sender()
@@ -149,7 +149,7 @@ async def test_anycast_full() -> None:
 
 async def test_anycast_none_values() -> None:
     """Ensure None values can be sent and received."""
-    acast: Anycast[int | None] = Anycast()
+    acast: Anycast[int | None] = Anycast(name="test")
 
     sender = acast.new_sender()
     receiver = acast.new_receiver()
@@ -166,7 +166,7 @@ async def test_anycast_none_values() -> None:
 
 async def test_anycast_async_iterator() -> None:
     """Check that the anycast receiver works as an async iterator."""
-    acast: Anycast[str] = Anycast()
+    acast: Anycast[str] = Anycast(name="test")
 
     sender = acast.new_sender()
     receiver = acast.new_receiver()
@@ -189,7 +189,7 @@ async def test_anycast_async_iterator() -> None:
 
 async def test_anycast_map() -> None:
     """Ensure map runs on all incoming messages."""
-    chan = Anycast[int]()
+    chan: Anycast[int] = Anycast(name="test")
     sender = chan.new_sender()
 
     # transform int receiver into bool receiver.

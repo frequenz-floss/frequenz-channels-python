@@ -11,8 +11,8 @@ from frequenz.channels.util import MergeNamed
 
 async def test_mergenamed() -> None:
     """Ensure MergeNamed receives messages in order."""
-    chan1 = Anycast[int]()
-    chan2 = Anycast[int]()
+    chan1 = Anycast[int](name="chan1")
+    chan2 = Anycast[int](name="chan2")
 
     async def send(ch1: Sender[int], ch2: Sender[int]) -> None:
         for ctr in range(5):
