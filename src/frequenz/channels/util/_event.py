@@ -49,14 +49,14 @@ class Event(_base_classes.Receiver[None]):
         """Create a new instance.
 
         Args:
-            name: The name of the receiver.  If `None` the `id(self)` will be used as
-                the name.  This is only for debugging purposes, it will be shown in the
+            name: The name of the receiver.  If `None` an `id(self)`-based name will be
+                used. This is only for debugging purposes, it will be shown in the
                 string representation of the receiver.
         """
         self._event: _asyncio.Event = _asyncio.Event()
         """The event that is set when the receiver is ready."""
 
-        self._name: str = name or str(id(self))
+        self._name: str = f"{id(self):_}" if name is None else name
         """The name of the receiver.
 
         This is for debugging purposes, it will be shown in the string representation
