@@ -67,13 +67,15 @@ class Anycast(Generic[T]):
         Check the `tests` and `benchmarks` directories for more examples.
     """
 
-    def __init__(self, *, maxsize: int = 10) -> None:
+    def __init__(self, *, limit: int = 10) -> None:
         """Create an Anycast channel.
 
         Args:
-            maxsize: Size of the channel's buffer.
+            limit: The size of the internal buffer in number of messages.  If the buffer
+                is full, then the senders will block until the receivers consume the
+                messages in the buffer.
         """
-        self._deque: deque[T] = deque(maxlen=maxsize)
+        self._deque: deque[T] = deque(maxlen=limit)
         """The channel's buffer."""
 
         self._send_cv: Condition = Condition()
@@ -103,6 +105,18 @@ class Anycast(Generic[T]):
         exception.
         """
         return self._closed
+
+    @property
+    def limit(self) -> int:
+        """The maximum number of values that can be stored in the channel's buffer.
+
+        If the length of channel's buffer reaches the limit, then the sender
+        blocks at the [send()][frequenz.channels.Sender.send] method until
+        a value is consumed.
+        """
+        maxlen = self._deque.maxlen
+        assert maxlen is not None
+        return maxlen
 
     async def close(self) -> None:
         """Close the channel.
