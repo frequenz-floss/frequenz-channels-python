@@ -21,6 +21,12 @@ class Anycast(Generic[T]):
     Anycast channels support multiple senders and multiple receivers.  A message sent
     through a sender will be received by exactly one receiver.
 
+    This channel is buffered, and if the senders are faster than the receivers, then the
+    channel's buffer will fill up. In that case, the senders will block at the
+    [send()][frequenz.channels.Sender.send] method until the receivers consume the
+    messages in the channel's buffer. The channel's buffer size can be configured at
+    creation time via the `limit` argument.
+
     In cases where each message need to be received by every receiver, a
     [Broadcast][frequenz.channels.Broadcast] channel may be used.
 
