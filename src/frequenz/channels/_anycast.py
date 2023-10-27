@@ -154,7 +154,7 @@ class Sender(BaseSender[T]):
         Args:
             chan: A reference to the channel that this sender belongs to.
         """
-        self._chan = chan
+        self._chan: Anycast[T] = chan
         """The channel that this sender belongs to."""
 
     async def send(self, msg: T) -> None:
@@ -204,7 +204,7 @@ class Receiver(BaseReceiver[T]):
         Args:
             chan: A reference to the channel that this receiver belongs to.
         """
-        self._chan = chan
+        self._chan: Anycast[T] = chan
         """The channel that this receiver belongs to."""
 
         self._next: T | type[_Empty] = _Empty

@@ -202,7 +202,7 @@ class Sender(BaseSender[T]):
         Args:
             chan: A reference to the broadcast channel this sender belongs to.
         """
-        self._chan = chan
+        self._chan: Broadcast[T] = chan
         """The broadcast channel this sender belongs to."""
 
     async def send(self, msg: T) -> None:
@@ -259,22 +259,22 @@ class Receiver(BaseReceiver[T]):
             chan: a reference to the Broadcast channel that this receiver
                 belongs to.
         """
-        self._uuid = uuid
+        self._uuid: UUID = uuid
         """The UUID to identify the receiver in the broadcast channel's list of receivers."""
 
-        self._name = name
+        self._name: str = name
         """The name to identify the receiver.
 
         Only used for debugging purposes.
         """
 
-        self._chan = chan
+        self._chan: Broadcast[T] = chan
         """The broadcast channel that this receiver belongs to."""
 
         self._q: deque[T] = deque(maxlen=maxsize)
         """The receiver's internal message queue."""
 
-        self._active = True
+        self._active: bool = True
         """Whether the receiver is still active.
 
         If this receiver is converted into a Peekable, it will neither be
@@ -399,7 +399,7 @@ class Peekable(BasePeekable[T]):
         Args:
             chan: The broadcast channel this Peekable will try to peek into.
         """
-        self._chan = chan
+        self._chan: Broadcast[T] = chan
         """The broadcast channel this Peekable will try to peek into."""
 
     def peek(self) -> T | None:

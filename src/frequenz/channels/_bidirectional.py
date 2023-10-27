@@ -37,13 +37,13 @@ class Bidirectional(Generic[T, U]):
                 sender: A sender to send values with.
                 receiver: A receiver to receive values from.
             """
-            self._chan = channel
+            self._chan: Bidirectional[V, W] | Bidirectional[W, V] = channel
             """The underlying channel."""
 
-            self._sender = sender
+            self._sender: Sender[V] = sender
             """The sender to send values with."""
 
-            self._receiver = receiver
+            self._receiver: Receiver[W] = receiver
             """The receiver to receive values from."""
 
         async def send(self, msg: V) -> None:
@@ -119,7 +119,7 @@ class Bidirectional(Generic[T, U]):
             client_id: A name for the client, used to name the channels.
             service_id: A name for the service end of the channels.
         """
-        self._client_id = client_id
+        self._client_id: str = client_id
         """The name for the client, used to name the channels."""
 
         self._request_channel: Broadcast[T] = Broadcast(f"req_{service_id}_{client_id}")
@@ -130,14 +130,14 @@ class Bidirectional(Generic[T, U]):
         )
         """The channel to send responses."""
 
-        self._client_handle = Bidirectional.Handle(
+        self._client_handle: Bidirectional.Handle[T, U] = Bidirectional.Handle(
             self,
             self._request_channel.new_sender(),
             self._response_channel.new_receiver(),
         )
         """The handle for the client side to send/receive values."""
 
-        self._service_handle = Bidirectional.Handle(
+        self._service_handle: Bidirectional.Handle[U, T] = Bidirectional.Handle(
             self,
             self._response_channel.new_sender(),
             self._request_channel.new_receiver(),
