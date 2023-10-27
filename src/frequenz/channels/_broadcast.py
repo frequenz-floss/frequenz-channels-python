@@ -10,7 +10,6 @@ import weakref
 from asyncio import Condition
 from collections import deque
 from typing import Generic
-from uuid import UUID, uuid4
 
 from ._base_classes import Peekable as BasePeekable
 from ._base_classes import Receiver as BaseReceiver
@@ -108,8 +107,8 @@ class Broadcast(Generic[T]):
         self._recv_cv: Condition = Condition()
         """The condition to wait for data in the channel's buffer."""
 
-        self._receivers: dict[UUID, weakref.ReferenceType[Receiver[T]]] = {}
-        """The receivers attached to the channel, indexed by their UUID."""
+        self._receivers: dict[int, weakref.ReferenceType[Receiver[T]]] = {}
+        """The receivers attached to the channel, indexed by their hash()."""
 
         self._closed: bool = False
         """Whether the channel is closed."""
@@ -173,11 +172,8 @@ class Broadcast(Generic[T]):
         Returns:
             A Receiver instance attached to the broadcast channel.
         """
-        uuid = uuid4()
-        if name is None:
-            name = str(uuid)
-        recv: Receiver[T] = Receiver(uuid, name, limit, self)
-        self._receivers[uuid] = weakref.ref(recv)
+        recv: Receiver[T] = Receiver(name, limit, self)
+        self._receivers[hash(recv)] = weakref.ref(recv)
         if self.resend_latest and self._latest is not None:
             recv.enqueue(self._latest)
         return recv
@@ -230,14 +226,14 @@ class Sender(BaseSender[T]):
             )
         self._chan._latest = msg
         stale_refs = []
-        for name, recv_ref in self._chan._receivers.items():
+        for _hash, recv_ref in self._chan._receivers.items():
             recv = recv_ref()
             if recv is None:
-                stale_refs.append(name)
+                stale_refs.append(_hash)
                 continue
             recv.enqueue(msg)
-        for name in stale_refs:
-            del self._chan._receivers[name]
+        for _hash in stale_refs:
+            del self._chan._receivers[_hash]
         async with self._chan._recv_cv:
             self._chan._recv_cv.notify_all()
         # pylint: enable=protected-access
@@ -251,7 +247,7 @@ class Receiver(BaseReceiver[T]):
     method.
     """
 
-    def __init__(self, uuid: UUID, name: str, limit: int, chan: Broadcast[T]) -> None:
+    def __init__(self, name: str | None, limit: int, chan: Broadcast[T]) -> None:
         """Create a broadcast receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -259,17 +255,15 @@ class Receiver(BaseReceiver[T]):
         get dropped just in this receiver.
 
         Args:
-            uuid: A uuid to identify the receiver in the broadcast channel's
-                list of receivers.
-            name: A name to identify the receiver in the logs.
+            name: A name to identify the receiver in the logs. If `None` an
+                `id(self)`-based name will be used.  This is only for debugging
+                purposes, it will be shown in the string representation of the
+                receiver.
             limit: Number of messages the receiver can hold in its buffer.
             chan: a reference to the Broadcast channel that this receiver
                 belongs to.
         """
-        self._uuid: UUID = uuid
-        """The UUID to identify the receiver in the broadcast channel's list of receivers."""
-
-        self._name: str = name
+        self._name: str = name if name is not None else f"{id(self):_}"
         """The name to identify the receiver.
 
         Only used for debugging purposes.
@@ -351,8 +345,9 @@ class Receiver(BaseReceiver[T]):
         """Set the receiver as inactive and remove it from the channel."""
         self._active = False
         # pylint: disable=protected-access
-        if self._uuid in self._chan._receivers:
-            del self._chan._receivers[self._uuid]
+        _hash = hash(self)
+        if _hash in self._chan._receivers:
+            del self._chan._receivers[_hash]
         # pylint: enable=protected-access
 
     def consume(self) -> T:
