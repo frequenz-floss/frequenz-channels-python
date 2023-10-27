@@ -71,12 +71,12 @@ class Broadcast(Generic[T]):
         Check the `tests` and `benchmarks` directories for more examples.
     """
 
-    def __init__(self, name: str, *, resend_latest: bool = False) -> None:
+    def __init__(self, *, name: str, resend_latest: bool = False) -> None:
         """Create a Broadcast channel.
 
         Args:
-            name: A name for the broadcast channel, typically based on the type of data
-                sent through it.  Used to identify the channel in the logs.
+            name: The name of the channel. This is for logging purposes, and it will be
+                shown in the string representation of the channel.
             resend_latest: When True, every time a new receiver is created with
                 `new_receiver`, it will automatically get sent the latest value on the
                 channel.  This allows new receivers on slow streams to get the latest
@@ -116,6 +116,15 @@ class Broadcast(Generic[T]):
 
         self._latest: T | None = None
         """The latest value sent to the channel."""
+
+    @property
+    def name(self) -> str:
+        """The name of this channel.
+
+        This is for logging purposes, and it will be shown in the string representation
+        of this channel.
+        """
+        return self._name
 
     @property
     def is_closed(self) -> bool:
