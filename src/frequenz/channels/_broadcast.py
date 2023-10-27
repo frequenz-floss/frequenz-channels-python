@@ -128,6 +128,15 @@ class Broadcast(Generic[T]):
         return self._name
 
     @property
+    def latest(self) -> T | None:
+        """The latest value sent to the channel.
+
+        Returns:
+            The latest value sent to the channel, or `None` if no value was sent yet.
+        """
+        return self._latest
+
+    @property
     def is_closed(self) -> bool:
         """Whether this channel is closed.
 
