@@ -145,6 +145,19 @@ class Bidirectional(Generic[T, U]):
         """The handle for the service side to send/receive values."""
 
     @property
+    def is_closed(self) -> bool:
+        """Whether this channel is closed.
+
+        Any further attempts to use this channel after it is closed will result in an
+        exception.
+
+        As long as there is a way to send or receive data, the channel is considered
+        open, even if the other side is closed, so this returns `False` if only both
+        underlying channels are closed.
+        """
+        return self._request_channel.is_closed and self._response_channel.is_closed
+
+    @property
     def client_handle(self) -> Bidirectional.Handle[T, U]:
         """Get a `Handle` for the client side to use.
 
