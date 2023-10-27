@@ -45,7 +45,7 @@ class Event(_base_classes.Receiver[None]):
         ```
     """
 
-    def __init__(self, name: str | None = None) -> None:
+    def __init__(self, *, name: str | None = None) -> None:
         """Create a new instance.
 
         Args:

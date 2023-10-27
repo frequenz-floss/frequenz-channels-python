@@ -112,7 +112,7 @@ class Bidirectional(Generic[T, U]):
                     err.__cause__ = this_chan_error
                 raise err
 
-    def __init__(self, client_id: str, service_id: str) -> None:
+    def __init__(self, *, client_id: str, service_id: str) -> None:
         """Create a `Bidirectional` instance.
 
         Args:
