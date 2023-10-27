@@ -106,7 +106,7 @@ async def test_anycast_full() -> None:
     """Ensure send calls to a full channel are blocked."""
     buffer_size = 10
     timeout = 0.2
-    acast: Anycast[int] = Anycast(maxsize=buffer_size)
+    acast: Anycast[int] = Anycast(limit=buffer_size)
 
     receiver = acast.new_receiver()
     sender = acast.new_sender()

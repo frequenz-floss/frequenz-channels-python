@@ -150,9 +150,7 @@ class Broadcast(Generic[T]):
         """
         return Sender(self)
 
-    def new_receiver(
-        self, *, name: str | None = None, maxsize: int = 50
-    ) -> Receiver[T]:
+    def new_receiver(self, *, name: str | None = None, limit: int = 50) -> Receiver[T]:
         """Create a new broadcast receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -161,7 +159,7 @@ class Broadcast(Generic[T]):
 
         Args:
             name: A name to identify the receiver in the logs.
-            maxsize: Size of the receiver's buffer.
+            limit: Number of messages the receiver can hold in its buffer.
 
         Returns:
             A Receiver instance attached to the broadcast channel.
@@ -169,7 +167,7 @@ class Broadcast(Generic[T]):
         uuid = uuid4()
         if name is None:
             name = str(uuid)
-        recv: Receiver[T] = Receiver(uuid, name, maxsize, self)
+        recv: Receiver[T] = Receiver(uuid, name, limit, self)
         self._receivers[uuid] = weakref.ref(recv)
         if self.resend_latest and self._latest is not None:
             recv.enqueue(self._latest)
@@ -244,7 +242,7 @@ class Receiver(BaseReceiver[T]):
     method.
     """
 
-    def __init__(self, uuid: UUID, name: str, maxsize: int, chan: Broadcast[T]) -> None:
+    def __init__(self, uuid: UUID, name: str, limit: int, chan: Broadcast[T]) -> None:
         """Create a broadcast receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -255,7 +253,7 @@ class Receiver(BaseReceiver[T]):
             uuid: A uuid to identify the receiver in the broadcast channel's
                 list of receivers.
             name: A name to identify the receiver in the logs.
-            maxsize: Size of the receiver's buffer.
+            limit: Number of messages the receiver can hold in its buffer.
             chan: a reference to the Broadcast channel that this receiver
                 belongs to.
         """
@@ -271,7 +269,7 @@ class Receiver(BaseReceiver[T]):
         self._chan: Broadcast[T] = chan
         """The broadcast channel that this receiver belongs to."""
 
-        self._q: deque[T] = deque(maxlen=maxsize)
+        self._q: deque[T] = deque(maxlen=limit)
         """The receiver's internal message queue."""
 
         self._active: bool = True
