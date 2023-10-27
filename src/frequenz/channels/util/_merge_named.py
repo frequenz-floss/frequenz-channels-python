@@ -28,7 +28,7 @@ class MergeNamed(Receiver[tuple[str, T]]):
         """The sequence of channel receivers to get the messages to merge."""
 
         self._pending: set[asyncio.Task[Any]] = {
-            asyncio.create_task(recv.__anext__(), name=name)
+            asyncio.create_task(anext(recv), name=name)
             for name, recv in self._receivers.items()
         }
         """The set of pending tasks to merge messages."""
@@ -83,7 +83,7 @@ class MergeNamed(Receiver[tuple[str, T]]):
                 self._results.append((name, result))
                 self._pending.add(
                     # pylint: disable=unnecessary-dunder-call
-                    asyncio.create_task(self._receivers[name].__anext__(), name=name)
+                    asyncio.create_task(anext(self._receivers[name]), name=name)
                 )
 
     def consume(self) -> tuple[str, T]:
