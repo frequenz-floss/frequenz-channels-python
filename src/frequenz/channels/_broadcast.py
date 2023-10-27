@@ -117,6 +117,15 @@ class Broadcast(Generic[T]):
         self._latest: T | None = None
         """The latest value sent to the channel."""
 
+    @property
+    def is_closed(self) -> bool:
+        """Whether this channel is closed.
+
+        Any further attempts to use this channel after it is closed will result in an
+        exception.
+        """
+        return self._closed
+
     async def close(self) -> None:
         """Close the Broadcast channel.
 

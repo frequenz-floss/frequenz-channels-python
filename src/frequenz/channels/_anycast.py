@@ -97,6 +97,15 @@ class Anycast(Generic[T]):
         self._closed: bool = False
         """Whether the channel is closed."""
 
+    @property
+    def is_closed(self) -> bool:
+        """Whether this channel is closed.
+
+        Any further attempts to use this channel after it is closed will result in an
+        exception.
+        """
+        return self._closed
+
     async def close(self) -> None:
         """Close the channel.
 
