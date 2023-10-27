@@ -71,7 +71,7 @@ class Broadcast(Generic[T]):
         Check the `tests` and `benchmarks` directories for more examples.
     """
 
-    def __init__(self, name: str, resend_latest: bool = False) -> None:
+    def __init__(self, name: str, *, resend_latest: bool = False) -> None:
         """Create a Broadcast channel.
 
         Args:
@@ -141,7 +141,9 @@ class Broadcast(Generic[T]):
         """
         return Sender(self)
 
-    def new_receiver(self, name: str | None = None, maxsize: int = 50) -> Receiver[T]:
+    def new_receiver(
+        self, *, name: str | None = None, maxsize: int = 50
+    ) -> Receiver[T]:
         """Create a new broadcast receiver.
 
         Broadcast receivers have their own buffer, and when messages are not

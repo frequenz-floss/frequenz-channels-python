@@ -57,9 +57,9 @@ class TestSelect:
 
     def setup_method(self) -> None:
         """Set up the test."""
-        self.recv1 = Event("recv1")
-        self.recv2 = Event("recv2")
-        self.recv3 = Event("recv3")
+        self.recv1 = Event(name="recv1")
+        self.recv2 = Event(name="recv2")
+        self.recv3 = Event(name="recv3")
 
     def assert_received_from(
         self,

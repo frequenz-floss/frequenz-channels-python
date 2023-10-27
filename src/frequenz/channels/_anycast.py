@@ -61,7 +61,7 @@ class Anycast(Generic[T]):
         Check the `tests` and `benchmarks` directories for more examples.
     """
 
-    def __init__(self, maxsize: int = 10) -> None:
+    def __init__(self, *, maxsize: int = 10) -> None:
         """Create an Anycast channel.
 
         Args:

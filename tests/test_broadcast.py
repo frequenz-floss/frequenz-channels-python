@@ -111,8 +111,8 @@ async def test_broadcast_overflow() -> None:
     small_recv_size = int(big_recv_size / 2)
     sender = bcast.new_sender()
 
-    big_receiver = bcast.new_receiver("named-recv", big_recv_size)
-    small_receiver = bcast.new_receiver(None, small_recv_size)
+    big_receiver = bcast.new_receiver(name="named-recv", maxsize=big_recv_size)
+    small_receiver = bcast.new_receiver(maxsize=small_recv_size)
 
     async def drain_receivers() -> tuple[int, int]:
         big_sum = 0
