@@ -173,10 +173,10 @@ class _Map(Receiver[U], Generic[T, U]):
             receiver: The input receiver.
             transform: The function to run on the input data.
         """
-        self._receiver = receiver
+        self._receiver: Receiver[T] = receiver
         """The input receiver."""
 
-        self._transform = transform
+        self._transform: Callable[[T], U] = transform
         """The function to run on the input data."""
 
     async def ready(self) -> bool:

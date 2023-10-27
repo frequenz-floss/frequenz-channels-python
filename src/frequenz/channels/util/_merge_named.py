@@ -24,7 +24,7 @@ class MergeNamed(Receiver[tuple[str, T]]):
         Args:
             **kwargs: sequence of channel receivers.
         """
-        self._receivers = kwargs
+        self._receivers: dict[str, Receiver[T]] = kwargs
         """The sequence of channel receivers to get the messages to merge."""
 
         self._pending: set[asyncio.Task[Any]] = {
