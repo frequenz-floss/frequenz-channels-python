@@ -113,7 +113,7 @@ class FileWatcher(Receiver["FileWatcher.Event"]):
             return False
 
         try:
-            self._changes = await self._awatch.__anext__()
+            self._changes = await anext(self._awatch)
         except StopAsyncIteration as err:
             self._awatch_stopped_exc = err
 

@@ -45,7 +45,7 @@ class Merge(Receiver[T]):
         """
         self._receivers = {str(id): recv for id, recv in enumerate(args)}
         self._pending: set[asyncio.Task[Any]] = {
-            asyncio.create_task(recv.__anext__(), name=name)
+            asyncio.create_task(anext(recv), name=name)
             for name, recv in self._receivers.items()
         }
         self._results: deque[T] = deque(maxlen=len(self._receivers))
@@ -96,8 +96,7 @@ class Merge(Receiver[T]):
                 result = item.result()
                 self._results.append(result)
                 self._pending.add(
-                    # pylint: disable=unnecessary-dunder-call
-                    asyncio.create_task(self._receivers[name].__anext__(), name=name)
+                    asyncio.create_task(anext(self._receivers[name]), name=name)
                 )
 
     def consume(self) -> T:
