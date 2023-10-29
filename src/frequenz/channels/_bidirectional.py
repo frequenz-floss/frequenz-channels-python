@@ -112,24 +112,19 @@ class Bidirectional(Generic[T, U]):
                     err.__cause__ = this_chan_error
                 raise err
 
-    def __init__(self, *, client_id: str, service_id: str) -> None:
+    def __init__(self, *, name: str | None = None) -> None:
         """Create a `Bidirectional` instance.
 
         Args:
-            client_id: A name for the client, used to name the channels.
-            service_id: A name for the service end of the channels.
+            name: A name for the client, used to name the channels.
         """
-        self._client_id: str = client_id
+        self._name: str = f"{id(self):_}" if name is None else name
         """The name for the client, used to name the channels."""
 
-        self._request_channel: Broadcast[T] = Broadcast(
-            name=f"req_{service_id}_{client_id}"
-        )
+        self._request_channel: Broadcast[T] = Broadcast(name=f"{self._name}:request")
         """The channel to send requests."""
 
-        self._response_channel: Broadcast[U] = Broadcast(
-            name=f"resp_{service_id}_{client_id}"
-        )
+        self._response_channel: Broadcast[U] = Broadcast(name=f"{self._name}:response")
         """The channel to send responses."""
 
         self._client_handle: Bidirectional.Handle[T, U] = Bidirectional.Handle(

@@ -18,9 +18,7 @@ from frequenz.channels import (
 
 async def test_request_response() -> None:
     """Ensure bi-directional communication is possible."""
-    req_resp: Bidirectional[int, str] = Bidirectional(
-        client_id="test_client", service_id="test_service"
-    )
+    req_resp: Bidirectional[int, str] = Bidirectional(name="test_service")
 
     async def service(handle: Bidirectional.Handle[str, int]) -> None:
         while True:
@@ -54,9 +52,7 @@ async def test_request_response() -> None:
 
 async def test_sender_error_chaining() -> None:
     """Ensure bi-directional communication is possible."""
-    req_resp: Bidirectional[int, str] = Bidirectional(
-        client_id="test_client", service_id="test_service"
-    )
+    req_resp: Bidirectional[int, str] = Bidirectional(name="test_service")
 
     await req_resp._response_channel.close()  # pylint: disable=protected-access
 
@@ -72,9 +68,7 @@ async def test_sender_error_chaining() -> None:
 
 async def test_consume_error_chaining() -> None:
     """Ensure bi-directional communication is possible."""
-    req_resp: Bidirectional[int, str] = Bidirectional(
-        client_id="test_client", service_id="test_service"
-    )
+    req_resp: Bidirectional[int, str] = Bidirectional(name="test_service")
 
     await req_resp._request_channel.close()  # pylint: disable=protected-access
 
