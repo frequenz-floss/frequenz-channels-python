@@ -93,8 +93,6 @@ class Receiver(ABC, Generic[T]):
         Raises:
             ReceiverStoppedError: if there is some problem with the receiver.
             ReceiverError: if there is some problem with the receiver.
-
-        # noqa: DAR401 __cause__ (https://github.com/terrencepreilly/darglint/issues/181)
         """
         try:
             received = await self.__anext__()  # pylint: disable=unnecessary-dunder-call
