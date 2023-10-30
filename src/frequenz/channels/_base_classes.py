@@ -166,14 +166,14 @@ class _Map(Receiver[U], Generic[T, U]):
     - The output type: return type of the transform method.
     """
 
-    def __init__(self, recv: Receiver[T], transform: Callable[[T], U]) -> None:
+    def __init__(self, receiver: Receiver[T], transform: Callable[[T], U]) -> None:
         """Create a `Transform` instance.
 
         Args:
-            recv: The input receiver.
+            receiver: The input receiver.
             transform: The function to run on the input data.
         """
-        self._recv = recv
+        self._receiver = receiver
         """The input receiver."""
 
         self._transform = transform
@@ -190,7 +190,7 @@ class _Map(Receiver[U], Generic[T, U]):
         Returns:
             Whether the receiver is still active.
         """
-        return await self._recv.ready()  # pylint: disable=protected-access
+        return await self._receiver.ready()  # pylint: disable=protected-access
 
     # We need a noqa here because the docs have a Raises section but the code doesn't
     # explicitly raise anything.
@@ -203,4 +203,6 @@ class _Map(Receiver[U], Generic[T, U]):
         Raises:
             ChannelClosedError: if the underlying channel is closed.
         """
-        return self._transform(self._recv.consume())  # pylint: disable=protected-access
+        return self._transform(
+            self._receiver.consume()
+        )  # pylint: disable=protected-access
