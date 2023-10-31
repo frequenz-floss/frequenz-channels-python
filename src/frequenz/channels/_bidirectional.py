@@ -147,6 +147,15 @@ class Bidirectional(Generic[T, U]):
         """The handle for the service side to send/receive values."""
 
     @property
+    def name(self) -> str:
+        """The name of this channel.
+
+        This is for debugging purposes, it will be shown in the string representation
+        of this channel.
+        """
+        return self._name
+
+    @property
     def is_closed(self) -> bool:
         """Whether this channel is closed.
 
