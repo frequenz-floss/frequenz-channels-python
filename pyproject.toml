@@ -66,7 +66,7 @@ dev-pytest = [
   "pytest == 7.4.3",
   "async-solipsism == 0.5",
   "hypothesis == 6.88.1",
-  "pytest-asyncio == 0.21.1",
+  "pytest-asyncio == 0.22.0",
   "frequenz-repo-config[extra-lint-examples] == 0.5.2",
   "pytest-mock == 3.12.0",
 ]
