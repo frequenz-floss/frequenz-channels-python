@@ -5,7 +5,7 @@
 
 import asyncio
 from collections import deque
-from typing import Any, Deque
+from typing import Any
 
 from .._base_classes import Receiver, T
 from .._exceptions import ReceiverStoppedError
@@ -48,7 +48,7 @@ class Merge(Receiver[T]):
             asyncio.create_task(recv.__anext__(), name=name)
             for name, recv in self._receivers.items()
         }
-        self._results: Deque[T] = deque(maxlen=len(self._receivers))
+        self._results: deque[T] = deque(maxlen=len(self._receivers))
 
     def __del__(self) -> None:
         """Cleanup any pending tasks."""
