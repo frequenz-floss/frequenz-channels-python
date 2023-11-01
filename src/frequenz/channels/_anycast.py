@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from asyncio import Condition
 from collections import deque
-from typing import Deque, Generic
+from typing import Generic
 
 from ._base_classes import Receiver as BaseReceiver
 from ._base_classes import Sender as BaseSender
@@ -75,7 +75,7 @@ class Anycast(Generic[T]):
         a value is consumed.
         """
 
-        self._deque: Deque[T] = deque(maxlen=maxsize)
+        self._deque: deque[T] = deque(maxlen=maxsize)
         """The channel's buffer."""
 
         self._send_cv: Condition = Condition()

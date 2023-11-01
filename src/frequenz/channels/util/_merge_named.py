@@ -5,7 +5,7 @@
 
 import asyncio
 from collections import deque
-from typing import Any, Deque
+from typing import Any
 
 from .._base_classes import Receiver, T
 from .._exceptions import ReceiverStoppedError
@@ -33,7 +33,7 @@ class MergeNamed(Receiver[tuple[str, T]]):
         }
         """The set of pending tasks to merge messages."""
 
-        self._results: Deque[tuple[str, T]] = deque(maxlen=len(self._receivers))
+        self._results: deque[tuple[str, T]] = deque(maxlen=len(self._receivers))
         """The internal buffer of merged messages."""
 
     def __del__(self) -> None:

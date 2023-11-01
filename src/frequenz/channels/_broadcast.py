@@ -9,7 +9,7 @@ import logging
 import weakref
 from asyncio import Condition
 from collections import deque
-from typing import Deque, Generic
+from typing import Generic
 from uuid import UUID, uuid4
 
 from ._base_classes import Peekable as BasePeekable
@@ -260,7 +260,7 @@ class Receiver(BaseReceiver[T]):
         self._chan = chan
         """The broadcast channel that this receiver belongs to."""
 
-        self._q: Deque[T] = deque(maxlen=maxsize)
+        self._q: deque[T] = deque(maxlen=maxsize)
         """The receiver's internal message queue."""
 
         self._active = True
