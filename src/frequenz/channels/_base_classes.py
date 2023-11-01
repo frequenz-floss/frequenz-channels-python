@@ -93,8 +93,6 @@ class Receiver(ABC, Generic[T]):
         Raises:
             ReceiverStoppedError: if there is some problem with the receiver.
             ReceiverError: if there is some problem with the receiver.
-
-        # noqa: DAR401 __cause__ (https://github.com/terrencepreilly/darglint/issues/181)
         """
         try:
             received = await self.__anext__()  # pylint: disable=unnecessary-dunder-call
@@ -129,6 +127,10 @@ class Receiver(ABC, Generic[T]):
 
         Once this function has been called, the receiver will no longer be
         usable, and calling `receive` on the receiver will raise an exception.
+
+        Returns:
+            A `Peekable` that can be used to peek at the latest value in the
+                channel.
 
         Raises:
             NotImplementedError: when a `Receiver` implementation doesn't have
@@ -190,7 +192,9 @@ class _Map(Receiver[U], Generic[T, U]):
         """
         return await self._recv.ready()  # pylint: disable=protected-access
 
-    def consume(self) -> U:
+    # We need a noqa here because the docs have a Raises section but the code doesn't
+    # explicitly raise anything.
+    def consume(self) -> U:  # noqa: DOC502
         """Return a transformed value once `ready()` is complete.
 
         Returns:

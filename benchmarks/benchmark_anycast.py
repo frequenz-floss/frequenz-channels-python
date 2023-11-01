@@ -16,8 +16,8 @@ async def send_msg(num_messages: int, chan: Sender[int]) -> None:
     """Send messages to the channel continuously.
 
     Args:
-        num_messages (int): Number of messages to send.
-        chan (Sender[int]): Channel sender to send the messages to.
+        num_messages: Number of messages to send.
+        chan: Channel sender to send the messages to.
     """
     # send one message for each receiver
     for ctr in range(num_messages):
@@ -33,13 +33,13 @@ async def benchmark_anycast(
     """Ensure sent messages are received by one receiver.
 
     Args:
-        num_channels (int): Number of channels to create.
-        num_messages (int): Number of messages to send per channel.
-        num_receivers (int): Number of broadcast receivers per channel.
-        buffer_size (int): Buffer size of each channel.
+        num_channels: Number of channels to create.
+        num_messages: Number of messages to send per channel.
+        num_receivers: Number of broadcast receivers per channel.
+        buffer_size: Buffer size of each channel.
 
     Returns:
-        int: Total number of messages received by all channels.
+        Total number of messages received by all channels.
     """
     channels: list[Anycast[int]] = [Anycast(buffer_size) for _ in range(num_channels)]
     senders = [
@@ -73,10 +73,10 @@ def time_async_task(task: Coroutine[Any, Any, int]) -> tuple[float, Any]:
     """Run a task and return the time taken and the result.
 
     Args:
-        task (asyncio.Task): Task to run.
+        task: Task to run.
 
     Returns:
-        (float, Any): Run time in fractional seconds, task return value.
+        Run time in fractional seconds, task return value.
     """
     start = timeit.default_timer()
     ret = asyncio.run(task)

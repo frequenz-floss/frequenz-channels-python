@@ -84,8 +84,6 @@ class Selected(Generic[_T]):
                 this should be an [`frequenz.channels.Error`][frequenz.channels.Error]
                 instance, but catches all exceptions in case some receivers can raise
                 anything else.
-
-        # noqa: DAR401 _exception
         """
         if self._exception is not None:
             raise self._exception

@@ -16,6 +16,17 @@ The `Timer` now can be started with a delay.
 
 * `Broadcast.resend_latest` is now a public attribute, allowing it to be changed after the channel is created.
 
+* The arm64 architecture is now officially supported.
+
+* The documentation was improved to:
+
+  - Show signatures with types.
+  - Show the inherited members.
+  - Documentation for pre-releases are now published.
+  - Show the full tag name as the documentation version.
+  - All development branches now have their documentation published (there is no `next` version anymore).
+  - Fix the order of the documentation versions.
+
 ## Bug Fixes
 
 <!-- Here goes notable bug fixes that are worth a special mention or explanation -->

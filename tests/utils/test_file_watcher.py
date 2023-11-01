@@ -37,8 +37,11 @@ class _FakeAwatch:
         """Fake awatch function.
 
         Args:
-            paths: Paths to watch.
-            kwargs: Keyword arguments to pass to the awatch function.
+            *paths: Paths to watch.
+            **kwargs: Keyword arguments to pass to the awatch function.
+
+        Yields:
+            The file changes in the sequence provided to the constructor.
         """
         for change in self.changes:
             yield {change}

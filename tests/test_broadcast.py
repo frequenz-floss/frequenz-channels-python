@@ -21,7 +21,6 @@ from frequenz.channels import (
 
 async def test_broadcast() -> None:
     """Ensure sent messages are received by all receivers."""
-
     bcast: Broadcast[int] = Broadcast("meter_5")
 
     num_receivers = 5
@@ -63,7 +62,7 @@ async def test_broadcast() -> None:
 
     actual_sum = 0
     for ctr in recv_trackers:
-        ## ensure all receivers have got messages
+        # ensure all receivers have got messages
         assert ctr > 0
         actual_sum += ctr
     assert actual_sum == expected_sum

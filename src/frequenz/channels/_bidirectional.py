@@ -95,8 +95,6 @@ class Bidirectional(Generic[T, U]):
             Raises:
                 ReceiverStoppedError: if there is some problem with the receiver.
                 ReceiverError: if there is some problem with the receiver.
-
-            # noqa: DAR401 err (https://github.com/terrencepreilly/darglint/issues/181)
             """
             try:
                 return self._receiver.consume()  # pylint: disable=protected-access

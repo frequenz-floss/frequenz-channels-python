@@ -482,8 +482,10 @@ class Timer(Receiver[timedelta]):
         if auto_start:
             self.reset(start_delay=start_delay)
 
+    # We need a noqa here because the docs have a Raises section but the documented
+    # exceptions are raised indirectly.
     @classmethod
-    def timeout(
+    def timeout(  # noqa: DOC502
         cls,
         delay: timedelta,
         /,
@@ -530,8 +532,10 @@ class Timer(Receiver[timedelta]):
             loop=loop,
         )
 
+    # We need a noqa here because the docs have a Raises section but the documented
+    # exceptions are raised indirectly.
     @classmethod
-    def periodic(
+    def periodic(  # noqa: DOC502
         cls,
         period: timedelta,
         /,
@@ -661,7 +665,9 @@ class Timer(Receiver[timedelta]):
         # We need to make sure it's not None, otherwise `ready()` will start it
         self._next_tick_time = self._now()
 
-    async def ready(self) -> bool:
+    # We need a noqa here because the docs have a Raises section but the documented
+    # exceptions are raised indirectly.
+    async def ready(self) -> bool:  # noqa: DOC502
         """Wait until the timer `interval` passed.
 
         Once a call to `ready()` has finished, the resulting tick information
