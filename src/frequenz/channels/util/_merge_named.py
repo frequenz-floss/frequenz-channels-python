@@ -2,8 +2,8 @@
 # Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
 """Merge messages coming from channels into a single stream containing name of message."""
-
 import asyncio
+import itertools
 from collections import deque
 from typing import Any
 
@@ -102,3 +102,19 @@ class MergeNamed(Receiver[tuple[str, T]]):
         assert self._results, "`consume()` must be preceded by a call to `ready()`"
 
         return self._results.popleft()
+
+    def __str__(self) -> str:
+        """Return a string representation of this receiver."""
+        if len(self._receivers) > 3:
+            receivers = [str(p) for p in itertools.islice(self._receivers, 3)]
+            receivers.append("…")
+        else:
+            receivers = [str(p) for p in self._receivers]
+        return f"{type(self).__name__}:{','.join(receivers)}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this receiver."""
+        return (
+            f"{type(self).__name__}("
+            f"{', '.join(f'{k}={v!r}' for k, v in self._receivers.items())})"
+        )

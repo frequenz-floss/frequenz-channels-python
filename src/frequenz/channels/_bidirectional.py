@@ -112,6 +112,17 @@ class Bidirectional(Generic[T, U]):
                     err.__cause__ = this_chan_error
                 raise err
 
+        def __str__(self) -> str:
+            """Return a string representation of this handle."""
+            return f"{type(self).__name__}:{self._chan}"
+
+        def __repr__(self) -> str:
+            """Return a string representation of this handle."""
+            return (
+                f"{type(self).__name__}(channel={self._chan!r}, "
+                f"sender={self._sender!r}, receiver={self._receiver!r})"
+            )
+
     def __init__(self, *, name: str) -> None:
         """Create a `Bidirectional` instance.
 
@@ -181,3 +192,15 @@ class Bidirectional(Generic[T, U]):
             Object to send/receive messages with.
         """
         return self._service_handle
+
+    def __str__(self) -> str:
+        """Return a string representation of this channel."""
+        return f"{type(self).__name__}:{self._name}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this channel."""
+        return (
+            f"{type(self).__name__}(name={self._name!r}):<"
+            f"request_channel={self._request_channel!r}, "
+            f"response_channel={self._response_channel!r}>"
+        )
