@@ -363,7 +363,7 @@ jobs:
         if: steps.mike-version.outputs.version
         run: |
           git checkout gh-pages
-          python -m frequenz.repo.config.cli.version.mkdocs.sort versions.json
+          python -m frequenz.repo.config.cli.version.mike.sort versions.json
           git commit -a -m "Sort versions.json"
 
       - name: Publish site
