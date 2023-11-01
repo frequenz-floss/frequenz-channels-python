@@ -206,3 +206,11 @@ class _Map(Receiver[U], Generic[T, U]):
         return self._transform(
             self._receiver.consume()
         )  # pylint: disable=protected-access
+
+    def __str__(self) -> str:
+        """Return a string representation of the timer."""
+        return f"{type(self).__name__}:{self._receiver}:{self._transform}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of the timer."""
+        return f"{type(self).__name__}({self._receiver!r}, {self._transform!r})"

@@ -171,6 +171,17 @@ class Anycast(Generic[T]):
         """
         return Receiver(self)
 
+    def __str__(self) -> str:
+        """Return a string representation of this channel."""
+        return f"{type(self).__name__}:{self._name}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this channel."""
+        return (
+            f"{type(self).__name__}(name={self._name!r}, limit={self.limit!r}):<"
+            f"current={len(self._deque)!r}, closed={self._closed!r}>"
+        )
+
 
 class Sender(BaseSender[T]):
     """A sender to send messages to an Anycast channel.
@@ -216,6 +227,14 @@ class Sender(BaseSender[T]):
         async with self._chan._recv_cv:
             self._chan._recv_cv.notify(1)
         # pylint: enable=protected-access
+
+    def __str__(self) -> str:
+        """Return a string representation of this sender."""
+        return f"{self._chan}:{type(self).__name__}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this sender."""
+        return f"{type(self).__name__}({self._chan!r})"
 
 
 class _Empty:
@@ -291,3 +310,11 @@ class Receiver(BaseReceiver[T]):
         self._next = _Empty
 
         return next_val
+
+    def __str__(self) -> str:
+        """Return a string representation of this receiver."""
+        return f"{self._chan}:{type(self).__name__}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this receiver."""
+        return f"{type(self).__name__}({self._chan!r})"

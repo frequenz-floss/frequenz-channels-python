@@ -137,3 +137,17 @@ class FileWatcher(Receiver["FileWatcher.Event"]):
         return FileWatcher.Event(
             type=FileWatcher.EventType(change), path=pathlib.Path(path_str)
         )
+
+    def __str__(self) -> str:
+        """Return a string representation of this receiver."""
+        if len(self._paths) > 3:
+            paths = [str(p) for p in self._paths[:3]]
+            paths.append("…")
+        else:
+            paths = [str(p) for p in self._paths]
+        event_types = [event_type.name for event_type in self.event_types]
+        return f"{type(self).__name__}:{','.join(event_types)}:{','.join(paths)}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this receiver."""
+        return f"{type(self).__name__}({self._paths!r}, {self.event_types!r})"

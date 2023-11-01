@@ -200,6 +200,20 @@ class Broadcast(Generic[T]):
         """
         return Peekable(self)
 
+    def __str__(self) -> str:
+        """Return a string representation of this receiver."""
+        return f"{type(self).__name__}:{self._name}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this channel."""
+        return (
+            f"{type(self).__name__}(name={self._name!r}, "
+            f"resend_latest={self.resend_latest!r}):<"
+            f"latest={self._latest!r}, "
+            f"receivers={len(self._receivers)!r}, "
+            f"closed={self._closed!r}>"
+        )
+
 
 class Sender(BaseSender[T]):
     """A sender to send messages to the broadcast channel.
@@ -247,6 +261,14 @@ class Sender(BaseSender[T]):
         async with self._chan._recv_cv:
             self._chan._recv_cv.notify_all()
         # pylint: enable=protected-access
+
+    def __str__(self) -> str:
+        """Return a string representation of this sender."""
+        return f"{self._chan}:{type(self).__name__}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this sender."""
+        return f"{type(self).__name__}({self._chan!r})"
 
 
 class Receiver(BaseReceiver[T]):
@@ -396,6 +418,20 @@ class Receiver(BaseReceiver[T]):
         self._deactivate()
         return Peekable(self._chan)
 
+    def __str__(self) -> str:
+        """Return a string representation of this receiver."""
+        return f"{self._chan}:{type(self).__name__}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this receiver."""
+        limit = self._q.maxlen
+        assert limit is not None
+        return (
+            f"{type(self).__name__}(name={self._name!r}, limit={limit!r}, "
+            f"{self._chan!r}):<id={id(self)!r}, used={len(self._q)!r}, "
+            f"active={self._active!r}>"
+        )
+
 
 class Peekable(BasePeekable[T]):
     """A Peekable to peek into broadcast channels.
@@ -422,3 +458,11 @@ class Peekable(BasePeekable[T]):
                 has been sent to the channel yet, or if the channel is closed.
         """
         return self._chan._latest  # pylint: disable=protected-access
+
+    def __str__(self) -> str:
+        """Return a string representation of this receiver."""
+        return f"{self._chan}:{type(self).__name__}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this receiver."""
+        return f"{type(self).__name__}({self._chan!r}):<latest={self.peek()!r}>"
