@@ -162,7 +162,7 @@ Currently, our CI conducts tests on `arm64` machines using QEMU emulation. We
 also have the flexibility to expand this support to include additional
 architectures in the future.
 
-This project containers Dockerfiles that can be used in the CI to test the
+This project contains Dockerfiles that can be used in the CI to test the
 python package in non-native machine architectures, e.g., `arm64`. The
 Dockerfiles exist in the directory `.github/containers/nox-cross-arch`, and
 follow a naming scheme so that they can be easily used in build matrices in the
