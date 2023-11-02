@@ -91,20 +91,6 @@ class Broadcast(Generic[T]):
         Only used for debugging purposes.
         """
 
-        self.resend_latest: bool = resend_latest
-        """Whether to resend the latest value to new receivers.
-
-        It is `False` by default.
-
-        When `True`, every time a new receiver is created with `new_receiver`, it will
-        automatically get sent the latest value on the channel.  This allows new
-        receivers on slow streams to get the latest value as soon as they are created,
-        without having to wait for the next message on the channel to arrive.
-
-        It is safe to be set in data/reporting channels, but is not recommended for use
-        in channels that stream control instructions.
-        """
-
         self._recv_cv: Condition = Condition()
         """The condition to wait for data in the channel's buffer."""
 
@@ -116,6 +102,18 @@ class Broadcast(Generic[T]):
 
         self._latest: T | None = None
         """The latest value sent to the channel."""
+
+        self.resend_latest: bool = resend_latest
+        """Whether to resend the latest value to new receivers.
+
+        When `True`, every time a new receiver is created with `new_receiver`, it will
+        automatically get sent the latest value on the channel.  This allows new
+        receivers on slow streams to get the latest value as soon as they are created,
+        without having to wait for the next message on the channel to arrive.
+
+        It is safe to be set in data/reporting channels, but is not recommended for use
+        in channels that stream control instructions.
+        """
 
     @property
     def name(self) -> str:
