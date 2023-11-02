@@ -3,29 +3,28 @@
 
 """A channel to broadcast messages to all receivers."""
 
-from __future__ import annotations
-
 import logging
 import weakref
 from asyncio import Condition
 from collections import deque
-from typing import Generic
+from typing import Generic, TypeVar
 
-from ._base_classes import Peekable as BasePeekable
-from ._base_classes import Receiver as BaseReceiver
-from ._base_classes import Sender as BaseSender
-from ._base_classes import T
-from ._exceptions import (
-    ChannelClosedError,
+from ._exceptions import ChannelClosedError
+from ._receiver import (
+    Peekable,
+    Receiver,
     ReceiverInvalidatedError,
     ReceiverStoppedError,
-    SenderError,
 )
+from ._sender import Sender, SenderError
 
 logger = logging.Logger(__name__)
 
 
-class Broadcast(Generic[T]):
+_T = TypeVar("_T")
+
+
+class Broadcast(Generic[_T]):
     """A channel to broadcast messages to multiple receivers.
 
     `Broadcast` channels can have multiple senders and multiple receivers. Each
@@ -37,9 +36,9 @@ class Broadcast(Generic[T]):
     are thread-safe.  Because of this, `Broadcast` channels are thread-safe.
 
     When there are multiple channel receivers, they can be awaited
-    simultaneously using [select][frequenz.channels.util.select],
-    [Merge][frequenz.channels.util.Merge] or
-    [MergeNamed][frequenz.channels.util.MergeNamed].
+    simultaneously using [select][frequenz.channels.select],
+    [Merge][frequenz.channels.merge.Merge] or
+    [MergeNamed][frequenz.channels.merge_named.MergeNamed].
 
     Example:
         ``` python
@@ -94,13 +93,13 @@ class Broadcast(Generic[T]):
         self._recv_cv: Condition = Condition()
         """The condition to wait for data in the channel's buffer."""
 
-        self._receivers: dict[int, weakref.ReferenceType[Receiver[T]]] = {}
+        self._receivers: dict[int, weakref.ReferenceType[_Receiver[_T]]] = {}
         """The receivers attached to the channel, indexed by their hash()."""
 
         self._closed: bool = False
         """Whether the channel is closed."""
 
-        self._latest: T | None = None
+        self._latest: _T | None = None
         """The latest value sent to the channel."""
 
         self.resend_latest: bool = resend_latest
@@ -125,7 +124,7 @@ class Broadcast(Generic[T]):
         return self._name
 
     @property
-    def latest(self) -> T | None:
+    def latest(self) -> _T | None:
         """The latest value sent to the channel.
 
         Returns:
@@ -158,15 +157,15 @@ class Broadcast(Generic[T]):
         async with self._recv_cv:
             self._recv_cv.notify_all()
 
-    def new_sender(self) -> Sender[T]:
+    def new_sender(self) -> Sender[_T]:
         """Create a new broadcast sender.
 
         Returns:
             A Sender instance attached to the broadcast channel.
         """
-        return Sender(self)
+        return _Sender(self)
 
-    def new_receiver(self, *, name: str | None = None, limit: int = 50) -> Receiver[T]:
+    def new_receiver(self, *, name: str | None = None, limit: int = 50) -> Receiver[_T]:
         """Create a new broadcast receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -180,13 +179,13 @@ class Broadcast(Generic[T]):
         Returns:
             A Receiver instance attached to the broadcast channel.
         """
-        recv: Receiver[T] = Receiver(name, limit, self)
+        recv: _Receiver[_T] = _Receiver(name, limit, self)
         self._receivers[hash(recv)] = weakref.ref(recv)
         if self.resend_latest and self._latest is not None:
             recv.enqueue(self._latest)
         return recv
 
-    def new_peekable(self) -> Peekable[T]:
+    def new_peekable(self) -> Peekable[_T]:
         """Create a new Peekable for the broadcast channel.
 
         A Peekable provides a [peek()][frequenz.channels.Peekable.peek] method
@@ -196,7 +195,7 @@ class Broadcast(Generic[T]):
         Returns:
             A Peekable to peek into the broadcast channel with.
         """
-        return Peekable(self)
+        return _Peekable(self)
 
     def __str__(self) -> str:
         """Return a string representation of this receiver."""
@@ -213,7 +212,7 @@ class Broadcast(Generic[T]):
         )
 
 
-class Sender(BaseSender[T]):
+class _Sender(Sender[_T]):
     """A sender to send messages to the broadcast channel.
 
     Should not be created directly, but through the
@@ -221,16 +220,16 @@ class Sender(BaseSender[T]):
     method.
     """
 
-    def __init__(self, chan: Broadcast[T]) -> None:
+    def __init__(self, chan: Broadcast[_T]) -> None:
         """Create a Broadcast sender.
 
         Args:
             chan: A reference to the broadcast channel this sender belongs to.
         """
-        self._chan: Broadcast[T] = chan
+        self._chan: Broadcast[_T] = chan
         """The broadcast channel this sender belongs to."""
 
-    async def send(self, msg: T) -> None:
+    async def send(self, msg: _T) -> None:
         """Send a message to all broadcast receivers.
 
         Args:
@@ -269,7 +268,7 @@ class Sender(BaseSender[T]):
         return f"{type(self).__name__}({self._chan!r})"
 
 
-class Receiver(BaseReceiver[T]):
+class _Receiver(Receiver[_T]):
     """A receiver to receive messages from the broadcast channel.
 
     Should not be created directly, but through the
@@ -277,7 +276,7 @@ class Receiver(BaseReceiver[T]):
     method.
     """
 
-    def __init__(self, name: str | None, limit: int, chan: Broadcast[T]) -> None:
+    def __init__(self, name: str | None, limit: int, chan: Broadcast[_T]) -> None:
         """Create a broadcast receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -299,10 +298,10 @@ class Receiver(BaseReceiver[T]):
         Only used for debugging purposes.
         """
 
-        self._chan: Broadcast[T] = chan
+        self._chan: Broadcast[_T] = chan
         """The broadcast channel that this receiver belongs to."""
 
-        self._q: deque[T] = deque(maxlen=limit)
+        self._q: deque[_T] = deque(maxlen=limit)
         """The receiver's internal message queue."""
 
         self._active: bool = True
@@ -312,7 +311,7 @@ class Receiver(BaseReceiver[T]):
         considered valid nor active.
         """
 
-    def enqueue(self, msg: T) -> None:
+    def enqueue(self, msg: _T) -> None:
         """Put a message into this receiver's queue.
 
         To be called by broadcast senders.  If the receiver's queue is already
@@ -379,7 +378,7 @@ class Receiver(BaseReceiver[T]):
             del self._chan._receivers[_hash]
         # pylint: enable=protected-access
 
-    def consume(self) -> T:
+    def consume(self) -> _T:
         """Return the latest value once `ready` is complete.
 
         Returns:
@@ -402,7 +401,7 @@ class Receiver(BaseReceiver[T]):
         assert self._q, "`consume()` must be preceded by a call to `ready()`"
         return self._q.popleft()
 
-    def into_peekable(self) -> Peekable[T]:
+    def into_peekable(self) -> Peekable[_T]:
         """Convert the `Receiver` implementation into a `Peekable`.
 
         Once this function has been called, the receiver will no longer be
@@ -413,7 +412,7 @@ class Receiver(BaseReceiver[T]):
             A `Peekable` instance.
         """
         self._deactivate()
-        return Peekable(self._chan)
+        return _Peekable(self._chan)
 
     def __str__(self) -> str:
         """Return a string representation of this receiver."""
@@ -430,7 +429,7 @@ class Receiver(BaseReceiver[T]):
         )
 
 
-class Peekable(BasePeekable[T]):
+class _Peekable(Peekable[_T]):
     """A Peekable to peek into broadcast channels.
 
     A Peekable provides a [peek()][frequenz.channels.Peekable] method that
@@ -438,16 +437,16 @@ class Peekable(BasePeekable[T]):
     consuming anything.
     """
 
-    def __init__(self, chan: Broadcast[T]) -> None:
+    def __init__(self, chan: Broadcast[_T]) -> None:
         """Create a `Peekable` instance.
 
         Args:
             chan: The broadcast channel this Peekable will try to peek into.
         """
-        self._chan: Broadcast[T] = chan
+        self._chan: Broadcast[_T] = chan
         """The broadcast channel this Peekable will try to peek into."""
 
-    def peek(self) -> T | None:
+    def peek(self) -> _T | None:
         """Return the latest value that was sent to the channel.
 
         Returns:

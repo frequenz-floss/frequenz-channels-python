@@ -9,13 +9,13 @@ import asyncio
 import pytest
 
 from frequenz.channels import (
-    Anycast,
     ChannelClosedError,
     Receiver,
     ReceiverStoppedError,
     Sender,
     SenderError,
 )
+from frequenz.channels.anycast import Anycast
 
 
 async def test_anycast() -> None:

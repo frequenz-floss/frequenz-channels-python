@@ -9,7 +9,8 @@ import timeit
 from collections.abc import Coroutine
 from typing import Any
 
-from frequenz.channels import Anycast, Receiver, Sender
+from frequenz.channels import Receiver, Sender
+from frequenz.channels.anycast import Anycast
 
 
 async def send_msg(num_messages: int, chan: Sender[int]) -> None:

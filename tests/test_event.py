@@ -8,7 +8,7 @@ import asyncio as _asyncio
 import pytest as _pytest
 
 from frequenz.channels import ReceiverStoppedError
-from frequenz.channels.util import Event
+from frequenz.channels.event import Event
 
 
 async def test_event() -> None:

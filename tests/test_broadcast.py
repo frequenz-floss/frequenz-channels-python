@@ -9,7 +9,6 @@ import asyncio
 import pytest
 
 from frequenz.channels import (
-    Broadcast,
     ChannelClosedError,
     Receiver,
     ReceiverInvalidatedError,
@@ -17,6 +16,8 @@ from frequenz.channels import (
     Sender,
     SenderError,
 )
+from frequenz.channels.broadcast import Broadcast
+from frequenz.channels.broadcast import _Receiver as BroadcastReceiver
 
 
 async def test_broadcast() -> None:
@@ -112,7 +113,9 @@ async def test_broadcast_overflow() -> None:
     sender = bcast.new_sender()
 
     big_receiver = bcast.new_receiver(name="named-recv", limit=big_recv_size)
+    assert isinstance(big_receiver, BroadcastReceiver)
     small_receiver = bcast.new_receiver(limit=small_recv_size)
+    assert isinstance(small_receiver, BroadcastReceiver)
 
     async def drain_receivers() -> tuple[int, int]:
         big_sum = 0

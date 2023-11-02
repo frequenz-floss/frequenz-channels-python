@@ -10,7 +10,8 @@ from collections.abc import Callable, Coroutine
 from functools import partial
 from typing import Any
 
-from frequenz.channels import Broadcast, Receiver, Sender
+from frequenz.channels import Receiver, Sender
+from frequenz.channels.broadcast import Broadcast
 
 
 async def component_sender(num_messages: int, chan: Sender[int]) -> None:

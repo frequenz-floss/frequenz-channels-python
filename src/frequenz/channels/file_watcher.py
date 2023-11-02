@@ -3,8 +3,6 @@
 
 """A Channel receiver for watching for new, modified or deleted files."""
 
-from __future__ import annotations
-
 import asyncio
 import pathlib
 from collections import abc
@@ -14,33 +12,34 @@ from enum import Enum
 from watchfiles import Change, awatch
 from watchfiles.main import FileChange
 
-from .._base_classes import Receiver
-from .._exceptions import ReceiverStoppedError
+from ._receiver import Receiver, ReceiverStoppedError
 
 
-class FileWatcher(Receiver["FileWatcher.Event"]):
+class EventType(Enum):
+    """Available types of changes to watch for."""
+
+    CREATE = Change.added
+    """A new file was created."""
+
+    MODIFY = Change.modified
+    """An existing file was modified."""
+
+    DELETE = Change.deleted
+    """An existing file was deleted."""
+
+
+@dataclass(frozen=True)
+class Event:
+    """A file change event."""
+
+    type: EventType
+    """The type of change that was observed."""
+    path: pathlib.Path
+    """The path where the change was observed."""
+
+
+class FileWatcher(Receiver[Event]):
     """A channel receiver that watches for file events."""
-
-    class EventType(Enum):
-        """Available types of changes to watch for."""
-
-        CREATE = Change.added
-        """A new file was created."""
-
-        MODIFY = Change.modified
-        """An existing file was modified."""
-
-        DELETE = Change.deleted
-        """An existing file was deleted."""
-
-    @dataclass(frozen=True)
-    class Event:
-        """A file change event."""
-
-        type: FileWatcher.EventType
-        """The type of change that was observed."""
-        path: pathlib.Path
-        """The path where the change was observed."""
 
     def __init__(
         self,
@@ -54,7 +53,7 @@ class FileWatcher(Receiver["FileWatcher.Event"]):
             event_types: Types of events to watch for. Defaults to watch for
                 all event types.
         """
-        self.event_types: frozenset[FileWatcher.EventType] = frozenset(event_types)
+        self.event_types: frozenset[EventType] = frozenset(event_types)
         """The types of events to watch for."""
 
         self._stop_event: asyncio.Event = asyncio.Event()
@@ -134,9 +133,7 @@ class FileWatcher(Receiver["FileWatcher.Event"]):
         assert self._changes, "`consume()` must be preceded by a call to `ready()`"
         # Tuple of (Change, path) returned by watchfiles
         change, path_str = self._changes.pop()
-        return FileWatcher.Event(
-            type=FileWatcher.EventType(change), path=pathlib.Path(path_str)
-        )
+        return Event(type=EventType(change), path=pathlib.Path(path_str))
 
     def __str__(self) -> str:
         """Return a string representation of this receiver."""

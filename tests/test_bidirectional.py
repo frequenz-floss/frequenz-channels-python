@@ -8,19 +8,19 @@ import asyncio
 import pytest
 
 from frequenz.channels import (
-    Bidirectional,
     ChannelClosedError,
     ChannelError,
     ReceiverError,
     SenderError,
 )
+from frequenz.channels.bidirectional import Bidirectional, Handle
 
 
 async def test_request_response() -> None:
     """Ensure bi-directional communication is possible."""
     req_resp: Bidirectional[int, str] = Bidirectional(name="test_service")
 
-    async def service(handle: Bidirectional.Handle[str, int]) -> None:
+    async def service(handle: Handle[str, int]) -> None:
         while True:
             num = await handle.receive()
             if num is None:
@@ -36,7 +36,7 @@ async def test_request_response() -> None:
         service(req_resp.service_handle),
     )
 
-    client_handle: Bidirectional.Handle[int, str] = req_resp.client_handle
+    client_handle: Handle[int, str] = req_resp.client_handle
 
     for ctr in range(-5, 5):
         await client_handle.send(ctr)

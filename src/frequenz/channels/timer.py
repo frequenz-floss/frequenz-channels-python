@@ -11,14 +11,12 @@ Note:
     time, which can lead to very hard to reproduce, and debug, issues.
 """
 
-from __future__ import annotations
-
 import abc
 import asyncio
 from datetime import timedelta
+from typing import Self
 
-from .._base_classes import Receiver
-from .._exceptions import ReceiverStoppedError
+from ._receiver import Receiver, ReceiverStoppedError
 
 
 def _to_microseconds(time: float | timedelta) -> int:
@@ -271,7 +269,7 @@ class Timer(Receiver[timedelta]):
     """A timer receiver that triggers every `interval` time.
 
     The timer has microseconds resolution, so the
-    [`interval`][frequenz.channels.util.Timer.interval] must be at least
+    [`interval`][frequenz.channels.timer.Timer.interval] must be at least
     1 microsecond.
 
     The message it produces is a [`timedelta`][datetime.timedelta] containing the drift
@@ -284,34 +282,34 @@ class Timer(Receiver[timedelta]):
     as the timer uses [`asyncio`][asyncio]s loop monotonic clock.
 
     If the timer is delayed too much, then it will behave according to the
-    [`missed_tick_policy`][frequenz.channels.util.Timer.missed_tick_policy]. Missing
+    [`missed_tick_policy`][frequenz.channels.timer.Timer.missed_tick_policy]. Missing
     ticks might or might not trigger a message and the drift could be accumulated or not
     depending on the chosen policy.
 
     These are the currently built-in available policies:
 
-    * [`SkipMissedAndDrift`][frequenz.channels.util.SkipMissedAndDrift]
-    * [`SkipMissedAndResync`][frequenz.channels.util.SkipMissedAndResync]
-    * [`TriggerAllMissed`][frequenz.channels.util.TriggerAllMissed]
+    * [`SkipMissedAndDrift`][frequenz.channels.timer.SkipMissedAndDrift]
+    * [`SkipMissedAndResync`][frequenz.channels.timer.SkipMissedAndResync]
+    * [`TriggerAllMissed`][frequenz.channels.timer.TriggerAllMissed]
 
     For the most common cases, a specialized constructor is provided:
 
-    * [`periodic()`][frequenz.channels.util.Timer.periodic] (uses the
-      [`TriggerAllMissed`][frequenz.channels.util.TriggerAllMissed] or
-      [`SkipMissedAndResync`][frequenz.channels.util.SkipMissedAndResync] policy)
-    * [`timeout()`][frequenz.channels.util.Timer.timeout] (uses the
-      [`SkipMissedAndDrift`][frequenz.channels.util.SkipMissedAndDrift] policy)
+    * [`periodic()`][frequenz.channels.timer.Timer.periodic] (uses the
+      [`TriggerAllMissed`][frequenz.channels.timer.TriggerAllMissed] or
+      [`SkipMissedAndResync`][frequenz.channels.timer.SkipMissedAndResync] policy)
+    * [`timeout()`][frequenz.channels.timer.Timer.timeout] (uses the
+      [`SkipMissedAndDrift`][frequenz.channels.timer.SkipMissedAndDrift] policy)
 
-    The timer accepts an optional [`loop`][frequenz.channels.util.Timer.loop], which
+    The timer accepts an optional [`loop`][frequenz.channels.timer.Timer.loop], which
     will be used to track the time. If `loop` is `None`, then the running loop will be
     used (if there is no running loop most calls will raise
     a [`RuntimeError`][RuntimeError]).
 
     Starting the timer can be delayed if necessary by using `auto_start=False`
     (for example until we have a running loop). A call to
-    [`reset()`][frequenz.channels.util.Timer.reset],
-    [`ready()`][frequenz.channels.util.Timer.ready],
-    [`receive()`][frequenz.channels.util.Timer.receive] or the async iterator interface
+    [`reset()`][frequenz.channels.timer.Timer.reset],
+    [`ready()`][frequenz.channels.timer.Timer.ready],
+    [`receive()`][frequenz.channels.timer.Timer.receive] or the async iterator interface
     to await for a new message will start the timer.
 
     Example: Periodic timer example
@@ -320,13 +318,13 @@ class Timer(Receiver[timedelta]):
             print(f"The timer has triggered {drift=}")
         ```
 
-        But you can also use a [`select`][frequenz.channels.util.select] to combine
+        But you can also use a [`select`][frequenz.channels.select] to combine
         it with other receivers, and even start it (semi) manually:
 
         ```python
         import logging
-        from frequenz.channels.util import select, selected_from
-        from frequenz.channels import Broadcast
+        from frequenz.channels import select, selected_from
+        from frequenz.channels.broadcast import Broadcast
 
         timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
         chan = Broadcast[int](name="input-chan")
@@ -349,8 +347,8 @@ class Timer(Receiver[timedelta]):
     Example: Timeout example
         ```python
         import logging
-        from frequenz.channels.util import select, selected_from
-        from frequenz.channels import Broadcast
+        from frequenz.channels import select, selected_from
+        from frequenz.channels.broadcast import Broadcast
 
         def process_data(data: int):
             logging.info("Processing data: %d", data)
@@ -493,7 +491,7 @@ class Timer(Receiver[timedelta]):
         auto_start: bool = True,
         start_delay: timedelta = timedelta(0),
         loop: asyncio.AbstractEventLoop | None = None,
-    ) -> Timer:
+    ) -> Self:
         """Create a timer useful for tracking timeouts.
 
         This is basically a shortcut to create a timer with
@@ -524,7 +522,7 @@ class Timer(Receiver[timedelta]):
                 microsecond; if `start_delay` is negative or `start_delay` was specified
                 but `auto_start` is `False`.
         """
-        return Timer(
+        return cls(
             delay,
             SkipMissedAndDrift(delay_tolerance=timedelta(0)),
             auto_start=auto_start,
@@ -544,7 +542,7 @@ class Timer(Receiver[timedelta]):
         auto_start: bool = True,
         start_delay: timedelta = timedelta(0),
         loop: asyncio.AbstractEventLoop | None = None,
-    ) -> Timer:
+    ) -> Self:
         """Create a periodic timer.
 
         This is basically a shortcut to create a timer with either
@@ -581,7 +579,7 @@ class Timer(Receiver[timedelta]):
         missed_tick_policy = (
             SkipMissedAndResync() if skip_missed_ticks else TriggerAllMissed()
         )
-        return Timer(
+        return cls(
             period,
             missed_tick_policy,
             auto_start=auto_start,

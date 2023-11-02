@@ -3,19 +3,18 @@
 
 """A channel for sending data across async tasks."""
 
-from __future__ import annotations
-
 from asyncio import Condition
 from collections import deque
-from typing import Generic
+from typing import Generic, TypeVar
 
-from ._base_classes import Receiver as BaseReceiver
-from ._base_classes import Sender as BaseSender
-from ._base_classes import T
-from ._exceptions import ChannelClosedError, ReceiverStoppedError, SenderError
+from ._exceptions import ChannelClosedError
+from ._receiver import Receiver, ReceiverStoppedError
+from ._sender import Sender, SenderError
+
+_T = TypeVar("_T")
 
 
-class Anycast(Generic[T]):
+class Anycast(Generic[_T]):
     """A channel for sending data across async tasks.
 
     Anycast channels support multiple senders and multiple receivers.  A message sent
@@ -28,15 +27,15 @@ class Anycast(Generic[T]):
     creation time via the `limit` argument.
 
     In cases where each message need to be received by every receiver, a
-    [Broadcast][frequenz.channels.Broadcast] channel may be used.
+    [Broadcast][frequenz.channels.broadcast.Broadcast] channel may be used.
 
     Uses an [deque][collections.deque] internally, so Anycast channels are not
     thread-safe.
 
     When there are multiple channel receivers, they can be awaited
-    simultaneously using [select][frequenz.channels.util.select],
-    [Merge][frequenz.channels.util.Merge] or
-    [MergeNamed][frequenz.channels.util.MergeNamed].
+    simultaneously using [select][frequenz.channels.select],
+    [Merge][frequenz.channels.merge.Merge] or
+    [MergeNamed][frequenz.channels.merge_named.MergeNamed].
 
     Example:
         ``` python
@@ -85,7 +84,7 @@ class Anycast(Generic[T]):
         of the channel.
         """
 
-        self._deque: deque[T] = deque(maxlen=limit)
+        self._deque: deque[_T] = deque(maxlen=limit)
         """The channel's buffer."""
 
         self._send_cv: Condition = Condition()
@@ -155,21 +154,21 @@ class Anycast(Generic[T]):
         async with self._recv_cv:
             self._recv_cv.notify_all()
 
-    def new_sender(self) -> Sender[T]:
+    def new_sender(self) -> Sender[_T]:
         """Create a new sender.
 
         Returns:
             A Sender instance attached to the Anycast channel.
         """
-        return Sender(self)
+        return _Sender(self)
 
-    def new_receiver(self) -> Receiver[T]:
+    def new_receiver(self) -> Receiver[_T]:
         """Create a new receiver.
 
         Returns:
             A Receiver instance attached to the Anycast channel.
         """
-        return Receiver(self)
+        return _Receiver(self)
 
     def __str__(self) -> str:
         """Return a string representation of this channel."""
@@ -183,23 +182,23 @@ class Anycast(Generic[T]):
         )
 
 
-class Sender(BaseSender[T]):
+class _Sender(Sender[_T]):
     """A sender to send messages to an Anycast channel.
 
     Should not be created directly, but through the `Anycast.new_sender()`
     method.
     """
 
-    def __init__(self, chan: Anycast[T]) -> None:
+    def __init__(self, chan: Anycast[_T]) -> None:
         """Create a channel sender.
 
         Args:
             chan: A reference to the channel that this sender belongs to.
         """
-        self._chan: Anycast[T] = chan
+        self._chan: Anycast[_T] = chan
         """The channel that this sender belongs to."""
 
-    async def send(self, msg: T) -> None:
+    async def send(self, msg: _T) -> None:
         """Send a message across the channel.
 
         To send, this method inserts the message into the Anycast channel's
@@ -241,23 +240,23 @@ class _Empty:
     """A sentinel value to indicate that a value has not been set."""
 
 
-class Receiver(BaseReceiver[T]):
+class _Receiver(Receiver[_T]):
     """A receiver to receive messages from an Anycast channel.
 
     Should not be created directly, but through the `Anycast.new_receiver()`
     method.
     """
 
-    def __init__(self, chan: Anycast[T]) -> None:
+    def __init__(self, chan: Anycast[_T]) -> None:
         """Create a channel receiver.
 
         Args:
             chan: A reference to the channel that this receiver belongs to.
         """
-        self._chan: Anycast[T] = chan
+        self._chan: Anycast[_T] = chan
         """The channel that this receiver belongs to."""
 
-        self._next: T | type[_Empty] = _Empty
+        self._next: _T | type[_Empty] = _Empty
 
     async def ready(self) -> bool:
         """Wait until the receiver is ready with a value or an error.
@@ -286,7 +285,7 @@ class Receiver(BaseReceiver[T]):
         # pylint: enable=protected-access
         return True
 
-    def consume(self) -> T:
+    def consume(self) -> _T:
         """Return the latest value once `ready()` is complete.
 
         Returns:
@@ -306,7 +305,7 @@ class Receiver(BaseReceiver[T]):
         ), "`consume()` must be preceded by a call to `ready()`"
         # mypy doesn't understand that the assert above ensures that self._next is not
         # _Sentinel.  So we have to use a type ignore here.
-        next_val: T = self._next  # type: ignore[assignment]
+        next_val: _T = self._next  # type: ignore[assignment]
         self._next = _Empty
 
         return next_val

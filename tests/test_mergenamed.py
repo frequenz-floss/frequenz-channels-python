@@ -5,8 +5,9 @@
 
 import asyncio
 
-from frequenz.channels import Anycast, Sender
-from frequenz.channels.util import MergeNamed
+from frequenz.channels import Sender
+from frequenz.channels.anycast import Anycast
+from frequenz.channels.merge_named import MergeNamed
 
 
 async def test_mergenamed() -> None:

@@ -4,27 +4,27 @@
 """A receiver that can be made ready through an event."""
 
 
-import asyncio as _asyncio
+import asyncio
 
-from frequenz.channels import _base_classes, _exceptions
+from ._receiver import Receiver, ReceiverStoppedError
 
 
-class Event(_base_classes.Receiver[None]):
+class Event(Receiver[None]):
     """A receiver that can be made ready through an event.
 
-    The receiver (the [`ready()`][frequenz.channels.util.Event.ready] method) will wait
-    until [`set()`][frequenz.channels.util.Event.set] is called.  At that point the
+    The receiver (the [`ready()`][frequenz.channels.event.Event.ready] method) will wait
+    until [`set()`][frequenz.channels.event.Event.set] is called.  At that point the
     receiver will wait again after the event is
     [`consume()`][frequenz.channels.Receiver.consume]d.
 
     The receiver can be completely stopped by calling
-    [`stop()`][frequenz.channels.util.Event.stop].
+    [`stop()`][frequenz.channels.event.Event.stop].
 
     Example:
         ```python
         import asyncio
-        from frequenz.channels import Receiver
-        from frequenz.channels.util import Event, select, selected_from
+        from frequenz.channels import Receiver, select, selected_from
+        from frequenz.channels.event import Event
 
         other_receiver: Receiver[int] = ...
         exit_event = Event()
@@ -53,7 +53,7 @@ class Event(_base_classes.Receiver[None]):
                 used. This is only for debugging purposes, it will be shown in the
                 string representation of the receiver.
         """
-        self._event: _asyncio.Event = _asyncio.Event()
+        self._event: asyncio.Event = asyncio.Event()
         """The event that is set when the receiver is ready."""
 
         self._name: str = f"{id(self):_}" if name is None else name
@@ -134,7 +134,7 @@ class Event(_base_classes.Receiver[None]):
             ReceiverStoppedError: If this receiver is stopped.
         """
         if not self._is_set and self._is_stopped:
-            raise _exceptions.ReceiverStoppedError(self)
+            raise ReceiverStoppedError(self)
 
         assert self._is_set, "calls to `consume()` must be follow a call to `ready()`"
 
