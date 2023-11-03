@@ -384,7 +384,7 @@ class Timer(Receiver[timedelta]):
         next tick to be relative to the time timer was last triggered.
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         interval: timedelta,
         missed_tick_policy: MissedTickPolicy,
@@ -535,7 +535,7 @@ class Timer(Receiver[timedelta]):
     # We need a noqa here because the docs have a Raises section but the documented
     # exceptions are raised indirectly.
     @classmethod
-    def periodic(  # noqa: DOC502
+    def periodic(  # noqa: DOC502 pylint: disable=too-many-arguments
         cls,
         period: timedelta,
         /,
