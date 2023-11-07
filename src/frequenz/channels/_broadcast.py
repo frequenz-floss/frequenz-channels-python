@@ -12,10 +12,8 @@ from collections import deque
 from typing import Generic, TypeVar
 
 from ._exceptions import ChannelClosedError
-from ._receiver import Receiver as BaseReceiver
-from ._receiver import ReceiverStoppedError
-from ._sender import Sender as BaseSender
-from ._sender import SenderError
+from ._receiver import Receiver, ReceiverStoppedError
+from ._sender import Sender, SenderError
 
 _logger = logging.Logger(__name__)
 
@@ -145,7 +143,7 @@ class Broadcast(Generic[_T]):
         async with self._recv_cv:
             self._recv_cv.notify_all()
 
-    def new_sender(self) -> BaseSender[_T]:
+    def new_sender(self) -> Sender[_T]:
         """Create a new broadcast sender.
 
         Returns:
@@ -153,9 +151,7 @@ class Broadcast(Generic[_T]):
         """
         return _Sender(self)
 
-    def new_receiver(
-        self, *, name: str | None = None, limit: int = 50
-    ) -> BaseReceiver[_T]:
+    def new_receiver(self, *, name: str | None = None, limit: int = 50) -> Receiver[_T]:
         """Create a new broadcast receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -190,7 +186,7 @@ class Broadcast(Generic[_T]):
         )
 
 
-class _Sender(BaseSender[_T]):
+class _Sender(Sender[_T]):
     """A sender to send messages to the broadcast channel.
 
     Should not be created directly, but through the
@@ -246,7 +242,7 @@ class _Sender(BaseSender[_T]):
         return f"{type(self).__name__}({self._chan!r})"
 
 
-class _Receiver(BaseReceiver[_T]):
+class _Receiver(Receiver[_T]):
     """A receiver to receive messages from the broadcast channel.
 
     Should not be created directly, but through the

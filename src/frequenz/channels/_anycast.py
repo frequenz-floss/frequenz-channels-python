@@ -11,10 +11,8 @@ from collections import deque
 from typing import Generic, TypeVar
 
 from ._exceptions import ChannelClosedError
-from ._receiver import Receiver as BaseReceiver
-from ._receiver import ReceiverStoppedError
-from ._sender import Sender as BaseSender
-from ._sender import SenderError
+from ._receiver import Receiver, ReceiverStoppedError
+from ._sender import Sender, SenderError
 
 _logger = logging.getLogger(__name__)
 
@@ -160,7 +158,7 @@ class Anycast(Generic[_T]):
         async with self._recv_cv:
             self._recv_cv.notify_all()
 
-    def new_sender(self) -> BaseSender[_T]:
+    def new_sender(self) -> Sender[_T]:
         """Create a new sender.
 
         Returns:
@@ -168,7 +166,7 @@ class Anycast(Generic[_T]):
         """
         return _Sender(self)
 
-    def new_receiver(self) -> BaseReceiver[_T]:
+    def new_receiver(self) -> Receiver[_T]:
         """Create a new receiver.
 
         Returns:
@@ -188,7 +186,7 @@ class Anycast(Generic[_T]):
         )
 
 
-class _Sender(BaseSender[_T]):
+class _Sender(Sender[_T]):
     """A sender to send messages to an Anycast channel.
 
     Should not be created directly, but through the `Anycast.new_sender()`
@@ -256,7 +254,7 @@ class _Empty:
     """A sentinel value to indicate that a value has not been set."""
 
 
-class _Receiver(BaseReceiver[_T]):
+class _Receiver(Receiver[_T]):
     """A receiver to receive messages from an Anycast channel.
 
     Should not be created directly, but through the `Anycast.new_receiver()`
