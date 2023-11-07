@@ -10,7 +10,7 @@ from datetime import timedelta
 import pytest
 
 from frequenz.channels import select, selected_from
-from frequenz.channels.file_watcher import FileWatcher
+from frequenz.channels.file_watcher import Event, EventType, FileWatcher
 from frequenz.channels.timer import Timer
 
 
@@ -33,12 +33,8 @@ async def test_file_watcher(tmp_path: pathlib.Path) -> None:
         if selected_from(selected, timer):
             filename.write_text(f"{selected.value}")
         elif selected_from(selected, file_watcher):
-            event_type = (
-                FileWatcher.EventType.CREATE
-                if number_of_writes == 0
-                else FileWatcher.EventType.MODIFY
-            )
-            assert selected.value == FileWatcher.Event(type=event_type, path=filename)
+            event_type = EventType.CREATE if number_of_writes == 0 else EventType.MODIFY
+            assert selected.value == Event(type=event_type, path=filename)
             number_of_writes += 1
             # After receiving a write 3 times, unsubscribe from the writes channel
             if number_of_writes == expected_number_of_writes:
@@ -58,9 +54,7 @@ async def test_file_watcher_deletes(tmp_path: pathlib.Path) -> None:
         tmp_path: A tmp directory to run the file watcher on. Created by pytest.
     """
     filename = tmp_path / "test-file"
-    file_watcher = FileWatcher(
-        paths=[str(tmp_path)], event_types={FileWatcher.EventType.DELETE}
-    )
+    file_watcher = FileWatcher(paths=[str(tmp_path)], event_types={EventType.DELETE})
     write_timer = Timer.timeout(timedelta(seconds=0.1))
     deletion_timer = Timer.timeout(timedelta(seconds=0.25))
 

@@ -17,6 +17,16 @@ from ._receiver import Receiver, ReceiverStoppedError
 _T = TypeVar("_T")
 
 
+class _EmptyResult:
+    """A sentinel value to distinguish between None and empty result.
+
+    We need a sentinel because a result can also be `None`.
+    """
+
+    def __repr__(self) -> str:
+        return "<empty>"
+
+
 class Selected(Generic[_T]):
     """A result of a [`select()`][frequenz.channels.select] iteration.
 
@@ -30,15 +40,6 @@ class Selected(Generic[_T]):
 
     Please see [`select()`][frequenz.channels.select] for an example.
     """
-
-    class _EmptyResult:
-        """A sentinel value to distinguish between None and empty result.
-
-        We need a sentinel because a result can also be `None`.
-        """
-
-        def __repr__(self) -> str:
-            return "<empty>"
 
     def __init__(self, receiver: Receiver[_T]) -> None:
         """Create a new instance.
@@ -55,7 +56,7 @@ class Selected(Generic[_T]):
         self._recv: Receiver[_T] = receiver
         """The receiver that was selected."""
 
-        self._value: _T | Selected._EmptyResult = Selected._EmptyResult()
+        self._value: _T | _EmptyResult = _EmptyResult()
         """The value that was received.
 
         If there was an exception while receiving the value, then this will be `None`.
@@ -86,7 +87,7 @@ class Selected(Generic[_T]):
         """
         if self._exception is not None:
             raise self._exception
-        assert not isinstance(self._value, Selected._EmptyResult)
+        assert not isinstance(self._value, _EmptyResult)
         return self._value
 
     @property

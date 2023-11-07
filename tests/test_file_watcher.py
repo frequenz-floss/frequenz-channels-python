@@ -15,7 +15,7 @@ import pytest
 from watchfiles import Change
 from watchfiles.main import FileChange
 
-from frequenz.channels.file_watcher import FileWatcher
+from frequenz.channels.file_watcher import Event, EventType, FileWatcher
 
 
 class _FakeAwatch:
@@ -74,14 +74,14 @@ async def test_file_watcher_receive_updates(
 
     for change in changes:
         recv_changes = await file_watcher.receive()
-        event_type = FileWatcher.EventType(change[0])
+        event_type = EventType(change[0])
         path = pathlib.Path(change[1])
-        assert recv_changes == FileWatcher.Event(type=event_type, path=path)
+        assert recv_changes == Event(type=event_type, path=path)
 
 
-@hypothesis.given(event_types=st.sets(st.sampled_from(FileWatcher.EventType)))
+@hypothesis.given(event_types=st.sets(st.sampled_from(EventType)))
 async def test_file_watcher_filter_events(
-    event_types: set[FileWatcher.EventType],
+    event_types: set[EventType],
 ) -> None:
     """Test the file watcher events filtering."""
     good_path = "good-file"
@@ -100,7 +100,7 @@ async def test_file_watcher_filter_events(
                 pathlib.Path(good_path), stop_event=mock.ANY, watch_filter=filter_events
             )
         ]
-        for event_type in FileWatcher.EventType:
+        for event_type in EventType:
             assert filter_events(event_type.value, good_path) == (
                 event_type in event_types
             )
