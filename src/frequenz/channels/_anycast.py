@@ -166,7 +166,7 @@ class Anycast(Generic[_T]):
         Returns:
             A Sender instance attached to the Anycast channel.
         """
-        return Sender(self)
+        return _Sender(self)
 
     def new_receiver(self) -> BaseReceiver[_T]:
         """Create a new receiver.
@@ -174,7 +174,7 @@ class Anycast(Generic[_T]):
         Returns:
             A Receiver instance attached to the Anycast channel.
         """
-        return Receiver(self)
+        return _Receiver(self)
 
     def __str__(self) -> str:
         """Return a string representation of this channel."""
@@ -188,7 +188,7 @@ class Anycast(Generic[_T]):
         )
 
 
-class Sender(BaseSender[_T]):
+class _Sender(BaseSender[_T]):
     """A sender to send messages to an Anycast channel.
 
     Should not be created directly, but through the `Anycast.new_sender()`
@@ -256,7 +256,7 @@ class _Empty:
     """A sentinel value to indicate that a value has not been set."""
 
 
-class Receiver(BaseReceiver[_T]):
+class _Receiver(BaseReceiver[_T]):
     """A receiver to receive messages from an Anycast channel.
 
     Should not be created directly, but through the `Anycast.new_receiver()`

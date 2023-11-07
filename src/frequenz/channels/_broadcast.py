@@ -90,7 +90,7 @@ class Broadcast(Generic[_T]):
         self._recv_cv: Condition = Condition()
         """The condition to wait for data in the channel's buffer."""
 
-        self._receivers: dict[int, weakref.ReferenceType[Receiver[_T]]] = {}
+        self._receivers: dict[int, weakref.ReferenceType[_Receiver[_T]]] = {}
         """The receivers attached to the channel, indexed by their hash()."""
 
         self._closed: bool = False
@@ -151,7 +151,7 @@ class Broadcast(Generic[_T]):
         Returns:
             A Sender instance attached to the broadcast channel.
         """
-        return Sender(self)
+        return _Sender(self)
 
     def new_receiver(
         self, *, name: str | None = None, limit: int = 50
@@ -169,7 +169,7 @@ class Broadcast(Generic[_T]):
         Returns:
             A Receiver instance attached to the broadcast channel.
         """
-        recv: Receiver[_T] = Receiver(name, limit, self)
+        recv: _Receiver[_T] = _Receiver(name, limit, self)
         self._receivers[hash(recv)] = weakref.ref(recv)
         if self.resend_latest and self._latest is not None:
             recv.enqueue(self._latest)
@@ -190,7 +190,7 @@ class Broadcast(Generic[_T]):
         )
 
 
-class Sender(BaseSender[_T]):
+class _Sender(BaseSender[_T]):
     """A sender to send messages to the broadcast channel.
 
     Should not be created directly, but through the
@@ -246,7 +246,7 @@ class Sender(BaseSender[_T]):
         return f"{type(self).__name__}({self._chan!r})"
 
 
-class Receiver(BaseReceiver[_T]):
+class _Receiver(BaseReceiver[_T]):
     """A receiver to receive messages from the broadcast channel.
 
     Should not be created directly, but through the
