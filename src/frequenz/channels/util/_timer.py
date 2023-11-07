@@ -319,7 +319,7 @@ class Timer(Receiver[timedelta]):
             print(f"The timer has triggered {drift=}")
         ```
 
-        But you can also use a [`select`][frequenz.channels.util.select] to combine
+        But you can also use a [`select`][frequenz.channels.select] to combine
         it with other receivers, and even start it (semi) manually:
 
         ```python

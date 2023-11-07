@@ -1,41 +1,58 @@
 # License: MIT
 # Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-"""Merge messages coming from channels into a single stream containing name of message."""
+"""Merge messages coming from channels into a single stream."""
+
 import asyncio
 import itertools
 from collections import deque
 from typing import Any, TypeVar
 
-from .._receiver import Receiver, ReceiverStoppedError
+from ._receiver import Receiver, ReceiverStoppedError
 
 _T = TypeVar("_T")
 
 
-class MergeNamed(Receiver[tuple[str, _T]]):
-    """Merge messages coming from multiple named channels into a single stream.
+class Merge(Receiver[_T]):
+    """Merge messages coming from multiple channels into a single stream.
 
-    When `MergeNamed` is no longer needed, then it should be stopped using
-    `self.stop()` method. This will cleanup any internal pending async tasks.
+    Example:
+        For example, if there are two channel receivers with the same type,
+        they can be awaited together, and their results merged into a single
+        stream, by using `Merge` like this:
+
+        ```python
+        from frequenz.channels import Broadcast
+
+        channel1 = Broadcast[int](name="input-chan-1")
+        channel2 = Broadcast[int](name="input-chan-2")
+        receiver1 = channel1.new_receiver()
+        receiver2 = channel2.new_receiver()
+
+        merge = Merge(receiver1, receiver2)
+        while msg := await merge.receive():
+            # do something with msg
+            pass
+        ```
+
+        When `merge` is no longer needed, then it should be stopped using
+        `self.stop()` method. This will cleanup any internal pending async tasks.
     """
 
-    def __init__(self, **kwargs: Receiver[_T]) -> None:
-        """Create a `MergeNamed` instance.
+    def __init__(self, *args: Receiver[_T]) -> None:
+        """Create a `Merge` instance.
 
         Args:
-            **kwargs: sequence of channel receivers.
+            *args: sequence of channel receivers.
         """
-        self._receivers: dict[str, Receiver[_T]] = kwargs
-        """The sequence of channel receivers to get the messages to merge."""
-
+        self._receivers: dict[str, Receiver[_T]] = {
+            str(id): recv for id, recv in enumerate(args)
+        }
         self._pending: set[asyncio.Task[Any]] = {
             asyncio.create_task(anext(recv), name=name)
             for name, recv in self._receivers.items()
         }
-        """The set of pending tasks to merge messages."""
-
-        self._results: deque[tuple[str, _T]] = deque(maxlen=len(self._receivers))
-        """The internal buffer of merged messages."""
+        self._results: deque[_T] = deque(maxlen=len(self._receivers))
 
     def __del__(self) -> None:
         """Cleanup any pending tasks."""
@@ -44,7 +61,7 @@ class MergeNamed(Receiver[tuple[str, _T]]):
                 task.cancel()
 
     async def stop(self) -> None:
-        """Stop the `MergeNamed` instance and cleanup any pending tasks."""
+        """Stop the `Merge` instance and cleanup any pending tasks."""
         for task in self._pending:
             task.cancel()
         await asyncio.gather(*self._pending, return_exceptions=True)
@@ -81,17 +98,16 @@ class MergeNamed(Receiver[tuple[str, _T]]):
                 if isinstance(item.exception(), StopAsyncIteration):
                     continue
                 result = item.result()
-                self._results.append((name, result))
+                self._results.append(result)
                 self._pending.add(
-                    # pylint: disable=unnecessary-dunder-call
                     asyncio.create_task(anext(self._receivers[name]), name=name)
                 )
 
-    def consume(self) -> tuple[str, _T]:
+    def consume(self) -> _T:
         """Return the latest value once `ready` is complete.
 
         Returns:
-            The next key, value that was received.
+            The next value that was received.
 
         Raises:
             ReceiverStoppedError: if the receiver stopped producing messages.
@@ -107,10 +123,10 @@ class MergeNamed(Receiver[tuple[str, _T]]):
     def __str__(self) -> str:
         """Return a string representation of this receiver."""
         if len(self._receivers) > 3:
-            receivers = [str(p) for p in itertools.islice(self._receivers, 3)]
+            receivers = [str(p) for p in itertools.islice(self._receivers.values(), 3)]
             receivers.append("…")
         else:
-            receivers = [str(p) for p in self._receivers]
+            receivers = [str(p) for p in self._receivers.values()]
         return f"{type(self).__name__}:{','.join(receivers)}"
 
     def __repr__(self) -> str:

@@ -15,14 +15,15 @@ from typing import Any
 import async_solipsism
 import pytest
 
-from frequenz.channels import Receiver, ReceiverStoppedError
-from frequenz.channels.util import (
-    Event,
+from frequenz.channels import (
+    Receiver,
+    ReceiverStoppedError,
     Selected,
     UnhandledSelectedError,
     select,
     selected_from,
 )
+from frequenz.channels.util import Event
 
 
 @pytest.mark.integration

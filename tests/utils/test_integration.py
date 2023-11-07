@@ -9,7 +9,8 @@ from datetime import timedelta
 
 import pytest
 
-from frequenz.channels.util import FileWatcher, Timer, select, selected_from
+from frequenz.channels import select, selected_from
+from frequenz.channels.util import FileWatcher, Timer
 
 
 @pytest.mark.integration

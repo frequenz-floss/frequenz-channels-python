@@ -7,8 +7,7 @@ from unittest import mock
 
 import pytest
 
-from frequenz.channels import Receiver, ReceiverStoppedError
-from frequenz.channels.util import Selected, selected_from
+from frequenz.channels import Receiver, ReceiverStoppedError, Selected, selected_from
 
 
 class TestSelected:
