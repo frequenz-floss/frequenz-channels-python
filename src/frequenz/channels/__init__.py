@@ -12,9 +12,6 @@ Channels:
   senders and multiple receivers.  A message sent through a sender will be
   received by exactly one receiver.
 
-* [Bidirectional][frequenz.channels.Bidirectional]: A channel providing
-  a `client` and a `service` handle to send and receive bidirectionally.
-
 * [Broadcast][frequenz.channels.Broadcast]: A channel to broadcast messages
   from multiple senders to multiple receivers. Each message sent through any of
   the senders is received by all of the receivers.
@@ -64,7 +61,6 @@ Exception classes:
 from . import util
 from ._anycast import Anycast
 from ._base_classes import Peekable, Receiver, Sender
-from ._bidirectional import Bidirectional
 from ._broadcast import Broadcast
 from ._exceptions import (
     ChannelClosedError,
@@ -78,7 +74,6 @@ from ._exceptions import (
 
 __all__ = [
     "Anycast",
-    "Bidirectional",
     "Broadcast",
     "ChannelClosedError",
     "ChannelError",
