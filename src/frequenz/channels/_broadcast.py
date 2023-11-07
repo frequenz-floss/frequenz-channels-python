@@ -9,8 +9,7 @@ import logging
 import weakref
 from asyncio import Condition
 from collections import deque
-from typing import Deque, Generic
-from uuid import UUID, uuid4
+from typing import Generic
 
 from ._base_classes import Peekable as BasePeekable
 from ._base_classes import Receiver as BaseReceiver
@@ -23,7 +22,7 @@ from ._exceptions import (
     SenderError,
 )
 
-logger = logging.Logger(__name__)
+_logger = logging.Logger(__name__)
 
 
 class Broadcast(Generic[T]):
@@ -71,12 +70,12 @@ class Broadcast(Generic[T]):
         Check the `tests` and `benchmarks` directories for more examples.
     """
 
-    def __init__(self, name: str, resend_latest: bool = False) -> None:
+    def __init__(self, *, name: str, resend_latest: bool = False) -> None:
         """Create a Broadcast channel.
 
         Args:
-            name: A name for the broadcast channel, typically based on the type of data
-                sent through it.  Used to identify the channel in the logs.
+            name: The name of the channel. This is for logging purposes, and it will be
+                shown in the string representation of the channel.
             resend_latest: When True, every time a new receiver is created with
                 `new_receiver`, it will automatically get sent the latest value on the
                 channel.  This allows new receivers on slow streams to get the latest
@@ -91,10 +90,20 @@ class Broadcast(Generic[T]):
         Only used for debugging purposes.
         """
 
+        self._recv_cv: Condition = Condition()
+        """The condition to wait for data in the channel's buffer."""
+
+        self._receivers: dict[int, weakref.ReferenceType[Receiver[T]]] = {}
+        """The receivers attached to the channel, indexed by their hash()."""
+
+        self._closed: bool = False
+        """Whether the channel is closed."""
+
+        self._latest: T | None = None
+        """The latest value sent to the channel."""
+
         self.resend_latest: bool = resend_latest
         """Whether to resend the latest value to new receivers.
-
-        It is `False` by default.
 
         When `True`, every time a new receiver is created with `new_receiver`, it will
         automatically get sent the latest value on the channel.  This allows new
@@ -105,17 +114,23 @@ class Broadcast(Generic[T]):
         in channels that stream control instructions.
         """
 
-        self._recv_cv: Condition = Condition()
-        """The condition to wait for data in the channel's buffer."""
+    @property
+    def name(self) -> str:
+        """The name of this channel.
 
-        self._receivers: dict[UUID, weakref.ReferenceType[Receiver[T]]] = {}
-        """The receivers attached to the channel, indexed by their UUID."""
+        This is for logging purposes, and it will be shown in the string representation
+        of this channel.
+        """
+        return self._name
 
-        self._closed: bool = False
-        """Whether the channel is closed."""
+    @property
+    def is_closed(self) -> bool:
+        """Whether this channel is closed.
 
-        self._latest: T | None = None
-        """The latest value sent to the channel."""
+        Any further attempts to use this channel after it is closed will result in an
+        exception.
+        """
+        return self._closed
 
     async def close(self) -> None:
         """Close the Broadcast channel.
@@ -141,7 +156,7 @@ class Broadcast(Generic[T]):
         """
         return Sender(self)
 
-    def new_receiver(self, name: str | None = None, maxsize: int = 50) -> Receiver[T]:
+    def new_receiver(self, *, name: str | None = None, limit: int = 50) -> Receiver[T]:
         """Create a new broadcast receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -150,16 +165,13 @@ class Broadcast(Generic[T]):
 
         Args:
             name: A name to identify the receiver in the logs.
-            maxsize: Size of the receiver's buffer.
+            limit: Number of messages the receiver can hold in its buffer.
 
         Returns:
             A Receiver instance attached to the broadcast channel.
         """
-        uuid = uuid4()
-        if name is None:
-            name = str(uuid)
-        recv: Receiver[T] = Receiver(uuid, name, maxsize, self)
-        self._receivers[uuid] = weakref.ref(recv)
+        recv: Receiver[T] = Receiver(name, limit, self)
+        self._receivers[hash(recv)] = weakref.ref(recv)
         if self.resend_latest and self._latest is not None:
             recv.enqueue(self._latest)
         return recv
@@ -176,6 +188,20 @@ class Broadcast(Generic[T]):
         """
         return Peekable(self)
 
+    def __str__(self) -> str:
+        """Return a string representation of this receiver."""
+        return f"{type(self).__name__}:{self._name}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this channel."""
+        return (
+            f"{type(self).__name__}(name={self._name!r}, "
+            f"resend_latest={self.resend_latest!r}):<"
+            f"latest={self._latest!r}, "
+            f"receivers={len(self._receivers)!r}, "
+            f"closed={self._closed!r}>"
+        )
+
 
 class Sender(BaseSender[T]):
     """A sender to send messages to the broadcast channel.
@@ -191,7 +217,7 @@ class Sender(BaseSender[T]):
         Args:
             chan: A reference to the broadcast channel this sender belongs to.
         """
-        self._chan = chan
+        self._chan: Broadcast[T] = chan
         """The broadcast channel this sender belongs to."""
 
     async def send(self, msg: T) -> None:
@@ -212,17 +238,25 @@ class Sender(BaseSender[T]):
             )
         self._chan._latest = msg
         stale_refs = []
-        for name, recv_ref in self._chan._receivers.items():
+        for _hash, recv_ref in self._chan._receivers.items():
             recv = recv_ref()
             if recv is None:
-                stale_refs.append(name)
+                stale_refs.append(_hash)
                 continue
             recv.enqueue(msg)
-        for name in stale_refs:
-            del self._chan._receivers[name]
+        for _hash in stale_refs:
+            del self._chan._receivers[_hash]
         async with self._chan._recv_cv:
             self._chan._recv_cv.notify_all()
         # pylint: enable=protected-access
+
+    def __str__(self) -> str:
+        """Return a string representation of this sender."""
+        return f"{self._chan}:{type(self).__name__}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this sender."""
+        return f"{type(self).__name__}({self._chan!r})"
 
 
 class Receiver(BaseReceiver[T]):
@@ -233,7 +267,7 @@ class Receiver(BaseReceiver[T]):
     method.
     """
 
-    def __init__(self, uuid: UUID, name: str, maxsize: int, chan: Broadcast[T]) -> None:
+    def __init__(self, name: str | None, limit: int, chan: Broadcast[T]) -> None:
         """Create a broadcast receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -241,29 +275,27 @@ class Receiver(BaseReceiver[T]):
         get dropped just in this receiver.
 
         Args:
-            uuid: A uuid to identify the receiver in the broadcast channel's
-                list of receivers.
-            name: A name to identify the receiver in the logs.
-            maxsize: Size of the receiver's buffer.
+            name: A name to identify the receiver in the logs. If `None` an
+                `id(self)`-based name will be used.  This is only for debugging
+                purposes, it will be shown in the string representation of the
+                receiver.
+            limit: Number of messages the receiver can hold in its buffer.
             chan: a reference to the Broadcast channel that this receiver
                 belongs to.
         """
-        self._uuid = uuid
-        """The UUID to identify the receiver in the broadcast channel's list of receivers."""
-
-        self._name = name
+        self._name: str = name if name is not None else f"{id(self):_}"
         """The name to identify the receiver.
 
         Only used for debugging purposes.
         """
 
-        self._chan = chan
+        self._chan: Broadcast[T] = chan
         """The broadcast channel that this receiver belongs to."""
 
-        self._q: Deque[T] = deque(maxlen=maxsize)
+        self._q: deque[T] = deque(maxlen=limit)
         """The receiver's internal message queue."""
 
-        self._active = True
+        self._active: bool = True
         """Whether the receiver is still active.
 
         If this receiver is converted into a Peekable, it will neither be
@@ -282,10 +314,9 @@ class Receiver(BaseReceiver[T]):
         """
         if len(self._q) == self._q.maxlen:
             self._q.popleft()
-            logger.warning(
-                "Broadcast receiver [%s:%s] is full. Oldest message was dropped.",
-                self._chan._name,  # pylint: disable=protected-access
-                self._name,
+            _logger.warning(
+                "Broadcast receiver [%s] is full. Oldest message was dropped.",
+                self,
             )
         self._q.append(msg)
 
@@ -333,8 +364,9 @@ class Receiver(BaseReceiver[T]):
         """Set the receiver as inactive and remove it from the channel."""
         self._active = False
         # pylint: disable=protected-access
-        if self._uuid in self._chan._receivers:
-            del self._chan._receivers[self._uuid]
+        _hash = hash(self)
+        if _hash in self._chan._receivers:
+            del self._chan._receivers[_hash]
         # pylint: enable=protected-access
 
     def consume(self) -> T:
@@ -373,6 +405,20 @@ class Receiver(BaseReceiver[T]):
         self._deactivate()
         return Peekable(self._chan)
 
+    def __str__(self) -> str:
+        """Return a string representation of this receiver."""
+        return f"{self._chan}:{type(self).__name__}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this receiver."""
+        limit = self._q.maxlen
+        assert limit is not None
+        return (
+            f"{type(self).__name__}(name={self._name!r}, limit={limit!r}, "
+            f"{self._chan!r}):<id={id(self)!r}, used={len(self._q)!r}, "
+            f"active={self._active!r}>"
+        )
+
 
 class Peekable(BasePeekable[T]):
     """A Peekable to peek into broadcast channels.
@@ -388,7 +434,7 @@ class Peekable(BasePeekable[T]):
         Args:
             chan: The broadcast channel this Peekable will try to peek into.
         """
-        self._chan = chan
+        self._chan: Broadcast[T] = chan
         """The broadcast channel this Peekable will try to peek into."""
 
     def peek(self) -> T | None:
@@ -399,3 +445,11 @@ class Peekable(BasePeekable[T]):
                 has been sent to the channel yet, or if the channel is closed.
         """
         return self._chan._latest  # pylint: disable=protected-access
+
+    def __str__(self) -> str:
+        """Return a string representation of this receiver."""
+        return f"{self._chan}:{type(self).__name__}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this receiver."""
+        return f"{type(self).__name__}({self._chan!r}):<latest={self.peek()!r}>"

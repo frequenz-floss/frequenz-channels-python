@@ -21,7 +21,7 @@ from frequenz.channels import (
 
 async def test_broadcast() -> None:
     """Ensure sent messages are received by all receivers."""
-    bcast: Broadcast[int] = Broadcast("meter_5")
+    bcast: Broadcast[int] = Broadcast(name="meter_5")
 
     num_receivers = 5
     num_senders = 5
@@ -70,7 +70,7 @@ async def test_broadcast() -> None:
 
 async def test_broadcast_none_values() -> None:
     """Ensure None values can be sent and received."""
-    bcast: Broadcast[int | None] = Broadcast("any_channel")
+    bcast: Broadcast[int | None] = Broadcast(name="any_channel")
 
     sender = bcast.new_sender()
     receiver = bcast.new_receiver()
@@ -87,7 +87,7 @@ async def test_broadcast_none_values() -> None:
 
 async def test_broadcast_after_close() -> None:
     """Ensure closed channels can't get new messages."""
-    bcast: Broadcast[int] = Broadcast("meter_5")
+    bcast: Broadcast[int] = Broadcast(name="meter_5")
 
     receiver = bcast.new_receiver()
     sender = bcast.new_sender()
@@ -105,14 +105,14 @@ async def test_broadcast_after_close() -> None:
 
 async def test_broadcast_overflow() -> None:
     """Ensure messages sent to full broadcast receivers get dropped."""
-    bcast: Broadcast[int] = Broadcast("meter_5")
+    bcast: Broadcast[int] = Broadcast(name="meter_5")
 
     big_recv_size = 10
     small_recv_size = int(big_recv_size / 2)
     sender = bcast.new_sender()
 
-    big_receiver = bcast.new_receiver("named-recv", big_recv_size)
-    small_receiver = bcast.new_receiver(None, small_recv_size)
+    big_receiver = bcast.new_receiver(name="named-recv", limit=big_recv_size)
+    small_receiver = bcast.new_receiver(limit=small_recv_size)
 
     async def drain_receivers() -> tuple[int, int]:
         big_sum = 0
@@ -156,7 +156,7 @@ async def test_broadcast_overflow() -> None:
 
 async def test_broadcast_resend_latest() -> None:
     """Check if new receivers get the latest value when resend_latest is set."""
-    bcast: Broadcast[int] = Broadcast("new_recv_test", resend_latest=True)
+    bcast: Broadcast[int] = Broadcast(name="new_recv_test", resend_latest=True)
 
     sender = bcast.new_sender()
     old_recv = bcast.new_receiver()
@@ -173,7 +173,7 @@ async def test_broadcast_resend_latest() -> None:
 
 async def test_broadcast_no_resend_latest() -> None:
     """Ensure new receivers don't get the latest value when resend_latest isn't set."""
-    bcast: Broadcast[int] = Broadcast("new_recv_test", resend_latest=False)
+    bcast: Broadcast[int] = Broadcast(name="new_recv_test", resend_latest=False)
 
     sender = bcast.new_sender()
     old_recv = bcast.new_receiver()
@@ -189,7 +189,7 @@ async def test_broadcast_no_resend_latest() -> None:
 
 async def test_broadcast_peek() -> None:
     """Ensure we are able to peek into broadcast channels."""
-    bcast: Broadcast[int] = Broadcast("peek-test")
+    bcast: Broadcast[int] = Broadcast(name="peek-test")
     receiver = bcast.new_receiver()
     peekable = receiver.into_peekable()
     sender = bcast.new_sender()
@@ -215,7 +215,7 @@ async def test_broadcast_peek() -> None:
 
 async def test_broadcast_async_iterator() -> None:
     """Check that the broadcast receiver works as an async iterator."""
-    bcast: Broadcast[int] = Broadcast("iter_test")
+    bcast: Broadcast[int] = Broadcast(name="iter_test")
 
     sender = bcast.new_sender()
     receiver = bcast.new_receiver()
@@ -238,7 +238,7 @@ async def test_broadcast_async_iterator() -> None:
 
 async def test_broadcast_map() -> None:
     """Ensure map runs on all incoming messages."""
-    chan = Broadcast[int]("input-chan")
+    chan = Broadcast[int](name="input-chan")
     sender = chan.new_sender()
 
     # transform int receiver into bool receiver.
@@ -253,7 +253,7 @@ async def test_broadcast_map() -> None:
 
 async def test_broadcast_receiver_drop() -> None:
     """Ensure deleted receivers get cleaned up."""
-    chan = Broadcast[int]("input-chan")
+    chan = Broadcast[int](name="input-chan")
     sender = chan.new_sender()
 
     receiver1 = chan.new_receiver()

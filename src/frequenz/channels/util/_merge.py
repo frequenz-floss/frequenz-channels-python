@@ -4,8 +4,9 @@
 """Merge messages coming from channels into a single stream."""
 
 import asyncio
+import itertools
 from collections import deque
-from typing import Any, Deque
+from typing import Any
 
 from .._base_classes import Receiver, T
 from .._exceptions import ReceiverStoppedError
@@ -22,8 +23,8 @@ class Merge(Receiver[T]):
         ```python
         from frequenz.channels import Broadcast
 
-        channel1 = Broadcast[int]("input-chan-1")
-        channel2 = Broadcast[int]("input-chan-2")
+        channel1 = Broadcast[int](name="input-chan-1")
+        channel2 = Broadcast[int](name="input-chan-2")
         receiver1 = channel1.new_receiver()
         receiver2 = channel2.new_receiver()
 
@@ -43,12 +44,14 @@ class Merge(Receiver[T]):
         Args:
             *args: sequence of channel receivers.
         """
-        self._receivers = {str(id): recv for id, recv in enumerate(args)}
+        self._receivers: dict[str, Receiver[T]] = {
+            str(id): recv for id, recv in enumerate(args)
+        }
         self._pending: set[asyncio.Task[Any]] = {
-            asyncio.create_task(recv.__anext__(), name=name)
+            asyncio.create_task(anext(recv), name=name)
             for name, recv in self._receivers.items()
         }
-        self._results: Deque[T] = deque(maxlen=len(self._receivers))
+        self._results: deque[T] = deque(maxlen=len(self._receivers))
 
     def __del__(self) -> None:
         """Cleanup any pending tasks."""
@@ -96,8 +99,7 @@ class Merge(Receiver[T]):
                 result = item.result()
                 self._results.append(result)
                 self._pending.add(
-                    # pylint: disable=unnecessary-dunder-call
-                    asyncio.create_task(self._receivers[name].__anext__(), name=name)
+                    asyncio.create_task(anext(self._receivers[name]), name=name)
                 )
 
     def consume(self) -> T:
@@ -116,3 +118,19 @@ class Merge(Receiver[T]):
         assert self._results, "`consume()` must be preceded by a call to `ready()`"
 
         return self._results.popleft()
+
+    def __str__(self) -> str:
+        """Return a string representation of this receiver."""
+        if len(self._receivers) > 3:
+            receivers = [str(p) for p in itertools.islice(self._receivers.values(), 3)]
+            receivers.append("…")
+        else:
+            receivers = [str(p) for p in self._receivers.values()]
+        return f"{type(self).__name__}:{','.join(receivers)}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this receiver."""
+        return (
+            f"{type(self).__name__}("
+            f"{', '.join(f'{k}={v!r}' for k, v in self._receivers.items())})"
+        )

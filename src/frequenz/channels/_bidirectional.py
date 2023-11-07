@@ -37,13 +37,13 @@ class Bidirectional(Generic[T, U]):
                 sender: A sender to send values with.
                 receiver: A receiver to receive values from.
             """
-            self._chan = channel
+            self._chan: Bidirectional[V, W] | Bidirectional[W, V] = channel
             """The underlying channel."""
 
-            self._sender = sender
+            self._sender: Sender[V] = sender
             """The sender to send values with."""
 
-            self._receiver = receiver
+            self._receiver: Receiver[W] = receiver
             """The receiver to receive values from."""
 
         async def send(self, msg: V) -> None:
@@ -112,37 +112,68 @@ class Bidirectional(Generic[T, U]):
                     err.__cause__ = this_chan_error
                 raise err
 
-    def __init__(self, client_id: str, service_id: str) -> None:
+        def __str__(self) -> str:
+            """Return a string representation of this handle."""
+            return f"{type(self).__name__}:{self._chan}"
+
+        def __repr__(self) -> str:
+            """Return a string representation of this handle."""
+            return (
+                f"{type(self).__name__}(channel={self._chan!r}, "
+                f"sender={self._sender!r}, receiver={self._receiver!r})"
+            )
+
+    def __init__(self, *, name: str) -> None:
         """Create a `Bidirectional` instance.
 
         Args:
-            client_id: A name for the client, used to name the channels.
-            service_id: A name for the service end of the channels.
+            name: The name of the channel. This is used for logging, and it is used
+                in the string representation and to name the underlying channels.
         """
-        self._client_id = client_id
+        self._name: str = name
         """The name for the client, used to name the channels."""
 
-        self._request_channel: Broadcast[T] = Broadcast(f"req_{service_id}_{client_id}")
+        self._request_channel: Broadcast[T] = Broadcast(name=f"{self._name}:request")
         """The channel to send requests."""
 
-        self._response_channel: Broadcast[U] = Broadcast(
-            f"resp_{service_id}_{client_id}"
-        )
+        self._response_channel: Broadcast[U] = Broadcast(name=f"{self._name}:response")
         """The channel to send responses."""
 
-        self._client_handle = Bidirectional.Handle(
+        self._client_handle: Bidirectional.Handle[T, U] = Bidirectional.Handle(
             self,
             self._request_channel.new_sender(),
             self._response_channel.new_receiver(),
         )
         """The handle for the client side to send/receive values."""
 
-        self._service_handle = Bidirectional.Handle(
+        self._service_handle: Bidirectional.Handle[U, T] = Bidirectional.Handle(
             self,
             self._response_channel.new_sender(),
             self._request_channel.new_receiver(),
         )
         """The handle for the service side to send/receive values."""
+
+    @property
+    def name(self) -> str:
+        """The name of this channel.
+
+        This is for logging purposes, and it will be shown in the string representation
+        of this channel.
+        """
+        return self._name
+
+    @property
+    def is_closed(self) -> bool:
+        """Whether this channel is closed.
+
+        Any further attempts to use this channel after it is closed will result in an
+        exception.
+
+        As long as there is a way to send or receive data, the channel is considered
+        open, even if the other side is closed, so this returns `False` if only both
+        underlying channels are closed.
+        """
+        return self._request_channel.is_closed and self._response_channel.is_closed
 
     @property
     def client_handle(self) -> Bidirectional.Handle[T, U]:
@@ -161,3 +192,15 @@ class Bidirectional(Generic[T, U]):
             Object to send/receive messages with.
         """
         return self._service_handle
+
+    def __str__(self) -> str:
+        """Return a string representation of this channel."""
+        return f"{type(self).__name__}:{self._name}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this channel."""
+        return (
+            f"{type(self).__name__}(name={self._name!r}):<"
+            f"request_channel={self._request_channel!r}, "
+            f"response_channel={self._response_channel!r}>"
+        )

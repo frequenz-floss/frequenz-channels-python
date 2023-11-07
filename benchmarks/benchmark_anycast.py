@@ -41,7 +41,9 @@ async def benchmark_anycast(
     Returns:
         Total number of messages received by all channels.
     """
-    channels: list[Anycast[int]] = [Anycast(buffer_size) for _ in range(num_channels)]
+    channels: list[Anycast[int]] = [
+        Anycast(name="test", limit=buffer_size) for _ in range(num_channels)
+    ]
     senders = [
         asyncio.create_task(send_msg(num_messages, bcast.new_sender()))
         for bcast in channels

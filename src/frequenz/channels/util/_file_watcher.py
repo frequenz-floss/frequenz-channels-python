@@ -57,12 +57,12 @@ class FileWatcher(Receiver["FileWatcher.Event"]):
         self.event_types: frozenset[FileWatcher.EventType] = frozenset(event_types)
         """The types of events to watch for."""
 
-        self._stop_event = asyncio.Event()
-        self._paths = [
+        self._stop_event: asyncio.Event = asyncio.Event()
+        self._paths: list[pathlib.Path] = [
             path if isinstance(path, pathlib.Path) else pathlib.Path(path)
             for path in paths
         ]
-        self._awatch = awatch(
+        self._awatch: abc.AsyncGenerator[set[FileChange], None] = awatch(
             *self._paths, stop_event=self._stop_event, watch_filter=self._filter_events
         )
         self._awatch_stopped_exc: Exception | None = None
@@ -113,7 +113,7 @@ class FileWatcher(Receiver["FileWatcher.Event"]):
             return False
 
         try:
-            self._changes = await self._awatch.__anext__()
+            self._changes = await anext(self._awatch)
         except StopAsyncIteration as err:
             self._awatch_stopped_exc = err
 
@@ -137,3 +137,17 @@ class FileWatcher(Receiver["FileWatcher.Event"]):
         return FileWatcher.Event(
             type=FileWatcher.EventType(change), path=pathlib.Path(path_str)
         )
+
+    def __str__(self) -> str:
+        """Return a string representation of this receiver."""
+        if len(self._paths) > 3:
+            paths = [str(p) for p in self._paths[:3]]
+            paths.append("…")
+        else:
+            paths = [str(p) for p in self._paths]
+        event_types = [event_type.name for event_type in self.event_types]
+        return f"{type(self).__name__}:{','.join(event_types)}:{','.join(paths)}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this receiver."""
+        return f"{type(self).__name__}({self._paths!r}, {self.event_types!r})"

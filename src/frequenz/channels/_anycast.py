@@ -5,14 +5,17 @@
 
 from __future__ import annotations
 
+import logging
 from asyncio import Condition
 from collections import deque
-from typing import Deque, Generic
+from typing import Generic
 
 from ._base_classes import Receiver as BaseReceiver
 from ._base_classes import Sender as BaseSender
 from ._base_classes import T
 from ._exceptions import ChannelClosedError, ReceiverStoppedError, SenderError
+
+_logger = logging.getLogger(__name__)
 
 
 class Anycast(Generic[T]):
@@ -20,6 +23,12 @@ class Anycast(Generic[T]):
 
     Anycast channels support multiple senders and multiple receivers.  A message sent
     through a sender will be received by exactly one receiver.
+
+    This channel is buffered, and if the senders are faster than the receivers, then the
+    channel's buffer will fill up. In that case, the senders will block at the
+    [send()][frequenz.channels.Sender.send] method until the receivers consume the
+    messages in the channel's buffer. The channel's buffer size can be configured at
+    creation time via the `limit` argument.
 
     In cases where each message need to be received by every receiver, a
     [Broadcast][frequenz.channels.Broadcast] channel may be used.
@@ -61,21 +70,24 @@ class Anycast(Generic[T]):
         Check the `tests` and `benchmarks` directories for more examples.
     """
 
-    def __init__(self, maxsize: int = 10) -> None:
+    def __init__(self, *, name: str, limit: int = 10) -> None:
         """Create an Anycast channel.
 
         Args:
-            maxsize: Size of the channel's buffer.
+            name: The name of the channel. This is for logging purposes, and it will be
+                shown in the string representation of the channel.
+            limit: The size of the internal buffer in number of messages.  If the buffer
+                is full, then the senders will block until the receivers consume the
+                messages in the buffer.
         """
-        self._limit: int = maxsize
-        """The maximum number of values that can be stored in the channel's buffer.
+        self._name: str = name
+        """The name of the channel.
 
-        If the length of channel's buffer reaches the limit, then the sender
-        blocks at the [send()][frequenz.channels.Sender.send] method until
-        a value is consumed.
+        This is for logging purposes, and it will be shown in the string representation
+        of the channel.
         """
 
-        self._deque: Deque[T] = deque(maxlen=maxsize)
+        self._deque: deque[T] = deque(maxlen=limit)
         """The channel's buffer."""
 
         self._send_cv: Condition = Condition()
@@ -96,6 +108,36 @@ class Anycast(Generic[T]):
 
         self._closed: bool = False
         """Whether the channel is closed."""
+
+    @property
+    def name(self) -> str:
+        """The name of this channel.
+
+        This is for debugging purposes, it will be shown in the string representation
+        of this channel.
+        """
+        return self._name
+
+    @property
+    def is_closed(self) -> bool:
+        """Whether this channel is closed.
+
+        Any further attempts to use this channel after it is closed will result in an
+        exception.
+        """
+        return self._closed
+
+    @property
+    def limit(self) -> int:
+        """The maximum number of values that can be stored in the channel's buffer.
+
+        If the length of channel's buffer reaches the limit, then the sender
+        blocks at the [send()][frequenz.channels.Sender.send] method until
+        a value is consumed.
+        """
+        maxlen = self._deque.maxlen
+        assert maxlen is not None
+        return maxlen
 
     async def close(self) -> None:
         """Close the channel.
@@ -131,6 +173,17 @@ class Anycast(Generic[T]):
         """
         return Receiver(self)
 
+    def __str__(self) -> str:
+        """Return a string representation of this channel."""
+        return f"{type(self).__name__}:{self._name}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this channel."""
+        return (
+            f"{type(self).__name__}(name={self._name!r}, limit={self.limit!r}):<"
+            f"current={len(self._deque)!r}, closed={self._closed!r}>"
+        )
+
 
 class Sender(BaseSender[T]):
     """A sender to send messages to an Anycast channel.
@@ -145,7 +198,7 @@ class Sender(BaseSender[T]):
         Args:
             chan: A reference to the channel that this sender belongs to.
         """
-        self._chan = chan
+        self._chan: Anycast[T] = chan
         """The channel that this sender belongs to."""
 
     async def send(self, msg: T) -> None:
@@ -169,13 +222,31 @@ class Sender(BaseSender[T]):
             raise SenderError("The channel was closed", self) from ChannelClosedError(
                 self._chan
             )
-        while len(self._chan._deque) == self._chan._deque.maxlen:
-            async with self._chan._send_cv:
-                await self._chan._send_cv.wait()
+        if len(self._chan._deque) == self._chan._deque.maxlen:
+            _logger.warning(
+                "Anycast channel [%s] is full, blocking sender until a receiver "
+                "consumes a value",
+                self,
+            )
+            while len(self._chan._deque) == self._chan._deque.maxlen:
+                async with self._chan._send_cv:
+                    await self._chan._send_cv.wait()
+            _logger.info(
+                "Anycast channel [%s] has space again, resuming the blocked sender",
+                self,
+            )
         self._chan._deque.append(msg)
         async with self._chan._recv_cv:
             self._chan._recv_cv.notify(1)
         # pylint: enable=protected-access
+
+    def __str__(self) -> str:
+        """Return a string representation of this sender."""
+        return f"{self._chan}:{type(self).__name__}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this sender."""
+        return f"{type(self).__name__}({self._chan!r})"
 
 
 class _Empty:
@@ -195,7 +266,7 @@ class Receiver(BaseReceiver[T]):
         Args:
             chan: A reference to the channel that this receiver belongs to.
         """
-        self._chan = chan
+        self._chan: Anycast[T] = chan
         """The channel that this receiver belongs to."""
 
         self._next: T | type[_Empty] = _Empty
@@ -251,3 +322,11 @@ class Receiver(BaseReceiver[T]):
         self._next = _Empty
 
         return next_val
+
+    def __str__(self) -> str:
+        """Return a string representation of this receiver."""
+        return f"{self._chan}:{type(self).__name__}"
+
+    def __repr__(self) -> str:
+        """Return a string representation of this receiver."""
+        return f"{type(self).__name__}({self._chan!r})"
