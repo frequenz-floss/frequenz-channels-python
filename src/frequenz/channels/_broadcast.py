@@ -22,7 +22,7 @@ from ._exceptions import (
     SenderError,
 )
 
-logger = logging.Logger(__name__)
+_logger = logging.Logger(__name__)
 
 
 class Broadcast(Generic[T]):
@@ -316,7 +316,7 @@ class Receiver(BaseReceiver[T]):
         """
         if len(self._q) == self._q.maxlen:
             self._q.popleft()
-            logger.warning(
+            _logger.warning(
                 "Broadcast receiver [%s] is full. Oldest message was dropped.",
                 self,
             )
