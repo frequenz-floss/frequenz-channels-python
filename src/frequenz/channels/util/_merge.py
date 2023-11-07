@@ -8,8 +8,7 @@ import itertools
 from collections import deque
 from typing import Any, TypeVar
 
-from .._base_classes import Receiver
-from .._exceptions import ReceiverStoppedError
+from .._receiver import Receiver, ReceiverStoppedError
 
 _T = TypeVar("_T")
 

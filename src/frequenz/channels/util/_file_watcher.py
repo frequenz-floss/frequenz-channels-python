@@ -14,8 +14,7 @@ from enum import Enum
 from watchfiles import Change, awatch
 from watchfiles.main import FileChange
 
-from .._base_classes import Receiver
-from .._exceptions import ReceiverStoppedError
+from .._receiver import Receiver, ReceiverStoppedError
 
 
 class FileWatcher(Receiver["FileWatcher.Event"]):

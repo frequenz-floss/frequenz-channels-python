@@ -53,16 +53,10 @@ Exception classes:
 
 from . import util
 from ._anycast import Anycast
-from ._base_classes import Receiver, Sender
 from ._broadcast import Broadcast
-from ._exceptions import (
-    ChannelClosedError,
-    ChannelError,
-    Error,
-    ReceiverError,
-    ReceiverStoppedError,
-    SenderError,
-)
+from ._exceptions import ChannelClosedError, ChannelError, Error
+from ._receiver import Receiver, ReceiverError, ReceiverStoppedError
+from ._sender import Sender, SenderError
 
 __all__ = [
     "Anycast",

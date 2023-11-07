@@ -12,8 +12,7 @@ import asyncio
 from collections.abc import AsyncIterator
 from typing import Any, Generic, TypeGuard, TypeVar
 
-from .._base_classes import Receiver
-from .._exceptions import ReceiverStoppedError
+from .._receiver import Receiver, ReceiverStoppedError
 
 _T = TypeVar("_T")
 

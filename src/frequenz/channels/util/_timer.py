@@ -17,8 +17,7 @@ import abc
 import asyncio
 from datetime import timedelta
 
-from .._base_classes import Receiver
-from .._exceptions import ReceiverStoppedError
+from .._receiver import Receiver, ReceiverStoppedError
 
 
 def _to_microseconds(time: float | timedelta) -> int:

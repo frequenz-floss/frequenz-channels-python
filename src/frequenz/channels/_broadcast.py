@@ -11,9 +11,11 @@ from asyncio import Condition
 from collections import deque
 from typing import Generic, TypeVar
 
-from ._base_classes import Receiver as BaseReceiver
-from ._base_classes import Sender as BaseSender
-from ._exceptions import ChannelClosedError, ReceiverStoppedError, SenderError
+from ._exceptions import ChannelClosedError
+from ._receiver import Receiver as BaseReceiver
+from ._receiver import ReceiverStoppedError
+from ._sender import Sender as BaseSender
+from ._sender import SenderError
 
 _logger = logging.Logger(__name__)
 
