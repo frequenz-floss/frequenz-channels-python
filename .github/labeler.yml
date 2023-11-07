@@ -37,7 +37,9 @@
 "part:receivers":
   - "src/frequenz/channels/_merge.py"
   - "src/frequenz/channels/_merge_named.py"
-  - "src/frequenz/channels/util/**"
+  - "src/frequenz/channels/event.py"
+  - "src/frequenz/channels/file_watcher.py"
+  - "src/frequenz/channels/timer.py"
 
 "part:select":
   - "src/frequenz/channels/_select.py"

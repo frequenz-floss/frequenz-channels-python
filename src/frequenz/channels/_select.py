@@ -272,8 +272,8 @@ async def select(*receivers: Receiver[Any]) -> AsyncIterator[Selected[Any]]:
         import datetime
         from typing import assert_never
 
-        from frequenz.channels import ReceiverStoppedError
-        from frequenz.channels.util import select, selected_from, Timer
+        from frequenz.channels import ReceiverStoppedError, select, selected_from
+        from frequenz.channels.timer import Timer
 
         timer1 = Timer.periodic(datetime.timedelta(seconds=1))
         timer2 = Timer.timeout(datetime.timedelta(seconds=0.5))

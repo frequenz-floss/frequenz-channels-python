@@ -15,7 +15,7 @@ import pytest
 from watchfiles import Change
 from watchfiles.main import FileChange
 
-from frequenz.channels.util import FileWatcher
+from frequenz.channels.file_watcher import FileWatcher
 
 
 class _FakeAwatch:
@@ -52,7 +52,7 @@ def fake_awatch() -> Iterator[_FakeAwatch]:
     """Fixture to mock the awatch function."""
     fake = _FakeAwatch()
     with mock.patch(
-        "frequenz.channels.util._file_watcher.awatch",
+        "frequenz.channels.file_watcher.awatch",
         autospec=True,
         side_effect=fake.fake_awatch,
     ):
@@ -89,7 +89,7 @@ async def test_file_watcher_filter_events(
     # We need to reset the mock explicitly because hypothesis runs all the produced
     # inputs in the same context.
     with mock.patch(
-        "frequenz.channels.util._file_watcher.awatch", autospec=True
+        "frequenz.channels.file_watcher.awatch", autospec=True
     ) as awatch_mock:
         file_watcher = FileWatcher(paths=[good_path], event_types=event_types)
 

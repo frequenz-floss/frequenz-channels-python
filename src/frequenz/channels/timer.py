@@ -17,7 +17,7 @@ import abc
 import asyncio
 from datetime import timedelta
 
-from .._receiver import Receiver, ReceiverStoppedError
+from ._receiver import Receiver, ReceiverStoppedError
 
 
 def _to_microseconds(time: float | timedelta) -> int:
@@ -270,7 +270,7 @@ class Timer(Receiver[timedelta]):
     """A timer receiver that triggers every `interval` time.
 
     The timer has microseconds resolution, so the
-    [`interval`][frequenz.channels.util.Timer.interval] must be at least
+    [`interval`][frequenz.channels.timer.Timer.interval] must be at least
     1 microsecond.
 
     The message it produces is a [`timedelta`][datetime.timedelta] containing the drift
@@ -283,34 +283,34 @@ class Timer(Receiver[timedelta]):
     as the timer uses [`asyncio`][asyncio]s loop monotonic clock.
 
     If the timer is delayed too much, then it will behave according to the
-    [`missed_tick_policy`][frequenz.channels.util.Timer.missed_tick_policy]. Missing
+    [`missed_tick_policy`][frequenz.channels.timer.Timer.missed_tick_policy]. Missing
     ticks might or might not trigger a message and the drift could be accumulated or not
     depending on the chosen policy.
 
     These are the currently built-in available policies:
 
-    * [`SkipMissedAndDrift`][frequenz.channels.util.SkipMissedAndDrift]
-    * [`SkipMissedAndResync`][frequenz.channels.util.SkipMissedAndResync]
-    * [`TriggerAllMissed`][frequenz.channels.util.TriggerAllMissed]
+    * [`SkipMissedAndDrift`][frequenz.channels.timer.SkipMissedAndDrift]
+    * [`SkipMissedAndResync`][frequenz.channels.timer.SkipMissedAndResync]
+    * [`TriggerAllMissed`][frequenz.channels.timer.TriggerAllMissed]
 
     For the most common cases, a specialized constructor is provided:
 
-    * [`periodic()`][frequenz.channels.util.Timer.periodic] (uses the
-      [`TriggerAllMissed`][frequenz.channels.util.TriggerAllMissed] or
-      [`SkipMissedAndResync`][frequenz.channels.util.SkipMissedAndResync] policy)
-    * [`timeout()`][frequenz.channels.util.Timer.timeout] (uses the
-      [`SkipMissedAndDrift`][frequenz.channels.util.SkipMissedAndDrift] policy)
+    * [`periodic()`][frequenz.channels.timer.Timer.periodic] (uses the
+      [`TriggerAllMissed`][frequenz.channels.timer.TriggerAllMissed] or
+      [`SkipMissedAndResync`][frequenz.channels.timer.SkipMissedAndResync] policy)
+    * [`timeout()`][frequenz.channels.timer.Timer.timeout] (uses the
+      [`SkipMissedAndDrift`][frequenz.channels.timer.SkipMissedAndDrift] policy)
 
-    The timer accepts an optional [`loop`][frequenz.channels.util.Timer.loop], which
+    The timer accepts an optional [`loop`][frequenz.channels.timer.Timer.loop], which
     will be used to track the time. If `loop` is `None`, then the running loop will be
     used (if there is no running loop most calls will raise
     a [`RuntimeError`][RuntimeError]).
 
     Starting the timer can be delayed if necessary by using `auto_start=False`
     (for example until we have a running loop). A call to
-    [`reset()`][frequenz.channels.util.Timer.reset],
-    [`ready()`][frequenz.channels.util.Timer.ready],
-    [`receive()`][frequenz.channels.util.Timer.receive] or the async iterator interface
+    [`reset()`][frequenz.channels.timer.Timer.reset],
+    [`ready()`][frequenz.channels.timer.Timer.ready],
+    [`receive()`][frequenz.channels.timer.Timer.receive] or the async iterator interface
     to await for a new message will start the timer.
 
     Example: Periodic timer example
@@ -323,8 +323,7 @@ class Timer(Receiver[timedelta]):
         it with other receivers, and even start it (semi) manually:
 
         ```python
-        from frequenz.channels.util import select, selected_from
-        from frequenz.channels import Broadcast
+        from frequenz.channels import Broadcast, select, selected_from
 
         timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
         chan = Broadcast[int](name="input-chan")
@@ -346,8 +345,7 @@ class Timer(Receiver[timedelta]):
 
     Example: Timeout example
         ```python
-        from frequenz.channels.util import select, selected_from
-        from frequenz.channels import Broadcast
+        from frequenz.channels import Broadcast, select, selected_from
 
         def process_data(data: int):
             print(f"Processing data: {data}")

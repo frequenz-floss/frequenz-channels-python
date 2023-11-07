@@ -23,7 +23,7 @@ from frequenz.channels import (
     select,
     selected_from,
 )
-from frequenz.channels.util import Event
+from frequenz.channels.event import Event
 
 
 @pytest.mark.integration

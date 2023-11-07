@@ -33,9 +33,6 @@ Utilities to work with channels:
 * [select][frequenz.channels.select]:  Iterate over the values of all
   [receivers][frequenz.channels.Receiver] as new values become available.
 
-* [util][frequenz.channels.util]: A module with extra utilities, like special
-  receivers that implement timers, file watchers, etc.
-
 Exception classes:
 
 * [Error][frequenz.channels.Error]: Base class for all errors in this
@@ -65,9 +62,19 @@ Exception classes:
 * [UnhandledSelectedError][frequenz.channels.UnhandledSelectedError]: An error
     raised by [select][frequenz.channels.select] that was not handled by the
     user.
+
+Extra utility receivers:
+
+* [Event][frequenz.channels.event.Event]: A receiver that generates a message when
+  an event is set.
+
+* [FileWatcher][frequenz.channels.file_watcher.FileWatcher]: A receiver that
+  generates a message when a file is added, modified or deleted.
+
+* [Timer][frequenz.channels.timer.Timer]: A receiver that generates a message after a
+  given amount of time.
 """
 
-from . import util
 from ._anycast import Anycast
 from ._broadcast import Broadcast
 from ._exceptions import ChannelClosedError, ChannelError, Error
@@ -103,5 +110,4 @@ __all__ = [
     "UnhandledSelectedError",
     "select",
     "selected_from",
-    "util",
 ]
