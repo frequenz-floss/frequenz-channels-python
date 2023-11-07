@@ -10,23 +10,23 @@ from typing import Any, TypeVar
 from .._base_classes import Receiver
 from .._exceptions import ReceiverStoppedError
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 
-class MergeNamed(Receiver[tuple[str, T]]):
+class MergeNamed(Receiver[tuple[str, _T]]):
     """Merge messages coming from multiple named channels into a single stream.
 
     When `MergeNamed` is no longer needed, then it should be stopped using
     `self.stop()` method. This will cleanup any internal pending async tasks.
     """
 
-    def __init__(self, **kwargs: Receiver[T]) -> None:
+    def __init__(self, **kwargs: Receiver[_T]) -> None:
         """Create a `MergeNamed` instance.
 
         Args:
             **kwargs: sequence of channel receivers.
         """
-        self._receivers: dict[str, Receiver[T]] = kwargs
+        self._receivers: dict[str, Receiver[_T]] = kwargs
         """The sequence of channel receivers to get the messages to merge."""
 
         self._pending: set[asyncio.Task[Any]] = {
@@ -35,7 +35,7 @@ class MergeNamed(Receiver[tuple[str, T]]):
         }
         """The set of pending tasks to merge messages."""
 
-        self._results: deque[tuple[str, T]] = deque(maxlen=len(self._receivers))
+        self._results: deque[tuple[str, _T]] = deque(maxlen=len(self._receivers))
         """The internal buffer of merged messages."""
 
     def __del__(self) -> None:
@@ -88,7 +88,7 @@ class MergeNamed(Receiver[tuple[str, T]]):
                     asyncio.create_task(anext(self._receivers[name]), name=name)
                 )
 
-    def consume(self) -> tuple[str, T]:
+    def consume(self) -> tuple[str, _T]:
         """Return the latest value once `ready` is complete.
 
         Returns:

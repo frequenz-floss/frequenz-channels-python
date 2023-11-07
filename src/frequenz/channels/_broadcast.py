@@ -17,10 +17,10 @@ from ._exceptions import ChannelClosedError, ReceiverStoppedError, SenderError
 
 _logger = logging.Logger(__name__)
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 
-class Broadcast(Generic[T]):
+class Broadcast(Generic[_T]):
     """A channel to broadcast messages to multiple receivers.
 
     `Broadcast` channels can have multiple senders and multiple receivers. Each
@@ -88,13 +88,13 @@ class Broadcast(Generic[T]):
         self._recv_cv: Condition = Condition()
         """The condition to wait for data in the channel's buffer."""
 
-        self._receivers: dict[int, weakref.ReferenceType[Receiver[T]]] = {}
+        self._receivers: dict[int, weakref.ReferenceType[Receiver[_T]]] = {}
         """The receivers attached to the channel, indexed by their hash()."""
 
         self._closed: bool = False
         """Whether the channel is closed."""
 
-        self._latest: T | None = None
+        self._latest: _T | None = None
         """The latest value sent to the channel."""
 
         self.resend_latest: bool = resend_latest
@@ -143,7 +143,7 @@ class Broadcast(Generic[T]):
         async with self._recv_cv:
             self._recv_cv.notify_all()
 
-    def new_sender(self) -> Sender[T]:
+    def new_sender(self) -> Sender[_T]:
         """Create a new broadcast sender.
 
         Returns:
@@ -151,7 +151,7 @@ class Broadcast(Generic[T]):
         """
         return Sender(self)
 
-    def new_receiver(self, *, name: str | None = None, limit: int = 50) -> Receiver[T]:
+    def new_receiver(self, *, name: str | None = None, limit: int = 50) -> Receiver[_T]:
         """Create a new broadcast receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -165,7 +165,7 @@ class Broadcast(Generic[T]):
         Returns:
             A Receiver instance attached to the broadcast channel.
         """
-        recv: Receiver[T] = Receiver(name, limit, self)
+        recv: Receiver[_T] = Receiver(name, limit, self)
         self._receivers[hash(recv)] = weakref.ref(recv)
         if self.resend_latest and self._latest is not None:
             recv.enqueue(self._latest)
@@ -186,7 +186,7 @@ class Broadcast(Generic[T]):
         )
 
 
-class Sender(BaseSender[T]):
+class Sender(BaseSender[_T]):
     """A sender to send messages to the broadcast channel.
 
     Should not be created directly, but through the
@@ -194,16 +194,16 @@ class Sender(BaseSender[T]):
     method.
     """
 
-    def __init__(self, chan: Broadcast[T]) -> None:
+    def __init__(self, chan: Broadcast[_T]) -> None:
         """Create a Broadcast sender.
 
         Args:
             chan: A reference to the broadcast channel this sender belongs to.
         """
-        self._chan: Broadcast[T] = chan
+        self._chan: Broadcast[_T] = chan
         """The broadcast channel this sender belongs to."""
 
-    async def send(self, msg: T) -> None:
+    async def send(self, msg: _T) -> None:
         """Send a message to all broadcast receivers.
 
         Args:
@@ -242,7 +242,7 @@ class Sender(BaseSender[T]):
         return f"{type(self).__name__}({self._chan!r})"
 
 
-class Receiver(BaseReceiver[T]):
+class Receiver(BaseReceiver[_T]):
     """A receiver to receive messages from the broadcast channel.
 
     Should not be created directly, but through the
@@ -250,7 +250,7 @@ class Receiver(BaseReceiver[T]):
     method.
     """
 
-    def __init__(self, name: str | None, limit: int, chan: Broadcast[T]) -> None:
+    def __init__(self, name: str | None, limit: int, chan: Broadcast[_T]) -> None:
         """Create a broadcast receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -272,13 +272,13 @@ class Receiver(BaseReceiver[T]):
         Only used for debugging purposes.
         """
 
-        self._chan: Broadcast[T] = chan
+        self._chan: Broadcast[_T] = chan
         """The broadcast channel that this receiver belongs to."""
 
-        self._q: deque[T] = deque(maxlen=limit)
+        self._q: deque[_T] = deque(maxlen=limit)
         """The receiver's internal message queue."""
 
-    def enqueue(self, msg: T) -> None:
+    def enqueue(self, msg: _T) -> None:
         """Put a message into this receiver's queue.
 
         To be called by broadcast senders.  If the receiver's queue is already
@@ -332,7 +332,7 @@ class Receiver(BaseReceiver[T]):
         return True
         # pylint: enable=protected-access
 
-    def consume(self) -> T:
+    def consume(self) -> _T:
         """Return the latest value once `ready` is complete.
 
         Returns:

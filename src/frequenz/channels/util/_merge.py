@@ -11,10 +11,10 @@ from typing import Any, TypeVar
 from .._base_classes import Receiver
 from .._exceptions import ReceiverStoppedError
 
-T = TypeVar("T")
+_T = TypeVar("_T")
 
 
-class Merge(Receiver[T]):
+class Merge(Receiver[_T]):
     """Merge messages coming from multiple channels into a single stream.
 
     Example:
@@ -40,20 +40,20 @@ class Merge(Receiver[T]):
         `self.stop()` method. This will cleanup any internal pending async tasks.
     """
 
-    def __init__(self, *args: Receiver[T]) -> None:
+    def __init__(self, *args: Receiver[_T]) -> None:
         """Create a `Merge` instance.
 
         Args:
             *args: sequence of channel receivers.
         """
-        self._receivers: dict[str, Receiver[T]] = {
+        self._receivers: dict[str, Receiver[_T]] = {
             str(id): recv for id, recv in enumerate(args)
         }
         self._pending: set[asyncio.Task[Any]] = {
             asyncio.create_task(anext(recv), name=name)
             for name, recv in self._receivers.items()
         }
-        self._results: deque[T] = deque(maxlen=len(self._receivers))
+        self._results: deque[_T] = deque(maxlen=len(self._receivers))
 
     def __del__(self) -> None:
         """Cleanup any pending tasks."""
@@ -104,7 +104,7 @@ class Merge(Receiver[T]):
                     asyncio.create_task(anext(self._receivers[name]), name=name)
                 )
 
-    def consume(self) -> T:
+    def consume(self) -> _T:
         """Return the latest value once `ready` is complete.
 
         Returns:

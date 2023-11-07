@@ -11,15 +11,15 @@ from typing import Generic, TypeVar
 
 from ._exceptions import ReceiverStoppedError
 
-T = TypeVar("T")
-U = TypeVar("U")
+_T = TypeVar("_T")
+_U = TypeVar("_U")
 
 
-class Sender(ABC, Generic[T]):
+class Sender(ABC, Generic[_T]):
     """A channel Sender."""
 
     @abstractmethod
-    async def send(self, msg: T) -> None:
+    async def send(self, msg: _T) -> None:
         """Send a message to the channel.
 
         Args:
@@ -30,10 +30,10 @@ class Sender(ABC, Generic[T]):
         """
 
 
-class Receiver(ABC, Generic[T]):
+class Receiver(ABC, Generic[_T]):
     """A channel Receiver."""
 
-    async def __anext__(self) -> T:
+    async def __anext__(self) -> _T:
         """Await the next value in the async iteration over received values.
 
         Returns:
@@ -63,7 +63,7 @@ class Receiver(ABC, Generic[T]):
         """
 
     @abstractmethod
-    def consume(self) -> T:
+    def consume(self) -> _T:
         """Return the latest value once `ready()` is complete.
 
         `ready()` must be called before each call to `consume()`.
@@ -76,7 +76,7 @@ class Receiver(ABC, Generic[T]):
             ReceiverError: if there is some problem with the receiver.
         """
 
-    def __aiter__(self) -> Receiver[T]:
+    def __aiter__(self) -> Receiver[_T]:
         """Initialize the async iterator over received values.
 
         Returns:
@@ -84,7 +84,7 @@ class Receiver(ABC, Generic[T]):
         """
         return self
 
-    async def receive(self) -> T:
+    async def receive(self) -> _T:
         """Receive a message from the channel.
 
         Returns:
@@ -111,7 +111,7 @@ class Receiver(ABC, Generic[T]):
             raise ReceiverStoppedError(self) from exc
         return received
 
-    def map(self, call: Callable[[T], U]) -> Receiver[U]:
+    def map(self, call: Callable[[_T], _U]) -> Receiver[_U]:
         """Return a receiver with `call` applied on incoming messages.
 
         Args:
@@ -123,7 +123,7 @@ class Receiver(ABC, Generic[T]):
         return _Map(self, call)
 
 
-class _Map(Receiver[U], Generic[T, U]):
+class _Map(Receiver[_U], Generic[_T, _U]):
     """Apply a transform function on a channel receiver.
 
     Has two generic types:
@@ -132,17 +132,17 @@ class _Map(Receiver[U], Generic[T, U]):
     - The output type: return type of the transform method.
     """
 
-    def __init__(self, receiver: Receiver[T], transform: Callable[[T], U]) -> None:
+    def __init__(self, receiver: Receiver[_T], transform: Callable[[_T], _U]) -> None:
         """Create a `Transform` instance.
 
         Args:
             receiver: The input receiver.
             transform: The function to run on the input data.
         """
-        self._receiver: Receiver[T] = receiver
+        self._receiver: Receiver[_T] = receiver
         """The input receiver."""
 
-        self._transform: Callable[[T], U] = transform
+        self._transform: Callable[[_T], _U] = transform
         """The function to run on the input data."""
 
     async def ready(self) -> bool:
@@ -160,7 +160,7 @@ class _Map(Receiver[U], Generic[T, U]):
 
     # We need a noqa here because the docs have a Raises section but the code doesn't
     # explicitly raise anything.
-    def consume(self) -> U:  # noqa: DOC502
+    def consume(self) -> _U:  # noqa: DOC502
         """Return a transformed value once `ready()` is complete.
 
         Returns:
