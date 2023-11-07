@@ -9,14 +9,15 @@ import logging
 import weakref
 from asyncio import Condition
 from collections import deque
-from typing import Generic
+from typing import Generic, TypeVar
 
 from ._base_classes import Receiver as BaseReceiver
 from ._base_classes import Sender as BaseSender
-from ._base_classes import T
 from ._exceptions import ChannelClosedError, ReceiverStoppedError, SenderError
 
 _logger = logging.Logger(__name__)
+
+T = TypeVar("T")
 
 
 class Broadcast(Generic[T]):

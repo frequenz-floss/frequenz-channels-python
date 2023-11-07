@@ -6,10 +6,12 @@
 import asyncio
 import itertools
 from collections import deque
-from typing import Any
+from typing import Any, TypeVar
 
-from .._base_classes import Receiver, T
+from .._base_classes import Receiver
 from .._exceptions import ReceiverStoppedError
+
+T = TypeVar("T")
 
 
 class Merge(Receiver[T]):

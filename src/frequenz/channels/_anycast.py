@@ -8,14 +8,15 @@ from __future__ import annotations
 import logging
 from asyncio import Condition
 from collections import deque
-from typing import Generic
+from typing import Generic, TypeVar
 
 from ._base_classes import Receiver as BaseReceiver
 from ._base_classes import Sender as BaseSender
-from ._base_classes import T
 from ._exceptions import ChannelClosedError, ReceiverStoppedError, SenderError
 
 _logger = logging.getLogger(__name__)
+
+T = TypeVar("T")
 
 
 class Anycast(Generic[T]):
