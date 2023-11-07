@@ -324,7 +324,6 @@ class Timer(Receiver[timedelta]):
         it with other receivers, and even start it (semi) manually:
 
         ```python
-        import logging
         from frequenz.channels.util import select, selected_from
         from frequenz.channels import Broadcast
 
@@ -338,7 +337,7 @@ class Timer(Receiver[timedelta]):
         async for selected in select(battery_data, timer):
             if selected_from(selected, battery_data):
                 if selected.was_closed():
-                    logging.warning("battery channel closed")
+                    print("battery channel closed")
                     continue
                 battery_soc = selected.value
             elif selected_from(selected, timer):
@@ -348,15 +347,14 @@ class Timer(Receiver[timedelta]):
 
     Example: Timeout example
         ```python
-        import logging
         from frequenz.channels.util import select, selected_from
         from frequenz.channels import Broadcast
 
         def process_data(data: int):
-            logging.info("Processing data: %d", data)
+            print(f"Processing data: {data}")
 
         def do_heavy_processing(data: int):
-            logging.info("Heavy processing data: %d", data)
+            print(f"Heavy processing data: {data}")
 
         timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
         chan1 = Broadcast[int](name="input-chan-1")
@@ -366,17 +364,17 @@ class Timer(Receiver[timedelta]):
         async for selected in select(battery_data, heavy_process, timer):
             if selected_from(selected, battery_data):
                 if selected.was_closed():
-                    logging.warning("battery channel closed")
+                    print("battery channel closed")
                     continue
                 process_data(selected.value)
                 timer.reset()
             elif selected_from(selected, heavy_process):
                 if selected.was_closed():
-                    logging.warning("processing channel closed")
+                    print("processing channel closed")
                     continue
                 do_heavy_processing(selected.value)
             elif selected_from(selected, timer):
-                logging.warning("No data received in time")
+                print("No data received in time")
         ```
 
         In this case `do_heavy_processing` might take 2 seconds, and we don't
