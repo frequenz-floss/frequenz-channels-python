@@ -122,40 +122,6 @@ class Receiver(ABC, Generic[T]):
         """
         return _Map(self, call)
 
-    def into_peekable(self) -> Peekable[T]:
-        """Convert the `Receiver` implementation into a `Peekable`.
-
-        Once this function has been called, the receiver will no longer be
-        usable, and calling `receive` on the receiver will raise an exception.
-
-        Returns:
-            A `Peekable` that can be used to peek at the latest value in the
-                channel.
-
-        Raises:
-            NotImplementedError: when a `Receiver` implementation doesn't have
-                a custom `into_peekable` implementation.
-        """
-        raise NotImplementedError("This receiver does not implement `into_peekable`")
-
-
-class Peekable(ABC, Generic[T]):
-    """A channel peekable.
-
-    A Peekable provides a [peek()][frequenz.channels.Peekable] method that
-    allows the user to get a peek at the latest value in the channel, without
-    consuming anything.
-    """
-
-    @abstractmethod
-    def peek(self) -> T | None:
-        """Return the latest value that was sent to the channel.
-
-        Returns:
-            The latest value received by the channel, and `None`, if nothing
-                has been sent to the channel yet.
-        """
-
 
 class _Map(Receiver[U], Generic[T, U]):
     """Apply a transform function on a channel receiver.

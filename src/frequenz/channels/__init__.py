@@ -18,9 +18,6 @@ Channels:
 
 Other base classes:
 
-* [Peekable][frequenz.channels.Peekable]: An object to allow users to get
-  a peek at the latest value in the channel, without consuming anything.
-
 * [Receiver][frequenz.channels.Receiver]: An object that can wait for and
   consume messages from a channel.
 
@@ -52,22 +49,17 @@ Exception classes:
 
 * [ReceiverStoppedError][frequenz.channels.ReceiverStoppedError]: A receiver
   stopped producing messages.
-
-* [ReceiverInvalidatedError][frequenz.channels.ReceiverInvalidatedError]:
-  A receiver is not longer valid (for example if it was converted into
-  a peekable.
 """
 
 from . import util
 from ._anycast import Anycast
-from ._base_classes import Peekable, Receiver, Sender
+from ._base_classes import Receiver, Sender
 from ._broadcast import Broadcast
 from ._exceptions import (
     ChannelClosedError,
     ChannelError,
     Error,
     ReceiverError,
-    ReceiverInvalidatedError,
     ReceiverStoppedError,
     SenderError,
 )
@@ -78,10 +70,8 @@ __all__ = [
     "ChannelClosedError",
     "ChannelError",
     "Error",
-    "Peekable",
     "Receiver",
     "ReceiverError",
-    "ReceiverInvalidatedError",
     "ReceiverStoppedError",
     "Sender",
     "SenderError",

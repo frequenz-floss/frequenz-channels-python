@@ -12,7 +12,6 @@ from frequenz.channels import (
     Broadcast,
     ChannelClosedError,
     Receiver,
-    ReceiverInvalidatedError,
     ReceiverStoppedError,
     Sender,
     SenderError,
@@ -185,32 +184,6 @@ async def test_broadcast_no_resend_latest() -> None:
 
     assert await old_recv.receive() == 0
     assert await new_recv.receive() == 100
-
-
-async def test_broadcast_peek() -> None:
-    """Ensure we are able to peek into broadcast channels."""
-    bcast: Broadcast[int] = Broadcast(name="peek-test")
-    receiver = bcast.new_receiver()
-    peekable = receiver.into_peekable()
-    sender = bcast.new_sender()
-
-    with pytest.raises(ReceiverInvalidatedError):
-        await receiver.receive()
-
-    assert peekable.peek() is None
-
-    for val in range(0, 10):
-        await sender.send(val)
-
-    assert peekable.peek() == 9
-    assert peekable.peek() == 9
-
-    await sender.send(20)
-
-    assert peekable.peek() == 20
-
-    await bcast.close()
-    assert peekable.peek() is None
 
 
 async def test_broadcast_async_iterator() -> None:

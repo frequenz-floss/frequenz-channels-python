@@ -11,16 +11,10 @@ from asyncio import Condition
 from collections import deque
 from typing import Generic
 
-from ._base_classes import Peekable as BasePeekable
 from ._base_classes import Receiver as BaseReceiver
 from ._base_classes import Sender as BaseSender
 from ._base_classes import T
-from ._exceptions import (
-    ChannelClosedError,
-    ReceiverInvalidatedError,
-    ReceiverStoppedError,
-    SenderError,
-)
+from ._exceptions import ChannelClosedError, ReceiverStoppedError, SenderError
 
 _logger = logging.Logger(__name__)
 
@@ -176,18 +170,6 @@ class Broadcast(Generic[T]):
             recv.enqueue(self._latest)
         return recv
 
-    def new_peekable(self) -> Peekable[T]:
-        """Create a new Peekable for the broadcast channel.
-
-        A Peekable provides a [peek()][frequenz.channels.Peekable.peek] method
-        that allows the user to get a peek at the latest value in the channel,
-        without consuming anything.
-
-        Returns:
-            A Peekable to peek into the broadcast channel with.
-        """
-        return Peekable(self)
-
     def __str__(self) -> str:
         """Return a string representation of this receiver."""
         return f"{type(self).__name__}:{self._name}"
@@ -295,13 +277,6 @@ class Receiver(BaseReceiver[T]):
         self._q: deque[T] = deque(maxlen=limit)
         """The receiver's internal message queue."""
 
-        self._active: bool = True
-        """Whether the receiver is still active.
-
-        If this receiver is converted into a Peekable, it will neither be
-        considered valid nor active.
-        """
-
     def enqueue(self, msg: T) -> None:
         """Put a message into this receiver's queue.
 
@@ -343,10 +318,6 @@ class Receiver(BaseReceiver[T]):
         if self._q:
             return True
 
-        # if it is not longer active, return immediately
-        if not self._active:
-            return False
-
         # Use a while loop here, to handle spurious wakeups of condition variables.
         #
         # The condition also makes sure that if there are already messages ready to be
@@ -360,15 +331,6 @@ class Receiver(BaseReceiver[T]):
         return True
         # pylint: enable=protected-access
 
-    def _deactivate(self) -> None:
-        """Set the receiver as inactive and remove it from the channel."""
-        self._active = False
-        # pylint: disable=protected-access
-        _hash = hash(self)
-        if _hash in self._chan._receivers:
-            del self._chan._receivers[_hash]
-        # pylint: enable=protected-access
-
     def consume(self) -> T:
         """Return the latest value once `ready` is complete.
 
@@ -377,33 +339,12 @@ class Receiver(BaseReceiver[T]):
 
         Raises:
             ReceiverStoppedError: if there is some problem with the receiver.
-            ReceiverInvalidatedError: if the receiver was converted into
-                a peekable.
         """
-        if not self._q and not self._active:
-            raise ReceiverInvalidatedError(
-                "This receiver was converted into a Peekable so it is not longer valid.",
-                self,
-            )
-
         if not self._q and self._chan._closed:  # pylint: disable=protected-access
             raise ReceiverStoppedError(self) from ChannelClosedError(self._chan)
 
         assert self._q, "`consume()` must be preceded by a call to `ready()`"
         return self._q.popleft()
-
-    def into_peekable(self) -> Peekable[T]:
-        """Convert the `Receiver` implementation into a `Peekable`.
-
-        Once this function has been called, the receiver will no longer be
-        usable, and calling [receive()][frequenz.channels.Receiver.receive] on
-        the receiver will raise an exception.
-
-        Returns:
-            A `Peekable` instance.
-        """
-        self._deactivate()
-        return Peekable(self._chan)
 
     def __str__(self) -> str:
         """Return a string representation of this receiver."""
@@ -415,41 +356,5 @@ class Receiver(BaseReceiver[T]):
         assert limit is not None
         return (
             f"{type(self).__name__}(name={self._name!r}, limit={limit!r}, "
-            f"{self._chan!r}):<id={id(self)!r}, used={len(self._q)!r}, "
-            f"active={self._active!r}>"
+            f"{self._chan!r}):<id={id(self)!r}, used={len(self._q)!r}>"
         )
-
-
-class Peekable(BasePeekable[T]):
-    """A Peekable to peek into broadcast channels.
-
-    A Peekable provides a [peek()][frequenz.channels.Peekable] method that
-    allows the user to get a peek at the latest value in the channel, without
-    consuming anything.
-    """
-
-    def __init__(self, chan: Broadcast[T]) -> None:
-        """Create a `Peekable` instance.
-
-        Args:
-            chan: The broadcast channel this Peekable will try to peek into.
-        """
-        self._chan: Broadcast[T] = chan
-        """The broadcast channel this Peekable will try to peek into."""
-
-    def peek(self) -> T | None:
-        """Return the latest value that was sent to the channel.
-
-        Returns:
-            The latest value received by the channel, and `None`, if nothing
-                has been sent to the channel yet, or if the channel is closed.
-        """
-        return self._chan._latest  # pylint: disable=protected-access
-
-    def __str__(self) -> str:
-        """Return a string representation of this receiver."""
-        return f"{self._chan}:{type(self).__name__}"
-
-    def __repr__(self) -> str:
-        """Return a string representation of this receiver."""
-        return f"{type(self).__name__}({self._chan!r}):<latest={self.peek()!r}>"
