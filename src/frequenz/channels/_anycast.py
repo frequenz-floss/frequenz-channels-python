@@ -5,6 +5,7 @@
 
 from __future__ import annotations
 
+import logging
 from asyncio import Condition
 from collections import deque
 from typing import Generic
@@ -13,6 +14,8 @@ from ._base_classes import Receiver as BaseReceiver
 from ._base_classes import Sender as BaseSender
 from ._base_classes import T
 from ._exceptions import ChannelClosedError, ReceiverStoppedError, SenderError
+
+_logger = logging.getLogger(__name__)
 
 
 class Anycast(Generic[T]):
@@ -219,9 +222,19 @@ class Sender(BaseSender[T]):
             raise SenderError("The channel was closed", self) from ChannelClosedError(
                 self._chan
             )
-        while len(self._chan._deque) == self._chan._deque.maxlen:
-            async with self._chan._send_cv:
-                await self._chan._send_cv.wait()
+        if len(self._chan._deque) == self._chan._deque.maxlen:
+            _logger.warning(
+                "Anycast channel [%s] is full, blocking sender until a receiver "
+                "consumes a value",
+                self,
+            )
+            while len(self._chan._deque) == self._chan._deque.maxlen:
+                async with self._chan._send_cv:
+                    await self._chan._send_cv.wait()
+            _logger.info(
+                "Anycast channel [%s] has space again, resuming the blocked sender",
+                self,
+            )
         self._chan._deque.append(msg)
         async with self._chan._recv_cv:
             self._chan._recv_cv.notify(1)
