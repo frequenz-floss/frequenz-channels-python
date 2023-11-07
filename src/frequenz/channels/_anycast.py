@@ -160,7 +160,7 @@ class Anycast(Generic[_T]):
         async with self._recv_cv:
             self._recv_cv.notify_all()
 
-    def new_sender(self) -> Sender[_T]:
+    def new_sender(self) -> BaseSender[_T]:
         """Create a new sender.
 
         Returns:
@@ -168,7 +168,7 @@ class Anycast(Generic[_T]):
         """
         return Sender(self)
 
-    def new_receiver(self) -> Receiver[_T]:
+    def new_receiver(self) -> BaseReceiver[_T]:
         """Create a new receiver.
 
         Returns:

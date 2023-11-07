@@ -145,7 +145,7 @@ class Broadcast(Generic[_T]):
         async with self._recv_cv:
             self._recv_cv.notify_all()
 
-    def new_sender(self) -> Sender[_T]:
+    def new_sender(self) -> BaseSender[_T]:
         """Create a new broadcast sender.
 
         Returns:
@@ -153,7 +153,9 @@ class Broadcast(Generic[_T]):
         """
         return Sender(self)
 
-    def new_receiver(self, *, name: str | None = None, limit: int = 50) -> Receiver[_T]:
+    def new_receiver(
+        self, *, name: str | None = None, limit: int = 50
+    ) -> BaseReceiver[_T]:
         """Create a new broadcast receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
