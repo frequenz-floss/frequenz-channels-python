@@ -2,7 +2,6 @@
 
 ## Summary
 
-The `Timer` now can be started with a delay.
 
 ## Upgrading
 
