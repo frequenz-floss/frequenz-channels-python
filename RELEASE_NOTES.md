@@ -11,11 +11,9 @@
 
     You should instantiate using `Anycast(name=..., limit=...)` (or `Anycast(name=...)` if the default `limit` is enough) instead of `Anycast(...)` or `Anycast(maxsize=...)`.
 
-* `Bidirectional`
+  - `new_sender` and `new_receiver`: They now return a base `Sender` and `Receiver` class (respectively) instead of a channel-specific `Sender` or `Receiver` subclass.
 
-  - The `client_id` and `service_id` arguments were merged into a keyword-only `name`.
-
-    You should instantiate using `Bidirectional(name=...)` instead of `Bidirectional(..., ...)` or `Bidirectional(client_id=..., service_id=...)`.
+    This means users now don't have access to the internals to the channel-specific `Sender` and `Receiver` subclasses.
 
 * `Broadcast`
 
@@ -27,15 +25,70 @@
 
     You should use `.new_receiver(name=name, limit=limit)` (or `.new_receiver()` if the defaults are enough) instead of `.new_receiver(name)` or `.new_receiver(name, maxsize)`.
 
+  - `new_sender` and `new_receiver` now return a base `Sender` and `Receiver` class (respectively) instead of a channel-specific `Sender` or `Receiver` subclass.
+
+    This means users now don't have access to the internals to the channel-specific `Sender` and `Receiver` subclasses.
+
 * `Event`
 
   - `__init__`: The `name` argument was made keyword-only. The default was changed to a more readable version of `id(self)`.
 
     You should instantiate using `Event(name=...)` instead of `Event(...)`.
 
+  - Moved from `frequenz.channels.util` to `frequenz.channels.event`.
+
+* `FileWatcher`
+
+  - Moved from `frequenz.channels.util` to `frequenz.channels.file_watcher`.
+
+  - Support classes are no longer nested inside `FileWatcher`. They are now top-level classes within the new `frequenz.channels.file_watcher` module (e.g., `frequenz.channels.util.FileWatcher.EventType` -> `frequenz.channels.file_watcher.EventType`, `frequenz.channels.util.FileWatcher.Event` -> `frequenz.channels.file_watcher.Event`).
+
+* `Timer` and support classes
+
+  - Moved from `frequenz.channels.util` to `frequenz.channels.timer`.
+
 * All exceptions that took `Any` as the `message` argument now take `str` instead.
 
   If you were passing a non-`str` value to an exception, you should convert it using `str(value)` before passing it to the exception.
+
+* The following symbols were moved to the top-level `frequenz.channels` package:
+
+  - `Merge`
+  - `MergeNamed`
+  - `Selected`
+  - `SelectError`
+  - `SelectErrorGroup`
+  - `UnhandledSelectedError`
+  - `select`
+  - `selected_from`
+
+### Removals
+
+* `Bidirectional`
+
+  This channel was removed as it is not recommended practice and was a niche use case. If you need to use it, you can set up two channels or copy the `Bidirectional` class from the previous version to your project.
+
+* `Peekable`
+
+  This class was removed because it was merely a shortcut to a receiver that caches the last value received. It did not fit the channel abstraction well and was infrequently used.
+
+  You can replace it with a task that receives and retains the last value.
+
+* `Broadcast.new_peekable()`
+
+  This was removed alongside `Peekable`.
+
+* `Receiver.into_peekable()`
+
+  This was removed alongside `Peekable`.
+
+* `ReceiverInvalidatedError`
+
+  This was removed alongside `Peekable` (it was only raised when using a `Receiver` that was converted into a `Peekable`).
+
+* `util`
+
+  The entire `util` package was removed and its symbols were either moved to the top-level package or to their own public modules (as noted above).
 
 ## New Features
 
