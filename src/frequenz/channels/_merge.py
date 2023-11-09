@@ -40,14 +40,14 @@ def merge(*receivers: Receiver[_T]) -> Receiver[_T]:
             print(f"received {msg}")
         ```
     """
-    return Merge(*receivers)
+    return _Merge(*receivers)
 
 
-class Merge(Receiver[_T]):
+class _Merge(Receiver[_T]):
     """A receiver that merges messages coming from multiple receivers into a single stream."""
 
     def __init__(self, *args: Receiver[_T]) -> None:
-        """Create a `Merge` instance.
+        """Create a `_Merge` instance.
 
         Args:
             *args: sequence of channel receivers.
@@ -68,7 +68,7 @@ class Merge(Receiver[_T]):
                 task.cancel()
 
     async def stop(self) -> None:
-        """Stop the `Merge` instance and cleanup any pending tasks."""
+        """Stop the `_Merge` instance and cleanup any pending tasks."""
         for task in self._pending:
             task.cancel()
         await asyncio.gather(*self._pending, return_exceptions=True)
