@@ -46,14 +46,14 @@ def merge(*receivers: Receiver[_T]) -> Receiver[_T]:
 class _Merge(Receiver[_T]):
     """A receiver that merges messages coming from multiple receivers into a single stream."""
 
-    def __init__(self, *args: Receiver[_T]) -> None:
+    def __init__(self, *receivers: Receiver[_T]) -> None:
         """Create a `_Merge` instance.
 
         Args:
-            *args: sequence of channel receivers.
+            *receivers: The receivers to merge.
         """
         self._receivers: dict[str, Receiver[_T]] = {
-            str(id): recv for id, recv in enumerate(args)
+            str(id): recv for id, recv in enumerate(receivers)
         }
         self._pending: set[asyncio.Task[Any]] = {
             asyncio.create_task(anext(recv), name=name)
