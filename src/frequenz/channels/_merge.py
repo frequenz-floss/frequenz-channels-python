@@ -23,6 +23,9 @@ def merge(*receivers: Receiver[_T]) -> Receiver[_T]:
         A receiver that merges the messages coming from multiple receivers into a
             single stream.
 
+    Raises:
+        ValueError: if no receivers are provided.
+
     Example:
         For example, if there are two channel receivers with the same type,
         they can be awaited together, and their results merged into a single
@@ -40,6 +43,9 @@ def merge(*receivers: Receiver[_T]) -> Receiver[_T]:
             print(f"received {msg}")
         ```
     """
+    if not receivers:
+        raise ValueError("At least one receiver must be provided")
+
     return _Merge(*receivers, name="merge")
 
 
