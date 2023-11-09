@@ -13,13 +13,20 @@ from ._receiver import Receiver, ReceiverStoppedError
 _T = TypeVar("_T")
 
 
-class Merge(Receiver[_T]):
-    """Merge messages coming from multiple channels into a single stream.
+def merge(*receivers: Receiver[_T]) -> Receiver[_T]:
+    """Merge messages coming from multiple receivers into a single stream.
+
+    Args:
+        *receivers: The receivers to merge.
+
+    Returns:
+        A receiver that merges the messages coming from multiple receivers into a
+            single stream.
 
     Example:
         For example, if there are two channel receivers with the same type,
         they can be awaited together, and their results merged into a single
-        stream, by using `Merge` like this:
+        stream like this:
 
         ```python
         from frequenz.channels import Broadcast
@@ -29,15 +36,15 @@ class Merge(Receiver[_T]):
         receiver1 = channel1.new_receiver()
         receiver2 = channel2.new_receiver()
 
-        merge = Merge(receiver1, receiver2)
-        while msg := await merge.receive():
-            # do something with msg
-            pass
+        async for msg in merge(receiver1, receiver2):
+            print(f"received {msg}")
         ```
-
-        When `merge` is no longer needed, then it should be stopped using
-        `self.stop()` method. This will cleanup any internal pending async tasks.
     """
+    return Merge(*receivers)
+
+
+class Merge(Receiver[_T]):
+    """A receiver that merges messages coming from multiple receivers into a single stream."""
 
     def __init__(self, *args: Receiver[_T]) -> None:
         """Create a `Merge` instance.

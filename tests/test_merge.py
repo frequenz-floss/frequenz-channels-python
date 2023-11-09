@@ -1,15 +1,15 @@
 # License: MIT
 # Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-"""Tests for the Merge implementation."""
+"""Tests for the merge implementation."""
 
 import asyncio
 
-from frequenz.channels import Anycast, Merge, Sender
+from frequenz.channels import Anycast, Sender, merge
 
 
 async def test_merge() -> None:
-    """Ensure Merge receives messages in order."""
+    """Ensure merge() receives messages in order."""
     chan1 = Anycast[int](name="chan1")
     chan2 = Anycast[int](name="chan2")
 
@@ -23,9 +23,8 @@ async def test_merge() -> None:
 
     senders = asyncio.create_task(send(chan1.new_sender(), chan2.new_sender()))
 
-    merge = Merge(chan1.new_receiver(), chan2.new_receiver())
     results: list[int] = []
-    async for item in merge:
+    async for item in merge(chan1.new_receiver(), chan2.new_receiver()):
         results.append(item)
     await senders
     for ctr in range(5):

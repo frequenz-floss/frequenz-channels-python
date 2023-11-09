@@ -52,7 +52,7 @@ body:
         - Build script, CI, dependencies, etc. (part:tooling)
         - Channels, `Broadcast`, `Anycast`, etc. (part:channels)
         - Select (part:select)
-        - Utility receivers, `Merge`, etc. (part:receivers)
+        - Utility receivers, `Event`, `FileWatcher`, `Timer`, etc. (part:receivers)
     validations:
       required: true
   - type: textarea

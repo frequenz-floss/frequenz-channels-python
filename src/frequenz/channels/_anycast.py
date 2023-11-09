@@ -39,7 +39,7 @@ class Anycast(Generic[_T]):
 
     When there are multiple channel receivers, they can be awaited
     simultaneously using [select][frequenz.channels.select] or
-    [Merge][frequenz.channels.Merge].
+    [merge][frequenz.channels.merge].
 
     Example:
         ``` python
