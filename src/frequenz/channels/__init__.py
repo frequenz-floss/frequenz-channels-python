@@ -26,9 +26,8 @@ Channels:
 
 Utilities to work with channels:
 
-* [Merge][frequenz.channels.Merge] and [MergeNamed][frequenz.channels.MergeNamed]:
-  [Receivers][frequenz.channels.Receiver] that merge messages coming from multiple
-  receivers into a single stream.
+* [Merge][frequenz.channels.Merge]: A [Receiver][frequenz.channels.Receiver] that merges
+  messages coming from multiple receivers into a single stream.
 
 * [select][frequenz.channels.select]:  Iterate over the values of all
   [receivers][frequenz.channels.Receiver] as new values become available.
@@ -79,7 +78,6 @@ from ._anycast import Anycast
 from ._broadcast import Broadcast
 from ._exceptions import ChannelClosedError, ChannelError, Error
 from ._merge import Merge
-from ._merge_named import MergeNamed
 from ._receiver import Receiver, ReceiverError, ReceiverStoppedError
 from ._select import (
     Selected,
@@ -98,7 +96,6 @@ __all__ = [
     "ChannelError",
     "Error",
     "Merge",
-    "MergeNamed",
     "Receiver",
     "ReceiverError",
     "ReceiverStoppedError",

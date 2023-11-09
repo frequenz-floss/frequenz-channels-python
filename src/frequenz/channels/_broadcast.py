@@ -32,9 +32,8 @@ class Broadcast(Generic[_T]):
     are thread-safe.  Because of this, `Broadcast` channels are thread-safe.
 
     When there are multiple channel receivers, they can be awaited
-    simultaneously using [select][frequenz.channels.select],
-    [Merge][frequenz.channels.Merge] or
-    [MergeNamed][frequenz.channels.MergeNamed].
+    simultaneously using [select][frequenz.channels.select] or
+    [Merge][frequenz.channels.Merge].
 
     Example:
         ``` python

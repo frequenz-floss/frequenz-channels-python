@@ -258,10 +258,8 @@ async def select(*receivers: Receiver[Any]) -> AsyncIterator[Selected[Any]]:
         receivers from a select loop, there are a few alternatives.  Depending on your
         use case, one or the other could work better for you:
 
-        * Use [`Merge`][frequenz.channels.Merge] or
-          [`MergeNamed`][frequenz.channels.MergeNamed]: this is useful when you
-          have and unknown number of receivers of the same type that can be handled as
-          a group.
+        * Use [`Merge`][frequenz.channels.Merge]: this is useful when you have an
+          unknown number of receivers of the same type that can be handled as a group.
         * Use tasks to manage each receiver individually: this is better if there are no
           relationships between the receivers.
         * Break the `select()` loop and start a new one with the new set of receivers
