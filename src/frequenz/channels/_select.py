@@ -12,43 +12,43 @@ import asyncio
 from collections.abc import AsyncIterator
 from typing import Any, Generic, TypeGuard, TypeVar
 
-from .._base_classes import Receiver
-from .._exceptions import ReceiverStoppedError
+from ._receiver import Receiver, ReceiverStoppedError
 
 _T = TypeVar("_T")
 
 
+class _EmptyResult:
+    """A sentinel value to distinguish between None and empty result.
+
+    We need a sentinel because a result can also be `None`.
+    """
+
+    def __repr__(self) -> str:
+        return "<empty>"
+
+
 class Selected(Generic[_T]):
-    """A result of a [`select()`][frequenz.channels.util.select] iteration.
+    """A result of a [`select()`][frequenz.channels.select] iteration.
 
     The selected receiver is consumed immediately and the received value is stored in
     the instance, unless there was an exception while receiving the value, in which case
     the exception is stored instead.
 
     `Selected` instances should be used in conjunction with the
-    [`selected_from()`][frequenz.channels.util.selected_from] function to determine
+    [`selected_from()`][frequenz.channels.selected_from] function to determine
     which receiver was selected.
 
-    Please see [`select()`][frequenz.channels.util.select] for an example.
+    Please see [`select()`][frequenz.channels.select] for an example.
     """
-
-    class _EmptyResult:
-        """A sentinel value to distinguish between None and empty result.
-
-        We need a sentinel because a result can also be `None`.
-        """
-
-        def __repr__(self) -> str:
-            return "<empty>"
 
     def __init__(self, receiver: Receiver[_T]) -> None:
         """Create a new instance.
 
         The receiver is consumed immediately when creating the instance and the received
         value is stored in the instance for later use as
-        [`value`][frequenz.channels.util.Selected.value].  If there was an exception
+        [`value`][frequenz.channels.Selected.value].  If there was an exception
         while receiving the value, then the exception is stored in the instance instead
-        (as [`exception`][frequenz.channels.util.Selected.exception]).
+        (as [`exception`][frequenz.channels.Selected.exception]).
 
         Args:
             receiver: The receiver that was selected.
@@ -56,7 +56,7 @@ class Selected(Generic[_T]):
         self._recv: Receiver[_T] = receiver
         """The receiver that was selected."""
 
-        self._value: _T | Selected._EmptyResult = Selected._EmptyResult()
+        self._value: _T | _EmptyResult = _EmptyResult()
         """The value that was received.
 
         If there was an exception while receiving the value, then this will be `None`.
@@ -87,7 +87,7 @@ class Selected(Generic[_T]):
         """
         if self._exception is not None:
             raise self._exception
-        assert not isinstance(self._value, Selected._EmptyResult)
+        assert not isinstance(self._value, _EmptyResult)
         return self._value
 
     @property
@@ -140,16 +140,16 @@ class Selected(Generic[_T]):
 def selected_from(
     selected: Selected[Any], receiver: Receiver[_T]
 ) -> TypeGuard[Selected[_T]]:
-    """Check if the given receiver was selected by [`select()`][frequenz.channels.util.select].
+    """Check if the given receiver was selected by [`select()`][frequenz.channels.select].
 
     This function is used in conjunction with the
-    [`Selected`][frequenz.channels.util.Selected] class to determine which receiver was
+    [`Selected`][frequenz.channels.Selected] class to determine which receiver was
     selected in `select()` iteration.
 
     It also works as a [type guard][typing.TypeGuard] to narrow the type of the
     `Selected` instance to the type of the receiver.
 
-    Please see [`select()`][frequenz.channels.util.select] for an example.
+    Please see [`select()`][frequenz.channels.select] for an example.
 
     Args:
         selected: The result of a `select()` iteration.
@@ -164,21 +164,21 @@ def selected_from(
 
 
 class SelectError(BaseException):
-    """A base exception for [`select()`][frequenz.channels.util.select].
+    """A base exception for [`select()`][frequenz.channels.select].
 
     This exception is raised when a `select()` iteration fails.  It is raised as
     a single exception when one receiver fails during normal operation (while calling
     `ready()` for example).  It is raised as a group exception
-    ([`SelectErrorGroup`][frequenz.channels.util.SelectErrorGroup]) when a `select` loop
+    ([`SelectErrorGroup`][frequenz.channels.SelectErrorGroup]) when a `select` loop
     is cleaning up after it's done.
     """
 
 
 class UnhandledSelectedError(SelectError, Generic[_T]):
-    """A receiver was not handled in a [`select()`][frequenz.channels.util.select] loop.
+    """A receiver was not handled in a [`select()`][frequenz.channels.select] loop.
 
     This exception is raised when a `select()` iteration finishes without a call to
-    [`selected_from()`][frequenz.channels.util.selected_from] for the selected receiver.
+    [`selected_from()`][frequenz.channels.selected_from] for the selected receiver.
     """
 
     def __init__(self, selected: Selected[_T]) -> None:
@@ -194,7 +194,7 @@ class UnhandledSelectedError(SelectError, Generic[_T]):
 
 
 class SelectErrorGroup(BaseExceptionGroup[BaseException], SelectError):
-    """An exception group for [`select()`][frequenz.channels.util.select] operation.
+    """An exception group for [`select()`][frequenz.channels.select] operation.
 
     This exception group is raised when a `select()` loops fails while cleaning up
     running tests to check for ready receivers.
@@ -243,8 +243,8 @@ async def select(*receivers: Receiver[Any]) -> AsyncIterator[Selected[Any]]:
 
     This function is used to iterate over the values of all receivers as they receive
     new values.  It is used in conjunction with the
-    [`Selected`][frequenz.channels.util.Selected] class and the
-    [`selected_from()`][frequenz.channels.util.selected_from] function to determine
+    [`Selected`][frequenz.channels.Selected] class and the
+    [`selected_from()`][frequenz.channels.selected_from] function to determine
     which function to determine which receiver was selected in a select operation.
 
     An exhaustiveness check is performed at runtime to make sure all selected receivers
@@ -258,8 +258,8 @@ async def select(*receivers: Receiver[Any]) -> AsyncIterator[Selected[Any]]:
         receivers from a select loop, there are a few alternatives.  Depending on your
         use case, one or the other could work better for you:
 
-        * Use [`Merge`][frequenz.channels.util.Merge] or
-          [`MergeNamed`][frequenz.channels.util.MergeNamed]: this is useful when you
+        * Use [`Merge`][frequenz.channels.Merge] or
+          [`MergeNamed`][frequenz.channels.MergeNamed]: this is useful when you
           have and unknown number of receivers of the same type that can be handled as
           a group.
         * Use tasks to manage each receiver individually: this is better if there are no
@@ -273,8 +273,8 @@ async def select(*receivers: Receiver[Any]) -> AsyncIterator[Selected[Any]]:
         import datetime
         from typing import assert_never
 
-        from frequenz.channels import ReceiverStoppedError
-        from frequenz.channels.util import select, selected_from, Timer
+        from frequenz.channels import ReceiverStoppedError, select, selected_from
+        from frequenz.channels.timer import Timer
 
         timer1 = Timer.periodic(datetime.timedelta(seconds=1))
         timer2 = Timer.timeout(datetime.timedelta(seconds=0.5))

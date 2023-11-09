@@ -50,7 +50,7 @@ body:
         - Documentation (part:docs)
         - Unit, integration and performance tests (part:tests)
         - Build script, CI, dependencies, etc. (part:tooling)
-        - Channels, `Broadcast`, `Bidirectional`, etc. (part:channels)
+        - Channels, `Broadcast`, `Anycast`, etc. (part:channels)
         - Select (part:select)
         - Utility receivers, `Merge`, etc. (part:receivers)
     validations:

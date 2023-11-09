@@ -6,23 +6,7 @@
 This package contains
 [channel](https://en.wikipedia.org/wiki/Channel_(programming)) implementations.
 
-Channels:
-
-* [Anycast][frequenz.channels.Anycast]: A channel that supports multiple
-  senders and multiple receivers.  A message sent through a sender will be
-  received by exactly one receiver.
-
-* [Bidirectional][frequenz.channels.Bidirectional]: A channel providing
-  a `client` and a `service` handle to send and receive bidirectionally.
-
-* [Broadcast][frequenz.channels.Broadcast]: A channel to broadcast messages
-  from multiple senders to multiple receivers. Each message sent through any of
-  the senders is received by all of the receivers.
-
-Other base classes:
-
-* [Peekable][frequenz.channels.Peekable]: An object to allow users to get
-  a peek at the latest value in the channel, without consuming anything.
+Base classes:
 
 * [Receiver][frequenz.channels.Receiver]: An object that can wait for and
   consume messages from a channel.
@@ -30,11 +14,24 @@ Other base classes:
 * [Sender][frequenz.channels.Sender]: An object that can send messages to
   a channel.
 
-Utilities:
+Channels:
 
-* [util][frequenz.channels.util]: A module with utilities, like special
-  receivers that implement timers, file watchers, merge receivers, or wait for
-  messages in multiple channels.
+* [Anycast][frequenz.channels.Anycast]: A channel that supports multiple
+  senders and multiple receivers.  A message sent through a sender will be
+  received by exactly one receiver.
+
+* [Broadcast][frequenz.channels.Broadcast]: A channel to broadcast messages
+  from multiple senders to multiple receivers. Each message sent through any of
+  the senders is received by all of the receivers.
+
+Utilities to work with channels:
+
+* [Merge][frequenz.channels.Merge] and [MergeNamed][frequenz.channels.MergeNamed]:
+  [Receivers][frequenz.channels.Receiver] that merge messages coming from multiple
+  receivers into a single stream.
+
+* [select][frequenz.channels.select]:  Iterate over the values of all
+  [receivers][frequenz.channels.Receiver] as new values become available.
 
 Exception classes:
 
@@ -56,39 +53,61 @@ Exception classes:
 * [ReceiverStoppedError][frequenz.channels.ReceiverStoppedError]: A receiver
   stopped producing messages.
 
-* [ReceiverInvalidatedError][frequenz.channels.ReceiverInvalidatedError]:
-  A receiver is not longer valid (for example if it was converted into
-  a peekable.
+* [SelectError][frequenz.channels.SelectError]: Base class for all errors
+    related to [select][frequenz.channels.select].
+
+* [SelectErrorGroup][frequenz.channels.SelectErrorGroup]: A group of errors
+    raised by [select][frequenz.channels.select].
+
+* [UnhandledSelectedError][frequenz.channels.UnhandledSelectedError]: An error
+    raised by [select][frequenz.channels.select] that was not handled by the
+    user.
+
+Extra utility receivers:
+
+* [Event][frequenz.channels.event.Event]: A receiver that generates a message when
+  an event is set.
+
+* [FileWatcher][frequenz.channels.file_watcher.FileWatcher]: A receiver that
+  generates a message when a file is added, modified or deleted.
+
+* [Timer][frequenz.channels.timer.Timer]: A receiver that generates a message after a
+  given amount of time.
 """
 
-from . import util
 from ._anycast import Anycast
-from ._base_classes import Peekable, Receiver, Sender
-from ._bidirectional import Bidirectional
 from ._broadcast import Broadcast
-from ._exceptions import (
-    ChannelClosedError,
-    ChannelError,
-    Error,
-    ReceiverError,
-    ReceiverInvalidatedError,
-    ReceiverStoppedError,
-    SenderError,
+from ._exceptions import ChannelClosedError, ChannelError, Error
+from ._merge import Merge
+from ._merge_named import MergeNamed
+from ._receiver import Receiver, ReceiverError, ReceiverStoppedError
+from ._select import (
+    Selected,
+    SelectError,
+    SelectErrorGroup,
+    UnhandledSelectedError,
+    select,
+    selected_from,
 )
+from ._sender import Sender, SenderError
 
 __all__ = [
     "Anycast",
-    "Bidirectional",
     "Broadcast",
     "ChannelClosedError",
     "ChannelError",
     "Error",
-    "Peekable",
+    "Merge",
+    "MergeNamed",
     "Receiver",
     "ReceiverError",
-    "ReceiverInvalidatedError",
     "ReceiverStoppedError",
+    "SelectError",
+    "SelectErrorGroup",
+    "Selected",
     "Sender",
     "SenderError",
-    "util",
+    "UnhandledSelectedError",
+    "select",
+    "selected_from",
 ]

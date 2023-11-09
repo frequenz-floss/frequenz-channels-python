@@ -6,7 +6,7 @@
 # For more details on the configuration please see:
 # https://github.com/marketplace/actions/labeler
 
-"part:docs": 
+"part:docs":
   - "**/*.md"
   - "docs/**"
   - "examples/**"
@@ -31,14 +31,15 @@
   - noxfile.py
 
 "part:channels":
-  - any:
-      - "src/frequenz/channels/**"
-      - "!src/frequenz/channels/util/**"
+  - "src/frequenz/channels/_anycast.py"
+  - "src/frequenz/channels/_broadcast.py"
 
 "part:receivers":
-  - any:
-      - "src/frequenz/channels/util/**"
-      - "!src/frequenz/channels/util/_select.py"
+  - "src/frequenz/channels/_merge.py"
+  - "src/frequenz/channels/_merge_named.py"
+  - "src/frequenz/channels/event.py"
+  - "src/frequenz/channels/file_watcher.py"
+  - "src/frequenz/channels/timer.py"
 
 "part:select":
-  - "src/frequenz/channels/util/_select.py"
+  - "src/frequenz/channels/_select.py"

@@ -14,7 +14,7 @@ import hypothesis
 import pytest
 from hypothesis import strategies as st
 
-from frequenz.channels.util import (
+from frequenz.channels.timer import (
     SkipMissedAndDrift,
     SkipMissedAndResync,
     Timer,

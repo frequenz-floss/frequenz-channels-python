@@ -6,25 +6,25 @@
 
 import asyncio as _asyncio
 
-from frequenz.channels import _base_classes, _exceptions
+from frequenz.channels import _receiver
 
 
-class Event(_base_classes.Receiver[None]):
+class Event(_receiver.Receiver[None]):
     """A receiver that can be made ready through an event.
 
-    The receiver (the [`ready()`][frequenz.channels.util.Event.ready] method) will wait
-    until [`set()`][frequenz.channels.util.Event.set] is called.  At that point the
+    The receiver (the [`ready()`][frequenz.channels.event.Event.ready] method) will wait
+    until [`set()`][frequenz.channels.event.Event.set] is called.  At that point the
     receiver will wait again after the event is
     [`consume()`][frequenz.channels.Receiver.consume]d.
 
     The receiver can be completely stopped by calling
-    [`stop()`][frequenz.channels.util.Event.stop].
+    [`stop()`][frequenz.channels.event.Event.stop].
 
     Example:
         ```python
         import asyncio
-        from frequenz.channels import Receiver
-        from frequenz.channels.util import Event, select, selected_from
+        from frequenz.channels import Receiver, select, selected_from
+        from frequenz.channels.event import Event
 
         other_receiver: Receiver[int] = ...
         exit_event = Event()
@@ -134,7 +134,7 @@ class Event(_base_classes.Receiver[None]):
             ReceiverStoppedError: If this receiver is stopped.
         """
         if not self._is_set and self._is_stopped:
-            raise _exceptions.ReceiverStoppedError(self)
+            raise _receiver.ReceiverStoppedError(self)
 
         assert self._is_set, "calls to `consume()` must be follow a call to `ready()`"
 

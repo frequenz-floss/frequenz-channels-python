@@ -12,7 +12,6 @@ from frequenz.channels import (
     Broadcast,
     ChannelClosedError,
     Receiver,
-    ReceiverInvalidatedError,
     ReceiverStoppedError,
     Sender,
     SenderError,
@@ -105,6 +104,10 @@ async def test_broadcast_after_close() -> None:
 
 async def test_broadcast_overflow() -> None:
     """Ensure messages sent to full broadcast receivers get dropped."""
+    from frequenz.channels._broadcast import (  # pylint: disable=import-outside-toplevel
+        _Receiver,
+    )
+
     bcast: Broadcast[int] = Broadcast(name="meter_5")
 
     big_recv_size = 10
@@ -112,7 +115,9 @@ async def test_broadcast_overflow() -> None:
     sender = bcast.new_sender()
 
     big_receiver = bcast.new_receiver(name="named-recv", limit=big_recv_size)
+    assert isinstance(big_receiver, _Receiver)
     small_receiver = bcast.new_receiver(limit=small_recv_size)
+    assert isinstance(small_receiver, _Receiver)
 
     async def drain_receivers() -> tuple[int, int]:
         big_sum = 0
@@ -185,32 +190,6 @@ async def test_broadcast_no_resend_latest() -> None:
 
     assert await old_recv.receive() == 0
     assert await new_recv.receive() == 100
-
-
-async def test_broadcast_peek() -> None:
-    """Ensure we are able to peek into broadcast channels."""
-    bcast: Broadcast[int] = Broadcast(name="peek-test")
-    receiver = bcast.new_receiver()
-    peekable = receiver.into_peekable()
-    sender = bcast.new_sender()
-
-    with pytest.raises(ReceiverInvalidatedError):
-        await receiver.receive()
-
-    assert peekable.peek() is None
-
-    for val in range(0, 10):
-        await sender.send(val)
-
-    assert peekable.peek() == 9
-    assert peekable.peek() == 9
-
-    await sender.send(20)
-
-    assert peekable.peek() == 20
-
-    await bcast.close()
-    assert peekable.peek() is None
 
 
 async def test_broadcast_async_iterator() -> None:

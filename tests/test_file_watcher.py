@@ -15,7 +15,7 @@ import pytest
 from watchfiles import Change
 from watchfiles.main import FileChange
 
-from frequenz.channels.util import FileWatcher
+from frequenz.channels.file_watcher import Event, EventType, FileWatcher
 
 
 class _FakeAwatch:
@@ -52,7 +52,7 @@ def fake_awatch() -> Iterator[_FakeAwatch]:
     """Fixture to mock the awatch function."""
     fake = _FakeAwatch()
     with mock.patch(
-        "frequenz.channels.util._file_watcher.awatch",
+        "frequenz.channels.file_watcher.awatch",
         autospec=True,
         side_effect=fake.fake_awatch,
     ):
@@ -74,14 +74,14 @@ async def test_file_watcher_receive_updates(
 
     for change in changes:
         recv_changes = await file_watcher.receive()
-        event_type = FileWatcher.EventType(change[0])
+        event_type = EventType(change[0])
         path = pathlib.Path(change[1])
-        assert recv_changes == FileWatcher.Event(type=event_type, path=path)
+        assert recv_changes == Event(type=event_type, path=path)
 
 
-@hypothesis.given(event_types=st.sets(st.sampled_from(FileWatcher.EventType)))
+@hypothesis.given(event_types=st.sets(st.sampled_from(EventType)))
 async def test_file_watcher_filter_events(
-    event_types: set[FileWatcher.EventType],
+    event_types: set[EventType],
 ) -> None:
     """Test the file watcher events filtering."""
     good_path = "good-file"
@@ -89,7 +89,7 @@ async def test_file_watcher_filter_events(
     # We need to reset the mock explicitly because hypothesis runs all the produced
     # inputs in the same context.
     with mock.patch(
-        "frequenz.channels.util._file_watcher.awatch", autospec=True
+        "frequenz.channels.file_watcher.awatch", autospec=True
     ) as awatch_mock:
         file_watcher = FileWatcher(paths=[good_path], event_types=event_types)
 
@@ -100,7 +100,7 @@ async def test_file_watcher_filter_events(
                 pathlib.Path(good_path), stop_event=mock.ANY, watch_filter=filter_events
             )
         ]
-        for event_type in FileWatcher.EventType:
+        for event_type in EventType:
             assert filter_events(event_type.value, good_path) == (
                 event_type in event_types
             )
