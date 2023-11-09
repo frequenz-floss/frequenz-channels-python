@@ -40,21 +40,24 @@ def merge(*receivers: Receiver[_T]) -> Receiver[_T]:
             print(f"received {msg}")
         ```
     """
-    return _Merge(*receivers)
+    return _Merge(*receivers, name="merge")
 
 
 class _Merge(Receiver[_T]):
     """A receiver that merges messages coming from multiple receivers into a single stream."""
 
-    def __init__(self, *receivers: Receiver[_T]) -> None:
+    def __init__(self, *receivers: Receiver[_T], name: str | None) -> None:
         """Create a `_Merge` instance.
 
         Args:
             *receivers: The receivers to merge.
+            name: The name of the receiver. Used to to create the string representation
+                of the receiver.
         """
         self._receivers: dict[str, Receiver[_T]] = {
             str(id): recv for id, recv in enumerate(receivers)
         }
+        self._name: str = name if name is not None else type(self).__name__
         self._pending: set[asyncio.Task[Any]] = {
             asyncio.create_task(anext(recv), name=name)
             for name, recv in self._receivers.items()
@@ -134,11 +137,11 @@ class _Merge(Receiver[_T]):
             receivers.append("…")
         else:
             receivers = [str(p) for p in self._receivers.values()]
-        return f"{type(self).__name__}:{','.join(receivers)}"
+        return f"{self._name}:{','.join(receivers)}"
 
     def __repr__(self) -> str:
         """Return a string representation of this receiver."""
         return (
-            f"{type(self).__name__}("
+            f"{self._name}("
             f"{', '.join(f'{k}={v!r}' for k, v in self._receivers.items())})"
         )
