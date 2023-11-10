@@ -26,7 +26,7 @@ Channels:
 
 Utilities to work with channels:
 
-* [merge][frequenz.channels.merge]: Merges messages coming from multiple receivers into
+* [merge][frequenz.channels.merge]: Merge messages coming from multiple receivers into
   a single stream.
 
 * [select][frequenz.channels.select]: Iterate over the values of all

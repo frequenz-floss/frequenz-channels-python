@@ -57,7 +57,7 @@ class _Merge(Receiver[_T]):
 
         Args:
             *receivers: The receivers to merge.
-            name: The name of the receiver. Used to to create the string representation
+            name: The name of the receiver. Used to create the string representation
                 of the receiver.
         """
         self._receivers: dict[str, Receiver[_T]] = {
