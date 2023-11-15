@@ -1,13 +1,16 @@
 # License: MIT
 # Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-"""Tests for the merge implementation."""
+"""Integration tests for the merge implementation."""
 
 import asyncio
+
+import pytest
 
 from frequenz.channels import Anycast, Sender, merge
 
 
+@pytest.mark.integration
 async def test_merge() -> None:
     """Ensure merge() receives messages in order."""
     chan1 = Anycast[int](name="chan1")
