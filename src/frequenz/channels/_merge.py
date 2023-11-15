@@ -16,16 +16,6 @@ _T = TypeVar("_T")
 def merge(*receivers: Receiver[_T]) -> Receiver[_T]:
     """Merge messages coming from multiple receivers into a single stream.
 
-    Args:
-        *receivers: The receivers to merge.
-
-    Returns:
-        A receiver that merges the messages coming from multiple receivers into a
-            single stream.
-
-    Raises:
-        ValueError: if no receivers are provided.
-
     Example:
         For example, if there are two channel receivers with the same type,
         they can be awaited together, and their results merged into a single
@@ -42,6 +32,16 @@ def merge(*receivers: Receiver[_T]) -> Receiver[_T]:
         async for msg in merge(receiver1, receiver2):
             print(f"received {msg}")
         ```
+
+    Args:
+        *receivers: The receivers to merge.
+
+    Returns:
+        A receiver that merges the messages coming from multiple receivers into a
+            single stream.
+
+    Raises:
+        ValueError: if no receivers are provided.
     """
     if not receivers:
         raise ValueError("At least one receiver must be provided")
