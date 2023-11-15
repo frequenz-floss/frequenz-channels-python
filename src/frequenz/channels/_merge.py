@@ -46,6 +46,11 @@ def merge(*receivers: Receiver[_T]) -> Receiver[_T]:
     if not receivers:
         raise ValueError("At least one receiver must be provided")
 
+    # This is just a small optimization to avoid creating a merge receiver when it is
+    # not really needed.
+    if len(receivers) == 1:
+        return receivers[0]
+
     return _Merge(*receivers, name="merge")
 
 
