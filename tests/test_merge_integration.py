@@ -1,15 +1,18 @@
 # License: MIT
 # Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-"""Tests for the MergeNamed implementation."""
+"""Integration tests for the merge implementation."""
 
 import asyncio
 
-from frequenz.channels import Anycast, MergeNamed, Sender
+import pytest
+
+from frequenz.channels import Anycast, Sender, merge
 
 
-async def test_mergenamed() -> None:
-    """Ensure MergeNamed receives messages in order."""
+@pytest.mark.integration
+async def test_merge() -> None:
+    """Ensure merge() receives messages in order."""
     chan1 = Anycast[int](name="chan1")
     chan2 = Anycast[int](name="chan2")
 
@@ -22,11 +25,9 @@ async def test_mergenamed() -> None:
         await chan2.close()
 
     senders = asyncio.create_task(send(chan1.new_sender(), chan2.new_sender()))
-    recvs = {"chan1": chan1.new_receiver(), "chan2": chan2.new_receiver()}
 
-    merge = MergeNamed(**recvs)
-    results: list[tuple[str, int]] = []
-    async for item in merge:
+    results: list[int] = []
+    async for item in merge(chan1.new_receiver(), chan2.new_receiver()):
         results.append(item)
     await senders
     for ctr in range(5):
@@ -36,8 +37,5 @@ async def test_mergenamed() -> None:
         # order, where N is the number of channels.  This only works in this
         # example because the `send` method sends values in immediate
         # succession.
-        assert set(results[idx : idx + 2]) == {
-            ("chan1", ctr + 1),
-            ("chan2", ctr + 101),
-        }
-    assert results[-1] == ("chan2", 1000)
+        assert set(results[idx : idx + 2]) == {ctr + 1, ctr + 101}
+    assert results[-1] == 1000

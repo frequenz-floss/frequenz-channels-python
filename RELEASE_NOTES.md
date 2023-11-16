@@ -53,8 +53,6 @@
 
 * The following symbols were moved to the top-level `frequenz.channels` package:
 
-  - `Merge`
-  - `MergeNamed`
   - `Selected`
   - `SelectError`
   - `SelectErrorGroup`
@@ -67,6 +65,14 @@
 * `Bidirectional`
 
   This channel was removed as it is not recommended practice and was a niche use case. If you need to use it, you can set up two channels or copy the `Bidirectional` class from the previous version to your project.
+
+* `Merge`
+
+  Replaced by the new `merge()` function. When replacing `Merge` with `merge()` please keep in mind that this new function will raise a `ValueError` if no receivers are passed to it.
+
+* `MergeNamed`
+
+  This class was redundant, use either the new `merge()` function or `select()` instead.
 
 * `Peekable`
 
@@ -91,6 +97,8 @@
   The entire `util` package was removed and its symbols were either moved to the top-level package or to their own public modules (as noted above).
 
 ## New Features
+
+* A new `merge()` function was added to replace `Merge`.
 
 * `Anycast`
 
@@ -123,14 +131,6 @@
   - A more useful implementation of `__str__ and `__repr__` were added for the channel and the client and service handles.
 
 * `FileWatcher`
-
-  - A more useful implementation of `__str__ and `__repr__` were added.
-
-* `Merge`
-
-  - A more useful implementation of `__str__ and `__repr__` were added.
-
-* `MergeNamed`
 
   - A more useful implementation of `__str__ and `__repr__` were added.
 

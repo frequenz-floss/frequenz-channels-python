@@ -13,13 +13,13 @@ from ._receiver import Receiver, ReceiverStoppedError
 _T = TypeVar("_T")
 
 
-class Merge(Receiver[_T]):
-    """Merge messages coming from multiple channels into a single stream.
+def merge(*receivers: Receiver[_T]) -> Receiver[_T]:
+    """Merge messages coming from multiple receivers into a single stream.
 
     Example:
         For example, if there are two channel receivers with the same type,
         they can be awaited together, and their results merged into a single
-        stream, by using `Merge` like this:
+        stream like this:
 
         ```python
         from frequenz.channels import Broadcast
@@ -29,25 +29,46 @@ class Merge(Receiver[_T]):
         receiver1 = channel1.new_receiver()
         receiver2 = channel2.new_receiver()
 
-        merge = Merge(receiver1, receiver2)
-        while msg := await merge.receive():
-            # do something with msg
-            pass
+        async for msg in merge(receiver1, receiver2):
+            print(f"received {msg}")
         ```
 
-        When `merge` is no longer needed, then it should be stopped using
-        `self.stop()` method. This will cleanup any internal pending async tasks.
-    """
+    Args:
+        *receivers: The receivers to merge.
 
-    def __init__(self, *args: Receiver[_T]) -> None:
-        """Create a `Merge` instance.
+    Returns:
+        A receiver that merges the messages coming from multiple receivers into a
+            single stream.
+
+    Raises:
+        ValueError: if no receivers are provided.
+    """
+    if not receivers:
+        raise ValueError("At least one receiver must be provided")
+
+    # This is just a small optimization to avoid creating a merge receiver when it is
+    # not really needed.
+    if len(receivers) == 1:
+        return receivers[0]
+
+    return _Merge(*receivers, name="merge")
+
+
+class _Merge(Receiver[_T]):
+    """A receiver that merges messages coming from multiple receivers into a single stream."""
+
+    def __init__(self, *receivers: Receiver[_T], name: str | None) -> None:
+        """Create a `_Merge` instance.
 
         Args:
-            *args: sequence of channel receivers.
+            *receivers: The receivers to merge.
+            name: The name of the receiver. Used to create the string representation
+                of the receiver.
         """
         self._receivers: dict[str, Receiver[_T]] = {
-            str(id): recv for id, recv in enumerate(args)
+            str(id): recv for id, recv in enumerate(receivers)
         }
+        self._name: str = name if name is not None else type(self).__name__
         self._pending: set[asyncio.Task[Any]] = {
             asyncio.create_task(anext(recv), name=name)
             for name, recv in self._receivers.items()
@@ -61,7 +82,7 @@ class Merge(Receiver[_T]):
                 task.cancel()
 
     async def stop(self) -> None:
-        """Stop the `Merge` instance and cleanup any pending tasks."""
+        """Stop the `_Merge` instance and cleanup any pending tasks."""
         for task in self._pending:
             task.cancel()
         await asyncio.gather(*self._pending, return_exceptions=True)
@@ -127,11 +148,11 @@ class Merge(Receiver[_T]):
             receivers.append("…")
         else:
             receivers = [str(p) for p in self._receivers.values()]
-        return f"{type(self).__name__}:{','.join(receivers)}"
+        return f"{self._name}:{','.join(receivers)}"
 
     def __repr__(self) -> str:
         """Return a string representation of this receiver."""
         return (
-            f"{type(self).__name__}("
+            f"{self._name}("
             f"{', '.join(f'{k}={v!r}' for k, v in self._receivers.items())})"
         )
