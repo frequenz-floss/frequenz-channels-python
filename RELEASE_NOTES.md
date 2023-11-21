@@ -2,6 +2,7 @@
 
 ## Summary
 
+<!-- Here goes a general summary of what this release is about -->
 
 ## Upgrading
 
@@ -96,7 +97,7 @@
 
   The entire `util` package was removed and its symbols were either moved to the top-level package or to their own public modules (as noted above).
 
-## New Features
+ ## New Features
 
 * A new `merge()` function was added to replace `Merge`.
 
