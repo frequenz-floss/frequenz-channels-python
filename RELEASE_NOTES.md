@@ -145,4 +145,4 @@
 
 ## Bug Fixes
 
-<!-- Here goes notable bug fixes that are worth a special mention or explanation -->
+* `Timer`: Fix bug that was causing calls to `reset()` to not reset the timer, if the timer was already being awaited.
