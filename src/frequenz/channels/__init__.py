@@ -77,7 +77,7 @@ Extra utility receivers:
 from ._anycast import Anycast
 from ._broadcast import Broadcast
 from ._exceptions import ChannelClosedError, ChannelError, Error
-from ._merge import merge
+from ._merge import Merger, merge
 from ._receiver import Receiver, ReceiverError, ReceiverStoppedError
 from ._select import (
     Selected,
@@ -95,6 +95,7 @@ __all__ = [
     "ChannelClosedError",
     "ChannelError",
     "Error",
+    "Merger",
     "Receiver",
     "ReceiverError",
     "ReceiverStoppedError",
