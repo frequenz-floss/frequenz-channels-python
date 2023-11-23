@@ -28,6 +28,11 @@ channels](https://tour.golang.org/concurrency/2) but it also borrows ideas from
 
 <!-- supported-platforms -->
 
+!!! Note inline end
+
+    Newer Python versions and other operating systems and architectures might
+    work too, but they are not automatically tested, so we cannot guarantee it.
+
 The following platforms are officially supported (tested):
 
 - **Python:** 3.11
