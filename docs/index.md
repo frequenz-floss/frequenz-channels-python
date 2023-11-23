@@ -16,6 +16,14 @@
    end="<!-- /supported-platforms -->"
 %}
 
+## Quick Start
+
+{%
+   include-markdown "../README.md"
+   start="<!-- quick-start -->"
+   end="<!-- /quick-start -->"
+%}
+
 ## Installation
 
 First, you need to make sure you have Python installed (at least version 3.11):
