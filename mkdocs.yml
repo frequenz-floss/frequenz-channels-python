@@ -24,6 +24,7 @@ theme:
   features:
     - content.code.annotate
     - content.code.copy
+    - navigation.expand
     - navigation.footer
     - navigation.indexes
     - navigation.instant
