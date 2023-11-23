@@ -50,6 +50,7 @@ dev-mkdocs = [
   "frequenz-repo-config[lib] == 0.7.5",
   "mike == 2.0.0",
   "mkdocs-gen-files == 0.5.0",
+  "mkdocs-include-markdown-plugin == 6.0.4",
   "mkdocs-literate-nav == 0.6.1",
   "mkdocs-macros-plugin == 1.0.5",
   "mkdocs-material == 9.4.7",
