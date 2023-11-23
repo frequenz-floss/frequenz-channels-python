@@ -48,6 +48,7 @@ dev-mkdocs = [
   "Markdown == 3.5.1",
   "black == 23.10.1",
   "frequenz-repo-config[lib] == 0.7.5",
+  "markdown-svgbob == 202112.1022",
   "mike == 2.0.0",
   "mkdocs-gen-files == 0.5.0",
   "mkdocs-include-markdown-plugin == 6.0.4",

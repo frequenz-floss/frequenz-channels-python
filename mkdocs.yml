@@ -68,6 +68,8 @@ markdown_extensions:
   - attr_list
   - def_list
   - footnotes
+  - markdown_svgbob:
+      min_char_width: 0
   - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
