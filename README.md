@@ -6,6 +6,8 @@
 
 ## Introduction
 
+<!-- introduction -->
+
 Frequenz Channels is a *channels* implementation for Python.
 
 According to [Wikipedia](https://en.wikipedia.org/wiki/Channel_(programming)):
@@ -20,13 +22,19 @@ Frequenz Channels are mostly designed after [Go
 channels](https://tour.golang.org/concurrency/2) but it also borrows ideas from
 [Rust channels](https://doc.rust-lang.org/book/ch16-02-message-passing.html).
 
+<!-- /introduction -->
+
 ## Supported Platforms
+
+<!-- supported-platforms -->
 
 The following platforms are officially supported (tested):
 
 - **Python:** 3.11
 - **Operating System:** Ubuntu Linux 20.04
 - **Architectures:** amd64, arm64
+
+<!-- /supported-platforms -->
 
 ## Quick Start
 

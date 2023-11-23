@@ -133,3 +133,4 @@ plugins:
 watch:
   - "src"
   - CONTRIBUTING.md
+  - README.md
