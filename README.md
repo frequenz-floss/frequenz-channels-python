@@ -47,19 +47,11 @@ The following platforms are officially supported (tested):
 
 ### Installing
 
-We assume you are on a system with Python available. If that is not the case,
-please [download and install Python](https://www.python.org/downloads/) first.
+!!! Tip inline end
+    For more details please read the [Installation
+    Guide](docs/user-guide/installation.md).
 
-To install Frequenz Channels, you probably want to create a new virtual
-environment first. For example, if you use a `sh` compatible shell, you can do
-this:
-
-```sh
-python3 -m venv .venv
-. .venv/bin/activate
-```
-
-Then, just install using `pip`:
+Assuming a [supported](#supported-platforms) working Python environment:
 
 ```sh
 python3 -m pip install frequenz-channels
