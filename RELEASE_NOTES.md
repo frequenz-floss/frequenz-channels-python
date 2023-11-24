@@ -101,6 +101,8 @@
 
  ## New Features
 
+* A new User's Guide was added to the documentation and the documentation was greately improved in general.
+
 * A new `merge()` function was added to replace `Merge`.
 
 * `Anycast`
