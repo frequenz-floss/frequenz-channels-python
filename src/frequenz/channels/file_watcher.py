@@ -1,7 +1,22 @@
 # License: MIT
 # Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-"""A Channel receiver for watching for new, modified or deleted files."""
+"""A receiver for watching for new, modified or deleted files.
+
+!!! Tip inline end
+
+    Read the [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher]
+    documentation for more information.
+
+This module contains the following:
+
+* [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher]:
+    {{docstring_summary("frequenz.channels.file_watcher.FileWatcher")}}
+* [`Event`][frequenz.channels.file_watcher.Event]:
+    {{docstring_summary("frequenz.channels.file_watcher.Event")}}
+* [`EventType`][frequenz.channels.file_watcher.EventType]:
+    {{docstring_summary("frequenz.channels.file_watcher.EventType")}}
+"""
 
 import asyncio
 import pathlib
@@ -16,16 +31,16 @@ from ._receiver import Receiver, ReceiverStoppedError
 
 
 class EventType(Enum):
-    """Available types of changes to watch for."""
+    """The types of file events that can be observed."""
 
     CREATE = Change.added
-    """A new file was created."""
+    """The file was created."""
 
     MODIFY = Change.modified
-    """An existing file was modified."""
+    """The file was modified."""
 
     DELETE = Change.deleted
-    """An existing file was deleted."""
+    """The file was deleted."""
 
 
 @dataclass(frozen=True)
@@ -34,12 +49,70 @@ class Event:
 
     type: EventType
     """The type of change that was observed."""
+
     path: pathlib.Path
     """The path where the change was observed."""
 
 
 class FileWatcher(Receiver[Event]):
-    """A channel receiver that watches for file events."""
+    """A receiver that watches for file events.
+
+    # Usage
+
+    A [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher] receiver can be used
+    to watch for changes in a set of files. It will generate an
+    [`Event`][frequenz.channels.file_watcher.Event] message every time a file is
+    created, modified or deleted, depending on the type of events that it is configured
+    to watch for.
+
+    The [event][frequenz.channels.file_watcher.EventType] message contains the
+    [`type`][frequenz.channels.file_watcher.Event.type] of change that was observed and
+    the [`path`][frequenz.channels.file_watcher.Event.path] where the change was
+    observed.
+
+    # Event Types
+
+    The following event types are available:
+
+    * [`CREATE`][frequenz.channels.file_watcher.EventType.CREATE]:
+        {{docstring_summary("frequenz.channels.file_watcher.EventType.CREATE")}}
+    * [`MODIFY`][frequenz.channels.file_watcher.EventType.MODIFY]:
+        {{docstring_summary("frequenz.channels.file_watcher.EventType.MODIFY")}}
+    * [`DELETE`][frequenz.channels.file_watcher.EventType.DELETE]:
+        {{docstring_summary("frequenz.channels.file_watcher.EventType.DELETE")}}
+
+    # Example
+
+    Example: Watch for changes and exit after the file is modified
+        ```python
+        import asyncio
+
+        from frequenz.channels.file_watcher import EventType, FileWatcher
+
+        PATH = "/tmp/test.txt"
+        file_watcher = FileWatcher(paths=[PATH], event_types=[EventType.MODIFY])
+
+
+        async def update_file() -> None:
+            await asyncio.sleep(1)
+            with open(PATH, "w", encoding="utf-8") as file:
+                file.write("Hello, world!")
+
+
+        async def main() -> None:
+            # Create file
+            with open(PATH, "w", encoding="utf-8") as file:
+                file.write("Hello, world!")
+            async with asyncio.TaskGroup() as group:
+                group.create_task(update_file())
+                async for event in file_watcher:
+                    print(f"File {event.path}: {event.type.name}")
+                    break
+
+
+        asyncio.run(main())
+        ```
+    """
 
     def __init__(
         self,
