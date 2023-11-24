@@ -1,7 +1,53 @@
 # License: MIT
 # Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-"""Channel sender and associated exceptions."""
+"""Sender interface and related exceptions.
+
+# Senders
+
+Messages are sent to a [channel](/user-guide/channels) through
+[Sender][frequenz.channels.Sender] objects. [Senders][frequenz.channels.Sender] are
+usually created by calling `channel.new_sender()`, and are a very simple abstraction
+that only provides a single [`send()`][frequenz.channels.Sender.send] method:
+
+```python
+from frequenz.channels import Anycast
+
+channel = Anycast[int](name="test-channel")
+sender = channel.new_sender()
+
+await sender.send("Hello, world!")
+```
+
+Although [`send()`][frequenz.channels.Sender.send] is an asynchronous method, some
+channels may implement it in a synchronous, non-blocking way. For example, buffered
+channels that drop messages when the buffer is full could guarantee that
+[`send()`][frequenz.channels.Sender.send] never blocks. However, please keep in mind
+that the [asyncio][] event loop could give control to another task at any time,
+effectively making the [`send()`][frequenz.channels.Sender.send] method blocking.
+
+# Error Handling
+
+!!! Tip inline end
+
+    For more information about handling errors, please refer to the
+    [Error Handling](/user-guide/error-handling/) section of the user guide.
+
+If there is any failure sending a message,
+a [SenderError][frequenz.channels.SenderError] exception is raised.
+
+```python
+from frequenz.channels import Anycast
+
+channel = Anycast[int](name="test-channel")
+sender = channel.new_sender()
+
+try:
+    await sender.send("Hello, world!")
+except SenderError as error:
+    print(f"Error sending message: {error}")
+```
+"""
 
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
@@ -12,7 +58,7 @@ _T = TypeVar("_T")
 
 
 class Sender(ABC, Generic[_T]):
-    """A channel Sender."""
+    """An endpoint to sends messages."""
 
     @abstractmethod
     async def send(self, msg: _T) -> None:
