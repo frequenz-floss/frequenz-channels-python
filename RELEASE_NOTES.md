@@ -1,5 +1,17 @@
 # Frequenz Channels Release Notes
 
+## Summary
+
+<!-- Here goes a general summary of what this release is about -->
+
+## Upgrading
+
+<!-- Here goes notes on how to upgrade from previous versions, including if there are any deprecations and what they should be replaced with -->
+
+## New Features
+
+<!-- Here goes the main new features and examples or instructions on how to use them -->
+
 ## Bug Fixes
 
-* `Timer`: Fix bug that was causing calls to `reset()` to not reset the timer, if the timer was already being awaited.
+<!-- Here goes notable bug fixes that are worth a special mention or explanation -->
