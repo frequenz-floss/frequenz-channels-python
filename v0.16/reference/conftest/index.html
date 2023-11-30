@@ -19,7 +19,7 @@
         <link rel="next" href="../frequenz/channels/">
       
       <link rel="icon" href="../../logo.png">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.17">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.1.17">
     
     
       
@@ -756,6 +756,7 @@
 
 
 
+
 <h2 id="conftest" class="doc doc-heading">
           <code>conftest</code>
 
@@ -783,16 +784,17 @@ This plugin extracts these code examples and validates them using pylint.</p>
 
 
 
+
 <h4 id="conftest.CustomPythonCodeBlockParser" class="doc doc-heading">
-        <code>conftest.CustomPythonCodeBlockParser</code>
+          <code>conftest.CustomPythonCodeBlockParser</code>
 
 
 <a href="#conftest.CustomPythonCodeBlockParser" class="headerlink" title="Permanent link">¤</a></h4>
 
 
   <div class="doc doc-contents ">
-      <p class="doc doc-class-bases">
-        Bases: <code><span title="sybil.parsers.myst.CodeBlockParser">CodeBlockParser</span></code></p>
+          <p class="doc doc-class-bases">
+            Bases: <code><span title="sybil.parsers.myst.CodeBlockParser">CodeBlockParser</span></code></p>
 
   
       <p>Code block parser that validates extracted code examples using pylint.</p>
@@ -807,10 +809,9 @@ file.</p>
 line numbers are correct.</p>
 <p>Pylint warnings which are unimportant for code examples are disabled.</p>
 
-
-        <details class="quote">
-          <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.4/x64/lib/python3.11/site-packages/conftest.py</code></summary>
-          <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 88</span>
+            <details class="quote">
+              <summary>Source code in <code>site-packages/conftest.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 88</span>
 <span class="normal"> 89</span>
 <span class="normal"> 90</span>
 <span class="normal"> 91</span>
@@ -974,7 +975,7 @@ line numbers are correct.</p>
 
         <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
-        </details>
+            </details>
 
   
 
@@ -988,12 +989,14 @@ line numbers are correct.</p>
 
 <h5 id="conftest.CustomPythonCodeBlockParser-functions">Functions<a href="#conftest.CustomPythonCodeBlockParser-functions" class="headerlink" title="Permanent link">¤</a></h5>
 
+
 <div class="doc doc-object doc-function">
 
 
 
+
 <h6 id="conftest.CustomPythonCodeBlockParser.__init__" class="doc doc-heading">
-<code class="highlight language-python"><span class="fm">__init__</span><span class="p">()</span></code>
+          <code class="highlight language-python"><span class="fm">__init__</span><span class="p">()</span></code>
 
 <a href="#conftest.CustomPythonCodeBlockParser.__init__" class="headerlink" title="Permanent link">¤</a></h6>
 
@@ -1002,25 +1005,27 @@ line numbers are correct.</p>
   
       <p>Initialize the parser.</p>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.4/x64/lib/python3.11/site-packages/conftest.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">106</span>
+          <details class="quote">
+            <summary>Source code in <code>site-packages/conftest.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">106</span>
 <span class="normal">107</span>
 <span class="normal">108</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize the parser.&quot;&quot;&quot;</span>
     <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s2">&quot;python&quot;</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
 
 
+
 <h6 id="conftest.CustomPythonCodeBlockParser.evaluate" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">evaluate</span><span class="p">(</span><span class="n">example</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">evaluate</span><span class="p">(</span><span class="n">example</span><span class="p">)</span></code>
 
 <a href="#conftest.CustomPythonCodeBlockParser.evaluate" class="headerlink" title="Permanent link">¤</a></h6>
 
@@ -1029,11 +1034,13 @@ line numbers are correct.</p>
   
       <p>Validate the extracted code example using pylint.</p>
 
+
+
   <table>
     <thead>
       <tr>
         <th><b>PARAMETER</b></th>
-        <th><b>DESCRIPTION</b></th>
+        <th><b> DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
@@ -1053,6 +1060,8 @@ line numbers are correct.</p>
         </tr>
     </tbody>
   </table>
+
+
 
   <table>
     <thead>
@@ -1077,9 +1086,9 @@ line numbers are correct.</p>
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.4/x64/lib/python3.11/site-packages/conftest.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">110</span>
+          <details class="quote">
+            <summary>Source code in <code>site-packages/conftest.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">110</span>
 <span class="normal">111</span>
 <span class="normal">112</span>
 <span class="normal">113</span>
@@ -1199,7 +1208,7 @@ line numbers are correct.</p>
 
     <span class="k">return</span> <span class="kc">None</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
@@ -1213,12 +1222,14 @@ line numbers are correct.</p>
 </div>
 <h3 id="conftest-functions">Functions<a href="#conftest-functions" class="headerlink" title="Permanent link">¤</a></h3>
 
+
 <div class="doc doc-object doc-function">
 
 
 
+
 <h4 id="conftest.get_import_statements" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">conftest</span><span class="o">.</span><span class="n">get_import_statements</span><span class="p">(</span><span class="n">code</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">conftest</span><span class="o">.</span><span class="n">get_import_statements</span><span class="p">(</span><span class="n">code</span><span class="p">)</span></code>
 
 <a href="#conftest.get_import_statements" class="headerlink" title="Permanent link">¤</a></h4>
 
@@ -1227,11 +1238,13 @@ line numbers are correct.</p>
   
       <p>Get all import statements from a given code string.</p>
 
+
+
   <table>
     <thead>
       <tr>
         <th><b>PARAMETER</b></th>
-        <th><b>DESCRIPTION</b></th>
+        <th><b> DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
@@ -1251,6 +1264,8 @@ line numbers are correct.</p>
         </tr>
     </tbody>
   </table>
+
+
 
   <table>
     <thead>
@@ -1275,9 +1290,9 @@ line numbers are correct.</p>
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.4/x64/lib/python3.11/site-packages/conftest.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
+          <details class="quote">
+            <summary>Source code in <code>site-packages/conftest.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">35</span>
 <span class="normal">36</span>
 <span class="normal">37</span>
 <span class="normal">38</span>
@@ -1313,17 +1328,19 @@ line numbers are correct.</p>
 
     <span class="k">return</span> <span class="n">import_statements</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
 
 
+
 <h4 id="conftest.path_to_import_statement" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">conftest</span><span class="o">.</span><span class="n">path_to_import_statement</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">conftest</span><span class="o">.</span><span class="n">path_to_import_statement</span><span class="p">(</span><span class="n">path</span><span class="p">)</span></code>
 
 <a href="#conftest.path_to_import_statement" class="headerlink" title="Permanent link">¤</a></h4>
 
@@ -1332,11 +1349,13 @@ line numbers are correct.</p>
   
       <p>Convert a path to a Python file to an import statement.</p>
 
+
+
   <table>
     <thead>
       <tr>
         <th><b>PARAMETER</b></th>
-        <th><b>DESCRIPTION</b></th>
+        <th><b> DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
@@ -1356,6 +1375,8 @@ line numbers are correct.</p>
         </tr>
     </tbody>
   </table>
+
+
 
   <table>
     <thead>
@@ -1380,6 +1401,8 @@ line numbers are correct.</p>
     </tbody>
   </table>
 
+
+
   <table>
     <thead>
       <tr>
@@ -1403,9 +1426,9 @@ line numbers are correct.</p>
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.4/x64/lib/python3.11/site-packages/conftest.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">55</span>
+          <details class="quote">
+            <summary>Source code in <code>site-packages/conftest.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">55</span>
 <span class="normal">56</span>
 <span class="normal">57</span>
 <span class="normal">58</span>
@@ -1467,17 +1490,19 @@ line numbers are correct.</p>
     <span class="n">import_statement</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;from </span><span class="si">{</span><span class="n">module_path</span><span class="si">}</span><span class="s2"> import *&quot;</span>
     <span class="k">return</span> <span class="n">import_statement</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
+
 
 <div class="doc doc-object doc-function">
 
 
 
+
 <h4 id="conftest.validate_with_pylint" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">conftest</span><span class="o">.</span><span class="n">validate_with_pylint</span><span class="p">(</span><span class="n">code_example</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">disable_params</span><span class="p">)</span></code>
+          <code class="highlight language-python"><span class="n">conftest</span><span class="o">.</span><span class="n">validate_with_pylint</span><span class="p">(</span><span class="n">code_example</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">disable_params</span><span class="p">)</span></code>
 
 <a href="#conftest.validate_with_pylint" class="headerlink" title="Permanent link">¤</a></h4>
 
@@ -1486,11 +1511,13 @@ line numbers are correct.</p>
   
       <p>Validate a code example using pylint.</p>
 
+
+
   <table>
     <thead>
       <tr>
         <th><b>PARAMETER</b></th>
-        <th><b>DESCRIPTION</b></th>
+        <th><b> DESCRIPTION</b></th>
       </tr>
     </thead>
     <tbody>
@@ -1539,6 +1566,8 @@ line numbers are correct.</p>
     </tbody>
   </table>
 
+
+
   <table>
     <thead>
       <tr>
@@ -1562,9 +1591,9 @@ line numbers are correct.</p>
     </tbody>
   </table>
 
-      <details class="quote">
-        <summary>Source code in <code>/opt/hostedtoolcache/Python/3.11.4/x64/lib/python3.11/site-packages/conftest.py</code></summary>
-        <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">172</span>
+          <details class="quote">
+            <summary>Source code in <code>site-packages/conftest.py</code></summary>
+            <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">172</span>
 <span class="normal">173</span>
 <span class="normal">174</span>
 <span class="normal">175</span>
@@ -1630,7 +1659,7 @@ line numbers are correct.</p>
 
     <span class="k">return</span> <span class="p">[]</span>
 </code></pre></div></td></tr></table></div>
-      </details>
+          </details>
   </div>
 
 </div>
