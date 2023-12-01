@@ -699,7 +699,7 @@ class Timer(Receiver[timedelta]):
 
         # If we didn't reach the tick yet, sleep until we do.
         # We need to do this in a loop also reacting to the reset event, as the timer
-        # could be reset while we are sleeping, in which case we need to recalculated
+        # could be reset while we are sleeping, in which case we need to recalculate
         # the time to the next tick and try again.
         while time_to_next_tick > 0:
             await asyncio.sleep(time_to_next_tick / 1_000_000)
