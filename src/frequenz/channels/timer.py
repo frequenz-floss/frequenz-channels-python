@@ -87,12 +87,16 @@ class TriggerAllMissed(MissedTickPolicy):
         `T5`, happens at 5.1 (0.1 seconds late), so it triggers immediately
         again. The seventh tick, `T6`, happens at 6.0, right on time.
 
-        ```
-        0         1         2         3         4  o      5         6
-        o---------|-o-------|--o------|---------|--o------|o--------o-----> time
+        <center>
+        ```bob
+        0         1         2         3         4   T4    5         6
+        *---------o-*-------o--*------o---------o--**-----o*--------*-----> time
         T0          T1         T2                  T3      T5       T6
-                                                   T4
+
+        -o- "Expected ticks"
+        -*- "Delivered ticks"
         ```
+        </center>
     """
 
     def calculate_next_tick_time(
@@ -134,11 +138,17 @@ class SkipMissedAndResync(MissedTickPolicy):
         `T5`, happens at 5.1 (0.1 seconds late), so it triggers immediately
         again. The seventh tick, `T6`, happens at 6.0, right on time.
 
+        <center>
+        ```bob
+        0         1         2         3         4   T4    5         6
+        *---------o-*-------o--*------o---------o--*O-----o-*-------*-----> time
+        T0          T1         T2                  T3       T5      T6
+
+        -o- "Expected ticks"
+        -*- "Delivered ticks"
+        -O- "Undelivered ticks (skipped)"
         ```
-        0         1         2         3         4  o      5         6
-        o---------|-o-------|--o------|---------|--o------|o--------o-----> time
-        T0          T1         T2                  T3      T5       T6
-        ```
+        </center>
     """
 
     def calculate_next_tick_time(
@@ -187,11 +197,17 @@ class SkipMissedAndDrift(MissedTickPolicy):
         so is right on time (no drift) and the same happens for tick `T6.3`,
         which triggers at 6.3 seconds.
 
-        ```
+        <center>
+        ```bob
         0         1         2         3         4         5         6
-        o---------|-o-------|--o------|---------|--o------|--o------|--o--> time
-        T0          T1         T2.2                T3.2      T5.3      T6.3
+        *---------o-*-------|-o*------|-O-------|-o*------|--*------|--*--> time
+        T0          T1.2       T2.2     T3.2       T4.2      T5.3      T6.3
+
+        -o- "Expected ticks"
+        -*- "Delivered ticks"
+        -O- "Undelivered ticks (skipped)"
         ```
+        </center>
     """
 
     def __init__(self, *, delay_tolerance: timedelta = timedelta(0)):

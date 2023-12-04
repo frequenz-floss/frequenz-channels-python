@@ -2,19 +2,19 @@
 
 ## Introduction
 
-Frequenz Channels is a *channels* implementation for Python.
+{%
+   include-markdown "../README.md"
+   start="<!-- introduction -->"
+   end="<!-- /introduction -->"
+%}
 
-According to [Wikipedia](https://en.wikipedia.org/wiki/Channel_(programming)):
+## Supported Platforms
 
-> A channel is a model for interprocess communication and synchronization via
-> message passing. A message may be sent over a channel, and another process or
-> thread is able to receive messages sent over a channel it has a reference to,
-> as a stream. Different implementations of channels may be buffered or not,
-> and either synchronous or asynchronous.
-
-Frequenz Channels are mostly designed after [Go
-channels](https://tour.golang.org/concurrency/2) but it also borrows ideas from
-[Rust channels](https://doc.rust-lang.org/book/ch16-02-message-passing.html).
+{%
+   include-markdown "../README.md"
+   start="<!-- supported-platforms -->"
+   end="<!-- /supported-platforms -->"
+%}
 
 ## Installation
 
@@ -77,5 +77,5 @@ $ python3
 Python 3.11.4 (main, Jun  7 2023, 10:13:09) [GCC 12.2.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 >>> import frequenz.channels
->>> 
+>>>
 ```
