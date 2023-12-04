@@ -408,6 +408,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#supported-platforms" class="md-nav__link">
+    Supported Platforms
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#installation" class="md-nav__link">
     Installation
   </a>
@@ -444,7 +451,9 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
@@ -484,7 +493,9 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_1" >
         
           
           <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
@@ -532,7 +543,9 @@
         
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1_1" >
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_1_1" >
         
           
           
@@ -699,6 +712,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#supported-platforms" class="md-nav__link">
+    Supported Platforms
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#installation" class="md-nav__link">
     Installation
   </a>
@@ -725,6 +745,8 @@
 
 <h1 id="frequenz-channels-for-python">Frequenz Channels for Python<a class="headerlink" href="#frequenz-channels-for-python" title="Permanent link">¤</a></h1>
 <h2 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">¤</a></h2>
+<!-- BEGIN INCLUDE ../README.md '&lt;!-- introduction --&gt;' '&lt;!-- /introduction --&gt;' -->
+
 <p>Frequenz Channels is a <em>channels</em> implementation for Python.</p>
 <p>According to <a href="https://en.wikipedia.org/wiki/Channel_(programming)">Wikipedia</a>:</p>
 <blockquote>
@@ -737,6 +759,19 @@ and either synchronous or asynchronous.</p>
 <p>Frequenz Channels are mostly designed after <a href="https://tour.golang.org/concurrency/2">Go
 channels</a> but it also borrows ideas from
 <a href="https://doc.rust-lang.org/book/ch16-02-message-passing.html">Rust channels</a>.</p>
+<!-- END INCLUDE -->
+
+<h2 id="supported-platforms">Supported Platforms<a class="headerlink" href="#supported-platforms" title="Permanent link">¤</a></h2>
+<!-- BEGIN INCLUDE ../README.md '&lt;!-- supported-platforms --&gt;' '&lt;!-- /supported-platforms --&gt;' -->
+
+<p>The following platforms are officially supported (tested):</p>
+<ul>
+<li><strong>Python:</strong> 3.11</li>
+<li><strong>Operating System:</strong> Ubuntu Linux 20.04</li>
+<li><strong>Architectures:</strong> amd64, arm64</li>
+</ul>
+<!-- END INCLUDE -->
+
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">¤</a></h2>
 <p>First, you need to make sure you have Python installed (at least version 3.11):</p>
 <div class="language-console highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">$ </span>python3<span class="w"> </span>--version
@@ -782,7 +817,7 @@ import the <code>frequenz.channels</code> module:</p>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="go">Python 3.11.4 (main, Jun  7 2023, 10:13:09) [GCC 12.2.0] on linux</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="go">Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.</span>
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="go">&gt;&gt;&gt; import frequenz.channels</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="go">&gt;&gt;&gt; </span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="go">&gt;&gt;&gt;</span>
 </span></code></pre></div>
 
 
@@ -882,7 +917,7 @@ import the <code>frequenz.channels</code> module:</p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": ".", "features": ["content.code.annotate", "content.code.copy", "navigation.indexes", "navigation.instant", "navigation.footer", "navigation.tabs", "navigation.top", "navigation.tracking", "toc.follow"], "search": "assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": ".", "features": ["content.code.annotate", "content.code.copy", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.instant", "navigation.tabs", "navigation.top", "navigation.tracking", "toc.follow"], "search": "assets/javascripts/workers/search.f886a092.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
       <script src="assets/javascripts/bundle.aecac24b.min.js"></script>
