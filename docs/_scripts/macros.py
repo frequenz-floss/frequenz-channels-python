@@ -77,7 +77,5 @@ def define_env(env: macros.MacrosPlugin) -> None:
     # https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#adding-annotations
     env.variables["code_annotation_marker"] = _CODE_ANNOTATION_MARKER
 
-    # TODO(cookiecutter): Add any other macros, variables and filters here.
-
     # This hook needs to be done at the end of the `define_env` function.
     _hook_macros_plugin(env)

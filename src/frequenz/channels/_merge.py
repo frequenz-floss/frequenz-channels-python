@@ -3,6 +3,8 @@
 
 """Merge messages coming from channels into a single stream."""
 
+from __future__ import annotations
+
 import asyncio
 import itertools
 from collections import deque
@@ -13,7 +15,7 @@ from ._receiver import Receiver, ReceiverStoppedError
 _T = TypeVar("_T")
 
 
-def merge(*receivers: Receiver[_T]) -> Receiver[_T]:
+def merge(*receivers: Receiver[_T]) -> Merger[_T]:
     """Merge messages coming from multiple receivers into a single stream.
 
     Example:
@@ -46,19 +48,19 @@ def merge(*receivers: Receiver[_T]) -> Receiver[_T]:
     if not receivers:
         raise ValueError("At least one receiver must be provided")
 
-    # This is just a small optimization to avoid creating a merge receiver when it is
-    # not really needed.
-    if len(receivers) == 1:
-        return receivers[0]
-
-    return _Merge(*receivers, name="merge")
+    return Merger(*receivers, name="merge")
 
 
-class _Merge(Receiver[_T]):
-    """A receiver that merges messages coming from multiple receivers into a single stream."""
+class Merger(Receiver[_T]):
+    """A receiver that merges messages coming from multiple receivers into a single stream.
+
+    Tip:
+        Please consider using the more idiomatic [`merge()`][frequenz.channels.merge]
+        function instead of creating a `Merger` instance directly.
+    """
 
     def __init__(self, *receivers: Receiver[_T], name: str | None) -> None:
-        """Create a `_Merge` instance.
+        """Create a `Merger` instance.
 
         Args:
             *receivers: The receivers to merge.
@@ -82,7 +84,7 @@ class _Merge(Receiver[_T]):
                 task.cancel()
 
     async def stop(self) -> None:
-        """Stop the `_Merge` instance and cleanup any pending tasks."""
+        """Stop the `Merger` instance and cleanup any pending tasks."""
         for task in self._pending:
             task.cancel()
         await asyncio.gather(*self._pending, return_exceptions=True)

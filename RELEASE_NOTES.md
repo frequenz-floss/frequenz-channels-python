@@ -71,6 +71,8 @@
 
   Replaced by the new `merge()` function. When replacing `Merge` with `merge()` please keep in mind that this new function will raise a `ValueError` if no receivers are passed to it.
 
+  Please note that the old `Merge` class is still also available but it was renamed to `Merger` to avoid confusion with the new `merge()` function, but it is only present for typing reasons and should not be used directly.
+
 * `MergeNamed`
 
   This class was redundant, use either the new `merge()` function or `select()` instead.

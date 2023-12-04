@@ -63,7 +63,6 @@ class MissedTickPolicy(abc.ABC):
             The next tick time (in microseconds) according to
                 `missed_tick_policy`.
         """
-        return 0  # dummy value to avoid darglint warnings
 
     def __repr__(self) -> str:
         """Return a string representation of the instance.
