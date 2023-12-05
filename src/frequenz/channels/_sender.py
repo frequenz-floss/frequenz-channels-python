@@ -68,7 +68,7 @@ class Sender(ABC, Generic[_T_contra]):
             msg: The message to be sent.
 
         Raises:
-            SenderError: if there was an error sending the message.
+            SenderError: If there was an error sending the message.
         """
 
 

@@ -324,7 +324,7 @@ class _Sender(Sender[_T]):
             msg: The message to be broadcast.
 
         Raises:
-            SenderError: if the underlying channel was closed.
+            SenderError: If the underlying channel was closed.
                 A [ChannelClosedError][frequenz.channels.ChannelClosedError] is
                 set as the cause.
         """
@@ -453,7 +453,7 @@ class _Receiver(Receiver[_T]):
             The next value that was received.
 
         Raises:
-            ReceiverStoppedError: if there is some problem with the receiver.
+            ReceiverStoppedError: If there is some problem with the receiver.
         """
         if not self._q and self._chan._closed:  # pylint: disable=protected-access
             raise ReceiverStoppedError(self) from ChannelClosedError(self._chan)

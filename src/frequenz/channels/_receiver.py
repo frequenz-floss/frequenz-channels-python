@@ -154,8 +154,8 @@ class Receiver(ABC, Generic[_T_co]):
             The next value received.
 
         Raises:
-            StopAsyncIteration: if the receiver stopped producing messages.
-            ReceiverError: if there is some problem with the receiver.
+            StopAsyncIteration: If the receiver stopped producing messages.
+            ReceiverError: If there is some problem with the receiver.
         """
         try:
             await self.ready()
@@ -186,8 +186,8 @@ class Receiver(ABC, Generic[_T_co]):
             The next value received.
 
         Raises:
-            ReceiverStoppedError: if the receiver stopped producing messages.
-            ReceiverError: if there is some problem with the receiver.
+            ReceiverStoppedError: If the receiver stopped producing messages.
+            ReceiverError: If there is some problem with the receiver.
         """
 
     def __aiter__(self) -> Self:
@@ -205,8 +205,8 @@ class Receiver(ABC, Generic[_T_co]):
             The received message.
 
         Raises:
-            ReceiverStoppedError: if there is some problem with the receiver.
-            ReceiverError: if there is some problem with the receiver.
+            ReceiverStoppedError: If there is some problem with the receiver.
+            ReceiverError: If there is some problem with the receiver.
         """
         try:
             received = await self.__anext__()  # pylint: disable=unnecessary-dunder-call
@@ -321,7 +321,8 @@ class _Map(Receiver[_U_co], Generic[_T_co, _U_co]):
             The next value that was received.
 
         Raises:
-            ChannelClosedError: if the underlying channel is closed.
+            ReceiverStoppedError: If the receiver stopped producing messages.
+            ReceiverError: If there is some problem with the receiver.
         """
         return self._transform(
             self._receiver.consume()

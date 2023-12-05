@@ -198,7 +198,7 @@ class FileWatcher(Receiver[Event]):
             The next event that was received.
 
         Raises:
-            ReceiverStoppedError: if there is some problem with the receiver.
+            ReceiverStoppedError: If there is some problem with the receiver.
         """
         if not self._changes and self._awatch_stopped_exc is not None:
             raise ReceiverStoppedError(self) from self._awatch_stopped_exc

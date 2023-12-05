@@ -87,7 +87,7 @@ def merge(*receivers: Receiver[_T]) -> Merger[_T]:
             single stream.
 
     Raises:
-        ValueError: if no receivers are provided.
+        ValueError: If no receivers are provided.
     """
     if not receivers:
         raise ValueError("At least one receiver must be provided")
@@ -177,8 +177,8 @@ class Merger(Receiver[_T]):
             The next value that was received.
 
         Raises:
-            ReceiverStoppedError: if the receiver stopped producing messages.
-            ReceiverError: if there is some problem with the receiver.
+            ReceiverStoppedError: If the receiver stopped producing messages.
+            ReceiverError: If there is some problem with the receiver.
         """
         if not self._results and not self._pending:
             raise ReceiverStoppedError(self)

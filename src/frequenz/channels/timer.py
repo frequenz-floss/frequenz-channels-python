@@ -498,9 +498,9 @@ class Timer(Receiver[timedelta]):
                 `asyncio.get_running_loop()` will be used.
 
         Raises:
-            RuntimeError: if it was called without a loop and there is no
+            RuntimeError: If it was called without a loop and there is no
                 running loop.
-            ValueError: if `interval` is not positive or is smaller than 1
+            ValueError: If `interval` is not positive or is smaller than 1
                 microsecond; if `start_delay` is negative or `start_delay` was specified
                 but `auto_start` is `False`.
         """
@@ -597,8 +597,8 @@ class Timer(Receiver[timedelta]):
                 resolution, anything smaller than a microsecond means no delay.
 
         Raises:
-            RuntimeError: if it was called without a running loop.
-            ValueError: if `start_delay` is negative.
+            RuntimeError: If it was called without a running loop.
+            ValueError: If `start_delay` is negative.
         """
         start_delay_ms = _to_microseconds(start_delay)
 
@@ -638,7 +638,7 @@ class Timer(Receiver[timedelta]):
             Whether the timer was started and it is still running.
 
         Raises:
-            RuntimeError: if it was called without a running loop.
+            RuntimeError: If it was called without a running loop.
         """
         # If there are messages waiting to be consumed, return immediately.
         if self._current_drift is not None:
@@ -693,7 +693,7 @@ class Timer(Receiver[timedelta]):
                 time when it actually did.
 
         Raises:
-            ReceiverStoppedError: if the timer was stopped via `stop()`.
+            ReceiverStoppedError: If the timer was stopped via `stop()`.
         """
         # If it was stopped and there it no pending result, we raise
         # (if there is a pending result, then we still want to return it first)
