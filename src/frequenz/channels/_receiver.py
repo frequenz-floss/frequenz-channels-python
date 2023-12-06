@@ -151,7 +151,7 @@ class Receiver(ABC, Generic[_T_co]):
         """Await the next value in the async iteration over received values.
 
         Returns:
-            The next value received.
+            The next received value.
 
         Raises:
             StopAsyncIteration: If the receiver stopped producing messages.
@@ -226,7 +226,7 @@ class Receiver(ABC, Generic[_T_co]):
         return received
 
     def map(self, call: Callable[[_T_co], _U_co]) -> Receiver[_U_co]:
-        """Return a receiver with `call` applied on incoming messages.
+        """Map a function on the received values.
 
         Tip:
             The returned receiver type won't have all the methods of the original
@@ -238,7 +238,7 @@ class Receiver(ABC, Generic[_T_co]):
             call: The function to apply on incoming messages.
 
         Returns:
-            A `Receiver` to read results of the given function from.
+            A new receiver that applies the function on the received values.
         """
         return _Map(self, call)
 
@@ -291,13 +291,13 @@ class _Map(Receiver[_U_co], Generic[_T_co, _U_co]):
 
         Args:
             receiver: The input receiver.
-            transform: The function to run on the input data.
+            transform: The function to apply on the input data.
         """
         self._receiver: Receiver[_T_co] = receiver
         """The input receiver."""
 
         self._transform: Callable[[_T_co], _U_co] = transform
-        """The function to run on the input data."""
+        """The function to apply on the input data."""
 
     async def ready(self) -> bool:
         """Wait until the receiver is ready with a value or an error.

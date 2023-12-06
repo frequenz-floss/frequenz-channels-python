@@ -260,7 +260,7 @@ class Selected(Generic[_T]):
 def selected_from(
     selected: Selected[Any], receiver: Receiver[_T]
 ) -> TypeGuard[Selected[_T]]:
-    """Check if the given receiver was selected by [`select()`][frequenz.channels.select].
+    """Check whether the given receiver was selected by [`select()`][frequenz.channels.select].
 
     This function is used in conjunction with the
     [`Selected`][frequenz.channels.Selected] class to determine which receiver was
