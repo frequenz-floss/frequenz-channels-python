@@ -170,7 +170,7 @@ class Selected(Generic[_T]):
     """
 
     def __init__(self, receiver: Receiver[_T]) -> None:
-        """Create a new instance.
+        """Initialize this selected result.
 
         The receiver is consumed immediately when creating the instance and the received
         value is stored in the instance for later use as
@@ -303,7 +303,7 @@ class UnhandledSelectedError(SelectError, Generic[_T]):
     """
 
     def __init__(self, selected: Selected[_T]) -> None:
-        """Create a new instance.
+        """Initialize this error.
 
         Args:
             selected: The selected receiver that was not handled.

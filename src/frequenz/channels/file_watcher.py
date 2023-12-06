@@ -119,7 +119,7 @@ class FileWatcher(Receiver[Event]):
         paths: list[pathlib.Path | str],
         event_types: abc.Iterable[EventType] = frozenset(EventType),
     ) -> None:
-        """Create a `FileWatcher` instance.
+        """Initialize this file watcher.
 
         Args:
             paths: Paths to watch for changes.

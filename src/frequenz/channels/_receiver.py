@@ -250,7 +250,7 @@ class ReceiverError(Error, Generic[_T_co]):
     """
 
     def __init__(self, message: str, receiver: Receiver[_T_co]):
-        """Create an instance.
+        """Initialize this error.
 
         Args:
             message: An error message.
@@ -266,7 +266,7 @@ class ReceiverStoppedError(ReceiverError[_T_co]):
     """A stopped [`Receiver`][frequenz.channels.Receiver] was used."""
 
     def __init__(self, receiver: Receiver[_T_co]):
-        """Create an instance.
+        """Initialize this error.
 
         Args:
             receiver: The [Receiver][frequenz.channels.Receiver] where the
@@ -287,7 +287,7 @@ class _Map(Receiver[_U_co], Generic[_T_co, _U_co]):
     def __init__(
         self, receiver: Receiver[_T_co], transform: Callable[[_T_co], _U_co]
     ) -> None:
-        """Create a `Transform` instance.
+        """Initialize this receiver mapper.
 
         Args:
             receiver: The input receiver.

@@ -79,7 +79,7 @@ class SenderError(Error, Generic[_T_contra]):
     """
 
     def __init__(self, message: str, sender: Sender[_T_contra]):
-        """Create an instance.
+        """Initialize this error.
 
         Args:
             message: An error message.

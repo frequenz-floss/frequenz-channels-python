@@ -76,7 +76,7 @@ class Error(RuntimeError):
     """
 
     def __init__(self, message: str):
-        """Create a ChannelError instance.
+        """Initialize this error.
 
         Args:
             message: An error message.
@@ -91,7 +91,7 @@ class ChannelError(Error):
     """
 
     def __init__(self, message: str, channel: Any):
-        """Create a ChannelError instance.
+        """Initialize this error.
 
         Args:
             message: An error message.
@@ -106,7 +106,7 @@ class ChannelClosedError(ChannelError):
     """A closed channel was used."""
 
     def __init__(self, channel: Any):
-        """Create a `ChannelClosedError` instance.
+        """Initialize this error.
 
         Args:
             channel: A reference to the channel that was closed.

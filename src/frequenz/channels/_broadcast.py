@@ -184,7 +184,7 @@ class Broadcast(Generic[_T]):
     """
 
     def __init__(self, *, name: str, resend_latest: bool = False) -> None:
-        """Create a Broadcast channel.
+        """Initialize this channel.
 
         Args:
             name: The name of the channel. This is for logging purposes, and it will be
@@ -309,7 +309,7 @@ class _Sender(Sender[_T]):
     """
 
     def __init__(self, chan: Broadcast[_T]) -> None:
-        """Create a Broadcast sender.
+        """Initialize this sender.
 
         Args:
             chan: A reference to the broadcast channel this sender belongs to.
@@ -365,7 +365,7 @@ class _Receiver(Receiver[_T]):
     """
 
     def __init__(self, name: str | None, limit: int, chan: Broadcast[_T]) -> None:
-        """Create a broadcast receiver.
+        """Initialize this receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
         being consumed fast enough and the buffer fills up, old messages will

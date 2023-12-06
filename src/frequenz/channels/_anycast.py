@@ -197,7 +197,7 @@ class Anycast(Generic[_T]):
     """
 
     def __init__(self, *, name: str, limit: int = 10) -> None:
-        """Create an Anycast channel.
+        """Initialize this channel.
 
         Args:
             name: The name of the channel. This is for logging purposes, and it will be
@@ -311,7 +311,7 @@ class _Sender(Sender[_T]):
     """
 
     def __init__(self, chan: Anycast[_T]) -> None:
-        """Create a channel sender.
+        """Initialize this sender.
 
         Args:
             chan: A reference to the channel that this sender belongs to.
@@ -379,7 +379,7 @@ class _Receiver(Receiver[_T]):
     """
 
     def __init__(self, chan: Anycast[_T]) -> None:
-        """Create a channel receiver.
+        """Initialize this receiver.
 
         Args:
             chan: A reference to the channel that this receiver belongs to.

@@ -84,7 +84,7 @@ class Event(_receiver.Receiver[None]):
     """
 
     def __init__(self, *, name: str | None = None) -> None:
-        """Create a new instance.
+        """Initialize this event.
 
         Args:
             name: The name of the receiver.  If `None` an `id(self)`-based name will be
