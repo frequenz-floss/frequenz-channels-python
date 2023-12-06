@@ -275,7 +275,6 @@ class Anycast(Generic[_T]):
         but after that, subsequent
         [receive()][frequenz.channels.Receiver.receive] calls will return `None`
         immediately.
-
         """
         self._closed = True
         async with self._send_cv:
