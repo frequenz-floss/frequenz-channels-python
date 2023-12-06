@@ -62,7 +62,7 @@ class Sender(ABC, Generic[_T_contra]):
 
     @abstractmethod
     async def send(self, msg: _T_contra) -> None:
-        """Send a message to the channel.
+        """Send a message.
 
         Args:
             msg: The message to be sent.

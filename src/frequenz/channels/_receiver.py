@@ -199,7 +199,7 @@ class Receiver(ABC, Generic[_T_co]):
         return self
 
     async def receive(self) -> _T_co:
-        """Receive a message from the channel.
+        """Receive a message.
 
         Returns:
             The received message.
