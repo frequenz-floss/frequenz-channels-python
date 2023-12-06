@@ -410,7 +410,7 @@ class SkipMissedAndDrift(MissedTickPolicy):
 
     def __str__(self) -> str:
         """Return a string representation of this policy."""
-        return f"{type(self).__name__}"
+        return f"{type(self).__name__}()"
 
     def __repr__(self) -> str:
         """Return a string representation of this policy."""
