@@ -152,6 +152,7 @@ class _EmptyResult:
     """
 
     def __repr__(self) -> str:
+        """Return a string with the internal representation of this instance."""
         return "<empty>"
 
 
