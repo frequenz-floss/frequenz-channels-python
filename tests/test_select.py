@@ -22,7 +22,7 @@ class TestSelected:
         assert selected_from(selected, recv)
         assert selected.value == 42
         assert selected.exception is None
-        assert not selected.was_stopped()
+        assert not selected.was_stopped
 
     def test_with_exception(self) -> None:
         """Test selected from a receiver with an exception."""
@@ -35,7 +35,7 @@ class TestSelected:
         with pytest.raises(Exception, match="test"):
             _ = selected.value
         assert selected.exception is exception
-        assert not selected.was_stopped()
+        assert not selected.was_stopped
 
     def test_with_stopped(self) -> None:
         """Test selected from a stopped receiver."""
@@ -51,4 +51,4 @@ class TestSelected:
         ):
             _ = selected.value
         assert selected.exception is exception
-        assert selected.was_stopped()
+        assert selected.was_stopped

@@ -73,7 +73,7 @@ can also end the iteration early by breaking out of the loop as normal.
 
 When a single [receiver][frequenz.channels.Receiver] is stopped, it will be reported
 via the [`Selected`][frequenz.channels.Selected] object. You can use the
-[`was_stopped()`][frequenz.channels.Selected.was_stopped] method to check if the
+[`was_stopped`][frequenz.channels.Selected.was_stopped] method to check if the
 selected [receiver][frequenz.channels.Receiver] was stopped:
 
 ```python show_lines="8:"
@@ -86,7 +86,7 @@ receiver2 = channel2.new_receiver()
 
 async for selected in select(receiver1, receiver2):
     if selected_from(selected, receiver1):
-        if selected.was_stopped():
+        if selected.was_stopped:
             print("receiver1 was stopped")
             continue
         print(f"Received from receiver1, the next number is: {selected.value + 1}")
@@ -94,7 +94,7 @@ async for selected in select(receiver1, receiver2):
 ```
 
 Tip:
-    The [`was_stopped()`][frequenz.channels.Selected.was_stopped] method is a
+    The [`was_stopped`][frequenz.channels.Selected.was_stopped] method is a
     convenience method that is equivalent to checking if the
     [`exception`][frequenz.channels.Selected.exception] attribute is an instance of
     [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
@@ -228,16 +228,9 @@ class Selected(Generic[_T]):
         """
         return self._exception
 
+    @property
     def was_stopped(self) -> bool:
-        """Check if the selected receiver was stopped.
-
-        Check if the selected receiver raised
-        a [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError] while
-        consuming a value.
-
-        Returns:
-            Whether the receiver was stopped.
-        """
+        """Whether the selected receiver was stopped while receiving a value."""
         return isinstance(self._exception, ReceiverStoppedError)
 
     def __str__(self) -> str:
