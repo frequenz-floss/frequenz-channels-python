@@ -240,7 +240,7 @@ class Receiver(ABC, Generic[_T_co]):
         Returns:
             A new receiver that applies the function on the received values.
         """
-        return _Map(self, call)
+        return _Mapper(self, call)
 
 
 class ReceiverError(Error, Generic[_T_co]):
@@ -275,7 +275,7 @@ class ReceiverStoppedError(ReceiverError[_T_co]):
         super().__init__(f"Receiver {receiver} was stopped", receiver)
 
 
-class _Map(Receiver[_U_co], Generic[_T_co, _U_co]):
+class _Mapper(Receiver[_U_co], Generic[_T_co, _U_co]):
     """Apply a transform function on a channel receiver.
 
     Has two generic types:
