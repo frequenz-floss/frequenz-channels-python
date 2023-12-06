@@ -157,12 +157,9 @@ class FileWatcher(Receiver[Event]):
         return change in [event_type.value for event_type in self.event_types]
 
     def __del__(self) -> None:
-        """Cleanup registered watches.
-
-        `awatch` passes the `stop_event` to a separate task/thread. This way
-        `awatch` getting destroyed properly. The background task will continue
-        until the signal is received.
-        """
+        """Finalize this file watcher."""
+        # We need to set the stop event to make sure that the awatch background task
+        # is stopped.
         self._stop_event.set()
 
     async def ready(self) -> bool:

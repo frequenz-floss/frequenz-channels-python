@@ -122,13 +122,13 @@ class Merger(Receiver[_T]):
         self._results: deque[_T] = deque(maxlen=len(self._receivers))
 
     def __del__(self) -> None:
-        """Cleanup any pending tasks."""
+        """Finalize this merger."""
         for task in self._pending:
             if not task.done() and task.get_loop().is_running():
                 task.cancel()
 
     async def stop(self) -> None:
-        """Stop the `Merger` instance and cleanup any pending tasks."""
+        """Stop this merger."""
         for task in self._pending:
             task.cancel()
         await asyncio.gather(*self._pending, return_exceptions=True)
