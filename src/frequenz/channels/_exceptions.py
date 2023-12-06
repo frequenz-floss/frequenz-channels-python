@@ -79,7 +79,7 @@ class Error(RuntimeError):
         """Initialize this error.
 
         Args:
-            message: An error message.
+            message: The error message.
         """
         super().__init__(message)
 
@@ -94,8 +94,8 @@ class ChannelError(Error):
         """Initialize this error.
 
         Args:
-            message: An error message.
-            channel: A reference to the channel that encountered the error.
+            message: The error message.
+            channel: The channel where the error happened.
         """
         super().__init__(message)
         self.channel: Any = channel
@@ -109,6 +109,6 @@ class ChannelClosedError(ChannelError):
         """Initialize this error.
 
         Args:
-            channel: A reference to the channel that was closed.
+            channel: The channel that was closed.
         """
         super().__init__(f"Channel {channel} was closed", channel)

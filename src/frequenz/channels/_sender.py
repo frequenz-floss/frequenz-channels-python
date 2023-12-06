@@ -82,7 +82,7 @@ class SenderError(Error, Generic[_T_contra]):
         """Initialize this error.
 
         Args:
-            message: An error message.
+            message: The error message.
             sender: The [Sender][frequenz.channels.Sender] where the error
                 happened.
         """

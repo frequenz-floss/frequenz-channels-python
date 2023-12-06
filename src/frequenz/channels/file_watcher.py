@@ -122,8 +122,8 @@ class FileWatcher(Receiver[Event]):
         """Initialize this file watcher.
 
         Args:
-            paths: Paths to watch for changes.
-            event_types: Types of events to watch for. Defaults to watch for
+            paths: The paths to watch for changes.
+            event_types: The types of events to watch for. Defaults to watch for
                 all event types.
         """
         self.event_types: frozenset[EventType] = frozenset(event_types)

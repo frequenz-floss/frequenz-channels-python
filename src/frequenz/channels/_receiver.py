@@ -194,7 +194,7 @@ class Receiver(ABC, Generic[_T_co]):
         """Initialize the async iterator over received values.
 
         Returns:
-            `self`, since no extra setup is needed for the iterator.
+            This receiver, as it is already an async iterator.
         """
         return self
 
@@ -235,7 +235,7 @@ class Receiver(ABC, Generic[_T_co]):
             original receiver and use that instead.
 
         Args:
-            call: function to apply on incoming messages.
+            call: The function to apply on incoming messages.
 
         Returns:
             A `Receiver` to read results of the given function from.
@@ -253,7 +253,7 @@ class ReceiverError(Error, Generic[_T_co]):
         """Initialize this error.
 
         Args:
-            message: An error message.
+            message: The error message.
             receiver: The [Receiver][frequenz.channels.Receiver] where the
                 error happened.
         """
