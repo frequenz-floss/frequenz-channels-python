@@ -284,7 +284,7 @@ def selected_from(
 
 
 class SelectError(BaseException):
-    """A base exception for [`select()`][frequenz.channels.select].
+    """An error originated in a [`select()`][frequenz.channels.select] operation.
 
     This exception is raised when a `select()` iteration fails.  It is raised as
     a single exception when one receiver fails during normal operation (while calling
@@ -295,10 +295,11 @@ class SelectError(BaseException):
 
 
 class UnhandledSelectedError(SelectError, Generic[_T]):
-    """A receiver was not handled in a [`select()`][frequenz.channels.select] loop.
+    """A receiver was not handled in a [`select()`][frequenz.channels.select] iteration.
 
-    This exception is raised when a `select()` iteration finishes without a call to
-    [`selected_from()`][frequenz.channels.selected_from] for the selected receiver.
+    This exception is raised when a [`select()`][frequenz.channels.select] iteration
+    finishes without a call to [`selected_from()`][frequenz.channels.selected_from] for
+    the selected receiver.
     """
 
     def __init__(self, selected: Selected[_T]) -> None:
@@ -314,10 +315,10 @@ class UnhandledSelectedError(SelectError, Generic[_T]):
 
 
 class SelectErrorGroup(BaseExceptionGroup[BaseException], SelectError):
-    """An exception group for [`select()`][frequenz.channels.select] operation.
+    """Some receivers stopped with errors while cleaning up a `select()` operation.
 
-    This exception group is raised when a `select()` loops fails while cleaning up
-    running tests to check for ready receivers.
+    The group is composed of the errors raised by the receivers when they are stopped
+    during the cleanup of a [`select()`][frequenz.channels.select] loop.
     """
 
 
