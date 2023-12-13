@@ -21,47 +21,166 @@ _T = TypeVar("_T")
 
 
 class Broadcast(Generic[_T]):
-    """A channel to broadcast messages to multiple receivers.
+    """A channel that deliver all messages to all receivers.
 
-    `Broadcast` channels can have multiple senders and multiple receivers. Each
-    message sent through any of the senders is received by all of the
-    receivers.
+    # Description
 
-    Internally, a broadcast receiver's buffer is implemented with just
-    append/pop operations on either side of a [deque][collections.deque], which
-    are thread-safe.  Because of this, `Broadcast` channels are thread-safe.
+    [Broadcast][frequenz.channels.Broadcast] channels can have multiple
+    [senders][frequenz.channels.Sender] and multiple
+    [receivers][frequenz.channels.Receiver]. Each message sent through any of the
+    senders will be received by all receivers.
 
-    When there are multiple channel receivers, they can be awaited
-    simultaneously using [select][frequenz.channels.select] or
-    [merge][frequenz.channels.merge].
+    <center>
+    ```bob
+    .---------. msg1                           msg1,msg2  .-----------.
+    | Sender  +------.                        .---------->| Receiver  |
+    '---------'      |      .----------.     |            '-----------'
+                     +----->| Channel  +-----+
+    .---------.      |      '----------'     |            .-----------.
+    | Sender  +------'                       '----------->| Receiver  |
+    '---------' msg2                           msg1,msg2  '-----------'
+    ```
+    </center>
 
-    Example:
-        ``` python
-        async def send(sender: channel.Sender) -> None:
-            while True:
-                next = random.randint(3, 17)
-                print(f"sending: {next}")
-                await sender.send(next)
+    !!! Note inline end "Characteristics"
+
+        * **Buffered:** Yes, with one buffer per receiver
+        * **Buffer full policy:** Drop oldest message
+        * **Multiple receivers:** Yes
+        * **Multiple senders:** Yes
+        * **Thread-safe:** No
+
+    This channel is buffered, and when messages are not being consumed fast
+    enough and the buffer fills up, old messages will get dropped.
+
+    Each receiver has its own buffer, so messages will only be dropped for
+    receivers that can't keep up with the senders, and not for the whole
+    channel.
+
+    To create a new [senders][frequenz.channels.Sender] and
+    [receivers][frequenz.channels.Receiver] you can use the
+    [`new_sender()`][frequenz.channels.Broadcast.new_sender] and
+    [`new_receiver()`][frequenz.channels.Broadcast.new_receiver] methods
+    respectively.
+
+    When a channel is not needed anymore, it should be closed with
+    [`close()`][frequenz.channels.Broadcast.close]. This will prevent further
+    attempts to [`send()`][frequenz.channels.Sender.send] data, and will allow
+    receivers to drain the pending items on their queues, but after that,
+    subsequent [receive()][frequenz.channels.Receiver.receive] calls will
+    raise a [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+
+    This channel is useful, for example, to implement a pub/sub pattern, where
+    multiple receivers can subscribe to a channel to receive all messages.
+
+    In cases where each message needs to be delivered only to one receiver, an
+    [anycast][frequenz.channels.Anycast] channel may be used.
+
+    # Examples
+
+    Example: Send a few numbers to a receiver
+        This is a very simple example that sends a few numbers from a single sender to
+        a single receiver.
+
+        ```python
+        import asyncio
+
+        from frequenz.channels import Broadcast, Sender
 
 
-        async def recv(id: int, receiver: channel.Receiver) -> None:
-            while True:
-                next = await receiver.receive()
-                print(f"receiver_{id} received {next}")
-                await asyncio.sleep(0.1) # sleep (or work) with the data
+        async def send(sender: Sender[int]) -> None:
+            for msg in range(3):
+                print(f"sending {msg}")
+                await sender.send(msg)
 
 
-        bcast = channel.Broadcast()
+        async def main() -> None:
+            channel = Broadcast[int](name="numbers")
 
-        sender = bcast.new_sender()
-        receiver_1 = bcast.new_receiver()
+            sender = channel.new_sender()
+            receiver = channel.new_receiver()
 
-        asyncio.create_task(send(sender))
+            async with asyncio.TaskGroup() as task_group:
+                task_group.create_task(send(sender))
+                for _ in range(3):
+                    msg = await receiver.receive()
+                    print(f"received {msg}")
+                    await asyncio.sleep(0.1)  # sleep (or work) with the data
 
-        await recv(1, receiver_1)
+
+        asyncio.run(main())
         ```
 
-        Check the `tests` and `benchmarks` directories for more examples.
+        The output should look something like (although the sending and received might
+        appear more interleaved):
+
+        ```
+        sending 0
+        sending 1
+        sending 2
+        received 0
+        received 1
+        received 2
+        ```
+
+    Example: Send a few number from multiple senders to multiple receivers
+        This is a more complex example that sends a few numbers from multiple senders to
+        multiple receivers, using a small buffer to force the senders to block.
+
+        ```python
+        import asyncio
+
+        from frequenz.channels import Broadcast, Receiver, ReceiverStoppedError, Sender
+
+
+        async def send(name: str, sender: Sender[int], start: int, stop: int) -> None:
+            for msg in range(start, stop):
+                print(f"{name} sending {msg}")
+                await sender.send(msg)
+
+
+        async def recv(name: str, receiver: Receiver[int]) -> None:
+            try:
+                async for msg in receiver:
+                    print(f"{name} received {msg}")
+                await asyncio.sleep(0.1)  # sleep (or work) with the data
+            except ReceiverStoppedError:
+                pass
+
+
+        async def main() -> None:
+            acast = Broadcast[int](name="numbers")
+
+            async with asyncio.TaskGroup() as task_group:
+                task_group.create_task(send("sender_1", acast.new_sender(), 10, 13))
+                task_group.create_task(send("sender_2", acast.new_sender(), 20, 22))
+                task_group.create_task(recv("receiver_1", acast.new_receiver()))
+                task_group.create_task(recv("receiver_2", acast.new_receiver()))
+
+
+        asyncio.run(main())
+        ```
+
+        The output should look something like this(although the sending and received
+        might appear interleaved in a different way):
+
+        ```
+        sender_1 sending 10
+        sender_1 sending 11
+        sender_1 sending 12
+        sender_2 sending 20
+        sender_2 sending 21
+        receiver_1 received 10
+        receiver_1 received 11
+        receiver_1 received 12
+        receiver_1 received 20
+        receiver_1 received 21
+        receiver_2 received 10
+        receiver_2 received 11
+        receiver_2 received 12
+        receiver_2 received 20
+        receiver_2 received 21
+        ```
     """
 
     def __init__(self, *, name: str, resend_latest: bool = False) -> None:

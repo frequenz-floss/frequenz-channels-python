@@ -1,14 +1,90 @@
 # License: MIT
 # Copyright © 2023 Frequenz Energy-as-a-Service GmbH
 
-"""A timer receiver that ticks every `interval`.
+"""A receiver that sends a message regularly.
 
-Note:
-    This module always use `int`s to represent time.  The time is always in
-    microseconds, so the timer resolution is 1 microsecond.
+# Quick Start
 
-    This is to avoid floating point errors when performing calculations with
-    time, which can lead to very hard to reproduce, and debug, issues.
+If you need to do something as periodically as possible (avoiding
+[drifts](#missed-ticks-and-drifting)), you can use use
+a [`periodic()`][frequenz.channels.timer.Timer.periodic] timer.
+
+Example: Periodic Timer
+    ```python
+    import asyncio
+    from datetime import datetime, timedelta
+
+    from frequenz.channels.timer import Timer
+
+
+    async def main() -> None:
+        async for drift in Timer.periodic(timedelta(seconds=1.0)):
+            print(f"The timer has triggered at {datetime.now()} with a drift of {drift}")
+
+
+    asyncio.run(main())
+    ```
+
+If, instead, you need a timeout, for example to abort waiting for other receivers after
+a certain amount of time, you can use
+a [`timeout()`][frequenz.channels.timer.Timer.timeout] timer.
+
+Example: Timeout
+    ```python
+    import asyncio
+    from datetime import timedelta
+
+    from frequenz.channels import Anycast, select, selected_from
+    from frequenz.channels.timer import Timer
+
+
+    async def main() -> None:
+        channel = Anycast[int](name="data-channel")
+        data_receiver = channel.new_receiver()
+
+        timer = Timer.timeout(timedelta(seconds=1.0))
+
+        async for selected in select(data_receiver, timer):
+            if selected_from(selected, data_receiver):
+                print(f"Received data: {selected.value}")
+                timer.reset()
+            elif selected_from(selected, timer):
+                drift = selected.value
+                print(f"No data received for {timer.interval + drift} seconds, giving up")
+                break
+
+
+    asyncio.run(main())
+    ```
+
+    This timer will *rearm* itself automatically after it was triggered, so it will trigger
+    again after the selected interval, no matter what the current drift was.
+
+Tip:
+    It is extremely important to understand how timers behave when they are
+    delayed, we recommned emphatically to read about [missed ticks and
+    drifting](#missed-ticks-and-drifting) before using timers in production.
+
+# Missed Ticks And Drifting
+
+A [`Timer`][frequenz.channels.timer.Timer] can be used to send a messages at regular
+time intervals, but there is one fundamental issue with timers in the [asyncio][] world:
+the event loop could give control to another task at any time, and that task can take
+a long time to finish, making the time it takes the next timer message to be received
+longer than the desired interval.
+
+Because of this, it is very important for users to be able to understand and control
+how timers behave when they are delayed. Timers will handle missed ticks according to
+a *missing tick policy*.
+
+The following built-in policies are available:
+
+* [`SkipMissedAndDrift`][frequenz.channels.timer.SkipMissedAndDrift]:
+    {{docstring_summary("frequenz.channels.timer.SkipMissedAndDrift")}}
+* [`SkipMissedAndResync`][frequenz.channels.timer.SkipMissedAndResync]:
+    {{docstring_summary("frequenz.channels.timer.SkipMissedAndResync")}}
+* [`TriggerAllMissed`][frequenz.channels.timer.TriggerAllMissed]:
+    {{docstring_summary("frequenz.channels.timer.TriggerAllMissed")}}
 """
 
 from __future__ import annotations
@@ -38,9 +114,34 @@ def _to_microseconds(time: float | timedelta) -> int:
 class MissedTickPolicy(abc.ABC):
     """A policy to handle timer missed ticks.
 
-    This is only relevant if the timer is not ready to trigger when it should
-    (an interval passed) which can happen if the event loop is busy processing
-    other tasks.
+    To implement a custom policy you need to subclass
+    [`MissedTickPolicy`][frequenz.channels.timer.MissedTickPolicy] and implement the
+    [`calculate_next_tick_time`][frequenz.channels.timer.MissedTickPolicy.calculate_next_tick_time]
+    method.
+
+    Example:
+        This policy will just wait one more second than the original interval if a
+        tick is missed:
+
+        ```python
+        class WaitOneMoreSecond(MissedTickPolicy):
+            def calculate_next_tick_time(
+                self, *, interval: int, scheduled_tick_time: int, now: int
+            ) -> int:
+                return scheduled_tick_time + interval + 1_000_000
+
+
+        async def main() -> None:
+            timer = Timer(
+                interval=timedelta(seconds=1),
+                missed_tick_policy=WaitOneMoreSecond(),
+            )
+
+            async for drift in timer:
+                print(f"The timer has triggered with a drift of {drift}")
+
+        asyncio.run(main())
+        ```
     """
 
     @abc.abstractmethod
@@ -76,16 +177,36 @@ class MissedTickPolicy(abc.ABC):
 class TriggerAllMissed(MissedTickPolicy):
     """A policy that triggers all the missed ticks immediately until it catches up.
 
+    The [`TriggerAllMissed`][frequenz.channels.timer.TriggerAllMissed] policy will
+    trigger all missed ticks immediately until it catches up with the current time.
+    This means that if the timer is delayed for any reason, when it finally gets some
+    time to run, it will trigger all the missed ticks in a burst. The drift is not
+    accumulated and the next tick will be scheduled according to the original start
+    time.
+
     Example:
-        Assume a timer with interval 1 second, the tick `T0` happens exactly
-        at time 0, the second tick, `T1`, happens at time 1.2 (0.2 seconds
-        late), so it triggers immediately.  The third tick, `T2`, happens at
-        time 2.3 (0.3 seconds late), so it also triggers immediately.  The
-        fourth tick, `T3`, happens at time 4.3 (1.3 seconds late), so it also
-        triggers immediately as well as the fifth tick, `T4`, which was also
-        already delayed (by 0.3 seconds), so it catches up.  The sixth tick,
-        `T5`, happens at 5.1 (0.1 seconds late), so it triggers immediately
-        again. The seventh tick, `T6`, happens at 6.0, right on time.
+        This example represents a timer with interval 1 second.
+
+        1. The first tick, `T0` happens exactly at time 0.
+
+        2. The second tick, `T1`, happens at time 1.2 (0.2 seconds late), so it triggers
+            immediately. But it re-syncs, so the next tick is still expected at
+            2 seconds. This re-sync happens on every tick, so all ticks are expected at
+            multiples of 1 second, not matter how delayed they were.
+
+        3. The third tick, `T2`, happens at time 2.3 (0.3 seconds late), so it also
+            triggers immediately.
+
+        4. The fourth tick, `T3`, happens at time 4.3 (1.3 seconds late), so it also
+            triggers immediately.
+
+        5. The fifth tick, `T4`, which was also already delayed (by 0.3 seconds),
+            triggers immediately too, resulting in a small *catch-up* burst.
+
+        6. The sixth tick, `T5`, happens at 5.1 (0.1 seconds late), so it triggers
+            immediately again.
+
+        7. The seventh tick, `T6`, happens at 6.0, right on time.
 
         <center>
         ```bob
@@ -122,21 +243,34 @@ class TriggerAllMissed(MissedTickPolicy):
 class SkipMissedAndResync(MissedTickPolicy):
     """A policy that drops all the missed ticks, triggers immediately and resyncs.
 
-    If ticks are missed, the timer will trigger immediately returning the drift
-    and it will schedule to trigger again on the next multiple of `interval`,
-    effectively skipping any missed ticks, but resyncing with the original start
-    time.
+    If ticks are missed, the
+    [`SkipMissedAndResync`][frequenz.channels.timer.SkipMissedAndResync] policy will
+    make the [`Timer`][frequenz.channels.timer.Timer] trigger immediately and it will
+    schedule to trigger again on the next multiple of the
+    [interval][frequenz.channels.timer.Timer.interval], effectively skipping any missed
+    ticks, but re-syncing with the original start time.
 
     Example:
-        Assume a timer with interval 1 second, the tick `T0` happens exactly
-        at time 0, the second tick, `T1`, happens at time 1.2 (0.2 seconds
-        late), so it triggers immediately.  The third tick, `T2`, happens at
-        time 2.3 (0.3 seconds late), so it also triggers immediately.  The
-        fourth tick, `T3`, happens at time 4.3 (1.3 seconds late), so it also
-        triggers immediately but the fifth tick, `T4`, which was also
-        already delayed (by 0.3 seconds) is skipped.  The sixth tick,
-        `T5`, happens at 5.1 (0.1 seconds late), so it triggers immediately
-        again. The seventh tick, `T6`, happens at 6.0, right on time.
+        This example represents a timer with interval 1 second.
+
+        1. The first tick `T0` happens exactly at time 0.
+
+        2. The second tick, `T1`, happens at time 1.2 (0.2 seconds late), so it triggers
+            immediately. But it re-syncs, so the next tick is still expected at
+            2 seconds. This re-sync happens on every tick, so all ticks are expected at
+            multiples of 1 second, not matter how delayed they were.
+
+        3. The third tick, `T2`, happens at time 2.3 (0.3 seconds late), so it also
+            triggers immediately.
+
+        4. The fourth tick, `T3`, happens at time 4.3 (1.3 seconds late), so it also
+            triggers immediately, but there was also a tick expected at 4 seconds, `T4`,
+            which is skipped according to this policy to avoid bursts of ticks.
+
+        6. The sixth tick, `T5`, happens at 5.1 (0.1 seconds late), so it triggers
+            immediately again.
+
+        7. The seventh tick, `T6`, happens at 6.0, right on time.
 
         <center>
         ```bob
@@ -176,26 +310,36 @@ class SkipMissedAndResync(MissedTickPolicy):
 class SkipMissedAndDrift(MissedTickPolicy):
     """A policy that drops all the missed ticks, triggers immediately and resets.
 
-    This will behave effectively as if the timer was `reset()` at the time it
-    had triggered last, so the start time will change (and the drift will be
-    accumulated each time a tick is delayed, but only the relative drift will
-    be returned on each tick).
+    The [`SkipMissedAndDrift`][frequenz.channels.timer.SkipMissedAndDrift] policy will
+    behave effectively as if the timer was
+    [reset][frequenz.channels.timer.Timer.reset] every time it is triggered. This means
+    the start time will change and the drift will be accumulated each time a tick is
+    delayed. Only the relative drift will be returned on each tick.
 
-    The reset happens only if the delay is larger than `delay_tolerance`, so
-    it is possible to ignore small delays and not drift in those cases.
+    The reset happens only if the delay is larger than the
+    [delay tolerance][frequenz.channels.timer.SkipMissedAndDrift.delay_tolerance], so it
+    is possible to ignore small delays and not drift in those cases.
 
     Example:
-        Assume a timer with interval 1 second and `delay_tolerance=0.1`, the
-        first tick, `T0`, happens exactly at time 0, the second tick, `T1`,
-        happens at time 1.2 (0.2 seconds late), so the timer triggers
-        immediately but drifts a bit. The next tick, `T2.2`, happens at 2.3 seconds
-        (0.1 seconds late), so it also triggers immediately but it doesn't
-        drift because the delay is under the `delay_tolerance`. The next tick,
-        `T3.2`, triggers at 4.3 seconds (1.1 seconds late), so it also triggers
-        immediately but the timer drifts by 1.1 seconds and the tick `T4.2` is
-        skipped (not triggered). The next tick, `T5.3`, triggers at 5.3 seconds
-        so is right on time (no drift) and the same happens for tick `T6.3`,
-        which triggers at 6.3 seconds.
+        This example represents a timer with interval 1 second and delay tolerance of
+        0.1 seconds.
+
+        1. The first tick, `T0`, happens exactly at time 0.
+
+        2. The second tick, `T1.2`, happens at time 1.2 (0.2 seconds late), so the timer
+            triggers immediately but drifts a bit (0.2 seconds), so the next tick is
+            expected at 2.2 seconds.
+
+        3. The third tick, `T2.2`, happens at 2.3 seconds (0.1 seconds late), so it also
+            triggers immediately but **it doesn't drift** because the delay is **under
+            the `delay_tolerance`**. The next tick is expected at 3.2 seconds.
+
+        4. The fourth tick, `T4.2`, triggers at 4.3 seconds (1.1 seconds late), so it
+            also triggers immediately but the timer has drifted by 1.1 seconds, so a
+            potential tick `T3.2` is skipped (not triggered).
+
+        5. The fifth tick, `T5.3`, triggers at 5.3 seconds so it is right on time (no
+            drift) and the same happens for tick `T6.3`, which triggers at 6.3 seconds.
 
         <center>
         ```bob
@@ -282,116 +426,60 @@ class SkipMissedAndDrift(MissedTickPolicy):
 
 
 class Timer(Receiver[timedelta]):
-    """A timer receiver that triggers every `interval` time.
+    """A receiver that sends a message regularly.
 
-    The timer has microseconds resolution, so the
-    [`interval`][frequenz.channels.timer.Timer.interval] must be at least
-    1 microsecond.
+    [`Timer`][frequenz.channels.timer.Timer]s are started by default after they are
+    created. This can be disabled by using `auto_start=False` option when creating
+    them. In this case, the timer will not be started until
+    [`reset()`][frequenz.channels.timer.Timer.reset] is called. Receiving from the timer
+    (either using [`receive()`][frequenz.channels.timer.Timer.receive] or using the
+    async iterator interface) will also start the timer at that point.
 
-    The message it produces is a [`timedelta`][datetime.timedelta] containing the drift
-    of the timer, i.e. the difference between when the timer should have triggered and
-    the time when it actually triggered.
+    Timers need to be created in a context where
+    a [`asyncio`][] loop is already running. If no
+    [`loop`][frequenz.channels.timer.Timer.loop] is specified, the current running loop
+    is used.
+
+    Timers can be stopped by calling [`stop()`][frequenz.channels.timer.Timer.stop].
+    A stopped timer will raise
+    a [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError] or stop the async
+    iteration as usual.
+
+    Once a timer is explicitly stopped, it can only be started again by explicitly
+    calling [`reset()`][frequenz.channels.timer.Timer.reset] (trying to receive from it
+    or using the async iterator interface will keep failing).
+
+    Timer messages are [`timedelta`][datetime.timedelta]s containing the drift of the
+    timer, i.e. the difference between when the timer should have triggered and the time
+    when it actually triggered.
 
     This drift will likely never be `0`, because if there is a task that is
     running when it should trigger, the timer will be delayed. In this case the
     drift will be positive. A negative drift should be technically impossible,
-    as the timer uses [`asyncio`][asyncio]s loop monotonic clock.
+    as the timer uses [`asyncio`][]s loop monotonic clock.
+
+    Warning:
+        Even when the [`asyncio`][] loop's monotonic clock is a [`float`][], timers use
+        `int`s to represent time internally. The internal time is tracked in
+        microseconds, so the timer resolution is 1 microsecond
+        ([`interval`][frequenz.channels.timer.Timer.interval] must be at least
+         1 microsecond).
+
+        This is to avoid floating point errors when performing calculations with time,
+        which can lead to issues that are very hard to reproduce and debug.
 
     If the timer is delayed too much, then it will behave according to the
     [`missed_tick_policy`][frequenz.channels.timer.Timer.missed_tick_policy]. Missing
     ticks might or might not trigger a message and the drift could be accumulated or not
     depending on the chosen policy.
 
-    These are the currently built-in available policies:
-
-    * [`SkipMissedAndDrift`][frequenz.channels.timer.SkipMissedAndDrift]
-    * [`SkipMissedAndResync`][frequenz.channels.timer.SkipMissedAndResync]
-    * [`TriggerAllMissed`][frequenz.channels.timer.TriggerAllMissed]
-
     For the most common cases, a specialized constructor is provided:
 
-    * [`periodic()`][frequenz.channels.timer.Timer.periodic] (uses the
-      [`TriggerAllMissed`][frequenz.channels.timer.TriggerAllMissed] or
-      [`SkipMissedAndResync`][frequenz.channels.timer.SkipMissedAndResync] policy)
-    * [`timeout()`][frequenz.channels.timer.Timer.timeout] (uses the
-      [`SkipMissedAndDrift`][frequenz.channels.timer.SkipMissedAndDrift] policy)
+    * [`periodic()`][frequenz.channels.timer.Timer.periodic]:
+        {{docstring_summary("frequenz.channels.timer.Timer.periodic")}}
 
-    The timer accepts an optional [`loop`][frequenz.channels.timer.Timer.loop], which
-    will be used to track the time. If `loop` is `None`, then the running loop will be
-    used (if there is no running loop most calls will raise
-    a [`RuntimeError`][RuntimeError]).
-
-    Starting the timer can be delayed if necessary by using `auto_start=False`
-    (for example until we have a running loop). A call to
-    [`reset()`][frequenz.channels.timer.Timer.reset],
-    [`ready()`][frequenz.channels.timer.Timer.ready],
-    [`receive()`][frequenz.channels.timer.Timer.receive] or the async iterator interface
-    to await for a new message will start the timer.
-
-    Example: Periodic timer example
-        ```python
-        async for drift in Timer.periodic(timedelta(seconds=1.0)):
-            print(f"The timer has triggered {drift=}")
-        ```
-
-        But you can also use a [`select`][frequenz.channels.select] to combine
-        it with other receivers, and even start it (semi) manually:
-
-        ```python
-        from frequenz.channels import Broadcast, select, selected_from
-
-        timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
-        chan = Broadcast[int](name="input-chan")
-        battery_data = chan.new_receiver()
-
-        timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
-        # Do some other initialization, the timer will start automatically if
-        # a message is awaited (or manually via `reset()`).
-        async for selected in select(battery_data, timer):
-            if selected_from(selected, battery_data):
-                if selected.was_closed():
-                    print("battery channel closed")
-                    continue
-                battery_soc = selected.value
-            elif selected_from(selected, timer):
-                # Print some regular battery data
-                print(f"Battery is charged at {battery_soc}%")
-        ```
-
-    Example: Timeout example
-        ```python
-        from frequenz.channels import Broadcast, select, selected_from
-
-        def process_data(data: int):
-            print(f"Processing data: {data}")
-
-        def do_heavy_processing(data: int):
-            print(f"Heavy processing data: {data}")
-
-        timer = Timer.timeout(timedelta(seconds=1.0), auto_start=False)
-        chan1 = Broadcast[int](name="input-chan-1")
-        chan2 = Broadcast[int](name="input-chan-2")
-        battery_data = chan1.new_receiver()
-        heavy_process = chan2.new_receiver()
-        async for selected in select(battery_data, heavy_process, timer):
-            if selected_from(selected, battery_data):
-                if selected.was_closed():
-                    print("battery channel closed")
-                    continue
-                process_data(selected.value)
-                timer.reset()
-            elif selected_from(selected, heavy_process):
-                if selected.was_closed():
-                    print("processing channel closed")
-                    continue
-                do_heavy_processing(selected.value)
-            elif selected_from(selected, timer):
-                print("No data received in time")
-        ```
-
-        In this case `do_heavy_processing` might take 2 seconds, and we don't
-        want our timeout timer to trigger for the missed ticks, and want the
-        next tick to be relative to the time timer was last triggered.
+    * [`timeout()`][frequenz.channels.timer.Timer.timeout]:
+        {{docstring_summary("frequenz.channels.timer.Timer.timeout")}}
     """
 
     def __init__(  # pylint: disable=too-many-arguments
@@ -506,10 +594,43 @@ class Timer(Receiver[timedelta]):
     ) -> Timer:
         """Create a timer useful for tracking timeouts.
 
-        This is basically a shortcut to create a timer with
-        `SkipMissedAndDrift(delay_tolerance=timedelta(0))` as the missed tick policy.
+        A [timeout][frequenz.channels.timer.Timer.timeout] is
+        a [`Timer`][frequenz.channels.timer.Timer] that
+        [resets][frequenz.channels.timer.Timer.reset] automatically after it triggers,
+        so it will trigger again after the selected interval, no matter what the current
+        drift was. This means timeout timers will accumulate drift.
 
-        See the class documentation for details.
+        Tip:
+            Timeouts are a shortcut to create
+            a [`Timer`][frequenz.channels.timer.Timer] with the
+            [`SkipMissedAndDrift`][frequenz.channels.timer.SkipMissedAndDrift] policy.
+
+        Example: Timeout example
+            ```python
+            import asyncio
+            from datetime import timedelta
+
+            from frequenz.channels import Anycast, select, selected_from
+            from frequenz.channels.timer import Timer
+
+
+            async def main() -> None:
+                channel = Anycast[int](name="data-channel")
+                data_receiver = channel.new_receiver()
+
+                timer = Timer.timeout(timedelta(seconds=1.0))
+
+                async for selected in select(data_receiver, timer):
+                    if selected_from(selected, data_receiver):
+                        print(f"Received data: {selected.value}")
+                    elif selected_from(selected, timer):
+                        drift = selected.value
+                        print(f"No data received for {timer.interval + drift} seconds, giving up")
+                        break
+
+
+            asyncio.run(main())
+            ```
 
         Args:
             delay: The time until the timer ticks. Must be at least
@@ -557,11 +678,40 @@ class Timer(Receiver[timedelta]):
     ) -> Timer:
         """Create a periodic timer.
 
-        This is basically a shortcut to create a timer with either
-        `TriggerAllMissed()` or `SkipMissedAndResync()` as the missed tick policy
-        (depending on `skip_missed_ticks`).
+        A [periodic timer][frequenz.channels.timer.Timer.periodic] is
+        a [`Timer`][frequenz.channels.timer.Timer] that tries as hard as possible to
+        trigger at regular intervals. This means that if the timer is delayed for any
+        reason, it will trigger immediately and then try to catch up with the original
+        schedule.
 
-        See the class documentation for details.
+        Optionally, a periodic timer can be configured to skip missed ticks and re-sync
+        with the original schedule (`skip_missed_ticks` argument). This could be useful
+        if you want the timer is as periodic as possible but if there are big delays you
+        don't end up with big bursts.
+
+        Tip:
+            Periodic timers are a shortcut to create
+            a [`Timer`][frequenz.channels.timer.Timer] with either the
+            [`TriggerAllMissed`][frequenz.channels.timer.TriggerAllMissed] policy (when
+            `skip_missed_ticks` is `False`) or
+            [`SkipMissedAndResync`][frequenz.channels.timer.SkipMissedAndResync]
+            otherwise.
+
+        Example:
+            ```python
+            import asyncio
+            from datetime import datetime, timedelta
+
+            from frequenz.channels.timer import Timer
+
+
+            async def main() -> None:
+                async for drift in Timer.periodic(timedelta(seconds=1.0)):
+                    print(f"The timer has triggered at {datetime.now()} with a drift of {drift}")
+
+
+            asyncio.run(main())
+            ```
 
         Args:
             period: The time between timer ticks. Must be at least

@@ -1,8 +1,18 @@
 # License: MIT
 # Copyright © 2023 Frequenz Energy-as-a-Service GmbH
 
-"""A receiver that can be made ready through an event."""
+"""A receiver that can be made ready directly.
 
+!!! Tip inline end
+
+    Read the [`Event`][frequenz.channels.event.Event] documentation for more
+    information.
+
+This module contains the following:
+
+* [`Event`][frequenz.channels.event.Event]:
+    {{docstring_summary("frequenz.channels.event.Event")}}
+"""
 
 import asyncio as _asyncio
 
@@ -10,38 +20,66 @@ from frequenz.channels import _receiver
 
 
 class Event(_receiver.Receiver[None]):
-    """A receiver that can be made ready through an event.
+    """A receiver that can be made ready directly.
 
-    The receiver (the [`ready()`][frequenz.channels.event.Event.ready] method) will wait
-    until [`set()`][frequenz.channels.event.Event.set] is called.  At that point the
-    receiver will wait again after the event is
-    [`consume()`][frequenz.channels.Receiver.consume]d.
+    # Usage
 
-    The receiver can be completely stopped by calling
+    There are cases where it is useful to be able to send a signal to
+    a [`select()`][frequenz.channels.select] loop, for example, to stop a loop from
+    outside the loop itself.
+
+    To do that, you can use an [`Event`][frequenz.channels.event.Event] receiver and
+    call [`set()`][frequenz.channels.event.Event.set] on it when you want to make it
+    ready.
+
+    # Stopping
+
+    The receiver will be re-activated (will keep blocking) after the current set
+    event is received. To stop the receiver completely, you can call
     [`stop()`][frequenz.channels.event.Event.stop].
 
-    Example:
+    # Example
+
+    Example: Exit after printing the first 5 numbers
         ```python
         import asyncio
-        from frequenz.channels import Receiver, select, selected_from
+
+        from frequenz.channels import Anycast, select, selected_from
         from frequenz.channels.event import Event
 
-        other_receiver: Receiver[int] = ...
-        exit_event = Event()
+        channel: Anycast[int] = Anycast(name="channel")
+        receiver = channel.new_receiver()
+        sender = channel.new_sender()
+        stop_event = Event(name="stop")
 
-        async def exit_after_10_seconds() -> None:
-            asyncio.sleep(10)
-            exit_event.set()
 
-        asyncio.ensure_future(exit_after_10_seconds())
+        async def do_work() -> None:
+            async for selected in select(receiver, stop_event):
+                if selected_from(selected, receiver):
+                    print(selected.value)
+                elif selected_from(selected, stop_event):
+                    print("Stop event triggered")
+                    stop_event.stop()
+                    break
 
-        async for selected in select(exit_event, other_receiver):
-            if selected_from(selected, exit_event):
-                break
-            if selected_from(selected, other_receiver):
-                print(selected.value)
-            else:
-                assert False, "Unknown receiver selected"
+
+        async def send_stuff() -> None:
+            for i in range(10):
+                if stop_event.is_stopped:
+                    break
+                await asyncio.sleep(1)
+                await sender.send(i)
+
+
+        async def main() -> None:
+            async with asyncio.TaskGroup() as task_group:
+                task_group.create_task(do_work(), name="do_work")
+                task_group.create_task(send_stuff(), name="send_stuff")
+                await asyncio.sleep(5.5)
+                stop_event.set()
+
+
+        asyncio.run(main())
         ```
     """
 

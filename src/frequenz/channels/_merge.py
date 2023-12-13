@@ -1,7 +1,51 @@
 # License: MIT
 # Copyright © 2022 Frequenz Energy-as-a-Service GmbH
 
-"""Merge messages coming from channels into a single stream."""
+"""Merge messages coming from multiple receivers into a single receiver.
+
+# Usage
+
+If you just need to receive the same type of messages but from multiple sources in one
+stream, you can use [`merge()`][frequenz.channels.merge] to create a new receiver that
+will receive messages from all the given receivers:
+
+```python
+from frequenz.channels import Anycast, Receiver, merge
+
+channel1: Anycast[int] = Anycast(name="channel1")
+channel2: Anycast[int] = Anycast(name="channel2")
+receiver1 = channel1.new_receiver()
+receiver2 = channel2.new_receiver()
+
+async for value in merge(receiver1, receiver2):
+    print(value)
+```
+
+If the first message comes from `channel2` and the second message from `channel1`, the
+first message will be received immediately, and the second message will be received as
+soon as it is available.
+
+This can be helpful when you just need to receive messages and don't care about
+where are they coming from specifically. If you need to know where the message came
+from, you can use [`select()`][frequenz.channels.select] instead.
+
+# Stopping
+
+A merge receiver will be stopped automatically when all the receivers that it merges are
+stopped. When using the async iterator interface, this means that the iterator will stop
+as soon as all the receivers are stopped. When using
+[`receive()`][frequenz.channels.Receiver.receive], this means that the method will raise
+a [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError] exception as soon as
+all the receivers are stopped.
+
+If you want to stop a merge receiver manually, you can use the
+[`stop()`][frequenz.channels.Merger.stop] method.
+
+When using [`receive()`][frequenz.channels.Receiver.receive], you should make sure to
+either stop all the receivers that you are merging, or to stop the merge receiver
+manually. This is to make sure that all the tasks created by the merge receiver are
+cleaned up properly.
+"""
 
 from __future__ import annotations
 

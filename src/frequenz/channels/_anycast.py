@@ -20,54 +20,180 @@ _T = TypeVar("_T")
 
 
 class Anycast(Generic[_T]):
-    """A channel for sending data across async tasks.
+    """A channel that delivers each message to exactly one receiver.
 
-    Anycast channels support multiple senders and multiple receivers.  A message sent
-    through a sender will be received by exactly one receiver.
+    # Description
+
+    !!! Tip inline end
+
+        [Anycast][frequenz.channels.Anycast] channels behave like the
+        [Golang](https://golang.org/) [channels](https://go.dev/ref/spec#Channel_types).
+
+    [Anycast][frequenz.channels.Anycast] channels support multiple
+    [senders][frequenz.channels.Sender] and multiple
+    [receivers][frequenz.channels.Receiver]. Each message sent through any of the
+    senders will be received by exactly one receiver (but **any** receiver).
+
+    <center>
+    ```bob
+    .---------. msg1                           msg1  .-----------.
+    | Sender  +------.                       .------>| Receiver  |
+    '---------'      |      .----------.     |       '-----------'
+                     +----->| Channel  +-----+
+    .---------.      |      '----------'     |       .-----------.
+    | Sender  +------'                       '------>| Receiver  |
+    '---------' msg2                           msg2  '-----------'
+    ```
+    </center>
+
+    !!! Note inline end "Characteristics"
+
+        * **Buffered:** Yes, with a global channel buffer
+        * **Buffer full policy:** Block senders
+        * **Multiple receivers:** Yes
+        * **Multiple senders:** Yes
+        * **Thread-safe:** No
 
     This channel is buffered, and if the senders are faster than the receivers, then the
     channel's buffer will fill up. In that case, the senders will block at the
-    [send()][frequenz.channels.Sender.send] method until the receivers consume the
+    [`send()`][frequenz.channels.Sender.send] method until the receivers consume the
     messages in the channel's buffer. The channel's buffer size can be configured at
     creation time via the `limit` argument.
 
+    The first receiver that is awaited will get the next message. When multiple
+    receivers are waiting, the [asyncio][] loop scheduler picks a receiver for each next
+    massage.
+
+    This means that, in practice, there might be only one receiver receiving all the
+    messages, depending on how tasks are schduled.
+
+    If you need to ensure some delivery policy (like round-robin or uniformly random),
+    then you will have to implement it yourself.
+
+    To create a new [senders][frequenz.channels.Sender] and
+    [receivers][frequenz.channels.Receiver] you can use the
+    [`new_sender()`][frequenz.channels.Broadcast.new_sender] and
+    [`new_receiver()`][frequenz.channels.Broadcast.new_receiver] methods
+    respectively.
+
+    When the channel is not needed anymore, it should be closed with the
+    [`close()`][frequenz.channels.Anycast.close] method. This will prevent further
+    attempts to [`send()`][frequenz.channels.Sender.send] data. Receivers will still be
+    able to drain the pending values on the channel, but after that, subsequent
+    [`receive()`][frequenz.channels.Receiver.receive] calls will raise a
+    [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError] exception.
+
+    This channel is useful, for example, to distribute work across multiple workers.
+
     In cases where each message need to be received by every receiver, a
-    [Broadcast][frequenz.channels.Broadcast] channel may be used.
+    [broadcast][frequenz.channels.Broadcast] channel may be used.
 
-    Uses an [deque][collections.deque] internally, so Anycast channels are not
-    thread-safe.
+    # Examples
 
-    When there are multiple channel receivers, they can be awaited
-    simultaneously using [select][frequenz.channels.select] or
-    [merge][frequenz.channels.merge].
+    Example: Send a few numbers to a receiver
+        This is a very simple example that sends a few numbers from a single sender to
+        a single receiver.
 
-    Example:
-        ``` python
-        async def send(sender: channel.Sender) -> None:
-            while True:
-                next = random.randint(3, 17)
-                print(f"sending: {next}")
-                await sender.send(next)
+        ```python
+        import asyncio
+
+        from frequenz.channels import Anycast, Sender
 
 
-        async def recv(id: int, receiver: channel.Receiver) -> None:
-            while True:
-                next = await receiver.receive()
-                print(f"receiver_{id} received {next}")
-                await asyncio.sleep(0.1) # sleep (or work) with the data
+        async def send(sender: Sender[int]) -> None:
+            for msg in range(3):
+                print(f"sending {msg}")
+                await sender.send(msg)
 
 
-        acast = channel.Anycast()
+        async def main() -> None:
+            channel = Anycast[int](name="numbers")
 
-        sender = acast.new_sender()
-        receiver_1 = acast.new_receiver()
+            sender = channel.new_sender()
+            receiver = channel.new_receiver()
 
-        asyncio.create_task(send(sender))
+            async with asyncio.TaskGroup() as task_group:
+                task_group.create_task(send(sender))
+                for _ in range(3):
+                    msg = await receiver.receive()
+                    print(f"received {msg}")
+                    await asyncio.sleep(0.1)  # sleep (or work) with the data
 
-        await recv(1, receiver_1)
+
+        asyncio.run(main())
         ```
 
-        Check the `tests` and `benchmarks` directories for more examples.
+        The output should look something like (although the sending and received might
+        appear more interleaved):
+
+        ```
+        sending 0
+        sending 1
+        sending 2
+        received 0
+        received 1
+        received 2
+        ```
+
+    Example: Send a few number from multiple senders to multiple receivers
+        This is a more complex example that sends a few numbers from multiple senders to
+        multiple receivers, using a small buffer to force the senders to block.
+
+        ```python
+        import asyncio
+
+        from frequenz.channels import Anycast, Receiver, ReceiverStoppedError, Sender
+
+
+        async def send(name: str, sender: Sender[int], start: int, stop: int) -> None:
+            for msg in range(start, stop):
+                print(f"{name} sending {msg}")
+                await sender.send(msg)
+
+
+        async def recv(name: str, receiver: Receiver[int]) -> None:
+            try:
+                async for msg in receiver:
+                    print(f"{name} received {msg}")
+                await asyncio.sleep(0.1)  # sleep (or work) with the data
+            except ReceiverStoppedError:
+                pass
+
+
+        async def main() -> None:
+            acast = Anycast[int](name="numbers", limit=2)
+
+            async with asyncio.TaskGroup() as task_group:
+                task_group.create_task(send("sender_1", acast.new_sender(), 10, 13))
+                task_group.create_task(send("sender_2", acast.new_sender(), 20, 22))
+                task_group.create_task(recv("receiver_1", acast.new_receiver()))
+                task_group.create_task(recv("receiver_2", acast.new_receiver()))
+
+
+        asyncio.run(main())
+        ```
+
+        The output should look something like this(although the sending and received
+        might appear interleaved in a different way):
+
+        ```
+        sender_1 sending 10
+        sender_1 sending 11
+        sender_1 sending 12
+        Anycast channel [Anycast:numbers:_Sender] is full, blocking sender until a receiver
+        consumes a value
+        sender_2 sending 20
+        Anycast channel [Anycast:numbers:_Sender] is full, blocking sender until a receiver
+        consumes a value
+        receiver_1 received 10
+        receiver_1 received 11
+        sender_2 sending 21
+        Anycast channel [Anycast:numbers:_Sender] is full, blocking sender until a receiver
+        consumes a value
+        receiver_1 received 12
+        receiver_1 received 20
+        receiver_1 received 21
+        ```
     """
 
     def __init__(self, *, name: str, limit: int = 10) -> None:
