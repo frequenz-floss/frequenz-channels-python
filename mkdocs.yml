@@ -68,6 +68,7 @@ markdown_extensions:
   - attr_list
   - def_list
   - footnotes
+  - github-callouts
   - markdown_svgbob:
       min_char_width: 0
   - pymdownx.details
