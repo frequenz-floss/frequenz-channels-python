@@ -147,6 +147,12 @@
 
   - `map()`: The returned map object now has a more useful implementation of `__str__ and `__repr__`.
 
+## Improvements
+
+* `Receiver`: Use a covariant generic type, which allows the generic type to be broader than the actual type.
+
+* `Sender`: Use a contravariant generic type, which allows the generic type to be narrower than the required type.
+
 ## Bug Fixes
 
 * `Timer`: Fix bug that was causing calls to `reset()` to not reset the timer, if the timer was already being awaited.
