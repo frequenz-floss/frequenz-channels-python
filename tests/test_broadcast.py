@@ -5,6 +5,7 @@
 
 
 import asyncio
+from dataclasses import dataclass
 
 import pytest
 
@@ -252,3 +253,27 @@ async def test_broadcast_receiver_drop() -> None:
 
     assert len(chan._receivers) == 1
     # pylint: enable=protected-access
+
+
+async def test_type_variance() -> None:
+    """Ensure that the type variance of Broadcast is working."""
+
+    @dataclass
+    class Broader:
+        """A broad class."""
+
+        value: int
+
+    class Actual(Broader):
+        """Actual class."""
+
+    class Narrower(Actual):
+        """A narrower class."""
+
+    chan = Broadcast[Actual](name="input-chan")
+
+    sender: Sender[Narrower] = chan.new_sender()
+    receiver: Receiver[Broader] = chan.new_receiver()
+
+    await sender.send(Narrower(10))
+    assert (await receiver.receive()).value == 10
