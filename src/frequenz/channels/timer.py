@@ -62,7 +62,7 @@ Example: Timeout
 
 Tip:
     It is extremely important to understand how timers behave when they are
-    delayed, we recommned emphatically to read about [missed ticks and
+    delayed, we recommend emphatically to read about [missed ticks and
     drifting](#missed-ticks-and-drifting) before using timers in production.
 
 # Missed Ticks And Drifting
