@@ -10,7 +10,7 @@ from datetime import timedelta
 import async_solipsism
 import pytest
 
-from frequenz.channels.timer import Timer
+from frequenz.channels.timer import SkipMissedAndDrift, Timer
 
 
 @pytest.mark.integration
@@ -24,7 +24,7 @@ async def test_timer_timeout_reset(
 
     async with asyncio.timeout(2.0):
         async with asyncio.TaskGroup() as task_group:
-            timer = Timer.timeout(timedelta(seconds=1.0))
+            timer = Timer(timedelta(seconds=1.0), SkipMissedAndDrift())
             start_time = event_loop.time()
             task_group.create_task(timer_wait(timer))
             await asyncio.sleep(0.5)

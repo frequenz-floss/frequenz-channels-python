@@ -400,10 +400,10 @@ async def select(*receivers: Receiver[Any]) -> AsyncIterator[Selected[Any]]:
         from typing import assert_never
 
         from frequenz.channels import ReceiverStoppedError, select, selected_from
-        from frequenz.channels.timer import Timer
+        from frequenz.channels.timer import SkipMissedAndDrift, Timer, TriggerAllMissed
 
-        timer1 = Timer.periodic(datetime.timedelta(seconds=1))
-        timer2 = Timer.timeout(datetime.timedelta(seconds=0.5))
+        timer1 = Timer(datetime.timedelta(seconds=1), TriggerAllMissed())
+        timer2 = Timer(datetime.timedelta(seconds=0.5), SkipMissedAndDrift())
 
         async for selected in select(timer1, timer2):
             if selected_from(selected, timer1):

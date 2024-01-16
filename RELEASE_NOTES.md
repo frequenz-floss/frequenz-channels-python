@@ -95,6 +95,14 @@
 
   This was removed alongside `Peekable` (it was only raised when using a `Receiver` that was converted into a `Peekable`).
 
+- `Timer`:
+
+  - `periodic()` and `timeout()`: The names proved to be too confusing, please use `Timer()` and pass a missing ticks policy explicitly instead. In general you can update your code by doing:
+
+    * `Timer.periodic(interval)` / `Timer.periodic(interval, skip_missed_ticks=True)` -> `Timer(interval, TriggerAllMissed())`
+    * `Timer.periodic(interval, skip_missed_ticks=False)` -> `Timer(interval, SkipMissedAndResync())`
+    * `Timer.timeout(interval)` -> `Timer(interval, SkipMissedAndDrift())`
+
 * `util`
 
   The entire `util` package was removed and its symbols were either moved to the top-level package or to their own public modules (as noted above).

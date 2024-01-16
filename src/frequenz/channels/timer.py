@@ -5,11 +5,18 @@
 
 # Quick Start
 
-If you need to do something as periodically as possible (avoiding
-[drifts](#missed-ticks-and-drifting)), you can use use
-a [`periodic()`][frequenz.channels.timer.Timer.periodic] timer.
+Info: Important
+    This quick start is provided to have a quick feeling of how to use this module, but
+    it is extremely important to understand how timers behave when they are delayed.
 
-Example: Periodic Timer
+    We recommend emphatically to read about [missed ticks and
+    drifting](#missed-ticks-and-drifting) before using timers in production.
+
+If you need to do something as periodically as possible (avoiding
+[drifts](#missed-ticks-and-drifting)), you can use
+a [`Timer`][frequenz.channels.timer.Timer] like this:
+
+Example: Periodic Timer Example
     ```python
     import asyncio
     from datetime import datetime, timedelta
@@ -18,18 +25,23 @@ Example: Periodic Timer
 
 
     async def main() -> None:
-        async for drift in Timer.periodic(timedelta(seconds=1.0)):
+        async for drift in Timer(timedelta(seconds=1.0), TriggerAllMissed()):
             print(f"The timer has triggered at {datetime.now()} with a drift of {drift}")
 
 
     asyncio.run(main())
     ```
 
-If, instead, you need a timeout, for example to abort waiting for other receivers after
-a certain amount of time, you can use
-a [`timeout()`][frequenz.channels.timer.Timer.timeout] timer.
+    This timer will tick as close as every second as possible, even if the loop is busy
+    doing something else for a good amount of time. In extreme cases, if the loop was
+    busy for a few seconds, the timer will trigger a few times in a row to catch up, one
+    for every missed tick.
 
-Example: Timeout
+If, instead, you need a timeout, for example to abort waiting for other receivers after
+a certain amount of time, you can use a [`Timer`][frequenz.channels.timer.Timer] like
+this:
+
+Example: Timeout Example
     ```python
     import asyncio
     from datetime import timedelta
@@ -42,7 +54,7 @@ Example: Timeout
         channel = Anycast[int](name="data-channel")
         data_receiver = channel.new_receiver()
 
-        timer = Timer.timeout(timedelta(seconds=1.0))
+        timer = Timer(timedelta(seconds=1.0), SkipMissedAndDrift())
 
         async for selected in select(data_receiver, timer):
             if selected_from(selected, data_receiver):
@@ -57,13 +69,10 @@ Example: Timeout
     asyncio.run(main())
     ```
 
-    This timer will *rearm* itself automatically after it was triggered, so it will trigger
-    again after the selected interval, no matter what the current drift was.
-
-Tip:
-    It is extremely important to understand how timers behave when they are
-    delayed, we recommned emphatically to read about [missed ticks and
-    drifting](#missed-ticks-and-drifting) before using timers in production.
+    This timer will *rearm* itself automatically after it was triggered, so it will
+    trigger again after the selected interval, no matter what the current drift was. So
+    if the loop was busy for a few seconds, the timer will trigger immediately and then
+    wait for another second before triggering again. The missed ticks are skipped.
 
 # Missed Ticks And Drifting
 
@@ -472,14 +481,6 @@ class Timer(Receiver[timedelta]):
     [`missed_tick_policy`][frequenz.channels.timer.Timer.missed_tick_policy]. Missing
     ticks might or might not trigger a message and the drift could be accumulated or not
     depending on the chosen policy.
-
-    For the most common cases, a specialized constructor is provided:
-
-    * [`periodic()`][frequenz.channels.timer.Timer.periodic]:
-        {{docstring_summary("frequenz.channels.timer.Timer.periodic")}}
-
-    * [`timeout()`][frequenz.channels.timer.Timer.timeout]:
-        {{docstring_summary("frequenz.channels.timer.Timer.timeout")}}
     """
 
     def __init__(  # pylint: disable=too-many-arguments
@@ -494,7 +495,7 @@ class Timer(Receiver[timedelta]):
     ) -> None:
         """Create an instance.
 
-        See the class documentation for details.
+        See the [class documentation][frequenz.channels.timer.Timer] for details.
 
         Args:
             interval: The time between timer ticks. Must be at least
@@ -579,175 +580,6 @@ class Timer(Receiver[timedelta]):
 
         if auto_start:
             self.reset(start_delay=start_delay)
-
-    # We need a noqa here because the docs have a Raises section but the documented
-    # exceptions are raised indirectly.
-    @classmethod
-    def timeout(  # noqa: DOC502
-        cls,
-        delay: timedelta,
-        /,
-        *,
-        auto_start: bool = True,
-        start_delay: timedelta = timedelta(0),
-        loop: asyncio.AbstractEventLoop | None = None,
-    ) -> Timer:
-        """Create a timer useful for tracking timeouts.
-
-        A [timeout][frequenz.channels.timer.Timer.timeout] is
-        a [`Timer`][frequenz.channels.timer.Timer] that
-        [resets][frequenz.channels.timer.Timer.reset] automatically after it triggers,
-        so it will trigger again after the selected interval, no matter what the current
-        drift was. This means timeout timers will accumulate drift.
-
-        Tip:
-            Timeouts are a shortcut to create
-            a [`Timer`][frequenz.channels.timer.Timer] with the
-            [`SkipMissedAndDrift`][frequenz.channels.timer.SkipMissedAndDrift] policy.
-
-        Example: Timeout example
-            ```python
-            import asyncio
-            from datetime import timedelta
-
-            from frequenz.channels import Anycast, select, selected_from
-            from frequenz.channels.timer import Timer
-
-
-            async def main() -> None:
-                channel = Anycast[int](name="data-channel")
-                data_receiver = channel.new_receiver()
-
-                timer = Timer.timeout(timedelta(seconds=1.0))
-
-                async for selected in select(data_receiver, timer):
-                    if selected_from(selected, data_receiver):
-                        print(f"Received data: {selected.value}")
-                    elif selected_from(selected, timer):
-                        drift = selected.value
-                        print(f"No data received for {timer.interval + drift} seconds, giving up")
-                        break
-
-
-            asyncio.run(main())
-            ```
-
-        Args:
-            delay: The time until the timer ticks. Must be at least
-                1 microsecond.
-            auto_start: Whether the timer should be started when the
-                instance is created. This can only be `True` if there is
-                already a running loop or an explicit `loop` that is running
-                was passed.
-            start_delay: The delay before the timer should start. If `auto_start` is
-                `False`, an exception is raised. This has microseconds resolution,
-                anything smaller than a microsecond means no delay.
-            loop: The event loop to use to track time. If `None`,
-                `asyncio.get_running_loop()` will be used.
-
-        Returns:
-            The timer instance.
-
-        Raises:
-            RuntimeError: if it was called without a loop and there is no
-                running loop.
-            ValueError: if `interval` is not positive or is smaller than 1
-                microsecond; if `start_delay` is negative or `start_delay` was specified
-                but `auto_start` is `False`.
-        """
-        return Timer(
-            delay,
-            SkipMissedAndDrift(delay_tolerance=timedelta(0)),
-            auto_start=auto_start,
-            start_delay=start_delay,
-            loop=loop,
-        )
-
-    # We need a noqa here because the docs have a Raises section but the documented
-    # exceptions are raised indirectly.
-    @classmethod
-    def periodic(  # noqa: DOC502 pylint: disable=too-many-arguments
-        cls,
-        period: timedelta,
-        /,
-        *,
-        skip_missed_ticks: bool = False,
-        auto_start: bool = True,
-        start_delay: timedelta = timedelta(0),
-        loop: asyncio.AbstractEventLoop | None = None,
-    ) -> Timer:
-        """Create a periodic timer.
-
-        A [periodic timer][frequenz.channels.timer.Timer.periodic] is
-        a [`Timer`][frequenz.channels.timer.Timer] that tries as hard as possible to
-        trigger at regular intervals. This means that if the timer is delayed for any
-        reason, it will trigger immediately and then try to catch up with the original
-        schedule.
-
-        Optionally, a periodic timer can be configured to skip missed ticks and re-sync
-        with the original schedule (`skip_missed_ticks` argument). This could be useful
-        if you want the timer is as periodic as possible but if there are big delays you
-        don't end up with big bursts.
-
-        Tip:
-            Periodic timers are a shortcut to create
-            a [`Timer`][frequenz.channels.timer.Timer] with either the
-            [`TriggerAllMissed`][frequenz.channels.timer.TriggerAllMissed] policy (when
-            `skip_missed_ticks` is `False`) or
-            [`SkipMissedAndResync`][frequenz.channels.timer.SkipMissedAndResync]
-            otherwise.
-
-        Example:
-            ```python
-            import asyncio
-            from datetime import datetime, timedelta
-
-            from frequenz.channels.timer import Timer
-
-
-            async def main() -> None:
-                async for drift in Timer.periodic(timedelta(seconds=1.0)):
-                    print(f"The timer has triggered at {datetime.now()} with a drift of {drift}")
-
-
-            asyncio.run(main())
-            ```
-
-        Args:
-            period: The time between timer ticks. Must be at least
-                1 microsecond.
-            skip_missed_ticks: Whether to skip missed ticks or trigger them
-                all until it catches up.
-            auto_start: Whether the timer should be started when the
-                instance is created. This can only be `True` if there is
-                already a running loop or an explicit `loop` that is running
-                was passed.
-            start_delay: The delay before the timer should start. If `auto_start` is
-                `False`, an exception is raised. This has microseconds resolution,
-                anything smaller than a microsecond means no delay.
-            loop: The event loop to use to track time. If `None`,
-                `asyncio.get_running_loop()` will be used.
-
-        Returns:
-            The timer instance.
-
-        Raises:
-            RuntimeError: if it was called without a loop and there is no
-                running loop.
-            ValueError: if `interval` is not positive or is smaller than 1
-                microsecond; if `start_delay` is negative or `start_delay` was specified
-                but `auto_start` is `False`.
-        """
-        missed_tick_policy = (
-            SkipMissedAndResync() if skip_missed_ticks else TriggerAllMissed()
-        )
-        return Timer(
-            period,
-            missed_tick_policy,
-            auto_start=auto_start,
-            start_delay=start_delay,
-            loop=loop,
-        )
 
     @property
     def interval(self) -> timedelta:

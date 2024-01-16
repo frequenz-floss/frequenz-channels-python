@@ -11,7 +11,7 @@ import pytest
 
 from frequenz.channels import select, selected_from
 from frequenz.channels.file_watcher import Event, EventType, FileWatcher
-from frequenz.channels.timer import Timer
+from frequenz.channels.timer import SkipMissedAndDrift, Timer
 
 
 @pytest.mark.integration
@@ -27,7 +27,7 @@ async def test_file_watcher(tmp_path: pathlib.Path) -> None:
     expected_number_of_writes = 3
 
     file_watcher = FileWatcher(paths=[str(tmp_path)])
-    timer = Timer.timeout(timedelta(seconds=0.1))
+    timer = Timer(timedelta(seconds=0.1), SkipMissedAndDrift())
 
     async for selected in select(file_watcher, timer):
         if selected_from(selected, timer):
@@ -55,8 +55,8 @@ async def test_file_watcher_deletes(tmp_path: pathlib.Path) -> None:
     """
     filename = tmp_path / "test-file"
     file_watcher = FileWatcher(paths=[str(tmp_path)], event_types={EventType.DELETE})
-    write_timer = Timer.timeout(timedelta(seconds=0.1))
-    deletion_timer = Timer.timeout(timedelta(seconds=0.25))
+    write_timer = Timer(timedelta(seconds=0.1), SkipMissedAndDrift())
+    deletion_timer = Timer(timedelta(seconds=0.25), SkipMissedAndDrift())
 
     number_of_write = 0
     number_of_deletes = 0

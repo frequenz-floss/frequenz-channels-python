@@ -266,53 +266,15 @@ async def test_timer_construction_custom_args() -> None:
     assert timer.is_running is True
 
 
-async def test_timer_construction_timeout_custom_args() -> None:
-    """Test the construction of a timeout timer with custom arguments."""
-    timer = Timer.timeout(
-        timedelta(seconds=5.0),
-        auto_start=True,
-        loop=None,
-    )
-    assert timer.interval == timedelta(seconds=5.0)
-    assert isinstance(timer.missed_tick_policy, SkipMissedAndDrift)
-    assert timer.missed_tick_policy.delay_tolerance == timedelta(0)
-    assert timer.loop is asyncio.get_running_loop()
-    assert timer.is_running is True
-
-
-async def test_timer_construction_periodic_defaults() -> None:
-    """Test the construction of a periodic timer."""
-    timer = Timer.periodic(timedelta(seconds=5.0))
-    assert timer.interval == timedelta(seconds=5.0)
-    assert isinstance(timer.missed_tick_policy, TriggerAllMissed)
-    assert timer.loop is asyncio.get_running_loop()
-    assert timer.is_running is True
-
-
-async def test_timer_construction_periodic_custom_args() -> None:
-    """Test the construction of a timeout timer with custom arguments."""
-    timer = Timer.periodic(
-        timedelta(seconds=5.0),
-        skip_missed_ticks=True,
-        auto_start=True,
-        start_delay=timedelta(seconds=1.0),
-        loop=None,
-    )
-    assert timer.interval == timedelta(seconds=5.0)
-    assert isinstance(timer.missed_tick_policy, SkipMissedAndResync)
-    assert timer.loop is asyncio.get_running_loop()
-    assert timer.is_running is True
-
-
 async def test_timer_construction_wrong_args() -> None:
-    """Test the construction of a timeout timer with wrong arguments."""
+    """Test the construction of a timer with wrong arguments."""
     with pytest.raises(
         ValueError,
         match="^The `interval` must be positive and at least 1 microsecond, not -1 day, 23:59:55$",
     ):
-        _ = Timer.periodic(
+        _ = Timer(
             timedelta(seconds=-5.0),
-            skip_missed_ticks=True,
+            SkipMissedAndResync(),
             auto_start=True,
             loop=None,
         )
@@ -321,9 +283,9 @@ async def test_timer_construction_wrong_args() -> None:
         ValueError,
         match="^`start_delay` can't be negative, got -1 day, 23:59:59$",
     ):
-        _ = Timer.periodic(
+        _ = Timer(
             timedelta(seconds=5.0),
-            skip_missed_ticks=True,
+            SkipMissedAndResync(),
             auto_start=True,
             start_delay=timedelta(seconds=-1.0),
             loop=None,
@@ -333,9 +295,9 @@ async def test_timer_construction_wrong_args() -> None:
         ValueError,
         match="^`auto_start` must be `True` if a `start_delay` is specified$",
     ):
-        _ = Timer.periodic(
+        _ = Timer(
             timedelta(seconds=5.0),
-            skip_missed_ticks=True,
+            SkipMissedAndResync(),
             auto_start=False,
             start_delay=timedelta(seconds=1.0),
             loop=None,
