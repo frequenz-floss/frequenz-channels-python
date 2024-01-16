@@ -5,6 +5,13 @@
 
 # Quick Start
 
+Info: Important
+    This quick start is provided to have a quick feeling of how to use this module, but
+    it is extremely important to understand how timers behave when they are delayed.
+
+    We recommend emphatically to read about [missed ticks and
+    drifting](#missed-ticks-and-drifting) before using timers in production.
+
 If you need to do something as periodically as possible (avoiding
 [drifts](#missed-ticks-and-drifting)), you can use
 a [`Timer`][frequenz.channels.timer.Timer] like this:
@@ -66,11 +73,6 @@ Example: Timeout Example
     trigger again after the selected interval, no matter what the current drift was. So
     if the loop was busy for a few seconds, the timer will trigger immediately and then
     wait for another second before triggering again. The missed ticks are skipped.
-
-Tip:
-    It is extremely important to understand how timers behave when they are
-    delayed, we recommend emphatically to read about [missed ticks and
-    drifting](#missed-ticks-and-drifting) before using timers in production.
 
 # Missed Ticks And Drifting
 
