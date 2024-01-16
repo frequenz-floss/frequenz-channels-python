@@ -6,8 +6,8 @@
 # Quick Start
 
 If you need to do something as periodically as possible (avoiding
-[drifts](#missed-ticks-and-drifting)), you can use use
-a [`periodic()`][frequenz.channels.timer.Timer.periodic] timer.
+[drifts](#missed-ticks-and-drifting)), you can use
+a [`Timer`][frequenz.channels.timer.Timer] like this:
 
 Example: Periodic Timer
     ```python
@@ -18,7 +18,7 @@ Example: Periodic Timer
 
 
     async def main() -> None:
-        async for drift in Timer.periodic(timedelta(seconds=1.0)):
+        async for drift in Timer(timedelta(seconds=1.0), TriggerAllMissed()):
             print(f"The timer has triggered at {datetime.now()} with a drift of {drift}")
 
 
@@ -26,8 +26,8 @@ Example: Periodic Timer
     ```
 
 If, instead, you need a timeout, for example to abort waiting for other receivers after
-a certain amount of time, you can use
-a [`timeout()`][frequenz.channels.timer.Timer.timeout] timer.
+a certain amount of time, you can use a [`Timer`][frequenz.channels.timer.Timer] like
+this:
 
 Example: Timeout
     ```python
@@ -42,7 +42,7 @@ Example: Timeout
         channel = Anycast[int](name="data-channel")
         data_receiver = channel.new_receiver()
 
-        timer = Timer.timeout(timedelta(seconds=1.0))
+        timer = Timer(timedelta(seconds=1.0), SkipMissedAndDrift())
 
         async for selected in select(data_receiver, timer):
             if selected_from(selected, data_receiver):
@@ -472,14 +472,6 @@ class Timer(Receiver[timedelta]):
     [`missed_tick_policy`][frequenz.channels.timer.Timer.missed_tick_policy]. Missing
     ticks might or might not trigger a message and the drift could be accumulated or not
     depending on the chosen policy.
-
-    For the most common cases, a specialized constructor is provided:
-
-    * [`periodic()`][frequenz.channels.timer.Timer.periodic]:
-        {{docstring_summary("frequenz.channels.timer.Timer.periodic")}}
-
-    * [`timeout()`][frequenz.channels.timer.Timer.timeout]:
-        {{docstring_summary("frequenz.channels.timer.Timer.timeout")}}
     """
 
     def __init__(  # pylint: disable=too-many-arguments

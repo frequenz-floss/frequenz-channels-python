@@ -55,47 +55,6 @@
         show_root_toc_entry: false
         show_source: false
 
-### Periodic Timers
-
-::: frequenz.channels.timer.Timer.periodic
-    options:
-        inherited_members: []
-        members: []
-        show_bases: false
-        show_root_heading: false
-        show_root_toc_entry: false
-        show_source: false
-        show_docstring_attributes: false
-        show_docstring_functions: false
-        show_docstring_classes: false
-        show_docstring_other_parameters: false
-        show_docstring_parameters: false
-        show_docstring_raises: false
-        show_docstring_receives: false
-        show_docstring_returns: false
-        show_docstring_warns: false
-        show_docstring_yields: false
-
-### Timeouts
-
-::: frequenz.channels.timer.Timer.timeout
-    options:
-        inherited_members: []
-        members: []
-        show_bases: false
-        show_root_heading: false
-        show_root_toc_entry: false
-        show_source: false
-        show_docstring_attributes: false
-        show_docstring_functions: false
-        show_docstring_classes: false
-        show_docstring_other_parameters: false
-        show_docstring_parameters: false
-        show_docstring_raises: false
-        show_docstring_receives: false
-        show_docstring_returns: false
-        show_docstring_warns: false
-        show_docstring_yields: false
 
 ## Low-level Interface
 
