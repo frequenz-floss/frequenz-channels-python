@@ -9,7 +9,7 @@ If you need to do something as periodically as possible (avoiding
 [drifts](#missed-ticks-and-drifting)), you can use
 a [`Timer`][frequenz.channels.timer.Timer] like this:
 
-Example: Periodic Timer
+Example: Periodic Timer Example
     ```python
     import asyncio
     from datetime import datetime, timedelta
@@ -25,11 +25,16 @@ Example: Periodic Timer
     asyncio.run(main())
     ```
 
+    This timer will tick as close as every second as possible, even if the loop is busy
+    doing something else for a good amount of time. In extreme cases, if the loop was
+    busy for a few seconds, the timer will trigger a few times in a row to catch up, one
+    for every missed tick.
+
 If, instead, you need a timeout, for example to abort waiting for other receivers after
 a certain amount of time, you can use a [`Timer`][frequenz.channels.timer.Timer] like
 this:
 
-Example: Timeout
+Example: Timeout Example
     ```python
     import asyncio
     from datetime import timedelta
@@ -57,8 +62,10 @@ Example: Timeout
     asyncio.run(main())
     ```
 
-    This timer will *rearm* itself automatically after it was triggered, so it will trigger
-    again after the selected interval, no matter what the current drift was.
+    This timer will *rearm* itself automatically after it was triggered, so it will
+    trigger again after the selected interval, no matter what the current drift was. So
+    if the loop was busy for a few seconds, the timer will trigger immediately and then
+    wait for another second before triggering again. The missed ticks are skipped.
 
 Tip:
     It is extremely important to understand how timers behave when they are
@@ -486,7 +493,7 @@ class Timer(Receiver[timedelta]):
     ) -> None:
         """Create an instance.
 
-        See the class documentation for details.
+        See the [class documentation][frequenz.channels.timer.Timer] for details.
 
         Args:
             interval: The time between timer ticks. Must be at least

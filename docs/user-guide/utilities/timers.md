@@ -44,7 +44,7 @@
         show_root_toc_entry: false
         show_source: false
 
-## High-level Interface
+## Timer
 
 ::: frequenz.channels.timer.Timer
     options:
@@ -55,15 +55,7 @@
         show_root_toc_entry: false
         show_source: false
 
-
-## Low-level Interface
-
-A [`Timer`][frequenz.channels.timer.Timer] can be created using an arbitrary missed
-ticks policy by calling the [low-level
-constructor][frequenz.channels.timer.Timer.__init__] and passing the policy via the
-[`missed_tick_policy`][frequenz.channels.timer.Timer.missed_tick_policy] argument.
-
-### Custom Missed Tick Policies
+## Custom Missed Tick Policies
 
 ::: frequenz.channels.timer.MissedTickPolicy
     options:
