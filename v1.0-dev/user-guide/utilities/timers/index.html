@@ -1024,59 +1024,20 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#high-level-interface" class="md-nav__link">
+  <a href="#timer" class="md-nav__link">
     <span class="md-ellipsis">
-      High-level Interface
+      Timer
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="High-level Interface">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#periodic-timers" class="md-nav__link">
-    <span class="md-ellipsis">
-      Periodic Timers
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#timeouts" class="md-nav__link">
-    <span class="md-ellipsis">
-      Timeouts
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#low-level-interface" class="md-nav__link">
-    <span class="md-ellipsis">
-      Low-level Interface
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Low-level Interface">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#custom-missed-tick-policies" class="md-nav__link">
     <span class="md-ellipsis">
       Custom Missed Tick Policies
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1453,59 +1414,20 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#high-level-interface" class="md-nav__link">
+  <a href="#timer" class="md-nav__link">
     <span class="md-ellipsis">
-      High-level Interface
+      Timer
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="High-level Interface">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#periodic-timers" class="md-nav__link">
-    <span class="md-ellipsis">
-      Periodic Timers
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#timeouts" class="md-nav__link">
-    <span class="md-ellipsis">
-      Timeouts
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#low-level-interface" class="md-nav__link">
-    <span class="md-ellipsis">
-      Low-level Interface
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Low-level Interface">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#custom-missed-tick-policies" class="md-nav__link">
     <span class="md-ellipsis">
       Custom Missed Tick Policies
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1539,12 +1461,19 @@
   
       <p>A receiver that sends a message regularly.</p>
 <h2 id="frequenz.channels.timer--quick-start">Quick Start<a class="headerlink" href="#frequenz.channels.timer--quick-start" title="Permanent link">¤</a></h2>
-<p>If you need to do something as periodically as possible (avoiding
-<a href="#frequenz.channels.timer--missed-ticks-and-drifting">drifts</a>), you can use use
-a <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.periodic"><code>periodic()</code></a> timer.</p>
+
+<details class="info" open>
+  <summary>Important</summary>
+  <p>This quick start is provided to have a quick feeling of how to use this module, but
+it is extremely important to understand how timers behave when they are delayed.</p>
+<p>We recommend emphatically to read about <a href="#frequenz.channels.timer--missed-ticks-and-drifting">missed ticks and
+drifting</a> before using timers in production.</p>
+</details>      <p>If you need to do something as periodically as possible (avoiding
+<a href="#frequenz.channels.timer--missed-ticks-and-drifting">drifts</a>), you can use
+a <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> like this:</p>
 
 <details class="example" open>
-  <summary>Periodic Timer</summary>
+  <summary>Periodic Timer Example</summary>
   <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span> <span class="nn">asyncio</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -1552,18 +1481,22 @@ a <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channe
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="k">async</span> <span class="k">for</span> <span class="n">drift</span> <span class="ow">in</span> <span class="n">Timer</span><span class="o">.</span><span class="n">periodic</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)):</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="k">async</span> <span class="k">for</span> <span class="n">drift</span> <span class="ow">in</span> <span class="n">Timer</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">TriggerAllMissed</span><span class="p">()):</span>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The timer has triggered at </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="si">}</span><span class="s2"> with a drift of </span><span class="si">{</span><span class="n">drift</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </span></code></pre></div>
+<p>This timer will tick as close as every second as possible, even if the loop is busy
+doing something else for a good amount of time. In extreme cases, if the loop was
+busy for a few seconds, the timer will trigger a few times in a row to catch up, one
+for every missed tick.</p>
 </details>      <p>If, instead, you need a timeout, for example to abort waiting for other receivers after
-a certain amount of time, you can use
-a <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.timeout"><code>timeout()</code></a> timer.</p>
+a certain amount of time, you can use a <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> like
+this:</p>
 
 <details class="example" open>
-  <summary>Timeout</summary>
+  <summary>Timeout Example</summary>
   <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span> <span class="nn">asyncio</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
@@ -1575,7 +1508,7 @@ a <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channe
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">channel</span> <span class="o">=</span> <span class="n">Anycast</span><span class="p">[</span><span class="nb">int</span><span class="p">](</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;data-channel&quot;</span><span class="p">)</span>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">data_receiver</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">()</span>
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">))</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">SkipMissedAndDrift</span><span class="p">())</span>
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="k">async</span> <span class="k">for</span> <span class="n">selected</span> <span class="ow">in</span> <span class="n">select</span><span class="p">(</span><span class="n">data_receiver</span><span class="p">,</span> <span class="n">timer</span><span class="p">):</span>
 </span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        <span class="k">if</span> <span class="n">selected_from</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="n">data_receiver</span><span class="p">):</span>
@@ -1589,14 +1522,10 @@ a <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channe
 </span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>
 </span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </span></code></pre></div>
-<p>This timer will <em>rearm</em> itself automatically after it was triggered, so it will trigger
-again after the selected interval, no matter what the current drift was.</p>
-</details>
-<details class="tip" open>
-  <summary>Tip</summary>
-  <p>It is extremely important to understand how timers behave when they are
-delayed, we recommned emphatically to read about <a href="#frequenz.channels.timer--missed-ticks-and-drifting">missed ticks and
-drifting</a> before using timers in production.</p>
+<p>This timer will <em>rearm</em> itself automatically after it was triggered, so it will
+trigger again after the selected interval, no matter what the current drift was. So
+if the loop was busy for a few seconds, the timer will trigger immediately and then
+wait for another second before triggering again. The missed ticks are skipped.</p>
 </details>      <h2 id="frequenz.channels.timer--missed-ticks-and-drifting">Missed Ticks And Drifting<a class="headerlink" href="#frequenz.channels.timer--missed-ticks-and-drifting" title="Permanent link">¤</a></h2>
 <p>A <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> can be used to send a messages at regular
 time intervals, but there is one fundamental issue with timers in the <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio">asyncio</a> world:
@@ -1857,7 +1786,7 @@ time.</p>
   </div>
 
 
-</div><h2 id="high-level-interface">High-level Interface<a class="headerlink" href="#high-level-interface" title="Permanent link">¤</a></h2>
+</div><h2 id="timer">Timer<a class="headerlink" href="#timer" title="Permanent link">¤</a></h2>
 
 
 <div class="doc doc-object doc-class">
@@ -1907,17 +1836,6 @@ which can lead to issues that are very hard to reproduce and debug.</p>
 <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.missed_tick_policy"><code>missed_tick_policy</code></a>. Missing
 ticks might or might not trigger a message and the drift could be accumulated or not
 depending on the chosen policy.</p>
-<p>For the most common cases, a specialized constructor is provided:</p>
-<ul>
-<li>
-<p><a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.periodic"><code>periodic()</code></a>:
-    Create a periodic timer.</p>
-</li>
-<li>
-<p><a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.timeout"><code>timeout()</code></a>:
-    Create a timer useful for tracking timeouts.</p>
-</li>
-</ul>
 
 
   
@@ -1939,116 +1857,7 @@ depending on the chosen policy.</p>
   </div>
 
 
-</div><h3 id="periodic-timers">Periodic Timers<a class="headerlink" href="#periodic-timers" title="Permanent link">¤</a></h3>
-
-
-
-<div class="doc doc-object doc-function">
-
-
-
-
-
-  <div class="doc doc-contents first">
-  
-      <p>Create a periodic timer.</p>
-<p>A <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.periodic">periodic timer</a> is
-a <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> that tries as hard as possible to
-trigger at regular intervals. This means that if the timer is delayed for any
-reason, it will trigger immediately and then try to catch up with the original
-schedule.</p>
-<p>Optionally, a periodic timer can be configured to skip missed ticks and re-sync
-with the original schedule (<code>skip_missed_ticks</code> argument). This could be useful
-if you want the timer is as periodic as possible but if there are big delays you
-don't end up with big bursts.</p>
-
-<details class="tip" open>
-  <summary>Tip</summary>
-  <p>Periodic timers are a shortcut to create
-a <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> with either the
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.TriggerAllMissed"><code>TriggerAllMissed</code></a> policy (when
-<code>skip_missed_ticks</code> is <code>False</code>) or
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.SkipMissedAndResync"><code>SkipMissedAndResync</code></a>
-otherwise.</p>
-</details>
-<details class="example" open>
-  <summary>Example</summary>
-  <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span> <span class="nn">asyncio</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kn">from</span> <span class="nn">frequenz.channels.timer</span> <span class="kn">import</span> <span class="n">Timer</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="k">async</span> <span class="k">for</span> <span class="n">drift</span> <span class="ow">in</span> <span class="n">Timer</span><span class="o">.</span><span class="n">periodic</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)):</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The timer has triggered at </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="si">}</span><span class="s2"> with a drift of </span><span class="si">{</span><span class="n">drift</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
-</span></code></pre></div>
-</details>
-  </div>
-
-</div><h3 id="timeouts">Timeouts<a class="headerlink" href="#timeouts" title="Permanent link">¤</a></h3>
-
-
-
-<div class="doc doc-object doc-function">
-
-
-
-
-
-  <div class="doc doc-contents first">
-  
-      <p>Create a timer useful for tracking timeouts.</p>
-<p>A <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.timeout">timeout</a> is
-a <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> that
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.reset">resets</a> automatically after it triggers,
-so it will trigger again after the selected interval, no matter what the current
-drift was. This means timeout timers will accumulate drift.</p>
-
-<details class="tip" open>
-  <summary>Tip</summary>
-  <p>Timeouts are a shortcut to create
-a <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> with the
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.SkipMissedAndDrift"><code>SkipMissedAndDrift</code></a> policy.</p>
-</details>
-<details class="example" open>
-  <summary>Timeout example</summary>
-  <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span> <span class="nn">asyncio</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kn">from</span> <span class="nn">frequenz.channels</span> <span class="kn">import</span> <span class="n">Anycast</span><span class="p">,</span> <span class="n">select</span><span class="p">,</span> <span class="n">selected_from</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kn">from</span> <span class="nn">frequenz.channels.timer</span> <span class="kn">import</span> <span class="n">Timer</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">channel</span> <span class="o">=</span> <span class="n">Anycast</span><span class="p">[</span><span class="nb">int</span><span class="p">](</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;data-channel&quot;</span><span class="p">)</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">data_receiver</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">()</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="o">.</span><span class="n">timeout</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">))</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="k">async</span> <span class="k">for</span> <span class="n">selected</span> <span class="ow">in</span> <span class="n">select</span><span class="p">(</span><span class="n">data_receiver</span><span class="p">,</span> <span class="n">timer</span><span class="p">):</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        <span class="k">if</span> <span class="n">selected_from</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="n">data_receiver</span><span class="p">):</span>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received data: </span><span class="si">{</span><span class="n">selected</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>        <span class="k">elif</span> <span class="n">selected_from</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="n">timer</span><span class="p">):</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>            <span class="n">drift</span> <span class="o">=</span> <span class="n">selected</span><span class="o">.</span><span class="n">value</span>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No data received for </span><span class="si">{</span><span class="n">timer</span><span class="o">.</span><span class="n">interval</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">drift</span><span class="si">}</span><span class="s2"> seconds, giving up&quot;</span><span class="p">)</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>            <span class="k">break</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
-</span></code></pre></div>
-</details>
-  </div>
-
-</div><h2 id="low-level-interface">Low-level Interface<a class="headerlink" href="#low-level-interface" title="Permanent link">¤</a></h2>
-<p>A <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> can be created using an arbitrary missed
-ticks policy by calling the <span data-autorefs-identifier="frequenz.channels.timer.Timer.__init__">low-level
-constructor</span> and passing the policy via the
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.missed_tick_policy"><code>missed_tick_policy</code></a> argument.</p>
-<h3 id="custom-missed-tick-policies">Custom Missed Tick Policies<a class="headerlink" href="#custom-missed-tick-policies" title="Permanent link">¤</a></h3>
+</div><h2 id="custom-missed-tick-policies">Custom Missed Tick Policies<a class="headerlink" href="#custom-missed-tick-policies" title="Permanent link">¤</a></h2>
 
 
 <div class="doc doc-object doc-class">
