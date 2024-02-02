@@ -228,6 +228,12 @@ class Receiver(ABC, Generic[_T_co]):
     def map(self, call: Callable[[_T_co], _U_co]) -> Receiver[_U_co]:
         """Return a receiver with `call` applied on incoming messages.
 
+        Tip:
+            The returned receiver type won't have all the methods of the original
+            receiver. If you need to access methods of the original receiver that are
+            not part of the `Receiver` interface you should save a reference to the
+            original receiver and use that instead.
+
         Args:
             call: function to apply on incoming messages.
 
