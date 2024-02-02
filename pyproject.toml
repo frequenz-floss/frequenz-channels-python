@@ -43,10 +43,10 @@ dev-flake8 = [
   "pydoclint == 0.3.8",
   "pydocstyle == 6.3.0",
 ]
-dev-formatting = ["black == 23.12.1", "isort == 5.13.2"]
+dev-formatting = ["black == 24.1.1", "isort == 5.13.2"]
 dev-mkdocs = [
   "Markdown == 3.5.1",
-  "black == 23.12.1",
+  "black == 24.1.1",
   "frequenz-repo-config[lib] == 0.8.0",
   "markdown-svgbob == 202112.1022",
   "mike == 2.0.0",
