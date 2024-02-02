@@ -7,39 +7,51 @@
 # https://github.com/marketplace/actions/labeler
 
 "part:docs":
-  - "**/*.md"
-  - "docs/**"
-  - "examples/**"
-  - LICENSE
+  - changed-files:
+    - any-glob-to-any-file:
+      - "**/*.md"
+      - "docs/**"
+      - "examples/**"
+      - LICENSE
 
 "part:tests":
-  - "**/conftest.py"
-  - "tests/**"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "**/conftest.py"
+      - "tests/**"
 
 "part:tooling":
-  - "**/*.ini"
-  - "**/*.toml"
-  - "**/*.yaml"
-  - "**/*.yml"
-  - "**/conftest.py"
-  - ".editorconfig"
-  - ".git*"
-  - ".git*/**"
-  - "docs/*.py"
-  - CODEOWNERS
-  - MANIFEST.in
-  - noxfile.py
+  - changed-files:
+    - any-glob-to-any-file:
+      - "**/*.ini"
+      - "**/*.toml"
+      - "**/*.yaml"
+      - "**/*.yml"
+      - "**/conftest.py"
+      - ".editorconfig"
+      - ".git*"
+      - ".git*/**"
+      - "docs/*.py"
+      - CODEOWNERS
+      - MANIFEST.in
+      - noxfile.py
 
 "part:channels":
-  - "src/frequenz/channels/_anycast.py"
-  - "src/frequenz/channels/_broadcast.py"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "src/frequenz/channels/_anycast.py"
+      - "src/frequenz/channels/_broadcast.py"
 
 "part:receivers":
-  - "src/frequenz/channels/_merge.py"
-  - "src/frequenz/channels/_merge_named.py"
-  - "src/frequenz/channels/event.py"
-  - "src/frequenz/channels/file_watcher.py"
-  - "src/frequenz/channels/timer.py"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "src/frequenz/channels/_merge.py"
+      - "src/frequenz/channels/_merge_named.py"
+      - "src/frequenz/channels/event.py"
+      - "src/frequenz/channels/file_watcher.py"
+      - "src/frequenz/channels/timer.py"
 
 "part:select":
-  - "src/frequenz/channels/_select.py"
+  - changed-files:
+    - any-glob-to-any-file:
+      - "src/frequenz/channels/_select.py"
