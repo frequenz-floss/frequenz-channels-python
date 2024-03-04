@@ -5,7 +5,7 @@
 requires = [
   "setuptools == 68.1.0",
   "setuptools_scm[toml] == 7.1.0",
-  "frequenz-repo-config[lib] == 0.8.0",
+  "frequenz-repo-config[lib] == 0.9.1",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -40,22 +40,22 @@ dev-flake8 = [
   "flake8 == 7.0.0",
   "flake8-docstrings == 1.7.0",
   "flake8-pyproject == 1.2.3",  # For reading the flake8 config from pyproject.toml
-  "pydoclint == 0.3.9",
+  "pydoclint == 0.4.1",
   "pydocstyle == 6.3.0",
 ]
-dev-formatting = ["black == 24.1.1", "isort == 5.13.2"]
+dev-formatting = ["black == 24.2.0", "isort == 5.13.2"]
 dev-mkdocs = [
   "Markdown == 3.5.2",
-  "black == 24.1.1",
-  "frequenz-repo-config[lib] == 0.8.0",
+  "black == 24.2.0",
+  "frequenz-repo-config[lib] == 0.9.1",
   "markdown-svgbob == 202112.1022",
   "mike == 2.0.0",
   "mkdocs-gen-files == 0.5.0",
   "mkdocs-include-markdown-plugin == 6.0.4",
   "mkdocs-literate-nav == 0.6.1",
   "mkdocs-macros-plugin == 1.0.5",
-  "mkdocs-material == 9.5.6",
-  "mkdocstrings[python] == 0.24.0",
+  "mkdocs-material == 9.5.12",
+  "mkdocstrings[python] == 0.24.1",
   "pymdownx-superfence-filter-lines == 0.1.0",
 ]
 dev-mypy = [
@@ -64,18 +64,18 @@ dev-mypy = [
   "mypy == 1.8.0",
   "types-Markdown == 3.5.0.20240129",
 ]
-dev-noxfile = ["nox == 2023.4.22", "frequenz-repo-config[lib] == 0.8.0"]
+dev-noxfile = ["nox == 2023.4.22", "frequenz-repo-config[lib] == 0.9.1"]
 dev-pylint = [
   # For checking the noxfile, docs/ script, and tests
   "frequenz-channels[dev-mkdocs,dev-noxfile,dev-pytest]",
-  "pylint == 3.0.3",
+  "pylint == 3.1.0",
 ]
 dev-pytest = [
   "async-solipsism == 0.5",
-  "frequenz-repo-config[extra-lint-examples] == 0.8.0",
-  "hypothesis == 6.97.4",
+  "frequenz-repo-config[extra-lint-examples] == 0.9.1",
+  "hypothesis == 6.98.17",
   "pytest == 7.4.4",
-  "pytest-asyncio == 0.23.4",
+  "pytest-asyncio == 0.23.5",
   "pytest-mock == 3.12.0",
 ]
 dev = [
@@ -132,6 +132,8 @@ disable = [
   # it is a type-check, for which we already have mypy.
   "unsubscriptable-object",
   # Checked by flake8
+  "redefined-outer-name",
+  "unused-import",
   "line-too-long",
   "unused-variable",
   "unnecessary-lambda-assignment",
