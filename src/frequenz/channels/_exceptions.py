@@ -19,7 +19,7 @@ When a exception is caused by another exception, for example if the underlying c
 was closed while seding or receiving a message, the original exception will be
 available as the cause of the exception:
 
-```python
+```python show_lines="6:"
 from frequenz.channels import Anycast, ChannelClosedError, SenderError
 
 channel = Anycast[int](name="test-channel")
@@ -44,7 +44,7 @@ Tip:
     explicitly calling [`receive()`][frequenz.channels.Receiver.receive] on the
     receiver after the iteration is done:
 
-    ```python
+    ```python show_lines="6:"
     from frequenz.channels import Anycast, ChannelClosedError, ReceiverStoppedError
 
     channel = Anycast[int](name="test-channel")

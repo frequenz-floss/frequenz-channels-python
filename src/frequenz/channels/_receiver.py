@@ -11,7 +11,7 @@ are usually created by calling `channel.new_receiver()` and are [async
 iterators][typing.AsyncIterator], so the easiest way to receive values from them as
 a stream is to use `async for`:
 
-```python
+```python show_lines="6:"
 from frequenz.channels import Anycast
 
 channel = Anycast[int](name="test-channel")
@@ -24,7 +24,7 @@ async for value in receiver:
 If you need to receive values in different places or expecting a particular
 sequence, you can use the [`receive()`][frequenz.channels.Receiver.receive] method:
 
-```python
+```python show_lines="6:"
 from frequenz.channels import Anycast
 
 channel = Anycast[int](name="test-channel")
@@ -42,7 +42,7 @@ print(f"Second value: {second_value}")
 If you need to transform the received values, receivers provide a
 [`map()`][frequenz.channels.Receiver.map] method to easily do so:
 
-```python
+```python show_lines="6:"
 from frequenz.channels import Anycast
 
 channel = Anycast[int](name="test-channel")
@@ -71,7 +71,7 @@ If the receiver has completely stopped (for example the underlying channel was
 closed), a [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError] exception
 is raised by [`receive()`][frequenz.channels.Receiver.receive] method.
 
-```python
+```python show_lines="6:"
 from frequenz.channels import Anycast
 
 channel = Anycast[int](name="test-channel")
@@ -88,7 +88,7 @@ except ReceiverError as error:
 When used as an async iterator, the iteration will just stop without raising an
 exception:
 
-```python
+```python show_lines="6:"
 from frequenz.channels import Anycast
 
 channel = Anycast[int](name="test-channel")
