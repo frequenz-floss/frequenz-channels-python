@@ -10,7 +10,7 @@ Messages are sent to a [channel](/user-guide/channels) through
 usually created by calling `channel.new_sender()`, and are a very simple abstraction
 that only provides a single [`send()`][frequenz.channels.Sender.send] method:
 
-```python
+```python show_lines="6:"
 from frequenz.channels import Anycast
 
 channel = Anycast[int](name="test-channel")
@@ -36,7 +36,7 @@ effectively making the [`send()`][frequenz.channels.Sender.send] method blocking
 If there is any failure sending a message,
 a [SenderError][frequenz.channels.SenderError] exception is raised.
 
-```python
+```python show_lines="6:"
 from frequenz.channels import Anycast
 
 channel = Anycast[int](name="test-channel")

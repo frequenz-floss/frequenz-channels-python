@@ -9,7 +9,7 @@ If you just need to receive the same type of messages but from multiple sources 
 stream, you can use [`merge()`][frequenz.channels.merge] to create a new receiver that
 will receive messages from all the given receivers:
 
-```python
+```python show_lines="8:"
 from frequenz.channels import Anycast, Receiver, merge
 
 channel1: Anycast[int] = Anycast(name="channel1")

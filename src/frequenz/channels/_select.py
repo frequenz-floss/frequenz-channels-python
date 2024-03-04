@@ -18,7 +18,7 @@ correct type, you need to use the [`selected_from()`][frequenz.channels.selected
 function to check the source of the message, and the
 [`value`][frequenz.channels.Selected.value] attribute to access the message:
 
-```python
+```python show_lines="8:"
 from frequenz.channels import Anycast, ReceiverStoppedError, select, selected_from
 
 channel1: Anycast[int] = Anycast(name="channel1")
@@ -51,7 +51,7 @@ Tip:
     If for some reason you want to ignore a received value, just add the receiver to
     the if-chain and do nothing with the value:
 
-    ```python
+    ```python show_lines="8:"
     from frequenz.channels import Anycast, select, selected_from
 
     channel1: Anycast[int] = Anycast(name="channel1")
@@ -76,7 +76,7 @@ via the [`Selected`][frequenz.channels.Selected] object. You can use the
 [`was_stopped()`][frequenz.channels.Selected.was_stopped] method to check if the
 selected [receiver][frequenz.channels.Receiver] was stopped:
 
-```python
+```python show_lines="8:"
 from frequenz.channels import Anycast, select, selected_from
 
 channel1: Anycast[int] = Anycast(name="channel1")
@@ -111,7 +111,7 @@ raised by the [`value`][frequenz.channels.Selected.value] attribute of the
 
 You can use a try-except block to handle exceptions as usual:
 
-```python
+```python show_lines="8:"
 from frequenz.channels import Anycast, ReceiverStoppedError, select, selected_from
 
 channel1: Anycast[int] = Anycast(name="channel1")
