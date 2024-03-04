@@ -28,16 +28,15 @@ channels](https://tour.golang.org/concurrency/2) but it also borrows ideas from
 
 <!-- supported-platforms -->
 
-!!! Note inline end
-
-    Newer Python versions and other operating systems and architectures might
-    work too, but they are not automatically tested, so we cannot guarantee it.
-
 The following platforms are officially supported (tested):
 
 - **Python:** 3.11
 - **Operating System:** Ubuntu Linux 20.04
 - **Architectures:** amd64, arm64
+
+> [!NOTE]
+> Newer Python versions and other operating systems and architectures might
+> work too, but they are not automatically tested, so we cannot guarantee it.
 
 <!-- /supported-platforms -->
 
@@ -47,16 +46,15 @@ The following platforms are officially supported (tested):
 
 <!-- quick-start-installing -->
 
-!!! Tip inline end
-
-    For more details please read the [Installation
-    Guide](docs/user-guide/installation.md).
-
 Assuming a [supported](#supported-platforms) working Python environment:
 
 ```sh
 python3 -m pip install frequenz-channels
 ```
+
+> [!TIP]
+> For more details please read the [Installation
+> Guide](docs/user-guide/installation.md).
 
 <!-- /quick-start-installing -->
 
