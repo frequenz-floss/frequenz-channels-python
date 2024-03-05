@@ -191,7 +191,7 @@ class Receiver(ABC, Generic[_T_co]):
         """
 
     def __aiter__(self) -> Self:
-        """Initialize the async iterator over received values.
+        """Get an async iterator over the received values.
 
         Returns:
             This receiver, as it is already an async iterator.
