@@ -44,6 +44,19 @@
 
   - Support classes are no longer nested inside `FileWatcher`. They are now top-level classes within the new `frequenz.channels.file_watcher` module (e.g., `frequenz.channels.util.FileWatcher.EventType` -> `frequenz.channels.file_watcher.EventType`, `frequenz.channels.util.FileWatcher.Event` -> `frequenz.channels.file_watcher.Event`).
 
+* `Receiver`
+
+  - The `map()` function now takes a positional-only argument, if you were using `receiver.map(call=fun)` you should replace it with `receiver.map(func)`.
+
+* `Selected`
+
+  - The `value` property was renamed to `message`.
+  - `was_stopped` is now a property, you need to replace `selected.was_stopped()` with `selected.was_stopped`.
+
+* `Sender`
+
+  - The `send` method now takes a positional-only argument, if you were using `sender.send(msg=message)` you should replace it with `sender.send(message)`.
+
 * `Timer` and support classes
 
   - Moved from `frequenz.channels.util` to `frequenz.channels.timer`.
