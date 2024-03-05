@@ -42,16 +42,22 @@
       - "src/frequenz/channels/_anycast.py"
       - "src/frequenz/channels/_broadcast.py"
 
-"part:receivers":
+"part:core":
+  - changed-files:
+    - any-glob-to-any-file:
+      - "src/frequenz/channels/_exceptions.py"
+      - "src/frequenz/channels/_receiver.py"
+      - "src/frequenz/channels/_sender.py"
+
+"part:synchronization":
   - changed-files:
     - any-glob-to-any-file:
       - "src/frequenz/channels/_merge.py"
-      - "src/frequenz/channels/_merge_named.py"
+      - "src/frequenz/channels/_select.py"
+
+"part:utilities":
+  - changed-files:
+    - any-glob-to-any-file:
       - "src/frequenz/channels/event.py"
       - "src/frequenz/channels/file_watcher.py"
       - "src/frequenz/channels/timer.py"
-
-"part:select":
-  - changed-files:
-    - any-glob-to-any-file:
-      - "src/frequenz/channels/_select.py"

@@ -1,8 +1,9 @@
-# Multiple Sources
+# Synchronization of Multiple Sources
 
-If you need to receive values from multiple sources it can be complicated, as
-you probably want to get the first message of each receiver as soon as it is
-available. A naive approach like this will not work:
+If you need to receive messages from multiple sources in a synchronized way it
+could be difficult to, for example, receive the first message of each receiver
+as soon as it is available in one single task. A naive approach like this will
+not work:
 
 ```python
 receiver1: Receiver[int] = channel1.new_receiver()

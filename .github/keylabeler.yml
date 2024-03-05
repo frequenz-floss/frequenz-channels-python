@@ -13,9 +13,10 @@ caseSensitive: true
 # Explicit keyword mappings to labels. Form of match:label. Required.
 labelMappings:
   "part:channels": "part:channels"
+  "part:core": "part:core"
   "part:docs": "part:docs"
-  "part:receivers": "part:receivers"
-  "part:select": "part:select"
+  "part:synchronization": "part:synchronization"
   "part:tests": "part:tests"
   "part:tooling": "part:tooling"
+  "part:utilities": "part:utilities"
   "part:❓": "part:❓"
