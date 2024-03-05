@@ -32,8 +32,8 @@ Utilities to work with channels:
 * [merge][frequenz.channels.merge]: Merge messages coming from multiple receivers into
   a single stream.
 
-* [select][frequenz.channels.select]: Iterate over the values of all
-  [receivers][frequenz.channels.Receiver] as new values become available.
+* [select][frequenz.channels.select]: Iterate over the messages of all
+  [receivers][frequenz.channels.Receiver] as new messages become available.
 
 Exception classes:
 

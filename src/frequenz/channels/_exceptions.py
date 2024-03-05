@@ -50,8 +50,8 @@ Tip:
     channel = Anycast[int](name="test-channel")
     receiver = channel.new_receiver()
 
-    async for value in receiver:
-        print(value)
+    async for message in receiver:
+        print(message)
     try:
         await receiver.receive()
     except ReceiverStoppedError as error:

@@ -6,17 +6,17 @@
 # Usage
 
 If you need to receiver different types of messages from different receivers, you need
-to know the source of a particular received value to know the type of the value.
+to know the source of a particular received message to know the type of the message.
 
 [`select()`][frequenz.channels.select] allows you to do that. It is an
-[async iterator][typing.AsyncIterator] that will iterate over the values of all
-receivers as they receive new values.
+[async iterator][typing.AsyncIterator] that will iterate over the messages of all
+receivers as they receive new messages.
 
 It yields a [`Selected`][frequenz.channels.Selected] object that will tell you the
-source of the received message. To make sure the received value is *cast* to the
+source of the received message. To make sure the received message is *cast* to the
 correct type, you need to use the [`selected_from()`][frequenz.channels.selected_from]
 function to check the source of the message, and the
-[`value`][frequenz.channels.Selected.value] attribute to access the message:
+[`message`][frequenz.channels.Selected.message] attribute to access the message:
 
 ```python show_lines="8:"
 from frequenz.channels import Anycast, ReceiverStoppedError, select, selected_from
@@ -28,9 +28,9 @@ receiver2 = channel2.new_receiver()
 
 async for selected in select(receiver1, receiver2):
     if selected_from(selected, receiver1):
-        print(f"Received from receiver1, next number: {selected.value + 1}")
+        print(f"Received from receiver1, next number: {selected.message + 1}")
     elif selected_from(selected, receiver2):
-        print(f"Received from receiver2, length: {len(selected.value)}")
+        print(f"Received from receiver2, length: {len(selected.message)}")
     else:
         assert False, "Unknown source, this should never happen"
 ```
@@ -48,8 +48,8 @@ Tip:
     [`Exception`][Exception]. This means that it will not be caught by [`except
     Exception`][Exception] blocks.
 
-    If for some reason you want to ignore a received value, just add the receiver to
-    the if-chain and do nothing with the value:
+    If for some reason you want to ignore a received message, just add the receiver to
+    the if-chain and do nothing with the message:
 
     ```python show_lines="8:"
     from frequenz.channels import Anycast, select, selected_from
@@ -63,7 +63,7 @@ Tip:
         if selected_from(selected, receiver1):
             continue
         if selected_from(selected, receiver2):
-            print(f"Received from receiver2, length: {len(selected.value)}")
+            print(f"Received from receiver2, length: {len(selected.message)}")
     ```
 
 # Stopping
@@ -89,7 +89,7 @@ async for selected in select(receiver1, receiver2):
         if selected.was_stopped:
             print("receiver1 was stopped")
             continue
-        print(f"Received from receiver1, the next number is: {selected.value + 1}")
+        print(f"Received from receiver1, the next number is: {selected.message + 1}")
     # ...
 ```
 
@@ -105,8 +105,8 @@ Tip:
     For more information about handling errors, please refer to the
     [Error Handling](/user-guide/error-handling/) section of the user guide.
 
-If a receiver raises an exception while receiving a value, the exception will be
-raised by the [`value`][frequenz.channels.Selected.value] attribute of the
+If a receiver raises an exception while receiving a message, the exception will be
+raised by the [`message`][frequenz.channels.Selected.message] attribute of the
 [`Selected`][frequenz.channels.Selected] object.
 
 You can use a try-except block to handle exceptions as usual:
@@ -122,7 +122,7 @@ receiver2 = channel2.new_receiver()
 async for selected in select(receiver1, receiver2):
     if selected_from(selected, receiver1):
         try:
-            print(f"Received from receiver1, next number: {selected.value + 1}")
+            print(f"Received from receiver1, next number: {selected.message + 1}")
         except ReceiverStoppedError:
             print("receiver1 was stopped")
         except ValueError as value_error:
@@ -159,9 +159,9 @@ class _EmptyResult:
 class Selected(Generic[_T]):
     """A result of a [`select()`][frequenz.channels.select] iteration.
 
-    The selected receiver is consumed immediately and the received value is stored in
-    the instance, unless there was an exception while receiving the value, in which case
-    the exception is stored instead.
+    The selected receiver is consumed immediately and the received message is stored in
+    the instance, unless there was an exception while receiving the message, in which
+    case the exception is stored instead.
 
     `Selected` instances should be used in conjunction with the
     [`selected_from()`][frequenz.channels.selected_from] function to determine
@@ -174,10 +174,10 @@ class Selected(Generic[_T]):
         """Initialize this selected result.
 
         The receiver is consumed immediately when creating the instance and the received
-        value is stored in the instance for later use as
-        [`value`][frequenz.channels.Selected.value].  If there was an exception
-        while receiving the value, then the exception is stored in the instance instead
-        (as [`exception`][frequenz.channels.Selected.exception]).
+        message is stored in the instance for later use as
+        [`message`][frequenz.channels.Selected.message].  If there was an exception
+        while receiving the message, then the exception is stored in the instance
+        instead (as [`exception`][frequenz.channels.Selected.exception]).
 
         Args:
             receiver: The receiver that was selected.
@@ -185,16 +185,16 @@ class Selected(Generic[_T]):
         self._recv: Receiver[_T] = receiver
         """The receiver that was selected."""
 
-        self._value: _T | _EmptyResult = _EmptyResult()
-        """The value that was received.
+        self._message: _T | _EmptyResult = _EmptyResult()
+        """The message that was received.
 
-        If there was an exception while receiving the value, then this will be `None`.
+        If there was an exception while receiving the message, then this will be `None`.
         """
         self._exception: Exception | None = None
-        """The exception that was raised while receiving the value (if any)."""
+        """The exception that was raised while receiving the message (if any)."""
 
         try:
-            self._value = receiver.consume()
+            self._message = receiver.consume()
         except Exception as exc:  # pylint: disable=broad-except
             self._exception = exc
 
@@ -202,48 +202,48 @@ class Selected(Generic[_T]):
         """Flag to indicate if this selected has been handled in the if-chain."""
 
     @property
-    def value(self) -> _T:
-        """The value that was received, if any.
+    def message(self) -> _T:
+        """The message that was received, if any.
 
         Returns:
-            The value that was received.
+            The message that was received.
 
         Raises:
-            Exception: If there was an exception while receiving the value. Normally
+            Exception: If there was an exception while receiving the message. Normally
                 this should be an [`frequenz.channels.Error`][frequenz.channels.Error]
                 instance, but catches all exceptions in case some receivers can raise
                 anything else.
         """
         if self._exception is not None:
             raise self._exception
-        assert not isinstance(self._value, _EmptyResult)
-        return self._value
+        assert not isinstance(self._message, _EmptyResult)
+        return self._message
 
     @property
     def exception(self) -> Exception | None:
-        """The exception that was raised while receiving the value (if any).
+        """The exception that was raised while receiving the message (if any).
 
         Returns:
-            The exception that was raised while receiving the value (if any).
+            The exception that was raised while receiving the message (if any).
         """
         return self._exception
 
     @property
     def was_stopped(self) -> bool:
-        """Whether the selected receiver was stopped while receiving a value."""
+        """Whether the selected receiver was stopped while receiving a message."""
         return isinstance(self._exception, ReceiverStoppedError)
 
     def __str__(self) -> str:
         """Return a string representation of this selected receiver."""
         return (
             f"{type(self).__name__}({self._recv}) -> "
-            f"{self._exception or self._value})"
+            f"{self._exception or self._message})"
         )
 
     def __repr__(self) -> str:
         """Return a string with the internal representation of this instance."""
         return (
-            f"{type(self).__name__}({self._recv=}, {self._value=}, "
+            f"{type(self).__name__}({self._recv=}, {self._message=}, "
             f"{self._exception=}, {self._handled=})"
         )
 
@@ -326,9 +326,9 @@ class SelectErrorGroup(BaseExceptionGroup[BaseException], SelectError):
 #
 # async for selected in MySelector:
 #     if selected.receiver is receiver1:
-#         # Do something with selected.value
+#         # Do something with selected.message
 #     elif selected.receiver is receiver1:
-#         # Do something with selected.value
+#         # Do something with selected.message
 # ```
 #
 # This is similar to `Enum`, but `Enum` has special support in `mypy` that we can't
@@ -342,9 +342,9 @@ class SelectErrorGroup(BaseExceptionGroup[BaseException], SelectError):
 # in `mypy`).
 #
 # With this we would also probably be able to properly type `select` and *maybe* even be
-# able to leverage the exhaustiveness checking of `mypy` to make sure the selected value
-# is narrowed down to the correct type to make sure all receivers are handled, with the
-# help of `assert_never` as described in:
+# able to leverage the exhaustiveness checking of `mypy` to make sure the selected
+# message is narrowed down to the correct type to make sure all receivers are handled,
+# with the help of `assert_never` as described in:
 # https://docs.python.org/3.11/library/typing.html#typing.assert_never
 #
 # We also explored the possibility of using `match` to perform exhaustiveness checking,
@@ -354,10 +354,10 @@ class SelectErrorGroup(BaseExceptionGroup[BaseException], SelectError):
 
 
 async def select(*receivers: Receiver[Any]) -> AsyncIterator[Selected[Any]]:
-    """Iterate over the values of all receivers as they receive new values.
+    """Iterate over the messages of all receivers as they receive new messages.
 
-    This function is used to iterate over the values of all receivers as they receive
-    new values.  It is used in conjunction with the
+    This function is used to iterate over the messages of all receivers as they receive
+    new messages.  It is used in conjunction with the
     [`Selected`][frequenz.channels.Selected] class and the
     [`selected_from()`][frequenz.channels.selected_from] function to determine
     which function to determine which receiver was selected in a select operation.
@@ -365,7 +365,7 @@ async def select(*receivers: Receiver[Any]) -> AsyncIterator[Selected[Any]]:
     An exhaustiveness check is performed at runtime to make sure all selected receivers
     are handled in the if-chain, so you should call `selected_from()` with all the
     receivers passed to `select()` inside the select loop, even if you plan to ignore
-    a value, to signal `select()` that you are purposefully ignoring the value.
+    a message, to signal `select()` that you are purposefully ignoring the message.
 
     Note:
         The `select()` function is intended to be used in cases where the set of
@@ -394,14 +394,14 @@ async def select(*receivers: Receiver[Any]) -> AsyncIterator[Selected[Any]]:
 
         async for selected in select(timer1, timer2):
             if selected_from(selected, timer1):
-                # Beware: `selected.value` might raise an exception, you can always
+                # Beware: `selected.message` might raise an exception, you can always
                 # check for exceptions with `selected.exception` first or use
                 # a try-except block. You can also quickly check if the receiver was
                 # stopped and let any other unexpected exceptions bubble up.
                 if selected.was_stopped:
                     print("timer1 was stopped")
                     continue
-                print(f"timer1: now={datetime.datetime.now()} drift={selected.value}")
+                print(f"timer1: now={datetime.datetime.now()} drift={selected.message}")
                 timer2.stop()
             elif selected_from(selected, timer2):
                 # Explicitly handling of exceptions
@@ -411,8 +411,8 @@ async def select(*receivers: Receiver[Any]) -> AsyncIterator[Selected[Any]]:
                     case Exception() as exception:
                         print(f"timer2: exception={exception}")
                     case None:
-                        # All good, no exception, we can use `selected.value` safely
-                        print(f"timer2: now={datetime.datetime.now()} drift={selected.value}")
+                        # All good, no exception, we can use `selected.message` safely
+                        print(f"timer2: now={datetime.datetime.now()} drift={selected.message}")
                     case _ as unhanded:
                         assert_never(unhanded)
             else:
@@ -434,7 +434,7 @@ async def select(*receivers: Receiver[Any]) -> AsyncIterator[Selected[Any]]:
             receivers fail while cleaning up.
         SelectError: If there is an error while selecting receivers during normal
             operation.  For example if a receiver raises an exception in the `ready()`
-            method.  Normal errors while receiving values are not raised, but reported
+            method.  Normal errors while receiving messages are not raised, but reported
             via the `Selected` instance.
     """
     receivers_map: dict[str, Receiver[Any]] = {str(hash(r)): r for r in receivers}

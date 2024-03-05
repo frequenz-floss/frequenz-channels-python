@@ -17,8 +17,8 @@ channel2: Anycast[int] = Anycast(name="channel2")
 receiver1 = channel1.new_receiver()
 receiver2 = channel2.new_receiver()
 
-async for value in merge(receiver1, receiver2):
-    print(value)
+async for message in merge(receiver1, receiver2):
+    print(message)
 ```
 
 If the first message comes from `channel2` and the second message from `channel1`, the
@@ -135,9 +135,9 @@ class Merger(Receiver[_T]):
         self._pending = set()
 
     async def ready(self) -> bool:
-        """Wait until the receiver is ready with a value or an error.
+        """Wait until the receiver is ready with a message or an error.
 
-        Once a call to `ready()` has finished, the value should be read with
+        Once a call to `ready()` has finished, the message should be read with
         a call to `consume()` (`receive()` or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.
@@ -171,10 +171,10 @@ class Merger(Receiver[_T]):
                 )
 
     def consume(self) -> _T:
-        """Return the latest value once `ready` is complete.
+        """Return the latest message once `ready` is complete.
 
         Returns:
-            The next value that was received.
+            The next message that was received.
 
         Raises:
             ReceiverStoppedError: If the receiver stopped producing messages.

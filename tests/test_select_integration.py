@@ -88,7 +88,7 @@ class TestSelect:
                 it is 0, no check is performed.
         """
         assert selected_from(selected, receiver)
-        assert selected.value is None
+        assert selected.message is None
         assert selected.exception is None
         assert not selected.was_stopped
         if expected_pending_tasks > 0:

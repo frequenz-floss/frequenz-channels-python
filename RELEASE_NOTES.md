@@ -79,9 +79,9 @@
 
 * `Peekable`
 
-  This class was removed because it was merely a shortcut to a receiver that caches the last value received. It did not fit the channel abstraction well and was infrequently used.
+  This class was removed because it was merely a shortcut to a receiver that caches the last message received. It did not fit the channel abstraction well and was infrequently used.
 
-  You can replace it with a task that receives and retains the last value.
+  You can replace it with a task that receives and retains the last message.
 
 * `Broadcast.new_peekable()`
 

@@ -8,7 +8,7 @@
 Messages are received from [channels](/user-guide/channels/index.md) through
 [Receiver][frequenz.channels.Receiver] objects. [Receivers][frequenz.channels.Receiver]
 are usually created by calling `channel.new_receiver()` and are [async
-iterators][typing.AsyncIterator], so the easiest way to receive values from them as
+iterators][typing.AsyncIterator], so the easiest way to receive messages from them as
 a stream is to use `async for`:
 
 ```python show_lines="6:"
@@ -17,11 +17,11 @@ from frequenz.channels import Anycast
 channel = Anycast[int](name="test-channel")
 receiver = channel.new_receiver()
 
-async for value in receiver:
-    print(value)
+async for message in receiver:
+    print(message)
 ```
 
-If you need to receive values in different places or expecting a particular
+If you need to receive messages in different places or expecting a particular
 sequence, you can use the [`receive()`][frequenz.channels.Receiver.receive] method:
 
 ```python show_lines="6:"
@@ -30,16 +30,16 @@ from frequenz.channels import Anycast
 channel = Anycast[int](name="test-channel")
 receiver = channel.new_receiver()
 
-first_value = await receiver.receive()
-print(f"First value: {first_value}")
+first_message = await receiver.receive()
+print(f"First message: {first_message}")
 
-second_value = await receiver.receive()
-print(f"Second value: {second_value}")
+second_message = await receiver.receive()
+print(f"Second message: {second_message}")
 ```
 
-# Value Transformation
+# Message Transformation
 
-If you need to transform the received values, receivers provide a
+If you need to transform the received messages, receivers provide a
 [`map()`][frequenz.channels.Receiver.map] method to easily do so:
 
 ```python show_lines="6:"
@@ -48,8 +48,8 @@ from frequenz.channels import Anycast
 channel = Anycast[int](name="test-channel")
 receiver = channel.new_receiver()
 
-async for value in receiver.map(lambda x: x + 1):
-    print(value)
+async for message in receiver.map(lambda x: x + 1):
+    print(message)
 ```
 
 [`map()`][frequenz.channels.Receiver.map] returns a new full receiver, so you can
@@ -95,8 +95,8 @@ channel = Anycast[int](name="test-channel")
 receiver = channel.new_receiver()
 
 try:
-    async for value in receiver:
-        print(value)
+    async for message in receiver:
+        print(message)
 except ReceiverStoppedError as error:
     print("Will never happen")
 except ReceiverError as error:
@@ -117,9 +117,9 @@ a [`ready()`][frequenz.channels.Receiver.ready] and
 a [`consume()`][frequenz.channels.Receiver.consume] method.
 
 The [`ready()`][frequenz.channels.Receiver.ready] method is used to await until the
-receiver has a new value available, but without actually consuming it. The
+receiver has a new message available, but without actually consuming it. The
 [`consume()`][frequenz.channels.Receiver.consume] method consumes the next available
-value and returns it.
+message and returns it.
 
 [`ready()`][frequenz.channels.Receiver.ready] can be called multiple times, and it
 will return immediately if the receiver is already ready.
@@ -148,10 +148,10 @@ class Receiver(ABC, Generic[_T_co]):
     """An endpoint to receive messages."""
 
     async def __anext__(self) -> _T_co:
-        """Await the next value in the async iteration over received values.
+        """Await the next message in the async iteration over received messages.
 
         Returns:
-            The next received value.
+            The next received message.
 
         Raises:
             StopAsyncIteration: If the receiver stopped producing messages.
@@ -165,9 +165,9 @@ class Receiver(ABC, Generic[_T_co]):
 
     @abstractmethod
     async def ready(self) -> bool:
-        """Wait until the receiver is ready with a value or an error.
+        """Wait until the receiver is ready with a message or an error.
 
-        Once a call to `ready()` has finished, the value should be read with
+        Once a call to `ready()` has finished, the message should be read with
         a call to `consume()` (`receive()` or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.
@@ -178,12 +178,12 @@ class Receiver(ABC, Generic[_T_co]):
 
     @abstractmethod
     def consume(self) -> _T_co:
-        """Return the latest value once `ready()` is complete.
+        """Return the latest message once `ready()` is complete.
 
         `ready()` must be called before each call to `consume()`.
 
         Returns:
-            The next value received.
+            The next message received.
 
         Raises:
             ReceiverStoppedError: If the receiver stopped producing messages.
@@ -191,7 +191,7 @@ class Receiver(ABC, Generic[_T_co]):
         """
 
     def __aiter__(self) -> Self:
-        """Get an async iterator over the received values.
+        """Get an async iterator over the received messages.
 
         Returns:
             This receiver, as it is already an async iterator.
@@ -226,7 +226,7 @@ class Receiver(ABC, Generic[_T_co]):
         return received
 
     def map(self, call: Callable[[_T_co], _U_co]) -> Receiver[_U_co]:
-        """Apply a mapping function on the received values.
+        """Apply a mapping function on the received message.
 
         Tip:
             The returned receiver type won't have all the methods of the original
@@ -238,7 +238,7 @@ class Receiver(ABC, Generic[_T_co]):
             call: The function to be applied on incoming messages.
 
         Returns:
-            A new receiver that applies the function on the received values.
+            A new receiver that applies the function on the received messages.
         """
         return _Mapper(self, call)
 
@@ -280,7 +280,7 @@ class _Mapper(Receiver[_U_co], Generic[_T_co, _U_co]):
 
     Has two generic types:
 
-    - The input type: value type in the input receiver.
+    - The input type: message type in the input receiver.
     - The output type: return type of the transform method.
     """
 
@@ -300,9 +300,9 @@ class _Mapper(Receiver[_U_co], Generic[_T_co, _U_co]):
         """The function to apply on the input data."""
 
     async def ready(self) -> bool:
-        """Wait until the receiver is ready with a value or an error.
+        """Wait until the receiver is ready with a message or an error.
 
-        Once a call to `ready()` has finished, the value should be read with
+        Once a call to `ready()` has finished, the message should be read with
         a call to `consume()` (`receive()` or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.
@@ -315,10 +315,10 @@ class _Mapper(Receiver[_U_co], Generic[_T_co, _U_co]):
     # We need a noqa here because the docs have a Raises section but the code doesn't
     # explicitly raise anything.
     def consume(self) -> _U_co:  # noqa: DOC502
-        """Return a transformed value once `ready()` is complete.
+        """Return a transformed message once `ready()` is complete.
 
         Returns:
-            The next value that was received.
+            The next message that was received.
 
         Raises:
             ReceiverStoppedError: If the receiver stopped producing messages.

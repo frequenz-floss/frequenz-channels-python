@@ -13,14 +13,14 @@ from frequenz.channels import Receiver, ReceiverStoppedError, Selected, selected
 class TestSelected:
     """Tests for the Selected class."""
 
-    def test_with_value(self) -> None:
-        """Test selected from a receiver with a value."""
+    def test_with_message(self) -> None:
+        """Test selected from a receiver with a message."""
         recv = mock.MagicMock(spec=Receiver[int])
         recv.consume.return_value = 42
         selected = Selected[int](recv)
 
         assert selected_from(selected, recv)
-        assert selected.value == 42
+        assert selected.message == 42
         assert selected.exception is None
         assert not selected.was_stopped
 
@@ -33,7 +33,7 @@ class TestSelected:
 
         assert selected_from(selected, recv)
         with pytest.raises(Exception, match="test"):
-            _ = selected.value
+            _ = selected.message
         assert selected.exception is exception
         assert not selected.was_stopped
 
@@ -49,6 +49,6 @@ class TestSelected:
             ReceiverStoppedError,
             match=r"Receiver <MagicMock spec='_GenericAlias' id='\d+'> was stopped",
         ):
-            _ = selected.value
+            _ = selected.message
         assert selected.exception is exception
         assert selected.was_stopped

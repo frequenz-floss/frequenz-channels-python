@@ -79,7 +79,7 @@ class Anycast(Generic[_T]):
     When the channel is not needed anymore, it should be closed with the
     [`close()`][frequenz.channels.Anycast.close] method. This will prevent further
     attempts to [`send()`][frequenz.channels.Sender.send] data. Receivers will still be
-    able to drain the pending values on the channel, but after that, subsequent
+    able to drain the pending messages on the channel, but after that, subsequent
     [`receive()`][frequenz.channels.Receiver.receive] calls will raise a
     [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError] exception.
 
@@ -181,15 +181,15 @@ class Anycast(Generic[_T]):
         sender_1 sending 11
         sender_1 sending 12
         Anycast channel [Anycast:numbers:_Sender] is full, blocking sender until a receiver
-        consumes a value
+        consumes a message
         sender_2 sending 20
         Anycast channel [Anycast:numbers:_Sender] is full, blocking sender until a receiver
-        consumes a value
+        consumes a message
         receiver_1 received 10
         receiver_1 received 11
         sender_2 sending 21
         Anycast channel [Anycast:numbers:_Sender] is full, blocking sender until a receiver
-        consumes a value
+        consumes a message
         receiver_1 received 12
         receiver_1 received 20
         receiver_1 received 21
@@ -219,16 +219,16 @@ class Anycast(Generic[_T]):
         self._send_cv: Condition = Condition()
         """The condition to wait for free space in the channel's buffer.
 
-        If the channel's buffer is full, then the sender waits for values to
+        If the channel's buffer is full, then the sender waits for messages to
         get consumed using this condition until there's some free space
         available in the channel's buffer.
         """
 
         self._recv_cv: Condition = Condition()
-        """The condition to wait for values in the channel's buffer.
+        """The condition to wait for messages in the channel's buffer.
 
-        If the channel's buffer is empty, then the receiver waits for values
-        using this condition until there's a value available in the channel's
+        If the channel's buffer is empty, then the receiver waits for messages
+        using this condition until there's a message available in the channel's
         buffer.
         """
 
@@ -255,11 +255,11 @@ class Anycast(Generic[_T]):
 
     @property
     def limit(self) -> int:
-        """The maximum number of values that can be stored in the channel's buffer.
+        """The maximum number of messages that can be stored in the channel's buffer.
 
         If the length of channel's buffer reaches the limit, then the sender
         blocks at the [send()][frequenz.channels.Sender.send] method until
-        a value is consumed.
+        a message is consumed.
         """
         maxlen = self._deque.maxlen
         assert maxlen is not None
@@ -271,7 +271,7 @@ class Anycast(Generic[_T]):
         Any further attempts to [send()][frequenz.channels.Sender.send] data
         will return `False`.
 
-        Receivers will still be able to drain the pending values on the channel,
+        Receivers will still be able to drain the pending messages on the channel,
         but after that, subsequent
         [receive()][frequenz.channels.Receiver.receive] calls will return `None`
         immediately.
@@ -342,7 +342,7 @@ class _Sender(Sender[_T]):
         if len(self._chan._deque) == self._chan._deque.maxlen:
             _logger.warning(
                 "Anycast channel [%s] is full, blocking sender until a receiver "
-                "consumes a value",
+                "consumes a message",
                 self,
             )
             while len(self._chan._deque) == self._chan._deque.maxlen:
@@ -367,7 +367,7 @@ class _Sender(Sender[_T]):
 
 
 class _Empty:
-    """A sentinel value to indicate that a value has not been set."""
+    """A sentinel to indicate that a message has not been set."""
 
 
 class _Receiver(Receiver[_T]):
@@ -389,9 +389,9 @@ class _Receiver(Receiver[_T]):
         self._next: _T | type[_Empty] = _Empty
 
     async def ready(self) -> bool:
-        """Wait until the receiver is ready with a value or an error.
+        """Wait until the receiver is ready with a message or an error.
 
-        Once a call to `ready()` has finished, the value should be read with
+        Once a call to `ready()` has finished, the message should be read with
         a call to `consume()` (`receive()` or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.
@@ -416,10 +416,10 @@ class _Receiver(Receiver[_T]):
         return True
 
     def consume(self) -> _T:
-        """Return the latest value once `ready()` is complete.
+        """Return the latest message once `ready()` is complete.
 
         Returns:
-            The next value that was received.
+            The next message that was received.
 
         Raises:
             ReceiverStoppedError: If the receiver stopped producing messages.

@@ -190,12 +190,12 @@ class Broadcast(Generic[_T]):
             name: The name of the channel. This is for logging purposes, and it will be
                 shown in the string representation of the channel.
             resend_latest: When True, every time a new receiver is created with
-                `new_receiver`, it will automatically get sent the latest value on the
-                channel.  This allows new receivers on slow streams to get the latest
-                value as soon as they are created, without having to wait for the next
-                message on the channel to arrive.  It is safe to be set in
-                data/reporting channels, but is not recommended for use in channels that
-                stream control instructions.
+                `new_receiver`, the last message seen by the channel will be sent to the
+                new receiver automatically. This allows new receivers on slow streams to
+                get the latest message as soon as they are created, without having to
+                wait for the next message on the channel to arrive.  It is safe to be
+                set in data/reporting channels, but is not recommended for use in
+                channels that stream control instructions.
         """
         self._name: str = name
         """The name of the broadcast channel.
@@ -213,14 +213,14 @@ class Broadcast(Generic[_T]):
         """Whether the channel is closed."""
 
         self._latest: _T | None = None
-        """The latest value sent to the channel."""
+        """The latest message sent to the channel."""
 
         self.resend_latest: bool = resend_latest
-        """Whether to resend the latest value to new receivers.
+        """Whether to resend the latest message to new receivers.
 
         When `True`, every time a new receiver is created with `new_receiver`, it will
-        automatically get sent the latest value on the channel.  This allows new
-        receivers on slow streams to get the latest value as soon as they are created,
+        automatically get sent the latest message on the channel.  This allows new
+        receivers on slow streams to get the latest message as soon as they are created,
         without having to wait for the next message on the channel to arrive.
 
         It is safe to be set in data/reporting channels, but is not recommended for use
@@ -419,9 +419,9 @@ class _Receiver(Receiver[_T]):
         return len(self._q)
 
     async def ready(self) -> bool:
-        """Wait until the receiver is ready with a value or an error.
+        """Wait until the receiver is ready with a message or an error.
 
-        Once a call to `ready()` has finished, the value should be read with
+        Once a call to `ready()` has finished, the message should be read with
         a call to `consume()` (`receive()` or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.
@@ -447,10 +447,10 @@ class _Receiver(Receiver[_T]):
         # pylint: enable=protected-access
 
     def consume(self) -> _T:
-        """Return the latest value once `ready` is complete.
+        """Return the latest message once `ready` is complete.
 
         Returns:
-            The next value that was received.
+            The next message that was received.
 
         Raises:
             ReceiverStoppedError: If there is some problem with the receiver.
