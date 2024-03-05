@@ -12,15 +12,14 @@ from collections import deque
 from typing import Generic, TypeVar
 
 from ._exceptions import ChannelClosedError
+from ._generic import ChannelMessageT
 from ._receiver import Receiver, ReceiverStoppedError
 from ._sender import Sender, SenderError
 
 _logger = logging.Logger(__name__)
 
-_T = TypeVar("_T")
 
-
-class Broadcast(Generic[_T]):
+class Broadcast(Generic[ChannelMessageT]):
     """A channel that deliver all messages to all receivers.
 
     # Description
@@ -206,13 +205,15 @@ class Broadcast(Generic[_T]):
         self._recv_cv: Condition = Condition()
         """The condition to wait for data in the channel's buffer."""
 
-        self._receivers: dict[int, weakref.ReferenceType[_Receiver[_T]]] = {}
+        self._receivers: dict[
+            int, weakref.ReferenceType[_Receiver[ChannelMessageT]]
+        ] = {}
         """The receivers attached to the channel, indexed by their hash()."""
 
         self._closed: bool = False
         """Whether the channel is closed."""
 
-        self._latest: _T | None = None
+        self._latest: ChannelMessageT | None = None
         """The latest message sent to the channel."""
 
         self.resend_latest: bool = resend_latest
@@ -261,11 +262,13 @@ class Broadcast(Generic[_T]):
         async with self._recv_cv:
             self._recv_cv.notify_all()
 
-    def new_sender(self) -> Sender[_T]:
+    def new_sender(self) -> Sender[ChannelMessageT]:
         """Return a new sender attached to this channel."""
         return _Sender(self)
 
-    def new_receiver(self, *, name: str | None = None, limit: int = 50) -> Receiver[_T]:
+    def new_receiver(
+        self, *, name: str | None = None, limit: int = 50
+    ) -> Receiver[ChannelMessageT]:
         """Return a new receiver attached to this channel.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -279,7 +282,7 @@ class Broadcast(Generic[_T]):
         Returns:
             A new receiver attached to this channel.
         """
-        recv: _Receiver[_T] = _Receiver(self, name=name, limit=limit)
+        recv: _Receiver[ChannelMessageT] = _Receiver(self, name=name, limit=limit)
         self._receivers[hash(recv)] = weakref.ref(recv)
         if self.resend_latest and self._latest is not None:
             recv.enqueue(self._latest)
@@ -298,6 +301,9 @@ class Broadcast(Generic[_T]):
             f"receivers={len(self._receivers)!r}, "
             f"closed={self._closed!r}>"
         )
+
+
+_T = TypeVar("_T")
 
 
 class _Sender(Sender[_T]):

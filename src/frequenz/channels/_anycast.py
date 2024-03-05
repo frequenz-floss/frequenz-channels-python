@@ -11,15 +11,14 @@ from collections import deque
 from typing import Generic, TypeVar
 
 from ._exceptions import ChannelClosedError
+from ._generic import ChannelMessageT
 from ._receiver import Receiver, ReceiverStoppedError
 from ._sender import Sender, SenderError
 
 _logger = logging.getLogger(__name__)
 
-_T = TypeVar("_T")
 
-
-class Anycast(Generic[_T]):
+class Anycast(Generic[ChannelMessageT]):
     """A channel that delivers each message to exactly one receiver.
 
     # Description
@@ -213,7 +212,7 @@ class Anycast(Generic[_T]):
         of the channel.
         """
 
-        self._deque: deque[_T] = deque(maxlen=limit)
+        self._deque: deque[ChannelMessageT] = deque(maxlen=limit)
         """The channel's buffer."""
 
         self._send_cv: Condition = Condition()
@@ -282,11 +281,11 @@ class Anycast(Generic[_T]):
         async with self._recv_cv:
             self._recv_cv.notify_all()
 
-    def new_sender(self) -> Sender[_T]:
+    def new_sender(self) -> Sender[ChannelMessageT]:
         """Return a new sender attached to this channel."""
         return _Sender(self)
 
-    def new_receiver(self) -> Receiver[_T]:
+    def new_receiver(self) -> Receiver[ChannelMessageT]:
         """Return a new receiver attached to this channel."""
         return _Receiver(self)
 
@@ -300,6 +299,9 @@ class Anycast(Generic[_T]):
             f"{type(self).__name__}(name={self._name!r}, limit={self.limit!r}):<"
             f"current={len(self._deque)!r}, closed={self._closed!r}>"
         )
+
+
+_T = TypeVar("_T")
 
 
 class _Sender(Sender[_T]):
