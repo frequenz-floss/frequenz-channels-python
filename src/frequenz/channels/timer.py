@@ -360,8 +360,7 @@ class SkipMissedAndDrift(MissedTickPolicy):
     """
 
     def __init__(self, *, delay_tolerance: timedelta = timedelta(0)):
-        """
-        Create an instance.
+        """Initialize this policy.
 
         See the class documentation for more details.
 
@@ -477,7 +476,7 @@ class Timer(Receiver[timedelta]):
         start_delay: timedelta = timedelta(0),
         loop: asyncio.AbstractEventLoop | None = None,
     ) -> None:
-        """Create an instance.
+        """Initialize this timer.
 
         See the [class documentation][frequenz.channels.timer.Timer] for details.
 
