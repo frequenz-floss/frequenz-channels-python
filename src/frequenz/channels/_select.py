@@ -248,7 +248,7 @@ class Selected(Generic[_T]):
         )
 
     def __repr__(self) -> str:
-        """Return a the internal representation of this selected receiver."""
+        """Return a string with the internal representation of this instance."""
         return (
             f"{type(self).__name__}({self._recv=}, {self._value=}, "
             f"{self._exception=}, {self._handled=})"
