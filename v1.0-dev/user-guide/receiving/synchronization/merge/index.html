@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="../merge/">
+        <link rel="prev" href="../">
       
       
-        <link rel="next" href="../../../error-handling/">
+        <link rel="next" href="../select/">
       
       
       <link rel="icon" href="../../../../_img/logo.png">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Selecting - Frequenz channels</title>
+        <title>Merging - Frequenz channels</title>
       
     
     
@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#selecting" class="md-skip">
+        <a href="#merging" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Selecting
+              Merging
             
           </span>
         </div>
@@ -719,7 +719,7 @@
               
   
   <span class="md-ellipsis">
-    Multiple sources
+    Synchronization
   </span>
   
 
@@ -735,31 +735,10 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_5_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_5_2">
             <span class="md-nav__icon md-icon"></span>
-            Multiple sources
+            Synchronization
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../merge/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Merging
-  </span>
-  
-
-      </a>
-    </li>
-  
-
               
             
               
@@ -782,7 +761,7 @@
           
   
   <span class="md-ellipsis">
-    Selecting
+    Merging
   </span>
   
 
@@ -793,7 +772,7 @@
         
   
   <span class="md-ellipsis">
-    Selecting
+    Merging
   </span>
   
 
@@ -815,7 +794,7 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#frequenz.channels._select--usage" class="md-nav__link">
+  <a href="#frequenz.channels._merge--usage" class="md-nav__link">
     <span class="md-ellipsis">
       Usage
     </span>
@@ -824,18 +803,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#frequenz.channels._select--stopping" class="md-nav__link">
+  <a href="#frequenz.channels._merge--stopping" class="md-nav__link">
     <span class="md-ellipsis">
       Stopping
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#frequenz.channels._select--error-handling" class="md-nav__link">
-    <span class="md-ellipsis">
-      Error Handling
     </span>
   </a>
   
@@ -845,6 +815,27 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../select/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Selecting
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1296,7 +1287,7 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#frequenz.channels._select--usage" class="md-nav__link">
+  <a href="#frequenz.channels._merge--usage" class="md-nav__link">
     <span class="md-ellipsis">
       Usage
     </span>
@@ -1305,18 +1296,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#frequenz.channels._select--stopping" class="md-nav__link">
+  <a href="#frequenz.channels._merge--stopping" class="md-nav__link">
     <span class="md-ellipsis">
       Stopping
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#frequenz.channels._select--error-handling" class="md-nav__link">
-    <span class="md-ellipsis">
-      Error Handling
     </span>
   </a>
   
@@ -1340,7 +1322,7 @@
   
 
 
-<h1 id="selecting">Selecting<a class="headerlink" href="#selecting" title="Permanent link">¤</a></h1>
+<h1 id="merging">Merging<a class="headerlink" href="#merging" title="Permanent link">¤</a></h1>
 
 
 <div class="doc doc-object doc-module">
@@ -1350,92 +1332,33 @@
 
   <div class="doc doc-contents first">
   
-      <p>Select the first among multiple Receivers.</p>
-<h2 id="frequenz.channels._select--usage">Usage<a class="headerlink" href="#frequenz.channels._select--usage" title="Permanent link">¤</a></h2>
-<p>If you need to receiver different types of messages from different receivers, you need
-to know the source of a particular received value to know the type of the value.</p>
-<p><a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.select"><code>select()</code></a> allows you to do that. It is an
-<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/typing.html#typing.AsyncIterator">async iterator</a> that will iterate over the values of all
-receivers as they receive new values.</p>
-<p>It yields a <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Selected"><code>Selected</code></a> object that will tell you the
-source of the received message. To make sure the received value is <em>cast</em> to the
-correct type, you need to use the <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.selected_from"><code>selected_from()</code></a>
-function to check the source of the message, and the
-<a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Selected.value"><code>value</code></a> attribute to access the message:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">selected</span> <span class="ow">in</span> <span class="n">select</span><span class="p">(</span><span class="n">receiver1</span><span class="p">,</span> <span class="n">receiver2</span><span class="p">):</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">if</span> <span class="n">selected_from</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="n">receiver1</span><span class="p">):</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received from receiver1, next number: </span><span class="si">{</span><span class="n">selected</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="k">elif</span> <span class="n">selected_from</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="n">receiver2</span><span class="p">):</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received from receiver2, length: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="k">assert</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;Unknown source, this should never happen&quot;</span>
+      <p>Merge messages coming from multiple receivers into a single receiver.</p>
+<h2 id="frequenz.channels._merge--usage">Usage<a class="headerlink" href="#frequenz.channels._merge--usage" title="Permanent link">¤</a></h2>
+<p>If you just need to receive the same type of messages but from multiple sources in one
+stream, you can use <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.merge"><code>merge()</code></a> to create a new receiver that
+will receive messages from all the given receivers:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">merge</span><span class="p">(</span><span class="n">receiver1</span><span class="p">,</span> <span class="n">receiver2</span><span class="p">):</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
 </span></code></pre></div>
-
-<details class="tip" open>
-  <summary>Tip</summary>
-  <p>To prevent common bugs, like when a new receiver is added to the select loop but
-the handling code is forgotten, <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.select"><code>select()</code></a> will check
-that all the selected receivers are handled in the if-chain.</p>
-<p>If this happens, it will raise an
-<a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.UnhandledSelectedError"><code>UnhandledSelectedError</code></a> exception.</p>
-<p>Not handling a receiver is considered a programming error. Because of this, the
-exception is a subclass of <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#BaseException"><code>BaseException</code></a> instead of
-<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#Exception"><code>Exception</code></a>. This means that it will not be caught by <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#Exception"><code>except
-Exception</code></a> blocks.</p>
-<p>If for some reason you want to ignore a received value, just add the receiver to
-the if-chain and do nothing with the value:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">selected</span> <span class="ow">in</span> <span class="n">select</span><span class="p">(</span><span class="n">receiver1</span><span class="p">,</span> <span class="n">receiver2</span><span class="p">):</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">if</span> <span class="n">selected_from</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="n">receiver1</span><span class="p">):</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="k">continue</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="k">if</span> <span class="n">selected_from</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="n">receiver2</span><span class="p">):</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received from receiver2, length: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span></code></pre></div>
-</details>      <h2 id="frequenz.channels._select--stopping">Stopping<a class="headerlink" href="#frequenz.channels._select--stopping" title="Permanent link">¤</a></h2>
-<p>The <code>select()</code> async iterator will stop as soon as all the receivers are stopped. You
-can also end the iteration early by breaking out of the loop as normal.</p>
-<p>When a single <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Receiver">receiver</a> is stopped, it will be reported
-via the <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Selected"><code>Selected</code></a> object. You can use the
-<a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Selected.was_stopped"><code>was_stopped()</code></a> method to check if the
-selected <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Receiver">receiver</a> was stopped:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">selected</span> <span class="ow">in</span> <span class="n">select</span><span class="p">(</span><span class="n">receiver1</span><span class="p">,</span> <span class="n">receiver2</span><span class="p">):</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">if</span> <span class="n">selected_from</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="n">receiver1</span><span class="p">):</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="k">if</span> <span class="n">selected</span><span class="o">.</span><span class="n">was_stopped</span><span class="p">():</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;receiver1 was stopped&quot;</span><span class="p">)</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>            <span class="k">continue</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received from receiver1, the next number is: </span><span class="si">{</span><span class="n">selected</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="c1"># ...</span>
-</span></code></pre></div>
-
-<details class="tip" open>
-  <summary>Tip</summary>
-  <p>The <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Selected.was_stopped"><code>was_stopped()</code></a> method is a
-convenience method that is equivalent to checking if the
-<a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Selected.exception"><code>exception</code></a> attribute is an instance of
-<a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a>.</p>
-</details>      <h2 id="frequenz.channels._select--error-handling">Error Handling<a class="headerlink" href="#frequenz.channels._select--error-handling" title="Permanent link">¤</a></h2>
-
-<details class="tip" open>
-  <summary>Tip</summary>
-  <p>For more information about handling errors, please refer to the
-<a href="/user-guide/error-handling/">Error Handling</a> section of the user guide.</p>
-</details>      <p>If a receiver raises an exception while receiving a value, the exception will be
-raised by the <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Selected.value"><code>value</code></a> attribute of the
-<a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Selected"><code>Selected</code></a> object.</p>
-<p>You can use a try-except block to handle exceptions as usual:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">selected</span> <span class="ow">in</span> <span class="n">select</span><span class="p">(</span><span class="n">receiver1</span><span class="p">,</span> <span class="n">receiver2</span><span class="p">):</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">if</span> <span class="n">selected_from</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="n">receiver1</span><span class="p">):</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="k">try</span><span class="p">:</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received from receiver1, next number: </span><span class="si">{</span><span class="n">selected</span><span class="o">.</span><span class="n">value</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="k">except</span> <span class="n">ReceiverStoppedError</span><span class="p">:</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;receiver1 was stopped&quot;</span><span class="p">)</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">value_error</span><span class="p">:</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;receiver1 raised a ValueError: </span><span class="si">{</span><span class="n">value_error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        <span class="c1"># ...</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="c1"># ...</span>
-</span></code></pre></div>
-<p>The <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Selected"><code>Selected</code></a> object also has a
-<a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Selected.exception"><code>exception</code></a> attribute that will contain the
-exception that was raised by the receiver.</p>
+<p>If the first message comes from <code>channel2</code> and the second message from <code>channel1</code>, the
+first message will be received immediately, and the second message will be received as
+soon as it is available.</p>
+<p>This can be helpful when you just need to receive messages and don't care about
+where are they coming from specifically. If you need to know where the message came
+from, you can use <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.select"><code>select()</code></a> instead.</p>
+<h2 id="frequenz.channels._merge--stopping">Stopping<a class="headerlink" href="#frequenz.channels._merge--stopping" title="Permanent link">¤</a></h2>
+<p>A merge receiver will be stopped automatically when all the receivers that it merges are
+stopped. When using the async iterator interface, this means that the iterator will stop
+as soon as all the receivers are stopped. When using
+<a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a>, this means that the method will raise
+a <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a> exception as soon as
+all the receivers are stopped.</p>
+<p>If you want to stop a merge receiver manually, you can use the
+<a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Merger.stop"><code>stop()</code></a> method.</p>
+<p>When using <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a>, you should make sure to
+either stop all the receivers that you are merging, or to stop the merge receiver
+manually. This is to make sure that all the tasks created by the merge receiver are
+cleaned up properly.</p>
 
   
 
@@ -1491,7 +1414,7 @@ exception that was raised by the receiver.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../merge/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Merging">
+          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Synchronization of Multiple Sources">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
@@ -1501,20 +1424,20 @@ exception that was raised by the receiver.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Merging
+                Synchronization of Multiple Sources
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../../error-handling/" class="md-footer__link md-footer__link--next" aria-label="Next: Error Handling">
+          <a href="../select/" class="md-footer__link md-footer__link--next" aria-label="Next: Selecting">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Error Handling
+                Selecting
               </div>
             </div>
             <div class="md-footer__button md-icon">

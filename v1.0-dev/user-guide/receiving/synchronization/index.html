@@ -24,7 +24,7 @@
     
     
       
-        <title>Multiple Sources - Frequenz channels</title>
+        <title>Synchronization of Multiple Sources - Frequenz channels</title>
       
     
     
@@ -82,7 +82,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#multiple-sources" class="md-skip">
+        <a href="#synchronization-of-multiple-sources" class="md-skip">
           Skip to content
         </a>
       
@@ -131,7 +131,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Multiple Sources
+              Synchronization of Multiple Sources
             
           </span>
         </div>
@@ -719,7 +719,7 @@
               
   
   <span class="md-ellipsis">
-    Multiple sources
+    Synchronization
   </span>
   
 
@@ -735,7 +735,7 @@
         <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_5_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_5_2">
             <span class="md-nav__icon md-icon"></span>
-            Multiple sources
+            Synchronization
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -1238,10 +1238,11 @@
   
 
 
-<h1 id="multiple-sources">Multiple Sources<a class="headerlink" href="#multiple-sources" title="Permanent link">¤</a></h1>
-<p>If you need to receive values from multiple sources it can be complicated, as
-you probably want to get the first message of each receiver as soon as it is
-available. A naive approach like this will not work:</p>
+<h1 id="synchronization-of-multiple-sources">Synchronization of Multiple Sources<a class="headerlink" href="#synchronization-of-multiple-sources" title="Permanent link">¤</a></h1>
+<p>If you need to receive messages from multiple sources in a synchronized way it
+could be difficult to, for example, receive the first message of each receiver
+as soon as it is available in one single task. A naive approach like this will
+not work:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">receiver1</span><span class="p">:</span> <span class="n">Receiver</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">channel1</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">()</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">receiver2</span><span class="p">:</span> <span class="n">Receiver</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">channel2</span><span class="o">.</span><span class="n">new_receiver</span><span class="p">()</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
