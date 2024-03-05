@@ -286,7 +286,7 @@ class Broadcast(Generic[_T]):
         return recv
 
     def __str__(self) -> str:
-        """Return a string representation of this receiver."""
+        """Return a string representation of this channel."""
         return f"{type(self).__name__}:{self._name}"
 
     def __repr__(self) -> str:
