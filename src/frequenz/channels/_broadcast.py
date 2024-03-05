@@ -262,15 +262,11 @@ class Broadcast(Generic[_T]):
             self._recv_cv.notify_all()
 
     def new_sender(self) -> Sender[_T]:
-        """Create a new broadcast sender.
-
-        Returns:
-            A Sender instance attached to the broadcast channel.
-        """
+        """Return a new sender attached to this channel."""
         return _Sender(self)
 
     def new_receiver(self, *, name: str | None = None, limit: int = 50) -> Receiver[_T]:
-        """Create a new broadcast receiver.
+        """Return a new receiver attached to this channel.
 
         Broadcast receivers have their own buffer, and when messages are not
         being consumed fast enough and the buffer fills up, old messages will

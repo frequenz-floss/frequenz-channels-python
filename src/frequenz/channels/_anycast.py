@@ -284,19 +284,11 @@ class Anycast(Generic[_T]):
             self._recv_cv.notify_all()
 
     def new_sender(self) -> Sender[_T]:
-        """Create a new sender.
-
-        Returns:
-            A Sender instance attached to the Anycast channel.
-        """
+        """Return a new sender attached to this channel."""
         return _Sender(self)
 
     def new_receiver(self) -> Receiver[_T]:
-        """Create a new receiver.
-
-        Returns:
-            A Receiver instance attached to the Anycast channel.
-        """
+        """Return a new receiver attached to this channel."""
         return _Receiver(self)
 
     def __str__(self) -> str:

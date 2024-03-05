@@ -175,11 +175,7 @@ class MissedTickPolicy(abc.ABC):
         """
 
     def __repr__(self) -> str:
-        """Return a string representation of the instance.
-
-        Returns:
-            The string representation of the instance.
-        """
+        """Return a string representation of this policy."""
         return f"{type(self).__name__}()"
 
 
@@ -386,11 +382,7 @@ class SkipMissedAndDrift(MissedTickPolicy):
 
     @property
     def delay_tolerance(self) -> timedelta:
-        """Return the maximum delay that is tolerated before starting to drift.
-
-        Returns:
-            The maximum delay that is tolerated before starting to drift.
-        """
+        """The maximum delay that is tolerated before starting to drift."""
         return timedelta(microseconds=self._tolerance)
 
     def calculate_next_tick_time(
@@ -418,19 +410,11 @@ class SkipMissedAndDrift(MissedTickPolicy):
         return scheduled_tick_time + interval
 
     def __str__(self) -> str:
-        """Return a string representation of the instance.
-
-        Returns:
-            The string representation of the instance.
-        """
-        return f"{type(self).__name__}({self.delay_tolerance})"
+        """Return a string representation of this policy."""
+        return f"{type(self).__name__}"
 
     def __repr__(self) -> str:
-        """Return a string representation of the instance.
-
-        Returns:
-            The string representation of the instance.
-        """
+        """Return a string representation of this policy."""
         return f"{type(self).__name__}({self.delay_tolerance=})"
 
 
@@ -583,40 +567,22 @@ class Timer(Receiver[timedelta]):
 
     @property
     def interval(self) -> timedelta:
-        """The interval between timer ticks.
-
-        Returns:
-            The interval between timer ticks.
-        """
+        """The interval between timer ticks."""
         return timedelta(microseconds=self._interval)
 
     @property
     def missed_tick_policy(self) -> MissedTickPolicy:
-        """The policy of the timer when it misses a tick.
-
-        Returns:
-            The policy of the timer when it misses a tick.
-        """
+        """The policy of the timer when it misses a tick."""
         return self._missed_tick_policy
 
     @property
     def loop(self) -> asyncio.AbstractEventLoop:
-        """The event loop used by the timer to track time.
-
-        Returns:
-            The event loop used by the timer to track time.
-        """
+        """The event loop used by the timer to track time."""
         return self._loop
 
     @property
     def is_running(self) -> bool:
-        """Whether the timer is running.
-
-        This will be `False` if the timer was stopped, or not started yet.
-
-        Returns:
-            Whether the timer is running.
-        """
+        """Whether the timer is running."""
         return not self._stopped
 
     def reset(self, *, start_delay: timedelta = timedelta(0)) -> None:
@@ -751,19 +717,11 @@ class Timer(Receiver[timedelta]):
         return _to_microseconds(self._loop.time())
 
     def __str__(self) -> str:
-        """Return a string representation of the timer.
-
-        Returns:
-            The string representation of the timer.
-        """
+        """Return a string representation of this timer."""
         return f"{type(self).__name__}({self.interval})"
 
     def __repr__(self) -> str:
-        """Return a string representation of the timer.
-
-        Returns:
-            The string representation of the timer.
-        """
+        """Return a string representation of this timer."""
         return (
             f"{type(self).__name__}<{self.interval=}, {self.missed_tick_policy=}, "
             f"{self.loop=}, {self.is_running=}>"
