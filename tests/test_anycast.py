@@ -142,13 +142,13 @@ async def test_anycast_full() -> None:
         msg = await asyncio.wait_for(receiver.receive(), timeout)
         assert msg == 100
     except asyncio.TimeoutError:
-        # should not timeout now, because we've just sent a value to the
+        # should not timeout now, because we've just sent a message to the
         # channel.
         assert False
 
 
-async def test_anycast_none_values() -> None:
-    """Ensure None values can be sent and received."""
+async def test_anycast_none_messages() -> None:
+    """Ensure None messages can be sent and received."""
     acast: Anycast[int | None] = Anycast(name="test")
 
     sender = acast.new_sender()
@@ -171,12 +171,12 @@ async def test_anycast_async_iterator() -> None:
     sender = acast.new_sender()
     receiver = acast.new_receiver()
 
-    async def send_values() -> None:
+    async def send_messages() -> None:
         for val in ["one", "two", "three", "four", "five"]:
             await sender.send(val)
         await acast.close()
 
-    sender_task = asyncio.create_task(send_values())
+    sender_task = asyncio.create_task(send_messages())
 
     received = []
     async for recv in receiver:

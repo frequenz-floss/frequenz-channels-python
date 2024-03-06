@@ -58,10 +58,10 @@ Example: Timeout Example
 
         async for selected in select(data_receiver, timer):
             if selected_from(selected, data_receiver):
-                print(f"Received data: {selected.value}")
+                print(f"Received data: {selected.message}")
                 timer.reset()
             elif selected_from(selected, timer):
-                drift = selected.value
+                drift = selected.message
                 print(f"No data received for {timer.interval + drift} seconds, giving up")
                 break
 

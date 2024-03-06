@@ -68,8 +68,8 @@ async def test_broadcast() -> None:
     assert actual_sum == expected_sum
 
 
-async def test_broadcast_none_values() -> None:
-    """Ensure None values can be sent and received."""
+async def test_broadcast_none_messages() -> None:
+    """Ensure None messages can be sent and received."""
     bcast: Broadcast[int | None] = Broadcast(name="any_channel")
 
     sender = bcast.new_sender()
@@ -161,7 +161,7 @@ async def test_broadcast_overflow() -> None:
 
 
 async def test_broadcast_resend_latest() -> None:
-    """Check if new receivers get the latest value when resend_latest is set."""
+    """Check if new receivers get the latest message when resend_latest is set."""
     bcast: Broadcast[int] = Broadcast(name="new_recv_test", resend_latest=True)
 
     sender = bcast.new_sender()
@@ -178,7 +178,7 @@ async def test_broadcast_resend_latest() -> None:
 
 
 async def test_broadcast_no_resend_latest() -> None:
-    """Ensure new receivers don't get the latest value when resend_latest isn't set."""
+    """Ensure new receivers don't get the latest message when resend_latest isn't set."""
     bcast: Broadcast[int] = Broadcast(name="new_recv_test", resend_latest=False)
 
     sender = bcast.new_sender()
@@ -200,12 +200,12 @@ async def test_broadcast_async_iterator() -> None:
     sender = bcast.new_sender()
     receiver = bcast.new_receiver()
 
-    async def send_values() -> None:
+    async def send_messages() -> None:
         for val in range(0, 10):
             await sender.send(val)
         await bcast.close()
 
-    sender_task = asyncio.create_task(send_values())
+    sender_task = asyncio.create_task(send_messages())
 
     received = []
     async for recv in receiver:

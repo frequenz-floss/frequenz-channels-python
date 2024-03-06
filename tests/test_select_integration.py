@@ -88,9 +88,9 @@ class TestSelect:
                 it is 0, no check is performed.
         """
         assert selected_from(selected, receiver)
-        assert selected.value is None
+        assert selected.message is None
         assert selected.exception is None
-        assert not selected.was_stopped()
+        assert not selected.was_stopped
         if expected_pending_tasks > 0:
             assert len(asyncio.all_tasks(self.loop)) == expected_pending_tasks
         elif expected_pending_tasks < 0:
@@ -121,7 +121,7 @@ class TestSelect:
                 it is 0, no check is performed.
         """
         assert selected_from(selected, receiver)
-        assert selected.was_stopped()
+        assert selected.was_stopped
         assert isinstance(selected.exception, ReceiverStoppedError)
         assert selected.exception.receiver is receiver
         if expected_pending_tasks > 0:

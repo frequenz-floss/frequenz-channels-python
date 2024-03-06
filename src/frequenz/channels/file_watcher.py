@@ -163,9 +163,9 @@ class FileWatcher(Receiver[Event]):
         self._stop_event.set()
 
     async def ready(self) -> bool:
-        """Wait until the receiver is ready with a value or an error.
+        """Wait until the receiver is ready with a message or an error.
 
-        Once a call to `ready()` has finished, the value should be read with
+        Once a call to `ready()` has finished, the message should be read with
         a call to `consume()` (`receive()` or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.

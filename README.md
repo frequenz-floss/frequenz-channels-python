@@ -76,8 +76,8 @@ async def main() -> None:
     receiver = hello_channel.new_receiver()
 
     await sender.send("Hello World!")
-    msg = await receiver.receive()
-    print(msg)
+    message = await receiver.receive()
+    print(message)
 
 
 asyncio.run(main())
@@ -141,8 +141,8 @@ async def send(
             await sender.send(f"{sender}: {counter}")
             counter += 1
         elif selected_from(selected, control_command):
-            print(f"{sender}: Received command: {selected.value.name}")
-            match selected.value:
+            print(f"{sender}: Received command: {selected.message.name}")
+            match selected.message:
                 case Command.STOP_SENDER:
                     print(f"{sender}: Stopping")
                     break
@@ -166,13 +166,13 @@ async def receive(
     merged = merge(*receivers)
     async for selected in select(merged, timer, control_command):
         if selected_from(selected, merged):
-            message = selected.value
+            message = selected.message
             print(f"receive: Received {message=}")
             timer.reset()
             print(f"{timer=}")
         elif selected_from(selected, control_command):
-            print(f"receive: received command: {selected.value.name}")
-            match selected.value:
+            print(f"receive: received command: {selected.message.name}")
+            match selected.message:
                 case Command.PING:
                     print("receive: Ping received, reply with pong")
                     await control_reply.send(Reply(ReplyCommand.PONG, "receive"))
@@ -181,7 +181,7 @@ async def receive(
                 case _ as unknown:
                     assert_never(unknown)
         elif selected_from(selected, timer):
-            drift = selected.value
+            drift = selected.message
             print(
                 f"receive: No data received for {timer.interval + drift} seconds, "
                 "giving up"

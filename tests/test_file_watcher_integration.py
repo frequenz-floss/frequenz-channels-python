@@ -31,10 +31,10 @@ async def test_file_watcher(tmp_path: pathlib.Path) -> None:
 
     async for selected in select(file_watcher, timer):
         if selected_from(selected, timer):
-            filename.write_text(f"{selected.value}")
+            filename.write_text(f"{selected.message}")
         elif selected_from(selected, file_watcher):
             event_type = EventType.CREATE if number_of_writes == 0 else EventType.MODIFY
-            assert selected.value == Event(type=event_type, path=filename)
+            assert selected.message == Event(type=event_type, path=filename)
             number_of_writes += 1
             # After receiving a write 3 times, unsubscribe from the writes channel
             if number_of_writes == expected_number_of_writes:
@@ -82,7 +82,7 @@ async def test_file_watcher_deletes(tmp_path: pathlib.Path) -> None:
         if selected_from(selected, write_timer):
             if number_of_write >= 2 and number_of_events == 0:
                 continue
-            filename.write_text(f"{selected.value}")
+            filename.write_text(f"{selected.message}")
             number_of_write += 1
         elif selected_from(selected, deletion_timer):
             # Avoid removing the file twice

@@ -56,7 +56,7 @@ class Event(_receiver.Receiver[None]):
         async def do_work() -> None:
             async for selected in select(receiver, stop_event):
                 if selected_from(selected, receiver):
-                    print(selected.value)
+                    print(selected.message)
                 elif selected_from(selected, stop_event):
                     print("Stop event triggered")
                     stop_event.stop()

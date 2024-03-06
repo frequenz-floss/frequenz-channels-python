@@ -89,9 +89,9 @@ class Broadcast(Generic[_T]):
 
 
         async def send(sender: Sender[int]) -> None:
-            for msg in range(3):
-                print(f"sending {msg}")
-                await sender.send(msg)
+            for message in range(3):
+                print(f"sending {message}")
+                await sender.send(message)
 
 
         async def main() -> None:
@@ -103,8 +103,8 @@ class Broadcast(Generic[_T]):
             async with asyncio.TaskGroup() as task_group:
                 task_group.create_task(send(sender))
                 for _ in range(3):
-                    msg = await receiver.receive()
-                    print(f"received {msg}")
+                    message = await receiver.receive()
+                    print(f"received {message}")
                     await asyncio.sleep(0.1)  # sleep (or work) with the data
 
 
@@ -134,15 +134,15 @@ class Broadcast(Generic[_T]):
 
 
         async def send(name: str, sender: Sender[int], start: int, stop: int) -> None:
-            for msg in range(start, stop):
-                print(f"{name} sending {msg}")
-                await sender.send(msg)
+            for message in range(start, stop):
+                print(f"{name} sending {message}")
+                await sender.send(message)
 
 
         async def recv(name: str, receiver: Receiver[int]) -> None:
             try:
-                async for msg in receiver:
-                    print(f"{name} received {msg}")
+                async for message in receiver:
+                    print(f"{name} received {message}")
                 await asyncio.sleep(0.1)  # sleep (or work) with the data
             except ReceiverStoppedError:
                 pass
@@ -190,12 +190,12 @@ class Broadcast(Generic[_T]):
             name: The name of the channel. This is for logging purposes, and it will be
                 shown in the string representation of the channel.
             resend_latest: When True, every time a new receiver is created with
-                `new_receiver`, it will automatically get sent the latest value on the
-                channel.  This allows new receivers on slow streams to get the latest
-                value as soon as they are created, without having to wait for the next
-                message on the channel to arrive.  It is safe to be set in
-                data/reporting channels, but is not recommended for use in channels that
-                stream control instructions.
+                `new_receiver`, the last message seen by the channel will be sent to the
+                new receiver automatically. This allows new receivers on slow streams to
+                get the latest message as soon as they are created, without having to
+                wait for the next message on the channel to arrive.  It is safe to be
+                set in data/reporting channels, but is not recommended for use in
+                channels that stream control instructions.
         """
         self._name: str = name
         """The name of the broadcast channel.
@@ -213,14 +213,14 @@ class Broadcast(Generic[_T]):
         """Whether the channel is closed."""
 
         self._latest: _T | None = None
-        """The latest value sent to the channel."""
+        """The latest message sent to the channel."""
 
         self.resend_latest: bool = resend_latest
-        """Whether to resend the latest value to new receivers.
+        """Whether to resend the latest message to new receivers.
 
         When `True`, every time a new receiver is created with `new_receiver`, it will
-        automatically get sent the latest value on the channel.  This allows new
-        receivers on slow streams to get the latest value as soon as they are created,
+        automatically get sent the latest message on the channel.  This allows new
+        receivers on slow streams to get the latest message as soon as they are created,
         without having to wait for the next message on the channel to arrive.
 
         It is safe to be set in data/reporting channels, but is not recommended for use
@@ -279,7 +279,7 @@ class Broadcast(Generic[_T]):
         Returns:
             A new receiver attached to this channel.
         """
-        recv: _Receiver[_T] = _Receiver(name, limit, self)
+        recv: _Receiver[_T] = _Receiver(self, name=name, limit=limit)
         self._receivers[hash(recv)] = weakref.ref(recv)
         if self.resend_latest and self._latest is not None:
             recv.enqueue(self._latest)
@@ -308,20 +308,20 @@ class _Sender(Sender[_T]):
     method.
     """
 
-    def __init__(self, chan: Broadcast[_T]) -> None:
+    def __init__(self, channel: Broadcast[_T], /) -> None:
         """Initialize this sender.
 
         Args:
-            chan: A reference to the broadcast channel this sender belongs to.
+            channel: A reference to the broadcast channel this sender belongs to.
         """
-        self._chan: Broadcast[_T] = chan
+        self._channel: Broadcast[_T] = channel
         """The broadcast channel this sender belongs to."""
 
-    async def send(self, msg: _T) -> None:
+    async def send(self, message: _T, /) -> None:
         """Send a message to all broadcast receivers.
 
         Args:
-            msg: The message to be broadcast.
+            message: The message to be broadcast.
 
         Raises:
             SenderError: If the underlying channel was closed.
@@ -329,31 +329,31 @@ class _Sender(Sender[_T]):
                 set as the cause.
         """
         # pylint: disable=protected-access
-        if self._chan._closed:
+        if self._channel._closed:
             raise SenderError("The channel was closed", self) from ChannelClosedError(
-                self._chan
+                self._channel
             )
-        self._chan._latest = msg
+        self._channel._latest = message
         stale_refs = []
-        for _hash, recv_ref in self._chan._receivers.items():
+        for _hash, recv_ref in self._channel._receivers.items():
             recv = recv_ref()
             if recv is None:
                 stale_refs.append(_hash)
                 continue
-            recv.enqueue(msg)
+            recv.enqueue(message)
         for _hash in stale_refs:
-            del self._chan._receivers[_hash]
-        async with self._chan._recv_cv:
-            self._chan._recv_cv.notify_all()
+            del self._channel._receivers[_hash]
+        async with self._channel._recv_cv:
+            self._channel._recv_cv.notify_all()
         # pylint: enable=protected-access
 
     def __str__(self) -> str:
         """Return a string representation of this sender."""
-        return f"{self._chan}:{type(self).__name__}"
+        return f"{self._channel}:{type(self).__name__}"
 
     def __repr__(self) -> str:
         """Return a string representation of this sender."""
-        return f"{type(self).__name__}({self._chan!r})"
+        return f"{type(self).__name__}({self._channel!r})"
 
 
 class _Receiver(Receiver[_T]):
@@ -364,7 +364,9 @@ class _Receiver(Receiver[_T]):
     method.
     """
 
-    def __init__(self, name: str | None, limit: int, chan: Broadcast[_T]) -> None:
+    def __init__(
+        self, channel: Broadcast[_T], /, *, name: str | None, limit: int
+    ) -> None:
         """Initialize this receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -372,13 +374,13 @@ class _Receiver(Receiver[_T]):
         get dropped just in this receiver.
 
         Args:
+            channel: a reference to the Broadcast channel that this receiver
+                belongs to.
             name: A name to identify the receiver in the logs. If `None` an
                 `id(self)`-based name will be used.  This is only for debugging
                 purposes, it will be shown in the string representation of the
                 receiver.
             limit: Number of messages the receiver can hold in its buffer.
-            chan: a reference to the Broadcast channel that this receiver
-                belongs to.
         """
         self._name: str = name if name is not None else f"{id(self):_}"
         """The name to identify the receiver.
@@ -386,13 +388,13 @@ class _Receiver(Receiver[_T]):
         Only used for debugging purposes.
         """
 
-        self._chan: Broadcast[_T] = chan
+        self._channel: Broadcast[_T] = channel
         """The broadcast channel that this receiver belongs to."""
 
         self._q: deque[_T] = deque(maxlen=limit)
         """The receiver's internal message queue."""
 
-    def enqueue(self, msg: _T) -> None:
+    def enqueue(self, message: _T, /) -> None:
         """Put a message into this receiver's queue.
 
         To be called by broadcast senders.  If the receiver's queue is already
@@ -400,7 +402,7 @@ class _Receiver(Receiver[_T]):
         log a warning.
 
         Args:
-            msg: The message to be sent.
+            message: The message to be sent.
         """
         if len(self._q) == self._q.maxlen:
             self._q.popleft()
@@ -408,7 +410,7 @@ class _Receiver(Receiver[_T]):
                 "Broadcast receiver [%s] is full. Oldest message was dropped.",
                 self,
             )
-        self._q.append(msg)
+        self._q.append(message)
 
     def __len__(self) -> int:
         """Return the number of unconsumed messages in the broadcast receiver.
@@ -419,9 +421,9 @@ class _Receiver(Receiver[_T]):
         return len(self._q)
 
     async def ready(self) -> bool:
-        """Wait until the receiver is ready with a value or an error.
+        """Wait until the receiver is ready with a message or an error.
 
-        Once a call to `ready()` has finished, the value should be read with
+        Once a call to `ready()` has finished, the message should be read with
         a call to `consume()` (`receive()` or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.
@@ -439,31 +441,31 @@ class _Receiver(Receiver[_T]):
         # consumed, then we return immediately.
         # pylint: disable=protected-access
         while len(self._q) == 0:
-            if self._chan._closed:
+            if self._channel._closed:
                 return False
-            async with self._chan._recv_cv:
-                await self._chan._recv_cv.wait()
+            async with self._channel._recv_cv:
+                await self._channel._recv_cv.wait()
         return True
         # pylint: enable=protected-access
 
     def consume(self) -> _T:
-        """Return the latest value once `ready` is complete.
+        """Return the latest message once `ready` is complete.
 
         Returns:
-            The next value that was received.
+            The next message that was received.
 
         Raises:
             ReceiverStoppedError: If there is some problem with the receiver.
         """
-        if not self._q and self._chan._closed:  # pylint: disable=protected-access
-            raise ReceiverStoppedError(self) from ChannelClosedError(self._chan)
+        if not self._q and self._channel._closed:  # pylint: disable=protected-access
+            raise ReceiverStoppedError(self) from ChannelClosedError(self._channel)
 
         assert self._q, "`consume()` must be preceded by a call to `ready()`"
         return self._q.popleft()
 
     def __str__(self) -> str:
         """Return a string representation of this receiver."""
-        return f"{self._chan}:{type(self).__name__}"
+        return f"{self._channel}:{type(self).__name__}"
 
     def __repr__(self) -> str:
         """Return a string representation of this receiver."""
@@ -471,5 +473,5 @@ class _Receiver(Receiver[_T]):
         assert limit is not None
         return (
             f"{type(self).__name__}(name={self._name!r}, limit={limit!r}, "
-            f"{self._chan!r}):<id={id(self)!r}, used={len(self._q)!r}>"
+            f"{self._channel!r}):<id={id(self)!r}, used={len(self._q)!r}>"
         )
