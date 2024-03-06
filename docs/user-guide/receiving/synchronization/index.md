@@ -5,7 +5,7 @@ could be difficult to, for example, receive the first message of each receiver
 as soon as it is available in one single task. A naive approach like this will
 not work:
 
-```python
+```python show_lines="4:"
 receiver1: Receiver[int] = channel1.new_receiver()
 receiver2: Receiver[int] = channel2.new_receiver()
 

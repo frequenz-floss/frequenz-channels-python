@@ -119,6 +119,7 @@ plugins:
             show_root_members_full_path: true
             show_signature_annotations: true
             show_source: true
+            show_symbol_type_toc: true
             signature_crossrefs: true
           import:
             # See https://mkdocstrings.github.io/python/usage/#import for details

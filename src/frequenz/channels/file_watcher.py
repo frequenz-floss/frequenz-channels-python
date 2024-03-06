@@ -119,11 +119,11 @@ class FileWatcher(Receiver[Event]):
         paths: list[pathlib.Path | str],
         event_types: abc.Iterable[EventType] = frozenset(EventType),
     ) -> None:
-        """Create a `FileWatcher` instance.
+        """Initialize this file watcher.
 
         Args:
-            paths: Paths to watch for changes.
-            event_types: Types of events to watch for. Defaults to watch for
+            paths: The paths to watch for changes.
+            event_types: The types of events to watch for. Defaults to watch for
                 all event types.
         """
         self.event_types: frozenset[EventType] = frozenset(event_types)
@@ -157,12 +157,9 @@ class FileWatcher(Receiver[Event]):
         return change in [event_type.value for event_type in self.event_types]
 
     def __del__(self) -> None:
-        """Cleanup registered watches.
-
-        `awatch` passes the `stop_event` to a separate task/thread. This way
-        `awatch` getting destroyed properly. The background task will continue
-        until the signal is received.
-        """
+        """Finalize this file watcher."""
+        # We need to set the stop event to make sure that the awatch background task
+        # is stopped.
         self._stop_event.set()
 
     async def ready(self) -> bool:
@@ -198,7 +195,7 @@ class FileWatcher(Receiver[Event]):
             The next event that was received.
 
         Raises:
-            ReceiverStoppedError: if there is some problem with the receiver.
+            ReceiverStoppedError: If there is some problem with the receiver.
         """
         if not self._changes and self._awatch_stopped_exc is not None:
             raise ReceiverStoppedError(self) from self._awatch_stopped_exc

@@ -84,7 +84,7 @@ class Event(_receiver.Receiver[None]):
     """
 
     def __init__(self, *, name: str | None = None) -> None:
-        """Create a new instance.
+        """Initialize this event.
 
         Args:
             name: The name of the receiver.  If `None` an `id(self)`-based name will be
@@ -118,28 +118,17 @@ class Event(_receiver.Receiver[None]):
 
         This is for debugging purposes, it will be shown in the string representation
         of this receiver.
-
-        Returns:
-            The name of this receiver.
         """
         return self._name
 
     @property
     def is_set(self) -> bool:
-        """Whether this receiver is set (ready).
-
-        Returns:
-            Whether this receiver is set (ready).
-        """
+        """Whether this receiver is set (ready)."""
         return self._is_set
 
     @property
     def is_stopped(self) -> bool:
-        """Whether this receiver is stopped.
-
-        Returns:
-            Whether this receiver is stopped.
-        """
+        """Whether this receiver is stopped."""
         return self._is_stopped
 
     def stop(self) -> None:
@@ -180,19 +169,11 @@ class Event(_receiver.Receiver[None]):
         self._event.clear()
 
     def __str__(self) -> str:
-        """Return a string representation of this receiver.
-
-        Returns:
-            A string representation of this receiver.
-        """
+        """Return a string representation of this event."""
         return f"{type(self).__name__}({self._name!r})"
 
     def __repr__(self) -> str:
-        """Return a string representation of this receiver.
-
-        Returns:
-            A string representation of this receiver.
-        """
+        """Return a string representation of this event."""
         return (
             f"<{type(self).__name__} name={self._name!r} is_set={self.is_set!r} "
             f"is_stopped={self.is_stopped!r}>"

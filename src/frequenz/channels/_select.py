@@ -152,6 +152,7 @@ class _EmptyResult:
     """
 
     def __repr__(self) -> str:
+        """Return a string with the internal representation of this instance."""
         return "<empty>"
 
 
@@ -170,7 +171,7 @@ class Selected(Generic[_T]):
     """
 
     def __init__(self, receiver: Receiver[_T]) -> None:
-        """Create a new instance.
+        """Initialize this selected result.
 
         The receiver is consumed immediately when creating the instance and the received
         value is stored in the instance for later use as
@@ -240,22 +241,14 @@ class Selected(Generic[_T]):
         return isinstance(self._exception, ReceiverStoppedError)
 
     def __str__(self) -> str:
-        """Return a string representation of this instance.
-
-        Returns:
-            A string representation of this instance.
-        """
+        """Return a string representation of this selected receiver."""
         return (
             f"{type(self).__name__}({self._recv}) -> "
             f"{self._exception or self._value})"
         )
 
     def __repr__(self) -> str:
-        """Return a the internal representation of this instance.
-
-        Returns:
-            A string representation of this instance.
-        """
+        """Return a string with the internal representation of this instance."""
         return (
             f"{type(self).__name__}({self._recv=}, {self._value=}, "
             f"{self._exception=}, {self._handled=})"
@@ -268,7 +261,7 @@ class Selected(Generic[_T]):
 def selected_from(
     selected: Selected[Any], receiver: Receiver[_T]
 ) -> TypeGuard[Selected[_T]]:
-    """Check if the given receiver was selected by [`select()`][frequenz.channels.select].
+    """Check whether the given receiver was selected by [`select()`][frequenz.channels.select].
 
     This function is used in conjunction with the
     [`Selected`][frequenz.channels.Selected] class to determine which receiver was
@@ -292,7 +285,7 @@ def selected_from(
 
 
 class SelectError(BaseException):
-    """A base exception for [`select()`][frequenz.channels.select].
+    """An error that happened during a [`select()`][frequenz.channels.select] operation.
 
     This exception is raised when a `select()` iteration fails.  It is raised as
     a single exception when one receiver fails during normal operation (while calling
@@ -303,14 +296,15 @@ class SelectError(BaseException):
 
 
 class UnhandledSelectedError(SelectError, Generic[_T]):
-    """A receiver was not handled in a [`select()`][frequenz.channels.select] loop.
+    """A receiver was not handled in a [`select()`][frequenz.channels.select] iteration.
 
-    This exception is raised when a `select()` iteration finishes without a call to
-    [`selected_from()`][frequenz.channels.selected_from] for the selected receiver.
+    This exception is raised when a [`select()`][frequenz.channels.select] iteration
+    finishes without a call to [`selected_from()`][frequenz.channels.selected_from] for
+    the selected receiver.
     """
 
     def __init__(self, selected: Selected[_T]) -> None:
-        """Create a new instance.
+        """Initialize this error.
 
         Args:
             selected: The selected receiver that was not handled.
@@ -322,10 +316,10 @@ class UnhandledSelectedError(SelectError, Generic[_T]):
 
 
 class SelectErrorGroup(BaseExceptionGroup[BaseException], SelectError):
-    """An exception group for [`select()`][frequenz.channels.select] operation.
+    """Some receivers stopped with errors while cleaning up a `select()` operation.
 
-    This exception group is raised when a `select()` loops fails while cleaning up
-    running tests to check for ready receivers.
+    The group is composed of the errors raised by the receivers when they are stopped
+    during the cleanup of a [`select()`][frequenz.channels.select] loop.
     """
 
 

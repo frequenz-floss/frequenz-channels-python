@@ -175,11 +175,7 @@ class MissedTickPolicy(abc.ABC):
         """
 
     def __repr__(self) -> str:
-        """Return a string representation of the instance.
-
-        Returns:
-            The string representation of the instance.
-        """
+        """Return a string representation of this policy."""
         return f"{type(self).__name__}()"
 
 
@@ -364,8 +360,7 @@ class SkipMissedAndDrift(MissedTickPolicy):
     """
 
     def __init__(self, *, delay_tolerance: timedelta = timedelta(0)):
-        """
-        Create an instance.
+        """Initialize this policy.
 
         See the class documentation for more details.
 
@@ -386,11 +381,7 @@ class SkipMissedAndDrift(MissedTickPolicy):
 
     @property
     def delay_tolerance(self) -> timedelta:
-        """Return the maximum delay that is tolerated before starting to drift.
-
-        Returns:
-            The maximum delay that is tolerated before starting to drift.
-        """
+        """The maximum delay that is tolerated before starting to drift."""
         return timedelta(microseconds=self._tolerance)
 
     def calculate_next_tick_time(
@@ -418,19 +409,11 @@ class SkipMissedAndDrift(MissedTickPolicy):
         return scheduled_tick_time + interval
 
     def __str__(self) -> str:
-        """Return a string representation of the instance.
-
-        Returns:
-            The string representation of the instance.
-        """
-        return f"{type(self).__name__}({self.delay_tolerance})"
+        """Return a string representation of this policy."""
+        return f"{type(self).__name__}()"
 
     def __repr__(self) -> str:
-        """Return a string representation of the instance.
-
-        Returns:
-            The string representation of the instance.
-        """
+        """Return a string representation of this policy."""
         return f"{type(self).__name__}({self.delay_tolerance=})"
 
 
@@ -493,7 +476,7 @@ class Timer(Receiver[timedelta]):
         start_delay: timedelta = timedelta(0),
         loop: asyncio.AbstractEventLoop | None = None,
     ) -> None:
-        """Create an instance.
+        """Initialize this timer.
 
         See the [class documentation][frequenz.channels.timer.Timer] for details.
 
@@ -515,9 +498,9 @@ class Timer(Receiver[timedelta]):
                 `asyncio.get_running_loop()` will be used.
 
         Raises:
-            RuntimeError: if it was called without a loop and there is no
+            RuntimeError: If it was called without a loop and there is no
                 running loop.
-            ValueError: if `interval` is not positive or is smaller than 1
+            ValueError: If `interval` is not positive or is smaller than 1
                 microsecond; if `start_delay` is negative or `start_delay` was specified
                 but `auto_start` is `False`.
         """
@@ -583,40 +566,22 @@ class Timer(Receiver[timedelta]):
 
     @property
     def interval(self) -> timedelta:
-        """The interval between timer ticks.
-
-        Returns:
-            The interval between timer ticks.
-        """
+        """The interval between timer ticks."""
         return timedelta(microseconds=self._interval)
 
     @property
     def missed_tick_policy(self) -> MissedTickPolicy:
-        """The policy of the timer when it misses a tick.
-
-        Returns:
-            The policy of the timer when it misses a tick.
-        """
+        """The policy of the timer when it misses a tick."""
         return self._missed_tick_policy
 
     @property
     def loop(self) -> asyncio.AbstractEventLoop:
-        """The event loop used by the timer to track time.
-
-        Returns:
-            The event loop used by the timer to track time.
-        """
+        """The event loop used by the timer to track time."""
         return self._loop
 
     @property
     def is_running(self) -> bool:
-        """Whether the timer is running.
-
-        This will be `False` if the timer was stopped, or not started yet.
-
-        Returns:
-            Whether the timer is running.
-        """
+        """Whether the timer is running."""
         return not self._stopped
 
     def reset(self, *, start_delay: timedelta = timedelta(0)) -> None:
@@ -632,8 +597,8 @@ class Timer(Receiver[timedelta]):
                 resolution, anything smaller than a microsecond means no delay.
 
         Raises:
-            RuntimeError: if it was called without a running loop.
-            ValueError: if `start_delay` is negative.
+            RuntimeError: If it was called without a running loop.
+            ValueError: If `start_delay` is negative.
         """
         start_delay_ms = _to_microseconds(start_delay)
 
@@ -673,7 +638,7 @@ class Timer(Receiver[timedelta]):
             Whether the timer was started and it is still running.
 
         Raises:
-            RuntimeError: if it was called without a running loop.
+            RuntimeError: If it was called without a running loop.
         """
         # If there are messages waiting to be consumed, return immediately.
         if self._current_drift is not None:
@@ -728,7 +693,7 @@ class Timer(Receiver[timedelta]):
                 time when it actually did.
 
         Raises:
-            ReceiverStoppedError: if the timer was stopped via `stop()`.
+            ReceiverStoppedError: If the timer was stopped via `stop()`.
         """
         # If it was stopped and there it no pending result, we raise
         # (if there is a pending result, then we still want to return it first)
@@ -751,19 +716,11 @@ class Timer(Receiver[timedelta]):
         return _to_microseconds(self._loop.time())
 
     def __str__(self) -> str:
-        """Return a string representation of the timer.
-
-        Returns:
-            The string representation of the timer.
-        """
+        """Return a string representation of this timer."""
         return f"{type(self).__name__}({self.interval})"
 
     def __repr__(self) -> str:
-        """Return a string representation of the timer.
-
-        Returns:
-            The string representation of the timer.
-        """
+        """Return a string with the internal representation of this timer."""
         return (
             f"{type(self).__name__}<{self.interval=}, {self.missed_tick_policy=}, "
             f"{self.loop=}, {self.is_running=}>"

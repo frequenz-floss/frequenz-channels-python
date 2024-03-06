@@ -184,7 +184,7 @@ class Broadcast(Generic[_T]):
     """
 
     def __init__(self, *, name: str, resend_latest: bool = False) -> None:
-        """Create a Broadcast channel.
+        """Initialize this channel.
 
         Args:
             name: The name of the channel. This is for logging purposes, and it will be
@@ -246,7 +246,7 @@ class Broadcast(Generic[_T]):
         return self._closed
 
     async def close(self) -> None:
-        """Close the Broadcast channel.
+        """Close this channel.
 
         Any further attempts to [send()][frequenz.channels.Sender.send] data
         will return `False`.
@@ -262,15 +262,11 @@ class Broadcast(Generic[_T]):
             self._recv_cv.notify_all()
 
     def new_sender(self) -> Sender[_T]:
-        """Create a new broadcast sender.
-
-        Returns:
-            A Sender instance attached to the broadcast channel.
-        """
+        """Return a new sender attached to this channel."""
         return _Sender(self)
 
     def new_receiver(self, *, name: str | None = None, limit: int = 50) -> Receiver[_T]:
-        """Create a new broadcast receiver.
+        """Return a new receiver attached to this channel.
 
         Broadcast receivers have their own buffer, and when messages are not
         being consumed fast enough and the buffer fills up, old messages will
@@ -281,7 +277,7 @@ class Broadcast(Generic[_T]):
             limit: Number of messages the receiver can hold in its buffer.
 
         Returns:
-            A Receiver instance attached to the broadcast channel.
+            A new receiver attached to this channel.
         """
         recv: _Receiver[_T] = _Receiver(name, limit, self)
         self._receivers[hash(recv)] = weakref.ref(recv)
@@ -290,7 +286,7 @@ class Broadcast(Generic[_T]):
         return recv
 
     def __str__(self) -> str:
-        """Return a string representation of this receiver."""
+        """Return a string representation of this channel."""
         return f"{type(self).__name__}:{self._name}"
 
     def __repr__(self) -> str:
@@ -313,7 +309,7 @@ class _Sender(Sender[_T]):
     """
 
     def __init__(self, chan: Broadcast[_T]) -> None:
-        """Create a Broadcast sender.
+        """Initialize this sender.
 
         Args:
             chan: A reference to the broadcast channel this sender belongs to.
@@ -328,7 +324,7 @@ class _Sender(Sender[_T]):
             msg: The message to be broadcast.
 
         Raises:
-            SenderError: if the underlying channel was closed.
+            SenderError: If the underlying channel was closed.
                 A [ChannelClosedError][frequenz.channels.ChannelClosedError] is
                 set as the cause.
         """
@@ -369,7 +365,7 @@ class _Receiver(Receiver[_T]):
     """
 
     def __init__(self, name: str | None, limit: int, chan: Broadcast[_T]) -> None:
-        """Create a broadcast receiver.
+        """Initialize this receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
         being consumed fast enough and the buffer fills up, old messages will
@@ -457,7 +453,7 @@ class _Receiver(Receiver[_T]):
             The next value that was received.
 
         Raises:
-            ReceiverStoppedError: if there is some problem with the receiver.
+            ReceiverStoppedError: If there is some problem with the receiver.
         """
         if not self._q and self._chan._closed:  # pylint: disable=protected-access
             raise ReceiverStoppedError(self) from ChannelClosedError(self._chan)

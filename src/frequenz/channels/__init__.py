@@ -6,6 +6,9 @@
 This package contains
 [channel](https://en.wikipedia.org/wiki/Channel_(programming)) implementations.
 
+<!-- For the full documentation and user guide please visit the [project's
+website](https://frequenz-floss.github.io/frequenz-channels-python/) -->
+
 Base classes:
 
 * [Receiver][frequenz.channels.Receiver]: An object that can wait for and

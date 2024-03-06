@@ -87,7 +87,7 @@ def merge(*receivers: Receiver[_T]) -> Merger[_T]:
             single stream.
 
     Raises:
-        ValueError: if no receivers are provided.
+        ValueError: If no receivers are provided.
     """
     if not receivers:
         raise ValueError("At least one receiver must be provided")
@@ -104,7 +104,7 @@ class Merger(Receiver[_T]):
     """
 
     def __init__(self, *receivers: Receiver[_T], name: str | None) -> None:
-        """Create a `Merger` instance.
+        """Initialize this merger.
 
         Args:
             *receivers: The receivers to merge.
@@ -122,13 +122,13 @@ class Merger(Receiver[_T]):
         self._results: deque[_T] = deque(maxlen=len(self._receivers))
 
     def __del__(self) -> None:
-        """Cleanup any pending tasks."""
+        """Finalize this merger."""
         for task in self._pending:
             if not task.done() and task.get_loop().is_running():
                 task.cancel()
 
     async def stop(self) -> None:
-        """Stop the `Merger` instance and cleanup any pending tasks."""
+        """Stop this merger."""
         for task in self._pending:
             task.cancel()
         await asyncio.gather(*self._pending, return_exceptions=True)
@@ -177,8 +177,8 @@ class Merger(Receiver[_T]):
             The next value that was received.
 
         Raises:
-            ReceiverStoppedError: if the receiver stopped producing messages.
-            ReceiverError: if there is some problem with the receiver.
+            ReceiverStoppedError: If the receiver stopped producing messages.
+            ReceiverError: If there is some problem with the receiver.
         """
         if not self._results and not self._pending:
             raise ReceiverStoppedError(self)

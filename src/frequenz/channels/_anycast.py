@@ -197,7 +197,7 @@ class Anycast(Generic[_T]):
     """
 
     def __init__(self, *, name: str, limit: int = 10) -> None:
-        """Create an Anycast channel.
+        """Initialize this channel.
 
         Args:
             name: The name of the channel. This is for logging purposes, and it will be
@@ -275,7 +275,6 @@ class Anycast(Generic[_T]):
         but after that, subsequent
         [receive()][frequenz.channels.Receiver.receive] calls will return `None`
         immediately.
-
         """
         self._closed = True
         async with self._send_cv:
@@ -284,19 +283,11 @@ class Anycast(Generic[_T]):
             self._recv_cv.notify_all()
 
     def new_sender(self) -> Sender[_T]:
-        """Create a new sender.
-
-        Returns:
-            A Sender instance attached to the Anycast channel.
-        """
+        """Return a new sender attached to this channel."""
         return _Sender(self)
 
     def new_receiver(self) -> Receiver[_T]:
-        """Create a new receiver.
-
-        Returns:
-            A Receiver instance attached to the Anycast channel.
-        """
+        """Return a new receiver attached to this channel."""
         return _Receiver(self)
 
     def __str__(self) -> str:
@@ -319,7 +310,7 @@ class _Sender(Sender[_T]):
     """
 
     def __init__(self, chan: Anycast[_T]) -> None:
-        """Create a channel sender.
+        """Initialize this sender.
 
         Args:
             chan: A reference to the channel that this sender belongs to.
@@ -339,7 +330,7 @@ class _Sender(Sender[_T]):
             msg: The message to be sent.
 
         Raises:
-            SenderError: if the underlying channel was closed.
+            SenderError: If the underlying channel was closed.
                 A [ChannelClosedError][frequenz.channels.ChannelClosedError] is
                 set as the cause.
         """
@@ -387,7 +378,7 @@ class _Receiver(Receiver[_T]):
     """
 
     def __init__(self, chan: Anycast[_T]) -> None:
-        """Create a channel receiver.
+        """Initialize this receiver.
 
         Args:
             chan: A reference to the channel that this receiver belongs to.
@@ -431,8 +422,8 @@ class _Receiver(Receiver[_T]):
             The next value that was received.
 
         Raises:
-            ReceiverStoppedError: if the receiver stopped producing messages.
-            ReceiverError: if there is some problem with the receiver.
+            ReceiverStoppedError: If the receiver stopped producing messages.
+            ReceiverError: If there is some problem with the receiver.
         """
         if (  # pylint: disable=protected-access
             self._next is _Empty and self._chan._closed
