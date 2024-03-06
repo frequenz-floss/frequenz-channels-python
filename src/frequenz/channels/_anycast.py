@@ -309,7 +309,7 @@ class _Sender(Sender[_T]):
     method.
     """
 
-    def __init__(self, channel: Anycast[_T]) -> None:
+    def __init__(self, channel: Anycast[_T], /) -> None:
         """Initialize this sender.
 
         Args:
@@ -377,7 +377,7 @@ class _Receiver(Receiver[_T]):
     method.
     """
 
-    def __init__(self, channel: Anycast[_T]) -> None:
+    def __init__(self, channel: Anycast[_T], /) -> None:
         """Initialize this receiver.
 
         Args:

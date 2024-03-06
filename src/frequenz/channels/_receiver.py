@@ -240,7 +240,7 @@ class Receiver(ABC, Generic[_T_co]):
         Returns:
             A new receiver that applies the function on the received messages.
         """
-        return _Mapper(self, mapping_function)
+        return _Mapper(receiver=self, mapping_function=mapping_function)
 
 
 class ReceiverError(Error, Generic[_T_co]):
@@ -285,7 +285,7 @@ class _Mapper(Receiver[_U_co], Generic[_T_co, _U_co]):
     """
 
     def __init__(
-        self, receiver: Receiver[_T_co], mapping_function: Callable[[_T_co], _U_co]
+        self, *, receiver: Receiver[_T_co], mapping_function: Callable[[_T_co], _U_co]
     ) -> None:
         """Initialize this receiver mapper.
 

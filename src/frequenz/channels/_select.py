@@ -170,7 +170,7 @@ class Selected(Generic[_T]):
     Please see [`select()`][frequenz.channels.select] for an example.
     """
 
-    def __init__(self, receiver: Receiver[_T]) -> None:
+    def __init__(self, receiver: Receiver[_T], /) -> None:
         """Initialize this selected result.
 
         The receiver is consumed immediately when creating the instance and the received

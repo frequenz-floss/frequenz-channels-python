@@ -279,7 +279,7 @@ class Broadcast(Generic[_T]):
         Returns:
             A new receiver attached to this channel.
         """
-        recv: _Receiver[_T] = _Receiver(name, limit, self)
+        recv: _Receiver[_T] = _Receiver(self, name=name, limit=limit)
         self._receivers[hash(recv)] = weakref.ref(recv)
         if self.resend_latest and self._latest is not None:
             recv.enqueue(self._latest)
@@ -308,7 +308,7 @@ class _Sender(Sender[_T]):
     method.
     """
 
-    def __init__(self, channel: Broadcast[_T]) -> None:
+    def __init__(self, channel: Broadcast[_T], /) -> None:
         """Initialize this sender.
 
         Args:
@@ -364,7 +364,9 @@ class _Receiver(Receiver[_T]):
     method.
     """
 
-    def __init__(self, name: str | None, limit: int, channel: Broadcast[_T]) -> None:
+    def __init__(
+        self, channel: Broadcast[_T], /, *, name: str | None, limit: int
+    ) -> None:
         """Initialize this receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -372,13 +374,13 @@ class _Receiver(Receiver[_T]):
         get dropped just in this receiver.
 
         Args:
+            channel: a reference to the Broadcast channel that this receiver
+                belongs to.
             name: A name to identify the receiver in the logs. If `None` an
                 `id(self)`-based name will be used.  This is only for debugging
                 purposes, it will be shown in the string representation of the
                 receiver.
             limit: Number of messages the receiver can hold in its buffer.
-            channel: a reference to the Broadcast channel that this receiver
-                belongs to.
         """
         self._name: str = name if name is not None else f"{id(self):_}"
         """The name to identify the receiver.
@@ -392,7 +394,7 @@ class _Receiver(Receiver[_T]):
         self._q: deque[_T] = deque(maxlen=limit)
         """The receiver's internal message queue."""
 
-    def enqueue(self, message: _T) -> None:
+    def enqueue(self, message: _T, /) -> None:
         """Put a message into this receiver's queue.
 
         To be called by broadcast senders.  If the receiver's queue is already
