@@ -1378,10 +1378,6 @@ the handling code is forgotten, <a class="autorefs autorefs-internal" href="../.
 that all the selected receivers are handled in the if-chain.</p>
 <p>If this happens, it will raise an
 <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.UnhandledSelectedError"><code>UnhandledSelectedError</code></a> exception.</p>
-<p>Not handling a receiver is considered a programming error. Because of this, the
-exception is a subclass of <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#BaseException"><code>BaseException</code></a> instead of
-<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#Exception"><code>Exception</code></a>. This means that it will not be caught by <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/exceptions.html#Exception"><code>except
-Exception</code></a> blocks.</p>
 <p>If for some reason you want to ignore a received message, just add the receiver to
 the if-chain and do nothing with the message:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">selected</span> <span class="ow">in</span> <span class="n">select</span><span class="p">(</span><span class="n">receiver1</span><span class="p">,</span> <span class="n">receiver2</span><span class="p">):</span>
