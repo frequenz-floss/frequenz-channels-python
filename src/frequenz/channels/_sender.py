@@ -61,11 +61,11 @@ class Sender(ABC, Generic[_T_contra]):
     """An endpoint to sends messages."""
 
     @abstractmethod
-    async def send(self, msg: _T_contra) -> None:
+    async def send(self, message: _T_contra) -> None:
         """Send a message.
 
         Args:
-            msg: The message to be sent.
+            message: The message to be sent.
 
         Raises:
             SenderError: If there was an error sending the message.

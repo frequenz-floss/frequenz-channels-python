@@ -9,11 +9,11 @@ not work:
 receiver1: Receiver[int] = channel1.new_receiver()
 receiver2: Receiver[int] = channel2.new_receiver()
 
-msg = await receiver1.receive()
-print(f"Received from channel1: {msg}")
+message = await receiver1.receive()
+print(f"Received from channel1: {message}")
 
-msg = await receiver2.receive()
-print(f"Received from channel2: {msg}")
+message = await receiver2.receive()
+print(f"Received from channel2: {message}")
 ```
 
 The problem is that if the first message is not available in `channel1` but in

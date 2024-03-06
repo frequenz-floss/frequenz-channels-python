@@ -89,9 +89,9 @@ class Broadcast(Generic[_T]):
 
 
         async def send(sender: Sender[int]) -> None:
-            for msg in range(3):
-                print(f"sending {msg}")
-                await sender.send(msg)
+            for message in range(3):
+                print(f"sending {message}")
+                await sender.send(message)
 
 
         async def main() -> None:
@@ -103,8 +103,8 @@ class Broadcast(Generic[_T]):
             async with asyncio.TaskGroup() as task_group:
                 task_group.create_task(send(sender))
                 for _ in range(3):
-                    msg = await receiver.receive()
-                    print(f"received {msg}")
+                    message = await receiver.receive()
+                    print(f"received {message}")
                     await asyncio.sleep(0.1)  # sleep (or work) with the data
 
 
@@ -134,15 +134,15 @@ class Broadcast(Generic[_T]):
 
 
         async def send(name: str, sender: Sender[int], start: int, stop: int) -> None:
-            for msg in range(start, stop):
-                print(f"{name} sending {msg}")
-                await sender.send(msg)
+            for message in range(start, stop):
+                print(f"{name} sending {message}")
+                await sender.send(message)
 
 
         async def recv(name: str, receiver: Receiver[int]) -> None:
             try:
-                async for msg in receiver:
-                    print(f"{name} received {msg}")
+                async for message in receiver:
+                    print(f"{name} received {message}")
                 await asyncio.sleep(0.1)  # sleep (or work) with the data
             except ReceiverStoppedError:
                 pass
@@ -317,11 +317,11 @@ class _Sender(Sender[_T]):
         self._chan: Broadcast[_T] = chan
         """The broadcast channel this sender belongs to."""
 
-    async def send(self, msg: _T) -> None:
+    async def send(self, message: _T) -> None:
         """Send a message to all broadcast receivers.
 
         Args:
-            msg: The message to be broadcast.
+            message: The message to be broadcast.
 
         Raises:
             SenderError: If the underlying channel was closed.
@@ -333,14 +333,14 @@ class _Sender(Sender[_T]):
             raise SenderError("The channel was closed", self) from ChannelClosedError(
                 self._chan
             )
-        self._chan._latest = msg
+        self._chan._latest = message
         stale_refs = []
         for _hash, recv_ref in self._chan._receivers.items():
             recv = recv_ref()
             if recv is None:
                 stale_refs.append(_hash)
                 continue
-            recv.enqueue(msg)
+            recv.enqueue(message)
         for _hash in stale_refs:
             del self._chan._receivers[_hash]
         async with self._chan._recv_cv:
@@ -392,7 +392,7 @@ class _Receiver(Receiver[_T]):
         self._q: deque[_T] = deque(maxlen=limit)
         """The receiver's internal message queue."""
 
-    def enqueue(self, msg: _T) -> None:
+    def enqueue(self, message: _T) -> None:
         """Put a message into this receiver's queue.
 
         To be called by broadcast senders.  If the receiver's queue is already
@@ -400,7 +400,7 @@ class _Receiver(Receiver[_T]):
         log a warning.
 
         Args:
-            msg: The message to be sent.
+            message: The message to be sent.
         """
         if len(self._q) == self._q.maxlen:
             self._q.popleft()
@@ -408,7 +408,7 @@ class _Receiver(Receiver[_T]):
                 "Broadcast receiver [%s] is full. Oldest message was dropped.",
                 self,
             )
-        self._q.append(msg)
+        self._q.append(message)
 
     def __len__(self) -> int:
         """Return the number of unconsumed messages in the broadcast receiver.

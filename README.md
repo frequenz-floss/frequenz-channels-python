@@ -76,8 +76,8 @@ async def main() -> None:
     receiver = hello_channel.new_receiver()
 
     await sender.send("Hello World!")
-    msg = await receiver.receive()
-    print(msg)
+    message = await receiver.receive()
+    print(message)
 
 
 asyncio.run(main())

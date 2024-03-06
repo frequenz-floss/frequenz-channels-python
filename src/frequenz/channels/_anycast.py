@@ -101,9 +101,9 @@ class Anycast(Generic[_T]):
 
 
         async def send(sender: Sender[int]) -> None:
-            for msg in range(3):
-                print(f"sending {msg}")
-                await sender.send(msg)
+            for message in range(3):
+                print(f"sending {message}")
+                await sender.send(message)
 
 
         async def main() -> None:
@@ -115,8 +115,8 @@ class Anycast(Generic[_T]):
             async with asyncio.TaskGroup() as task_group:
                 task_group.create_task(send(sender))
                 for _ in range(3):
-                    msg = await receiver.receive()
-                    print(f"received {msg}")
+                    message = await receiver.receive()
+                    print(f"received {message}")
                     await asyncio.sleep(0.1)  # sleep (or work) with the data
 
 
@@ -146,15 +146,15 @@ class Anycast(Generic[_T]):
 
 
         async def send(name: str, sender: Sender[int], start: int, stop: int) -> None:
-            for msg in range(start, stop):
-                print(f"{name} sending {msg}")
-                await sender.send(msg)
+            for message in range(start, stop):
+                print(f"{name} sending {message}")
+                await sender.send(message)
 
 
         async def recv(name: str, receiver: Receiver[int]) -> None:
             try:
-                async for msg in receiver:
-                    print(f"{name} received {msg}")
+                async for message in receiver:
+                    print(f"{name} received {message}")
                 await asyncio.sleep(0.1)  # sleep (or work) with the data
             except ReceiverStoppedError:
                 pass
@@ -318,7 +318,7 @@ class _Sender(Sender[_T]):
         self._chan: Anycast[_T] = chan
         """The channel that this sender belongs to."""
 
-    async def send(self, msg: _T) -> None:
+    async def send(self, message: _T) -> None:
         """Send a message across the channel.
 
         To send, this method inserts the message into the Anycast channel's
@@ -327,7 +327,7 @@ class _Sender(Sender[_T]):
         message will be received by exactly one receiver.
 
         Args:
-            msg: The message to be sent.
+            message: The message to be sent.
 
         Raises:
             SenderError: If the underlying channel was closed.
@@ -352,7 +352,7 @@ class _Sender(Sender[_T]):
                 "Anycast channel [%s] has space again, resuming the blocked sender",
                 self,
             )
-        self._chan._deque.append(msg)
+        self._chan._deque.append(message)
         async with self._chan._recv_cv:
             self._chan._recv_cv.notify(1)
         # pylint: enable=protected-access

@@ -75,8 +75,8 @@ def merge(*receivers: Receiver[_T]) -> Merger[_T]:
         receiver1 = channel1.new_receiver()
         receiver2 = channel2.new_receiver()
 
-        async for msg in merge(receiver1, receiver2):
-            print(f"received {msg}")
+        async for message in merge(receiver1, receiver2):
+            print(f"received {message}")
         ```
 
     Args:
