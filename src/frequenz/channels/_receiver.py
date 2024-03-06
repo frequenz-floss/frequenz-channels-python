@@ -225,7 +225,7 @@ class Receiver(ABC, Generic[_T_co]):
             raise ReceiverStoppedError(self) from exc
         return received
 
-    def map(self, call: Callable[[_T_co], _U_co]) -> Receiver[_U_co]:
+    def map(self, mapping_function: Callable[[_T_co], _U_co]) -> Receiver[_U_co]:
         """Apply a mapping function on the received message.
 
         Tip:
@@ -235,12 +235,12 @@ class Receiver(ABC, Generic[_T_co]):
             original receiver and use that instead.
 
         Args:
-            call: The function to be applied on incoming messages.
+            mapping_function: The function to be applied on incoming messages.
 
         Returns:
             A new receiver that applies the function on the received messages.
         """
-        return _Mapper(self, call)
+        return _Mapper(self, mapping_function)
 
 
 class ReceiverError(Error, Generic[_T_co]):
@@ -285,18 +285,18 @@ class _Mapper(Receiver[_U_co], Generic[_T_co, _U_co]):
     """
 
     def __init__(
-        self, receiver: Receiver[_T_co], transform: Callable[[_T_co], _U_co]
+        self, receiver: Receiver[_T_co], mapping_function: Callable[[_T_co], _U_co]
     ) -> None:
         """Initialize this receiver mapper.
 
         Args:
             receiver: The input receiver.
-            transform: The function to apply on the input data.
+            mapping_function: The function to apply on the input data.
         """
         self._receiver: Receiver[_T_co] = receiver
         """The input receiver."""
 
-        self._transform: Callable[[_T_co], _U_co] = transform
+        self._mapping_function: Callable[[_T_co], _U_co] = mapping_function
         """The function to apply on the input data."""
 
     async def ready(self) -> bool:
@@ -324,14 +324,14 @@ class _Mapper(Receiver[_U_co], Generic[_T_co, _U_co]):
             ReceiverStoppedError: If the receiver stopped producing messages.
             ReceiverError: If there is a problem with the receiver.
         """
-        return self._transform(
+        return self._mapping_function(
             self._receiver.consume()
         )  # pylint: disable=protected-access
 
     def __str__(self) -> str:
         """Return a string representation of the timer."""
-        return f"{type(self).__name__}:{self._receiver}:{self._transform}"
+        return f"{type(self).__name__}:{self._receiver}:{self._mapping_function}"
 
     def __repr__(self) -> str:
         """Return a string representation of the timer."""
-        return f"{type(self).__name__}({self._receiver!r}, {self._transform!r})"
+        return f"{type(self).__name__}({self._receiver!r}, {self._mapping_function!r})"
