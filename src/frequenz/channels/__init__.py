@@ -58,9 +58,6 @@ Exception classes:
 * [SelectError][frequenz.channels.SelectError]: Base class for all errors
     related to [select][frequenz.channels.select].
 
-* [SelectErrorGroup][frequenz.channels.SelectErrorGroup]: A group of errors
-    raised by [select][frequenz.channels.select].
-
 * [UnhandledSelectedError][frequenz.channels.UnhandledSelectedError]: An error
     raised by [select][frequenz.channels.select] that was not handled by the
     user.
@@ -85,7 +82,6 @@ from ._receiver import Receiver, ReceiverError, ReceiverStoppedError
 from ._select import (
     Selected,
     SelectError,
-    SelectErrorGroup,
     UnhandledSelectedError,
     select,
     selected_from,
@@ -103,7 +99,6 @@ __all__ = [
     "ReceiverError",
     "ReceiverStoppedError",
     "SelectError",
-    "SelectErrorGroup",
     "Selected",
     "Sender",
     "SenderError",

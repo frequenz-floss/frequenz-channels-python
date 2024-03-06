@@ -71,7 +71,6 @@
 
   - `Selected`
   - `SelectError`
-  - `SelectErrorGroup`
   - `UnhandledSelectedError`
   - `select`
   - `selected_from`
@@ -109,6 +108,8 @@
 * `ReceiverInvalidatedError`
 
   This was removed alongside `Peekable` (it was only raised when using a `Receiver` that was converted into a `Peekable`).
+
+* `SelectErrorGroup` was removed, a Python built-in `BaseExceptionGroup` is raised instead in case of unexpected errors while finalizing a `select()` loop, which will be automatically converted to a simple `ExceptionGroup` when no exception in the groups is a `BaseException`.
 
 - `Timer`:
 
