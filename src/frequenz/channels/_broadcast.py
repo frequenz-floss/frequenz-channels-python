@@ -246,7 +246,7 @@ class Broadcast(Generic[_T]):
         return self._closed
 
     async def close(self) -> None:
-        """Close this Broadcast channel.
+        """Close this channel.
 
         Any further attempts to [send()][frequenz.channels.Sender.send] data
         will return `False`.
@@ -277,7 +277,7 @@ class Broadcast(Generic[_T]):
             limit: Number of messages the receiver can hold in its buffer.
 
         Returns:
-            The new receiver attached to this channel.
+            A new receiver attached to this channel.
         """
         recv: _Receiver[_T] = _Receiver(name, limit, self)
         self._receivers[hash(recv)] = weakref.ref(recv)

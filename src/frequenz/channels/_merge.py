@@ -104,7 +104,7 @@ class Merger(Receiver[_T]):
     """
 
     def __init__(self, *receivers: Receiver[_T], name: str | None) -> None:
-        """Iinitialize this merger.
+        """Initialize this merger.
 
         Args:
             *receivers: The receivers to merge.

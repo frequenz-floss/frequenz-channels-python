@@ -285,7 +285,7 @@ def selected_from(
 
 
 class SelectError(BaseException):
-    """An error originated in a [`select()`][frequenz.channels.select] operation.
+    """An error that happened during a [`select()`][frequenz.channels.select] operation.
 
     This exception is raised when a `select()` iteration fails.  It is raised as
     a single exception when one receiver fails during normal operation (while calling

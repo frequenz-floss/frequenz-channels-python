@@ -720,7 +720,7 @@ class Timer(Receiver[timedelta]):
         return f"{type(self).__name__}({self.interval})"
 
     def __repr__(self) -> str:
-        """Return a string representation of this timer."""
+        """Return a string with the internal representation of this timer."""
         return (
             f"{type(self).__name__}<{self.interval=}, {self.missed_tick_policy=}, "
             f"{self.loop=}, {self.is_running=}>"
