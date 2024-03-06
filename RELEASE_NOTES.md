@@ -48,6 +48,8 @@
 
   - The `map()` function now takes a positional-only argument, if you were using `receiver.map(call=fun)` you should replace it with `receiver.map(func)`.
 
+* `SelectError` now inherits from `channels.Error` instead of `BaseException`, so you should be able to catch it with `except Exception:` or `except channels.Error:`.
+
 * `Selected`
 
   - The `value` property was renamed to `message`.
@@ -69,7 +71,6 @@
 
   - `Selected`
   - `SelectError`
-  - `SelectErrorGroup`
   - `UnhandledSelectedError`
   - `select`
   - `selected_from`
@@ -107,6 +108,8 @@
 * `ReceiverInvalidatedError`
 
   This was removed alongside `Peekable` (it was only raised when using a `Receiver` that was converted into a `Peekable`).
+
+* `SelectErrorGroup` was removed, a Python built-in `BaseExceptionGroup` is raised instead in case of unexpected errors while finalizing a `select()` loop, which will be automatically converted to a simple `ExceptionGroup` when no exception in the groups is a `BaseException`.
 
 - `Timer`:
 

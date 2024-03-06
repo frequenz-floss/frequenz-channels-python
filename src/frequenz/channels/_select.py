@@ -43,11 +43,6 @@ Tip:
     If this happens, it will raise an
     [`UnhandledSelectedError`][frequenz.channels.UnhandledSelectedError] exception.
 
-    Not handling a receiver is considered a programming error. Because of this, the
-    exception is a subclass of [`BaseException`][BaseException] instead of
-    [`Exception`][Exception]. This means that it will not be caught by [`except
-    Exception`][Exception] blocks.
-
     If for some reason you want to ignore a received message, just add the receiver to
     the if-chain and do nothing with the message:
 
@@ -140,6 +135,7 @@ import asyncio
 from collections.abc import AsyncIterator
 from typing import Any, Generic, TypeGuard, TypeVar
 
+from ._exceptions import Error
 from ._receiver import Receiver, ReceiverStoppedError
 
 _T = TypeVar("_T")
@@ -277,14 +273,13 @@ def selected_from(
     return handled
 
 
-class SelectError(BaseException):
+class SelectError(Error):
     """An error that happened during a [`select()`][frequenz.channels.select] operation.
 
     This exception is raised when a `select()` iteration fails.  It is raised as
     a single exception when one receiver fails during normal operation (while calling
     `ready()` for example).  It is raised as a group exception
-    ([`SelectErrorGroup`][frequenz.channels.SelectErrorGroup]) when a `select` loop
-    is cleaning up after it's done.
+    ([`BaseExceptionGroup`][]) when a `select` loop is cleaning up after it's done.
     """
 
 
@@ -306,14 +301,6 @@ class UnhandledSelectedError(SelectError, Generic[_T]):
         super().__init__(f"Selected receiver {recv} was not handled in the if-chain")
         self.selected: Selected[_T] = selected
         """The selected receiver that was not handled."""
-
-
-class SelectErrorGroup(BaseExceptionGroup[BaseException], SelectError):
-    """Some receivers stopped with errors while cleaning up a `select()` operation.
-
-    The group is composed of the errors raised by the receivers when they are stopped
-    during the cleanup of a [`select()`][frequenz.channels.select] loop.
-    """
 
 
 # Typing for select() is tricky.  We had the idea of using a declarative design for
@@ -430,8 +417,8 @@ async def select(*receivers: Receiver[Any]) -> AsyncIterator[Selected[Any]]:
 
     Raises:
         UnhandledSelectedError: If a selected receiver was not handled in the if-chain.
-        SelectErrorGroup: If there is an error while finishing the select operation and
-            receivers fail while cleaning up.
+        BaseExceptionGroup: If there is an error while finishing the select operation
+            and receivers fail while cleaning up.
         SelectError: If there is an error while selecting receivers during normal
             operation.  For example if a receiver raises an exception in the `ready()`
             method.  Normal errors while receiving messages are not raised, but reported
@@ -487,7 +474,7 @@ async def _stop_pending_tasks(pending: set[asyncio.Task[bool]]) -> None:
         pending: The pending tasks to stop.
 
     Raises:
-        SelectErrorGroup: If the receivers raise any exceptions.
+        BaseExceptionGroup: If the receivers raise any exceptions.
     """
     if pending:
         for task in pending:
@@ -506,4 +493,6 @@ async def _stop_pending_tasks(pending: set[asyncio.Task[bool]]) -> None:
             # will be collected by the asyncio loop. This shouldn't be too bad as
             # errors produced by receivers will be re-raised when trying to use them
             # again.
-            raise SelectErrorGroup("Some receivers failed when select()ing", exceptions)
+            raise BaseExceptionGroup(
+                "Some receivers failed when select()ing", exceptions
+            )
