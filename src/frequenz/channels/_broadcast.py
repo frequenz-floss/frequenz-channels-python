@@ -317,7 +317,7 @@ class _Sender(Sender[_T]):
         self._channel: Broadcast[_T] = channel
         """The broadcast channel this sender belongs to."""
 
-    async def send(self, message: _T) -> None:
+    async def send(self, message: _T, /) -> None:
         """Send a message to all broadcast receivers.
 
         Args:

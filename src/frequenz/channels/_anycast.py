@@ -318,7 +318,7 @@ class _Sender(Sender[_T]):
         self._channel: Anycast[_T] = channel
         """The channel that this sender belongs to."""
 
-    async def send(self, message: _T) -> None:
+    async def send(self, message: _T, /) -> None:
         """Send a message across the channel.
 
         To send, this method inserts the message into the Anycast channel's
