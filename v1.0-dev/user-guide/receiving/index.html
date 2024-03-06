@@ -1238,9 +1238,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#frequenz.channels._receiver--value-transformation" class="md-nav__link">
+  <a href="#frequenz.channels._receiver--message-transformation" class="md-nav__link">
     <span class="md-ellipsis">
-      Value Transformation
+      Message Transformation
     </span>
   </a>
   
@@ -1297,24 +1297,24 @@
 <p>Messages are received from <a href="/user-guide/channels/index.md">channels</a> through
 <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver">Receiver</a> objects. <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver">Receivers</a>
 are usually created by calling <code>channel.new_receiver()</code> and are <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/typing.html#typing.AsyncIterator">async
-iterators</a>, so the easiest way to receive values from them as
+iterators</a>, so the easiest way to receive messages from them as
 a stream is to use <code>async for</code>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">receiver</span><span class="p">:</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">receiver</span><span class="p">:</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </span></code></pre></div>
-<p>If you need to receive values in different places or expecting a particular
+<p>If you need to receive messages in different places or expecting a particular
 sequence, you can use the <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a> method:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">first_value</span> <span class="o">=</span> <span class="k">await</span> <span class="n">receiver</span><span class="o">.</span><span class="n">receive</span><span class="p">()</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;First value: </span><span class="si">{</span><span class="n">first_value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">first_message</span> <span class="o">=</span> <span class="k">await</span> <span class="n">receiver</span><span class="o">.</span><span class="n">receive</span><span class="p">()</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;First message: </span><span class="si">{</span><span class="n">first_message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">second_value</span> <span class="o">=</span> <span class="k">await</span> <span class="n">receiver</span><span class="o">.</span><span class="n">receive</span><span class="p">()</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Second value: </span><span class="si">{</span><span class="n">second_value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">second_message</span> <span class="o">=</span> <span class="k">await</span> <span class="n">receiver</span><span class="o">.</span><span class="n">receive</span><span class="p">()</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Second message: </span><span class="si">{</span><span class="n">second_message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span></code></pre></div>
-<h2 id="frequenz.channels._receiver--value-transformation">Value Transformation<a class="headerlink" href="#frequenz.channels._receiver--value-transformation" title="Permanent link">¤</a></h2>
-<p>If you need to transform the received values, receivers provide a
+<h2 id="frequenz.channels._receiver--message-transformation">Message Transformation<a class="headerlink" href="#frequenz.channels._receiver--message-transformation" title="Permanent link">¤</a></h2>
+<p>If you need to transform the received messages, receivers provide a
 <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.map"><code>map()</code></a> method to easily do so:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">receiver</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">receiver</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </span></code></pre></div>
 <p><a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.map"><code>map()</code></a> returns a new full receiver, so you can
 use it in any of the ways described above.</p>
@@ -1341,8 +1341,8 @@ is raised by <a class="autorefs autorefs-internal" href="../../reference/frequen
 <p>When used as an async iterator, the iteration will just stop without raising an
 exception:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">try</span><span class="p">:</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="k">async</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">receiver</span><span class="p">:</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>        <span class="nb">print</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">receiver</span><span class="p">:</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>        <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">except</span> <span class="n">ReceiverStoppedError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
 </span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Will never happen&quot;</span><span class="p">)</span>
 </span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="k">except</span> <span class="n">ReceiverError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
@@ -1360,9 +1360,9 @@ ignore this section.</p>
 a <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.ready"><code>ready()</code></a> and
 a <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.consume"><code>consume()</code></a> method.</p>
 <p>The <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.ready"><code>ready()</code></a> method is used to await until the
-receiver has a new value available, but without actually consuming it. The
+receiver has a new message available, but without actually consuming it. The
 <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.consume"><code>consume()</code></a> method consumes the next available
-value and returns it.</p>
+message and returns it.</p>
 <p><a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.ready"><code>ready()</code></a> can be called multiple times, and it
 will return immediately if the receiver is already ready.
 <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.consume"><code>consume()</code></a> must be called only after

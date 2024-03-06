@@ -2526,9 +2526,9 @@ observed.</p>
 </span><span id="__span-0-163"><a id="__codelineno-0-163" name="__codelineno-0-163"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_stop_event</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
 </span><span id="__span-0-164"><a id="__codelineno-0-164" name="__codelineno-0-164"></a>
 </span><span id="__span-0-165"><a id="__codelineno-0-165" name="__codelineno-0-165"></a>    <span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Wait until the receiver is ready with a value or an error.</span>
+</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Wait until the receiver is ready with a message or an error.</span>
 </span><span id="__span-0-167"><a id="__codelineno-0-167" name="__codelineno-0-167"></a>
-</span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a><span class="sd">        Once a call to `ready()` has finished, the value should be read with</span>
+</span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a><span class="sd">        Once a call to `ready()` has finished, the message should be read with</span>
 </span><span id="__span-0-169"><a id="__codelineno-0-169" name="__codelineno-0-169"></a><span class="sd">        a call to `consume()` (`receive()` or iterated over). The receiver will</span>
 </span><span id="__span-0-170"><a id="__codelineno-0-170" name="__codelineno-0-170"></a><span class="sd">        remain ready (this method will return immediately) until it is</span>
 </span><span id="__span-0-171"><a id="__codelineno-0-171" name="__codelineno-0-171"></a><span class="sd">        consumed.</span>
@@ -2634,7 +2634,7 @@ observed.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Get an async iterator over the received values.</p>
+      <p>Get an async iterator over the received messages.</p>
 
 
 
@@ -2670,7 +2670,7 @@ observed.</p>
 <span class="normal"><a href="#__codelineno-0-197">197</a></span>
 <span class="normal"><a href="#__codelineno-0-198">198</a></span>
 <span class="normal"><a href="#__codelineno-0-199">199</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a><span class="k">def</span> <span class="fm">__aiter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get an async iterator over the received values.</span>
+</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get an async iterator over the received messages.</span>
 </span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a>
 </span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a><span class="sd">    Returns:</span>
 </span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a><span class="sd">        This receiver, as it is already an async iterator.</span>
@@ -2701,7 +2701,7 @@ observed.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Await the next value in the async iteration over received values.</p>
+      <p>Await the next message in the async iteration over received messages.</p>
 
 
 
@@ -2721,7 +2721,7 @@ observed.</p>
           </td>
           <td class="doc-returns-details">
             <div class="doc-md-description">
-              <p>The next received value.</p>
+              <p>The next received message.</p>
             </div>
           </td>
         </tr>
@@ -2782,10 +2782,10 @@ observed.</p>
 <span class="normal"><a href="#__codelineno-0-162">162</a></span>
 <span class="normal"><a href="#__codelineno-0-163">163</a></span>
 <span class="normal"><a href="#__codelineno-0-164">164</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-150"><a id="__codelineno-0-150" name="__codelineno-0-150"></a><span class="k">async</span> <span class="k">def</span> <span class="fm">__anext__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_T_co</span><span class="p">:</span>
-</span><span id="__span-0-151"><a id="__codelineno-0-151" name="__codelineno-0-151"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Await the next value in the async iteration over received values.</span>
+</span><span id="__span-0-151"><a id="__codelineno-0-151" name="__codelineno-0-151"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Await the next message in the async iteration over received messages.</span>
 </span><span id="__span-0-152"><a id="__codelineno-0-152" name="__codelineno-0-152"></a>
 </span><span id="__span-0-153"><a id="__codelineno-0-153" name="__codelineno-0-153"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-154"><a id="__codelineno-0-154" name="__codelineno-0-154"></a><span class="sd">        The next received value.</span>
+</span><span id="__span-0-154"><a id="__codelineno-0-154" name="__codelineno-0-154"></a><span class="sd">        The next received message.</span>
 </span><span id="__span-0-155"><a id="__codelineno-0-155" name="__codelineno-0-155"></a>
 </span><span id="__span-0-156"><a id="__codelineno-0-156" name="__codelineno-0-156"></a><span class="sd">    Raises:</span>
 </span><span id="__span-0-157"><a id="__codelineno-0-157" name="__codelineno-0-157"></a><span class="sd">        StopAsyncIteration: If the receiver stopped producing messages.</span>
@@ -3147,12 +3147,14 @@ all event types.</p>
 
 
 <a href="#frequenz.channels.file_watcher.FileWatcher.map" class="headerlink" title="Permanent link">¤</a></h6>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">map</span><span class="p">(</span><span class="n">call</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a></span><span class="p">[[</span><span class="n"><span title="frequenz.channels._receiver._T_co">_T_co</span></span><span class="p">],</span> <span class="n"><span title="frequenz.channels._receiver._U_co">_U_co</span></span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._receiver.Receiver" href="../#frequenz.channels.Receiver">Receiver</a></span><span class="p">[</span><span class="n"><span title="frequenz.channels._receiver._U_co">_U_co</span></span><span class="p">]</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">map</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">mapping_function</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a></span><span class="p">[[</span><span class="n"><span title="frequenz.channels._receiver._T_co">_T_co</span></span><span class="p">],</span> <span class="n"><span title="frequenz.channels._receiver._U_co">_U_co</span></span><span class="p">]</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._receiver.Receiver" href="../#frequenz.channels.Receiver">Receiver</a></span><span class="p">[</span><span class="n"><span title="frequenz.channels._receiver._U_co">_U_co</span></span><span class="p">]</span>
 </span></code></pre></div>
 
   <div class="doc doc-contents ">
   
-      <p>Apply a mapping function on the received values.</p>
+      <p>Apply a mapping function on the received message.</p>
 
 <details class="tip" open>
   <summary>Tip</summary>
@@ -3172,7 +3174,7 @@ original receiver and use that instead.</p>
     </thead>
     <tbody>
         <tr>
-          <td><code>call</code></td>
+          <td><code>mapping_function</code></td>
           <td class="doc-param-details">
             <div class="doc-md-description">
               <p>The function to be applied on incoming messages.</p>
@@ -3206,7 +3208,7 @@ original receiver and use that instead.</p>
           </td>
           <td class="doc-returns-details">
             <div class="doc-md-description">
-              <p>A new receiver that applies the function on the received values.</p>
+              <p>A new receiver that applies the function on the received messages.</p>
             </div>
           </td>
         </tr>
@@ -3230,8 +3232,8 @@ original receiver and use that instead.</p>
 <span class="normal"><a href="#__codelineno-0-240">240</a></span>
 <span class="normal"><a href="#__codelineno-0-241">241</a></span>
 <span class="normal"><a href="#__codelineno-0-242">242</a></span>
-<span class="normal"><a href="#__codelineno-0-243">243</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a><span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">call</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">_T_co</span><span class="p">],</span> <span class="n">_U_co</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">_U_co</span><span class="p">]:</span>
-</span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply a mapping function on the received values.</span>
+<span class="normal"><a href="#__codelineno-0-243">243</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a><span class="k">def</span> <span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping_function</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">_T_co</span><span class="p">],</span> <span class="n">_U_co</span><span class="p">],</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Receiver</span><span class="p">[</span><span class="n">_U_co</span><span class="p">]:</span>
+</span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply a mapping function on the received message.</span>
 </span><span id="__span-0-230"><a id="__codelineno-0-230" name="__codelineno-0-230"></a>
 </span><span id="__span-0-231"><a id="__codelineno-0-231" name="__codelineno-0-231"></a><span class="sd">    Tip:</span>
 </span><span id="__span-0-232"><a id="__codelineno-0-232" name="__codelineno-0-232"></a><span class="sd">        The returned receiver type won&#39;t have all the methods of the original</span>
@@ -3240,12 +3242,12 @@ original receiver and use that instead.</p>
 </span><span id="__span-0-235"><a id="__codelineno-0-235" name="__codelineno-0-235"></a><span class="sd">        original receiver and use that instead.</span>
 </span><span id="__span-0-236"><a id="__codelineno-0-236" name="__codelineno-0-236"></a>
 </span><span id="__span-0-237"><a id="__codelineno-0-237" name="__codelineno-0-237"></a><span class="sd">    Args:</span>
-</span><span id="__span-0-238"><a id="__codelineno-0-238" name="__codelineno-0-238"></a><span class="sd">        call: The function to be applied on incoming messages.</span>
+</span><span id="__span-0-238"><a id="__codelineno-0-238" name="__codelineno-0-238"></a><span class="sd">        mapping_function: The function to be applied on incoming messages.</span>
 </span><span id="__span-0-239"><a id="__codelineno-0-239" name="__codelineno-0-239"></a>
 </span><span id="__span-0-240"><a id="__codelineno-0-240" name="__codelineno-0-240"></a><span class="sd">    Returns:</span>
-</span><span id="__span-0-241"><a id="__codelineno-0-241" name="__codelineno-0-241"></a><span class="sd">        A new receiver that applies the function on the received values.</span>
+</span><span id="__span-0-241"><a id="__codelineno-0-241" name="__codelineno-0-241"></a><span class="sd">        A new receiver that applies the function on the received messages.</span>
 </span><span id="__span-0-242"><a id="__codelineno-0-242" name="__codelineno-0-242"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-243"><a id="__codelineno-0-243" name="__codelineno-0-243"></a>    <span class="k">return</span> <span class="n">_Mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">call</span><span class="p">)</span>
+</span><span id="__span-0-243"><a id="__codelineno-0-243" name="__codelineno-0-243"></a>    <span class="k">return</span> <span class="n">_Mapper</span><span class="p">(</span><span class="n">receiver</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">mapping_function</span><span class="o">=</span><span class="n">mapping_function</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
           </details>
   </div>
@@ -3271,8 +3273,8 @@ original receiver and use that instead.</p>
 
   <div class="doc doc-contents ">
   
-      <p>Wait until the receiver is ready with a value or an error.</p>
-<p>Once a call to <code>ready()</code> has finished, the value should be read with
+      <p>Wait until the receiver is ready with a message or an error.</p>
+<p>Once a call to <code>ready()</code> has finished, the message should be read with
 a call to <code>consume()</code> (<code>receive()</code> or iterated over). The receiver will
 remain ready (this method will return immediately) until it is
 consumed.</p>
@@ -3329,9 +3331,9 @@ consumed.</p>
 <span class="normal"><a href="#__codelineno-0-187">187</a></span>
 <span class="normal"><a href="#__codelineno-0-188">188</a></span>
 <span class="normal"><a href="#__codelineno-0-189">189</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-165"><a id="__codelineno-0-165" name="__codelineno-0-165"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">ready</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Wait until the receiver is ready with a value or an error.</span>
+</span><span id="__span-0-166"><a id="__codelineno-0-166" name="__codelineno-0-166"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Wait until the receiver is ready with a message or an error.</span>
 </span><span id="__span-0-167"><a id="__codelineno-0-167" name="__codelineno-0-167"></a>
-</span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a><span class="sd">    Once a call to `ready()` has finished, the value should be read with</span>
+</span><span id="__span-0-168"><a id="__codelineno-0-168" name="__codelineno-0-168"></a><span class="sd">    Once a call to `ready()` has finished, the message should be read with</span>
 </span><span id="__span-0-169"><a id="__codelineno-0-169" name="__codelineno-0-169"></a><span class="sd">    a call to `consume()` (`receive()` or iterated over). The receiver will</span>
 </span><span id="__span-0-170"><a id="__codelineno-0-170" name="__codelineno-0-170"></a><span class="sd">    remain ready (this method will return immediately) until it is</span>
 </span><span id="__span-0-171"><a id="__codelineno-0-171" name="__codelineno-0-171"></a><span class="sd">    consumed.</span>

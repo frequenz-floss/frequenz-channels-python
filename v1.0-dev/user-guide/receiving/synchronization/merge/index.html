@@ -1337,8 +1337,8 @@
 <p>If you just need to receive the same type of messages but from multiple sources in one
 stream, you can use <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.merge"><code>merge()</code></a> to create a new receiver that
 will receive messages from all the given receivers:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">merge</span><span class="p">(</span><span class="n">receiver1</span><span class="p">,</span> <span class="n">receiver2</span><span class="p">):</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">merge</span><span class="p">(</span><span class="n">receiver1</span><span class="p">,</span> <span class="n">receiver2</span><span class="p">):</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </span></code></pre></div>
 <p>If the first message comes from <code>channel2</code> and the second message from <code>channel1</code>, the
 first message will be received immediately, and the second message will be received as
