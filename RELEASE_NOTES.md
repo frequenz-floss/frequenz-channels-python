@@ -48,6 +48,8 @@
 
   - The `map()` function now takes a positional-only argument, if you were using `receiver.map(call=fun)` you should replace it with `receiver.map(func)`.
 
+* `SelectError` now inherits from `channels.Error` instead of `BaseException`, so you should be able to catch it with `except Exception:` or `except channels.Error:`.
+
 * `Selected`
 
   - The `value` property was renamed to `message`.

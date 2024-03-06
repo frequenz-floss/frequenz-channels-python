@@ -43,11 +43,6 @@ Tip:
     If this happens, it will raise an
     [`UnhandledSelectedError`][frequenz.channels.UnhandledSelectedError] exception.
 
-    Not handling a receiver is considered a programming error. Because of this, the
-    exception is a subclass of [`BaseException`][BaseException] instead of
-    [`Exception`][Exception]. This means that it will not be caught by [`except
-    Exception`][Exception] blocks.
-
     If for some reason you want to ignore a received message, just add the receiver to
     the if-chain and do nothing with the message:
 
@@ -140,6 +135,7 @@ import asyncio
 from collections.abc import AsyncIterator
 from typing import Any, Generic, TypeGuard, TypeVar
 
+from ._exceptions import Error
 from ._receiver import Receiver, ReceiverStoppedError
 
 _T = TypeVar("_T")
@@ -277,7 +273,7 @@ def selected_from(
     return handled
 
 
-class SelectError(BaseException):
+class SelectError(Error):
     """An error that happened during a [`select()`][frequenz.channels.select] operation.
 
     This exception is raised when a `select()` iteration fails.  It is raised as
