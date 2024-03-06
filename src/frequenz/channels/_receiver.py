@@ -225,7 +225,7 @@ class Receiver(ABC, Generic[_T_co]):
             raise ReceiverStoppedError(self) from exc
         return received
 
-    def map(self, mapping_function: Callable[[_T_co], _U_co]) -> Receiver[_U_co]:
+    def map(self, mapping_function: Callable[[_T_co], _U_co], /) -> Receiver[_U_co]:
         """Apply a mapping function on the received message.
 
         Tip:
