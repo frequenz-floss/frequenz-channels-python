@@ -309,13 +309,13 @@ class _Sender(Sender[_T]):
     method.
     """
 
-    def __init__(self, chan: Anycast[_T]) -> None:
+    def __init__(self, channel: Anycast[_T]) -> None:
         """Initialize this sender.
 
         Args:
-            chan: A reference to the channel that this sender belongs to.
+            channel: A reference to the channel that this sender belongs to.
         """
-        self._chan: Anycast[_T] = chan
+        self._channel: Anycast[_T] = channel
         """The channel that this sender belongs to."""
 
     async def send(self, message: _T) -> None:
@@ -335,35 +335,35 @@ class _Sender(Sender[_T]):
                 set as the cause.
         """
         # pylint: disable=protected-access
-        if self._chan._closed:
+        if self._channel._closed:
             raise SenderError("The channel was closed", self) from ChannelClosedError(
-                self._chan
+                self._channel
             )
-        if len(self._chan._deque) == self._chan._deque.maxlen:
+        if len(self._channel._deque) == self._channel._deque.maxlen:
             _logger.warning(
                 "Anycast channel [%s] is full, blocking sender until a receiver "
                 "consumes a message",
                 self,
             )
-            while len(self._chan._deque) == self._chan._deque.maxlen:
-                async with self._chan._send_cv:
-                    await self._chan._send_cv.wait()
+            while len(self._channel._deque) == self._channel._deque.maxlen:
+                async with self._channel._send_cv:
+                    await self._channel._send_cv.wait()
             _logger.info(
                 "Anycast channel [%s] has space again, resuming the blocked sender",
                 self,
             )
-        self._chan._deque.append(message)
-        async with self._chan._recv_cv:
-            self._chan._recv_cv.notify(1)
+        self._channel._deque.append(message)
+        async with self._channel._recv_cv:
+            self._channel._recv_cv.notify(1)
         # pylint: enable=protected-access
 
     def __str__(self) -> str:
         """Return a string representation of this sender."""
-        return f"{self._chan}:{type(self).__name__}"
+        return f"{self._channel}:{type(self).__name__}"
 
     def __repr__(self) -> str:
         """Return a string representation of this sender."""
-        return f"{type(self).__name__}({self._chan!r})"
+        return f"{type(self).__name__}({self._channel!r})"
 
 
 class _Empty:
@@ -377,13 +377,13 @@ class _Receiver(Receiver[_T]):
     method.
     """
 
-    def __init__(self, chan: Anycast[_T]) -> None:
+    def __init__(self, channel: Anycast[_T]) -> None:
         """Initialize this receiver.
 
         Args:
-            chan: A reference to the channel that this receiver belongs to.
+            channel: A reference to the channel that this receiver belongs to.
         """
-        self._chan: Anycast[_T] = chan
+        self._channel: Anycast[_T] = channel
         """The channel that this receiver belongs to."""
 
         self._next: _T | type[_Empty] = _Empty
@@ -404,14 +404,14 @@ class _Receiver(Receiver[_T]):
             return True
 
         # pylint: disable=protected-access
-        while len(self._chan._deque) == 0:
-            if self._chan._closed:
+        while len(self._channel._deque) == 0:
+            if self._channel._closed:
                 return False
-            async with self._chan._recv_cv:
-                await self._chan._recv_cv.wait()
-        self._next = self._chan._deque.popleft()
-        async with self._chan._send_cv:
-            self._chan._send_cv.notify(1)
+            async with self._channel._recv_cv:
+                await self._channel._recv_cv.wait()
+        self._next = self._channel._deque.popleft()
+        async with self._channel._send_cv:
+            self._channel._send_cv.notify(1)
         # pylint: enable=protected-access
         return True
 
@@ -426,9 +426,9 @@ class _Receiver(Receiver[_T]):
             ReceiverError: If there is some problem with the receiver.
         """
         if (  # pylint: disable=protected-access
-            self._next is _Empty and self._chan._closed
+            self._next is _Empty and self._channel._closed
         ):
-            raise ReceiverStoppedError(self) from ChannelClosedError(self._chan)
+            raise ReceiverStoppedError(self) from ChannelClosedError(self._channel)
 
         assert (
             self._next is not _Empty
@@ -442,8 +442,8 @@ class _Receiver(Receiver[_T]):
 
     def __str__(self) -> str:
         """Return a string representation of this receiver."""
-        return f"{self._chan}:{type(self).__name__}"
+        return f"{self._channel}:{type(self).__name__}"
 
     def __repr__(self) -> str:
         """Return a string representation of this receiver."""
-        return f"{type(self).__name__}({self._chan!r})"
+        return f"{type(self).__name__}({self._channel!r})"

@@ -308,13 +308,13 @@ class _Sender(Sender[_T]):
     method.
     """
 
-    def __init__(self, chan: Broadcast[_T]) -> None:
+    def __init__(self, channel: Broadcast[_T]) -> None:
         """Initialize this sender.
 
         Args:
-            chan: A reference to the broadcast channel this sender belongs to.
+            channel: A reference to the broadcast channel this sender belongs to.
         """
-        self._chan: Broadcast[_T] = chan
+        self._channel: Broadcast[_T] = channel
         """The broadcast channel this sender belongs to."""
 
     async def send(self, message: _T) -> None:
@@ -329,31 +329,31 @@ class _Sender(Sender[_T]):
                 set as the cause.
         """
         # pylint: disable=protected-access
-        if self._chan._closed:
+        if self._channel._closed:
             raise SenderError("The channel was closed", self) from ChannelClosedError(
-                self._chan
+                self._channel
             )
-        self._chan._latest = message
+        self._channel._latest = message
         stale_refs = []
-        for _hash, recv_ref in self._chan._receivers.items():
+        for _hash, recv_ref in self._channel._receivers.items():
             recv = recv_ref()
             if recv is None:
                 stale_refs.append(_hash)
                 continue
             recv.enqueue(message)
         for _hash in stale_refs:
-            del self._chan._receivers[_hash]
-        async with self._chan._recv_cv:
-            self._chan._recv_cv.notify_all()
+            del self._channel._receivers[_hash]
+        async with self._channel._recv_cv:
+            self._channel._recv_cv.notify_all()
         # pylint: enable=protected-access
 
     def __str__(self) -> str:
         """Return a string representation of this sender."""
-        return f"{self._chan}:{type(self).__name__}"
+        return f"{self._channel}:{type(self).__name__}"
 
     def __repr__(self) -> str:
         """Return a string representation of this sender."""
-        return f"{type(self).__name__}({self._chan!r})"
+        return f"{type(self).__name__}({self._channel!r})"
 
 
 class _Receiver(Receiver[_T]):
@@ -364,7 +364,7 @@ class _Receiver(Receiver[_T]):
     method.
     """
 
-    def __init__(self, name: str | None, limit: int, chan: Broadcast[_T]) -> None:
+    def __init__(self, name: str | None, limit: int, channel: Broadcast[_T]) -> None:
         """Initialize this receiver.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -377,7 +377,7 @@ class _Receiver(Receiver[_T]):
                 purposes, it will be shown in the string representation of the
                 receiver.
             limit: Number of messages the receiver can hold in its buffer.
-            chan: a reference to the Broadcast channel that this receiver
+            channel: a reference to the Broadcast channel that this receiver
                 belongs to.
         """
         self._name: str = name if name is not None else f"{id(self):_}"
@@ -386,7 +386,7 @@ class _Receiver(Receiver[_T]):
         Only used for debugging purposes.
         """
 
-        self._chan: Broadcast[_T] = chan
+        self._channel: Broadcast[_T] = channel
         """The broadcast channel that this receiver belongs to."""
 
         self._q: deque[_T] = deque(maxlen=limit)
@@ -439,10 +439,10 @@ class _Receiver(Receiver[_T]):
         # consumed, then we return immediately.
         # pylint: disable=protected-access
         while len(self._q) == 0:
-            if self._chan._closed:
+            if self._channel._closed:
                 return False
-            async with self._chan._recv_cv:
-                await self._chan._recv_cv.wait()
+            async with self._channel._recv_cv:
+                await self._channel._recv_cv.wait()
         return True
         # pylint: enable=protected-access
 
@@ -455,15 +455,15 @@ class _Receiver(Receiver[_T]):
         Raises:
             ReceiverStoppedError: If there is some problem with the receiver.
         """
-        if not self._q and self._chan._closed:  # pylint: disable=protected-access
-            raise ReceiverStoppedError(self) from ChannelClosedError(self._chan)
+        if not self._q and self._channel._closed:  # pylint: disable=protected-access
+            raise ReceiverStoppedError(self) from ChannelClosedError(self._channel)
 
         assert self._q, "`consume()` must be preceded by a call to `ready()`"
         return self._q.popleft()
 
     def __str__(self) -> str:
         """Return a string representation of this receiver."""
-        return f"{self._chan}:{type(self).__name__}"
+        return f"{self._channel}:{type(self).__name__}"
 
     def __repr__(self) -> str:
         """Return a string representation of this receiver."""
@@ -471,5 +471,5 @@ class _Receiver(Receiver[_T]):
         assert limit is not None
         return (
             f"{type(self).__name__}(name={self._name!r}, limit={limit!r}, "
-            f"{self._chan!r}):<id={id(self)!r}, used={len(self._q)!r}>"
+            f"{self._channel!r}):<id={id(self)!r}, used={len(self._q)!r}>"
         )
