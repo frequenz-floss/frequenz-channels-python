@@ -6,8 +6,11 @@
 from typing import Any
 
 import markdown as md
+from griffe import Object
+from griffe.collections import ModulesCollection
 from markdown.extensions import toc
 from mkdocs_macros import plugin as macros
+from mkdocstrings_handlers.python.handler import PythonHandler
 
 _CODE_ANNOTATION_MARKER: str = (
     r'<span class="md-annotation">'
@@ -27,10 +30,7 @@ def _slugify(text: str) -> str:
     Returns:
         The slugified text.
     """
-    # The type of the return value is not defined for the markdown library.
-    # Also for some reason `mypy` thinks the `toc` module doesn't have a
-    # `slugify_unicode` function, but it definitely does.
-    return toc.slugify_unicode(text, "-")  # type: ignore[attr-defined,no-any-return]
+    return toc.slugify_unicode(text, "-")
 
 
 def _hook_macros_plugin(env: macros.MacrosPlugin) -> None:
@@ -77,7 +77,41 @@ def define_env(env: macros.MacrosPlugin) -> None:
     # https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#adding-annotations
     env.variables["code_annotation_marker"] = _CODE_ANNOTATION_MARKER
 
-    # TODO(cookiecutter): Add any other macros, variables and filters here.
+    python_handler = env.conf["plugins"]["mkdocstrings"].get_handler("python")
+    assert isinstance(python_handler, PythonHandler)
+
+    def _get_docstring(symbol: str) -> str:
+        symbols = python_handler._modules_collection  # pylint: disable=protected-access
+        assert isinstance(symbols, ModulesCollection)
+
+        try:
+            obj = symbols[symbol]
+        except KeyError as exc:
+            raise ValueError(f"Symbol {symbol!r} not found.") from exc
+        assert isinstance(obj, Object)
+
+        docstring = obj.docstring
+        if not docstring:
+            raise ValueError(f"Symbol {symbol!r} has no docstring.")
+
+        return docstring.value
+
+    # The decorator makes the function untyped
+    @env.macro  # type: ignore[misc]
+    def docstring_summary(symbol: str) -> str:
+        """Get the summary of a Python symbol.
+
+        Args:
+            symbol: The fully qualified name of the Python symbol to get the summary of.
+
+        Returns:
+            The summary of the Python symbol.
+        """
+        docstring = _get_docstring(symbol)
+        summary = docstring.splitlines(keepends=False)[0]
+        return python_handler.do_convert_markdown(
+            summary, heading_level=1, strip_paragraph=True
+        )
 
     # This hook needs to be done at the end of the `define_env` function.
     _hook_macros_plugin(env)
