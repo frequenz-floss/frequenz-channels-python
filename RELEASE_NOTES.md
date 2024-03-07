@@ -2,7 +2,9 @@
 
 ## Summary
 
-<!-- Here goes a general summary of what this release is about -->
+This is the first releasse candidate for version 1.0. It includes few new features and a lot of cleanups and API improvements and polishing. Because of this, there are a lot of breaking changes too, but they should be easy to fix, as they ae mostly renames and reorganizations.
+
+We hope this is the final pre-release before the final 1.0 release, and we don't expect to introduce any further breaking changes. Because of this we encourage you to test it and report any issues you find. You can also use a version constraint like `>= 1.0.0-rc.1, < 2.0.0` as the final version should be compatible.
 
 ## Upgrading
 
@@ -178,6 +180,8 @@
 * `Sender` now uses a contravariant generic type, which allows the generic type to be narrower than the required type.
 
 *  `ChannelError` is now generic, so when accessing the `channel` attribute, the type of the channel is preserved.
+
+* The generated documentation / website was greatly improved, both in content and looks.
 
 ## Bug Fixes
 
