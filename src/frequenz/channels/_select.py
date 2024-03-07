@@ -133,12 +133,11 @@ exception that was raised by the receiver.
 
 import asyncio
 from collections.abc import AsyncIterator
-from typing import Any, Generic, TypeGuard, TypeVar
+from typing import Any, Generic, TypeGuard
 
 from ._exceptions import Error
+from ._generic import ReceiverMessageT_co
 from ._receiver import Receiver, ReceiverStoppedError
-
-_T = TypeVar("_T")
 
 
 class _EmptyResult:
@@ -152,7 +151,7 @@ class _EmptyResult:
         return "<empty>"
 
 
-class Selected(Generic[_T]):
+class Selected(Generic[ReceiverMessageT_co]):
     """A result of a [`select()`][frequenz.channels.select] iteration.
 
     The selected receiver is consumed immediately and the received message is stored in
@@ -166,7 +165,7 @@ class Selected(Generic[_T]):
     Please see [`select()`][frequenz.channels.select] for an example.
     """
 
-    def __init__(self, receiver: Receiver[_T], /) -> None:
+    def __init__(self, receiver: Receiver[ReceiverMessageT_co], /) -> None:
         """Initialize this selected result.
 
         The receiver is consumed immediately when creating the instance and the received
@@ -178,10 +177,10 @@ class Selected(Generic[_T]):
         Args:
             receiver: The receiver that was selected.
         """
-        self._recv: Receiver[_T] = receiver
+        self._recv: Receiver[ReceiverMessageT_co] = receiver
         """The receiver that was selected."""
 
-        self._message: _T | _EmptyResult = _EmptyResult()
+        self._message: ReceiverMessageT_co | _EmptyResult = _EmptyResult()
         """The message that was received.
 
         If there was an exception while receiving the message, then this will be `None`.
@@ -198,7 +197,7 @@ class Selected(Generic[_T]):
         """Flag to indicate if this selected has been handled in the if-chain."""
 
     @property
-    def message(self) -> _T:
+    def message(self) -> ReceiverMessageT_co:
         """The message that was received, if any.
 
         Returns:
@@ -248,8 +247,8 @@ class Selected(Generic[_T]):
 # `TypeGuard`s can't be used as methods. For more information see:
 # https://github.com/microsoft/pyright/discussions/3125
 def selected_from(
-    selected: Selected[Any], receiver: Receiver[_T]
-) -> TypeGuard[Selected[_T]]:
+    selected: Selected[Any], receiver: Receiver[ReceiverMessageT_co]
+) -> TypeGuard[Selected[ReceiverMessageT_co]]:
     """Check whether the given receiver was selected by [`select()`][frequenz.channels.select].
 
     This function is used in conjunction with the
@@ -283,7 +282,7 @@ class SelectError(Error):
     """
 
 
-class UnhandledSelectedError(SelectError, Generic[_T]):
+class UnhandledSelectedError(SelectError, Generic[ReceiverMessageT_co]):
     """A receiver was not handled in a [`select()`][frequenz.channels.select] iteration.
 
     This exception is raised when a [`select()`][frequenz.channels.select] iteration
@@ -291,7 +290,7 @@ class UnhandledSelectedError(SelectError, Generic[_T]):
     the selected receiver.
     """
 
-    def __init__(self, selected: Selected[_T]) -> None:
+    def __init__(self, selected: Selected[ReceiverMessageT_co]) -> None:
         """Initialize this error.
 
         Args:
@@ -299,7 +298,7 @@ class UnhandledSelectedError(SelectError, Generic[_T]):
         """
         recv = selected._recv  # pylint: disable=protected-access
         super().__init__(f"Selected receiver {recv} was not handled in the if-chain")
-        self.selected: Selected[_T] = selected
+        self.selected: Selected[ReceiverMessageT_co] = selected
         """The selected receiver that was not handled."""
 
 

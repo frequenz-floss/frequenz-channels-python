@@ -173,9 +173,11 @@
 
 ## Improvements
 
-* `Receiver`: Use a covariant generic type, which allows the generic type to be broader than the actual type.
+* `Receiver`, `merge`/`Merger`, `Error` and its derived classes now use a covariant generic type, which allows the generic type to be broader than the actual type.
 
-* `Sender`: Use a contravariant generic type, which allows the generic type to be narrower than the required type.
+* `Sender` now uses a contravariant generic type, which allows the generic type to be narrower than the required type.
+
+*  `ChannelError` is now generic, so when accessing the `channel` attribute, the type of the channel is preserved.
 
 ## Bug Fixes
 

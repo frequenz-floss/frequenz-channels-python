@@ -52,14 +52,13 @@ from __future__ import annotations
 import asyncio
 import itertools
 from collections import deque
-from typing import Any, TypeVar
+from typing import Any
 
+from ._generic import ReceiverMessageT_co
 from ._receiver import Receiver, ReceiverStoppedError
 
-_T = TypeVar("_T")
 
-
-def merge(*receivers: Receiver[_T]) -> Merger[_T]:
+def merge(*receivers: Receiver[ReceiverMessageT_co]) -> Merger[ReceiverMessageT_co]:
     """Merge messages coming from multiple receivers into a single stream.
 
     Example:
@@ -95,7 +94,7 @@ def merge(*receivers: Receiver[_T]) -> Merger[_T]:
     return Merger(*receivers, name="merge")
 
 
-class Merger(Receiver[_T]):
+class Merger(Receiver[ReceiverMessageT_co]):
     """A receiver that merges messages coming from multiple receivers into a single stream.
 
     Tip:
@@ -103,7 +102,9 @@ class Merger(Receiver[_T]):
         function instead of creating a `Merger` instance directly.
     """
 
-    def __init__(self, *receivers: Receiver[_T], name: str | None) -> None:
+    def __init__(
+        self, *receivers: Receiver[ReceiverMessageT_co], name: str | None
+    ) -> None:
         """Initialize this merger.
 
         Args:
@@ -111,7 +112,7 @@ class Merger(Receiver[_T]):
             name: The name of the receiver. Used to create the string representation
                 of the receiver.
         """
-        self._receivers: dict[str, Receiver[_T]] = {
+        self._receivers: dict[str, Receiver[ReceiverMessageT_co]] = {
             str(id): recv for id, recv in enumerate(receivers)
         }
         self._name: str = name if name is not None else type(self).__name__
@@ -119,7 +120,7 @@ class Merger(Receiver[_T]):
             asyncio.create_task(anext(recv), name=name)
             for name, recv in self._receivers.items()
         }
-        self._results: deque[_T] = deque(maxlen=len(self._receivers))
+        self._results: deque[ReceiverMessageT_co] = deque(maxlen=len(self._receivers))
 
     def __del__(self) -> None:
         """Finalize this merger."""
@@ -170,7 +171,7 @@ class Merger(Receiver[_T]):
                     asyncio.create_task(anext(self._receivers[name]), name=name)
                 )
 
-    def consume(self) -> _T:
+    def consume(self) -> ReceiverMessageT_co:
         """Return the latest message once `ready` is complete.
 
         Returns:
