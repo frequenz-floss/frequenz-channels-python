@@ -6,6 +6,7 @@
 
 import asyncio
 import enum
+import re
 from datetime import timedelta
 
 import async_solipsism
@@ -331,6 +332,18 @@ async def test_timer_construction_wrong_args() -> None:
             loop=None,
         )
 
+    with pytest.raises(
+        ValueError,
+        match=re.escape("`auto_start` must be `True` if `tick_at_start` is `True`"),
+    ):
+        _ = Timer(
+            timedelta(seconds=5.0),
+            SkipMissedAndResync(),
+            auto_start=False,
+            tick_at_start=True,
+            loop=None,
+        )
+
 
 async def test_timer_close_receiver() -> None:
     """Test the autostart of a periodic timer."""
@@ -382,6 +395,46 @@ async def test_timer_autostart_with_delay() -> None:
     drift = await timer.receive()
     assert drift == pytest.approx(timedelta(seconds=0.0))
     assert event_loop.time() == pytest.approx(2.5)
+
+
+async def test_timer_autostart_with_tick_at_start() -> None:
+    """Test the autostart of a periodic timer with a tick at start."""
+    event_loop = asyncio.get_running_loop()
+
+    timer = Timer(timedelta(seconds=1.0), TriggerAllMissed(), tick_at_start=True)
+
+    # The first tick should be at 0.0, without any delay.
+    drift = await timer.receive()
+    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert event_loop.time() == pytest.approx(0.0)
+
+    # The next tick should be at 1.0
+    drift = await timer.receive()
+    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert event_loop.time() == pytest.approx(1.0)
+
+
+async def test_timer_autostart_with_delay_and_tick_at_start() -> None:
+    """Test the autostart of a periodic timer with a start delay and tick at start."""
+    event_loop = asyncio.get_running_loop()
+
+    timer = Timer(
+        timedelta(seconds=1.0),
+        TriggerAllMissed(),
+        tick_at_start=True,
+        start_delay=timedelta(seconds=0.5),
+    )
+
+    # The first tick should be at 0.5, as soon as the start delay is over.
+    await asyncio.sleep(0.3)
+    drift = await timer.receive()
+    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert event_loop.time() == pytest.approx(0.5)
+
+    # The next tick should be at 1.5
+    drift = await timer.receive()
+    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert event_loop.time() == pytest.approx(1.5)
 
 
 class _StartMethod(enum.Enum):
