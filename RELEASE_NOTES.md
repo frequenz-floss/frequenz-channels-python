@@ -10,7 +10,7 @@
 
 ## New Features
 
-<!-- Here goes the main new features and examples or instructions on how to use them -->
+- An optional `tick_at_start` parameter has been added to `Timer`.  When `True`, the timer will trigger immediately after starting, and then wait for the interval before triggering again.
 
 ## Bug Fixes
 

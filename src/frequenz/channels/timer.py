@@ -477,6 +477,7 @@ class Timer(Receiver[timedelta]):
         *,
         auto_start: bool = True,
         start_delay: timedelta = timedelta(0),
+        tick_at_start: bool = False,
         loop: asyncio.AbstractEventLoop | None = None,
     ) -> None:
         """Initialize this timer.
@@ -497,6 +498,13 @@ class Timer(Receiver[timedelta]):
             start_delay: The delay before the timer should start. If `auto_start` is
                 `False`, an exception is raised. This has microseconds resolution,
                 anything smaller than a microsecond means no delay.
+            tick_at_start: When `True`, the timer will trigger immediately after
+                starting, and then wait for the interval before triggering
+                again.  When `False`, the timer will wait the interval before
+                triggering for the first time.  If `auto_start` is `False` and
+                this is `True`, an exception is raised.  If a `start_delay` is
+                specified and this is `True`, the first trigger will be immediately
+                after the `start_delay`.
             loop: The event loop to use to track time. If `None`,
                 `asyncio.get_running_loop()` will be used.
 
@@ -516,6 +524,9 @@ class Timer(Receiver[timedelta]):
             raise ValueError(
                 "`auto_start` must be `True` if a `start_delay` is specified"
             )
+
+        if tick_at_start is True and auto_start is False:
+            raise ValueError("`auto_start` must be `True` if `tick_at_start` is `True`")
 
         self._interval: int = _to_microseconds(interval)
         """The time to between timer ticks."""
@@ -567,7 +578,7 @@ class Timer(Receiver[timedelta]):
         """
 
         if auto_start:
-            self.reset(start_delay=start_delay)
+            self.reset(start_delay=start_delay, tick_at_start=tick_at_start)
 
     @property
     def interval(self) -> timedelta:
@@ -595,6 +606,7 @@ class Timer(Receiver[timedelta]):
         *,
         interval: timedelta | None = None,
         start_delay: timedelta = timedelta(0),
+        tick_at_start: bool = False,
     ) -> None:
         """Reset the timer to start timing from now (plus an optional delay).
 
@@ -608,6 +620,12 @@ class Timer(Receiver[timedelta]):
                 interval is kept.
             start_delay: The delay before the timer should start. This has microseconds
                 resolution, anything smaller than a microsecond means no delay.
+            tick_at_start: When `True`, the timer will trigger immediately after
+                starting, and then wait for the interval before triggering
+                again.  When `False`, the timer will wait the interval before
+                triggering for the first time.  If a `start_delay` is specified
+                and this is `True`, the first trigger will be immediately after
+                the `start_delay`.
 
         Raises:
             RuntimeError: If it was called without a running loop.
@@ -621,7 +639,10 @@ class Timer(Receiver[timedelta]):
         if interval is not None:
             self._interval = _to_microseconds(interval)
 
-        self._next_tick_time = self._now() + start_delay_ms + self._interval
+        self._next_tick_time = self._now() + start_delay_ms
+
+        if not tick_at_start:
+            self._next_tick_time += self._interval
 
         if self.is_running:
             self._reset_event.set()
