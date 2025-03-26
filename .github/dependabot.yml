@@ -19,17 +19,25 @@ updates:
     # Major updates are still managed, but they'll create one PR per
     # dependency, as major updates are expected to be breaking, it is better to
     # manage them individually.
+    # We exclude the `frequenz-repo-config` package from grouping as this
+    # dependency is still under development (at branch v0.x.x), so minor
+    # changes typically introduce breaking changes (and patch updates can
+    # potentially too according to semver).
     groups:
       required:
         dependency-type: "production"
         update-types:
           - "minor"
           - "patch"
+        exclude-patterns:
+          - "frequenz-repo-config"
       optional:
         dependency-type: "development"
         update-types:
           - "minor"
           - "patch"
+        exclude-patterns:
+          - "frequenz-repo-config"
 
   - package-ecosystem: "github-actions"
     directory: "/"
