@@ -30,14 +30,14 @@ updates:
           - "minor"
           - "patch"
         exclude-patterns:
-          - "frequenz-repo-config"
+          - "frequenz-repo-config*"
       optional:
         dependency-type: "development"
         update-types:
           - "minor"
           - "patch"
         exclude-patterns:
-          - "frequenz-repo-config"
+          - "frequenz-repo-config*"
 
   - package-ecosystem: "github-actions"
     directory: "/"
