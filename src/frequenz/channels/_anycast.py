@@ -463,6 +463,25 @@ class _Receiver(Receiver[_T]):
         """
         self._closed = True
 
+    @override
+    def fork(self, *, name: str | None = None) -> "Receiver[_T]":
+        """Create a new receiver that is a clone of this receiver.
+
+        Args:
+            name: An optional name for the new receiver. This is ignored as Anycast
+                receivers don't have names.
+
+        Returns:
+            A new receiver that is a clone of this receiver.
+
+        Raises:
+            ReceiverStoppedError: If the receiver is closed.
+        """
+        if self._closed:
+            raise ReceiverStoppedError(self)
+
+        return self._channel.new_receiver()
+
     def __str__(self) -> str:
         """Return a string representation of this receiver."""
         return f"{self._channel}:{type(self).__name__}"

@@ -5,6 +5,7 @@
 
 
 import asyncio
+from contextlib import closing
 from dataclasses import dataclass
 from typing import TypeGuard, assert_never
 
@@ -425,3 +426,30 @@ async def test_broadcast_close_receiver() -> None:
 
     with pytest.raises(ReceiverStoppedError):
         _ = await receiver_2.receive()
+
+
+async def test_receiver_fork() -> None:
+    """Ensure that a receiver can be forked."""
+    chan = Broadcast[int](name="input-chan")
+
+    with (
+        closing(Broadcast[int](name="input-chan")) as chan,
+        closing(chan.new_receiver()) as receiver,
+        closing(receiver.fork()) as forked_receiver,
+    ):
+        sender = chan.new_sender()
+        await sender.send(1)
+
+        assert (await receiver.receive()) == 1
+        assert (await forked_receiver.receive()) == 1
+
+
+async def test_fork_stopped_receiver() -> None:
+    """Ensure that a receiver can be forked."""
+    chan = Broadcast[int](name="input-chan")
+
+    receiver = chan.new_receiver()
+    receiver.close()
+
+    with pytest.raises(ReceiverStoppedError):
+        _ = receiver.fork()

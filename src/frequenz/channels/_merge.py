@@ -206,6 +206,35 @@ class Merger(Receiver[ReceiverMessageT_co]):
         for recv in self._receivers.values():
             recv.close()
 
+    @override
+    def fork(self, *, name: str | None = None) -> "Merger[ReceiverMessageT_co]":
+        """Create a new receiver that is a clone of this receiver.
+
+        Args:
+            name: An optional name for the new receiver. If None, the same naming
+                approach as the original merger will be used.
+
+        Returns:
+            A new receiver that is a clone of this receiver.
+        """
+        # Fork all the underlying not stopped receivers
+
+        forked_receivers: list[Receiver[ReceiverMessageT_co]] = []
+        for recv_name, recv in self._receivers.items():
+            # Don't fork stopped receivers
+            try:
+                forked = recv.fork(name=recv_name)
+            except ReceiverStoppedError:
+                continue
+            else:
+                forked_receivers.append(forked)
+
+        # Use the provided name or the same approach as original
+        fork_name = name if name is not None else self._name
+
+        # Create a new merger with the forked receivers
+        return Merger(*forked_receivers, name=fork_name)
+
     def __str__(self) -> str:
         """Return a string representation of this receiver."""
         if len(self._receivers) > 3:

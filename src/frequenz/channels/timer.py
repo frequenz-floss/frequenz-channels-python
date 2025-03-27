@@ -789,3 +789,36 @@ class Timer(Receiver[timedelta]):
             f"{type(self).__name__}<{self.interval=}, {self.missed_tick_policy=}, "
             f"{self.loop=}, {self.is_running=}>"
         )
+
+    @override
+    def fork(self, *, name: str | None = None) -> "Timer":
+        """Create a new receiver that is a clone of this receiver.
+
+        Args:
+            name: An optional name for the new receiver. This is ignored since Timer
+                receivers don't have names.
+
+        Returns:
+            A new receiver that is a clone of this receiver.
+
+        Raises:
+            ReceiverStoppedError: If the timer was stopped via `stop()`.
+        """
+        if self._stopped:
+            raise ReceiverStoppedError(self)
+
+        # Create a new timer with the same configuration
+        new_timer = Timer(
+            self.interval,
+            self.missed_tick_policy,
+            auto_start=self.is_running,
+            loop=self.loop,
+        )
+
+        # If the original timer has a next tick time set, sync the new timer
+        if self._next_tick_time is not None:
+            new_timer._next_tick_time = (  # pylint: disable=protected-access
+                self._next_tick_time
+            )
+
+        return new_timer

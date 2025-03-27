@@ -56,7 +56,7 @@ class Event:
     """The path where the change was observed."""
 
 
-class FileWatcher(Receiver[Event]):
+class FileWatcher(Receiver[Event]):  # pylint: disable=too-many-instance-attributes
     """A receiver that watches for file events.
 
     # Usage
@@ -147,7 +147,8 @@ class FileWatcher(Receiver[Event]):
                 polling is enabled.
         """
         self.event_types: frozenset[EventType] = frozenset(event_types)
-        """The types of events to watch for."""
+        self._force_polling: bool = force_polling
+        self._polling_interval: timedelta = polling_interval
 
         self._stop_event: asyncio.Event = asyncio.Event()
         self._paths: list[pathlib.Path] = [
@@ -250,3 +251,29 @@ class FileWatcher(Receiver[Event]):
     def __repr__(self) -> str:
         """Return a string representation of this receiver."""
         return f"{type(self).__name__}({self._paths!r}, {self.event_types!r})"
+
+    @override
+    def fork(self, *, name: str | None = None) -> "FileWatcher":
+        """Create a new receiver that is a clone of this receiver.
+
+        Args:
+            name: An optional name for the new receiver. This is ignored since FileWatcher
+                receivers don't have names.
+
+        Returns:
+            A new receiver that is a clone of this receiver.
+
+        Raises:
+            ReceiverStoppedError: If this receiver is stopped.
+        """
+        if self._awatch_stopped_exc is not None:
+            raise ReceiverStoppedError(self)
+
+        return FileWatcher(
+            # list[pathlib.Path] is the correct type ( expected list[pathlib.Path | str] )
+            # but mypy doesn't know that
+            paths=self._paths,  # type: ignore
+            event_types=self.event_types,
+            force_polling=self._force_polling,
+            polling_interval=self._polling_interval,
+        )

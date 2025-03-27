@@ -239,6 +239,20 @@ class Receiver(ABC, Generic[ReceiverMessageT_co]):
         """
         raise NotImplementedError("close() must be implemented by subclasses")
 
+    @abstractmethod
+    def fork(self, *, name: str | None = None) -> "Receiver[ReceiverMessageT_co]":
+        """Create a new receiver that is a clone of this receiver.
+
+        Args:
+            name: An optional name for the new receiver.
+
+        Returns:
+            A new receiver that is a clone of this receiver.
+
+        Raises:
+            ReceiverStoppedError: If the receiver is stopped.
+        """
+
     def __aiter__(self) -> Self:
         """Get an async iterator over the received messages.
 
@@ -496,6 +510,24 @@ class _Mapper(
         """
         self._receiver.close()
 
+    @override
+    def fork(
+        self, *, name: str | None = None
+    ) -> "_Mapper[ReceiverMessageT_co, MappedMessageT_co]":
+        """Create a new receiver that is a clone of this receiver.
+
+        Args:
+            name: An optional name for the new receiver. This is ignored since mapper
+                receivers don't have names.
+
+        Returns:
+            A new receiver that is a clone of this receiver.
+        """
+        return _Mapper(
+            receiver=self._receiver.fork(name=name),
+            mapping_function=self._mapping_function,
+        )
+
     def __str__(self) -> str:
         """Return a string representation of the mapper."""
         return f"{type(self).__name__}:{self._receiver}:{self._mapping_function}"
@@ -573,7 +605,7 @@ class _Filter(Receiver[ReceiverMessageT_co], Generic[ReceiverMessageT_co]):
             The next message that was received.
 
         Raises:
-            ReceiverStoppedError: If the receiver stopped producing messages.
+            ReceiverStoppedError: If the receiver is stopped.
         """
         if self._recv_closed:
             raise ReceiverStoppedError(self)
@@ -594,6 +626,22 @@ class _Filter(Receiver[ReceiverMessageT_co], Generic[ReceiverMessageT_co]):
         [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
         """
         self._receiver.close()
+
+    @override
+    def fork(self, *, name: str | None = None) -> "_Filter[ReceiverMessageT_co]":
+        """Create a new receiver that is a clone of this receiver.
+
+        Args:
+            name: An optional name for the new receiver. This is ignored since filter
+                receivers don't have names.
+
+        Returns:
+            A new receiver that is a clone of this receiver.
+        """
+        return _Filter(
+            receiver=self._receiver.fork(name=name),
+            filter_function=self._filter_function,
+        )
 
     def __str__(self) -> str:
         """Return a string representation of the filter."""

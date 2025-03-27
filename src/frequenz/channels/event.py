@@ -177,6 +177,25 @@ class Event(Receiver[None]):
         """Close this receiver."""
         self.stop()
 
+    @override
+    def fork(self, *, name: str | None = None) -> "Event":
+        """Create a new receiver that is a clone of this receiver.
+
+        Args:
+            name: An optional name for the new receiver. If None, an id-based name
+                will be used.
+
+        Returns:
+            A new Event receiver that is a clone of this receiver.
+
+        Raises:
+            ReceiverStoppedError: If this receiver is stopped.
+        """
+        if self._is_stopped:
+            raise ReceiverStoppedError(self)
+
+        return Event(name=name)
+
     def __str__(self) -> str:
         """Return a string representation of this event."""
         return f"{type(self).__name__}({self._name!r})"

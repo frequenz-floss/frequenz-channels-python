@@ -508,6 +508,33 @@ class _Receiver(Receiver[_T]):
             hash(self), None
         )
 
+    @override
+    def fork(self, *, name: str | None = None) -> "Receiver[_T]":
+        """Create a new receiver that is a clone of this receiver.
+
+        Args:
+            name: An optional name for the new receiver. If None, a new name will be
+                generated based on the receiver's id.
+
+        Returns:
+            A new receiver that is a clone of this receiver.
+
+        Raises:
+            ReceiverStoppedError: If the receiver is closed.
+        """
+        if self._closed:
+            raise ReceiverStoppedError(self)
+
+        limit = self._q.maxlen
+        assert limit is not None
+
+        fork_name = name if name is not None else None
+
+        # Create a new receiver with the same configuration
+        return self._channel.new_receiver(
+            name=fork_name, limit=limit, warn_on_overflow=self._warn_on_overflow
+        )
+
     def __str__(self) -> str:
         """Return a string representation of this receiver."""
         return f"{self._channel}:{type(self).__name__}"
