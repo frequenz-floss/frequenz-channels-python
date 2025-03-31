@@ -18,9 +18,9 @@ updates:
     # typically except libraries that don't have a stable release yet (v0.x.x
     # branch), so we make some exceptions for them.
     # Major updates and dependencies excluded by the above groups are still
-    # managed, but they'll create one PR per dependency, as breaking is
-    # expected so it might need manual intervention.
-    # Finally we group some dependencies that are related to each other, and
+    # managed, but they'll create one PR per dependency, as breakage is
+    # expected, so it might need manual intervention.
+    # Finally, we group some dependencies that are related to each other, and
     # usually need to be updated together.
     groups:
       patch:
@@ -33,6 +33,7 @@ updates:
         update-types:
           - "minor"
         exclude-patterns:
+          - "async-solipsism"
           - "frequenz-repo-config*"
           - "markdown-callouts"
           - "mkdocs-gen-files"
@@ -40,6 +41,7 @@ updates:
           - "mkdocstrings*"
           - "pydoclint"
           - "pymdownx-superfence-filter-lines"
+          - "pytest-asyncio"
       # We group repo-config updates as it uses optional dependencies that are
       # considered different dependencies otherwise, and will create one PR for
       # each if we don't group them.
