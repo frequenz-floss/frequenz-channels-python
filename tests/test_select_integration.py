@@ -9,7 +9,7 @@ class at a time.
 """
 
 import asyncio
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator
 from typing import Any
 
 import async_solipsism
@@ -33,17 +33,11 @@ class TestSelect:
     recv1: Event
     recv2: Event
     recv3: Event
-    loop: async_solipsism.EventLoop
 
     @pytest.fixture(autouse=True)
-    def event_loop(
-        self, request: pytest.FixtureRequest
-    ) -> Iterator[async_solipsism.EventLoop]:
-        """Replace the loop with one that doesn't interact with the outside world."""
-        loop = async_solipsism.EventLoop()
-        request.cls.loop = loop
-        yield loop
-        loop.close()
+    def event_loop_policy(self) -> async_solipsism.EventLoopPolicy:
+        """Return an event loop policy that uses the async solipsism event loop."""
+        return async_solipsism.EventLoopPolicy()
 
     @pytest.fixture()
     async def start_run_ordered_sequence(self) -> AsyncIterator[asyncio.Task[None]]:
@@ -92,10 +86,16 @@ class TestSelect:
         assert selected.exception is None
         assert not selected.was_stopped
         if expected_pending_tasks > 0:
-            assert len(asyncio.all_tasks(self.loop)) == expected_pending_tasks
+            assert (
+                len(asyncio.all_tasks(asyncio.get_event_loop()))
+                == expected_pending_tasks
+            )
         elif expected_pending_tasks < 0:
-            assert len(asyncio.all_tasks(self.loop)) > expected_pending_tasks
-        assert self.loop.time() == at_time
+            assert (
+                len(asyncio.all_tasks(asyncio.get_event_loop()))
+                > expected_pending_tasks
+            )
+        assert asyncio.get_event_loop().time() == at_time
 
     def assert_receiver_stopped(
         self,
@@ -125,10 +125,16 @@ class TestSelect:
         assert isinstance(selected.exception, ReceiverStoppedError)
         assert selected.exception.receiver is receiver
         if expected_pending_tasks > 0:
-            assert len(asyncio.all_tasks(self.loop)) == expected_pending_tasks
+            assert (
+                len(asyncio.all_tasks(asyncio.get_event_loop()))
+                == expected_pending_tasks
+            )
         elif expected_pending_tasks < 0:
-            assert len(asyncio.all_tasks(self.loop)) > expected_pending_tasks
-        assert self.loop.time() == at_time
+            assert (
+                len(asyncio.all_tasks(asyncio.get_event_loop()))
+                > expected_pending_tasks
+            )
+        assert asyncio.get_event_loop().time() == at_time
 
     # We use the loop time (and the sleeps in the run_ordered_sequence method) mainly to
     # ensure we are processing the events in the correct order and we are really
@@ -362,11 +368,11 @@ class TestSelect:
         Also test that the loop waits forever if there are no more receivers ready.
         """
         received: set[str] = set()
-        last_time: float = self.loop.time()
+        last_time: float = asyncio.get_event_loop().time()
         try:
             async with asyncio.timeout(15):
                 async for selected in select(self.recv1, self.recv2, self.recv3):
-                    now = self.loop.time()
+                    now = asyncio.get_event_loop().time()
                     if now != last_time:  # Only check when there was a jump in time
                         match now:
                             case 1:
@@ -401,7 +407,7 @@ class TestSelect:
                     else:
                         assert False, "Should not reach this point"
         except asyncio.TimeoutError:
-            assert self.loop.time() == 15
+            assert asyncio.get_event_loop().time() == 15
             # This happened after time == 3, but the loop never resumes because
             # there is nothing ready, so we need to check it after the timeout.
             assert received == {

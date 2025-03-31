@@ -13,11 +13,17 @@ import pytest
 from frequenz.channels.timer import SkipMissedAndDrift, Timer
 
 
+@pytest.fixture(autouse=True)
+def event_loop_policy() -> async_solipsism.EventLoopPolicy:
+    """Return an event loop policy that uses the async solipsism event loop."""
+    return async_solipsism.EventLoopPolicy()
+
+
 @pytest.mark.integration
-async def test_timer_timeout_reset(
-    event_loop: async_solipsism.EventLoop,  # pylint: disable=redefined-outer-name
-) -> None:
+@pytest.mark.asyncio(loop_scope="function")
+async def test_timer_timeout_reset() -> None:
     """Test that the receiving is properly adjusted after a reset."""
+    event_loop = asyncio.get_running_loop()
 
     async def timer_wait(timer: Timer) -> None:
         await timer.receive()
