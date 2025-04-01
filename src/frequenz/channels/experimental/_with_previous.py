@@ -80,6 +80,7 @@ class WithPrevious(Generic[ChannelMessageT]):
         # This message will be received as it is bigger than the previous one (1).
         await sender.send(2)
         assert await receiver.receive() == 2
+        ```
     """
 
     def __init__(
