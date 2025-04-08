@@ -1429,7 +1429,7 @@
         <p>Receiver interface and related exceptions.</p>
 <h2 id="frequenz.channels._receiver--receivers">Receivers<a class="headerlink" href="#frequenz.channels._receiver--receivers" title="Permanent link">¤</a></h2>
 <p>Messages are received from <a href="/user-guide/channels/index.md">channels</a> through
-<a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver">Receiver</a> objects. <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver">Receivers</a>
+<a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../reference/frequenz/channels/#frequenz.channels.Receiver">Receiver</a> objects. <a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../reference/frequenz/channels/#frequenz.channels.Receiver">Receivers</a>
 are usually created by calling <code>channel.new_receiver()</code> and are <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/typing.html#typing.AsyncIterator">async
 iterators</a>, so the easiest way to receive messages from them as
 a stream is to use <code>async for</code>:</p>
@@ -1437,7 +1437,12 @@ a stream is to use <code>async for</code>:</p>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </span></code></pre></div>
 <p>If you need to receive messages in different places or expecting a particular
-sequence, you can use the <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a> method:</p>
+sequence, you can use the <a class="autorefs autorefs-internal" title="receive
+
+
+  
+      async
+  " href="../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a> method:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">first_message</span> <span class="o">=</span> <span class="k">await</span> <span class="n">receiver</span><span class="o">.</span><span class="n">receive</span><span class="p">()</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;First message: </span><span class="si">{</span><span class="n">first_message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
@@ -1446,20 +1451,20 @@ sequence, you can use the <a class="autorefs autorefs-internal" href="../../refe
 </span></code></pre></div>
 <h2 id="frequenz.channels._receiver--message-transformation">Message Transformation<a class="headerlink" href="#frequenz.channels._receiver--message-transformation" title="Permanent link">¤</a></h2>
 <p>If you need to transform the received messages, receivers provide a
-<a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.map"><code>map()</code></a> method to easily do so:</p>
+<a class="autorefs autorefs-internal" title="map" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.map"><code>map()</code></a> method to easily do so:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">receiver</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </span></code></pre></div>
-<p><a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.map"><code>map()</code></a> returns a new full receiver, so you can
+<p><a class="autorefs autorefs-internal" title="map" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.map"><code>map()</code></a> returns a new full receiver, so you can
 use it in any of the ways described above.</p>
 <h2 id="frequenz.channels._receiver--message-filtering">Message Filtering<a class="headerlink" href="#frequenz.channels._receiver--message-filtering" title="Permanent link">¤</a></h2>
 <p>If you need to filter the received messages, receivers provide a
-<a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.filter"><code>filter()</code></a> method to easily do so:</p>
+<a class="autorefs autorefs-internal" title="filter" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.filter"><code>filter()</code></a> method to easily do so:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">receiver</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>  <span class="c1"># Only even numbers will be printed</span>
 </span></code></pre></div>
-<p>As with <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.map"><code>map()</code></a>,
-<a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.filter"><code>filter()</code></a> returns a new full receiver, so you can
+<p>As with <a class="autorefs autorefs-internal" title="map" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.map"><code>map()</code></a>,
+<a class="autorefs autorefs-internal" title="filter" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.filter"><code>filter()</code></a> returns a new full receiver, so you can
 use it in any of the ways described above.</p>
 <h2 id="frequenz.channels._receiver--error-handling">Error Handling<a class="headerlink" href="#frequenz.channels._receiver--error-handling" title="Permanent link">¤</a></h2>
 <div class="admonition tip inline end">
@@ -1468,12 +1473,22 @@ use it in any of the ways described above.</p>
 <a href="/user-guide/error-handling/">Error Handling</a> section of the user guide.</p>
 </div>
 <p>If there is an error while receiving a message,
-a <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.ReceiverError"><code>ReceiverError</code></a> exception is raised for both
-<a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a> method and async iteration
+a <a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverError" href="../../reference/frequenz/channels/#frequenz.channels.ReceiverError"><code>ReceiverError</code></a> exception is raised for both
+<a class="autorefs autorefs-internal" title="receive
+
+
+  
+      async
+  " href="../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a> method and async iteration
 interface.</p>
 <p>If the receiver has completely stopped (for example the underlying channel was
-closed), a <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a> exception
-is raised by <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a> method.</p>
+closed), a <a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverStoppedError" href="../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a> exception
+is raised by <a class="autorefs autorefs-internal" title="receive
+
+
+  
+      async
+  " href="../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a> method.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">try</span><span class="p">:</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="k">await</span> <span class="n">receiver</span><span class="o">.</span><span class="n">receive</span><span class="p">()</span>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">except</span> <span class="n">ReceiverStoppedError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
@@ -1496,12 +1511,12 @@ exception:</p>
 <p>When a particular stream of data is no-longer required, it is a good practice to close
 the receiver to free up resources. This is especially important in applications that are
 repeatedly creating new receivers.  The
-<a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.close"><code>Receiver.close()</code></a> method can be used for this
+<a class="autorefs autorefs-internal" title="close" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.close"><code>Receiver.close()</code></a> method can be used for this
 purpose.</p>
 <p>After <code>close()</code> is called, we can still receive messages that are in the receiver's
 buffer, but as soon as the receiver's buffer has been drained, trying to receive further
 messages from a <em>closed</em> receiver will raise a
-<a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a>.</p>
+<a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverStoppedError" href="../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a>.</p>
 <h2 id="frequenz.channels._receiver--advanced-usage">Advanced Usage<a class="headerlink" href="#frequenz.channels._receiver--advanced-usage" title="Permanent link">¤</a></h2>
 <div class="admonition warning inline end">
 <p class="admonition-title">Warning</p>
@@ -1510,19 +1525,75 @@ abstractions on top of channels. If you are just using channels, you can safely
 ignore this section.</p>
 </div>
 <p>Receivers extend on the <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/typing.html#typing.AsyncIterator">async iterator protocol</a> by providing
-a <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.ready"><code>ready()</code></a> and
-a <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.consume"><code>consume()</code></a> method.</p>
-<p>The <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.ready"><code>ready()</code></a> method is used to await until the
+a <a class="autorefs autorefs-internal" title="ready
+
+
+  
+      abstractmethod
+      async
+  " href="../../reference/frequenz/channels/#frequenz.channels.Receiver.ready"><code>ready()</code></a> and
+a <a class="autorefs autorefs-internal" title="consume
+
+
+  
+      abstractmethod
+  " href="../../reference/frequenz/channels/#frequenz.channels.Receiver.consume"><code>consume()</code></a> method.</p>
+<p>The <a class="autorefs autorefs-internal" title="ready
+
+
+  
+      abstractmethod
+      async
+  " href="../../reference/frequenz/channels/#frequenz.channels.Receiver.ready"><code>ready()</code></a> method is used to await until the
 receiver has a new message available, but without actually consuming it. The
-<a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.consume"><code>consume()</code></a> method consumes the next available
+<a class="autorefs autorefs-internal" title="consume
+
+
+  
+      abstractmethod
+  " href="../../reference/frequenz/channels/#frequenz.channels.Receiver.consume"><code>consume()</code></a> method consumes the next available
 message and returns it.</p>
-<p><a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.ready"><code>ready()</code></a> can be called multiple times, and it
+<p><a class="autorefs autorefs-internal" title="ready
+
+
+  
+      abstractmethod
+      async
+  " href="../../reference/frequenz/channels/#frequenz.channels.Receiver.ready"><code>ready()</code></a> can be called multiple times, and it
 will return immediately if the receiver is already ready.
-<a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.consume"><code>consume()</code></a> must be called only after
-<a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.ready"><code>ready()</code></a> is done and only once, until the next
-call to <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.ready"><code>ready()</code></a>.</p>
-<p>Exceptions are never raised by <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.ready"><code>ready()</code></a>, they
-are always delayed until <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.consume"><code>consume()</code></a> is
+<a class="autorefs autorefs-internal" title="consume
+
+
+  
+      abstractmethod
+  " href="../../reference/frequenz/channels/#frequenz.channels.Receiver.consume"><code>consume()</code></a> must be called only after
+<a class="autorefs autorefs-internal" title="ready
+
+
+  
+      abstractmethod
+      async
+  " href="../../reference/frequenz/channels/#frequenz.channels.Receiver.ready"><code>ready()</code></a> is done and only once, until the next
+call to <a class="autorefs autorefs-internal" title="ready
+
+
+  
+      abstractmethod
+      async
+  " href="../../reference/frequenz/channels/#frequenz.channels.Receiver.ready"><code>ready()</code></a>.</p>
+<p>Exceptions are never raised by <a class="autorefs autorefs-internal" title="ready
+
+
+  
+      abstractmethod
+      async
+  " href="../../reference/frequenz/channels/#frequenz.channels.Receiver.ready"><code>ready()</code></a>, they
+are always delayed until <a class="autorefs autorefs-internal" title="consume
+
+
+  
+      abstractmethod
+  " href="../../reference/frequenz/channels/#frequenz.channels.Receiver.consume"><code>consume()</code></a> is
 called.</p>
 
 

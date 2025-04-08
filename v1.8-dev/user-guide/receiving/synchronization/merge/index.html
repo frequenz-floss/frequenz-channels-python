@@ -1453,7 +1453,7 @@
         <p>Merge messages coming from multiple receivers into a single receiver.</p>
 <h2 id="frequenz.channels._merge--usage">Usage<a class="headerlink" href="#frequenz.channels._merge--usage" title="Permanent link">¤</a></h2>
 <p>If you just need to receive the same type of messages but from multiple sources in one
-stream, you can use <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.merge"><code>merge()</code></a> to create a new receiver that
+stream, you can use <a class="autorefs autorefs-internal" title="frequenz.channels.merge" href="../../../../reference/frequenz/channels/#frequenz.channels.merge"><code>merge()</code></a> to create a new receiver that
 will receive messages from all the given receivers:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">merge</span><span class="p">(</span><span class="n">receiver1</span><span class="p">,</span> <span class="n">receiver2</span><span class="p">):</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
@@ -1463,17 +1463,37 @@ first message will be received immediately, and the second message will be recei
 soon as it is available.</p>
 <p>This can be helpful when you just need to receive messages and don't care about
 where are they coming from specifically. If you need to know where the message came
-from, you can use <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.select"><code>select()</code></a> instead.</p>
+from, you can use <a class="autorefs autorefs-internal" title="frequenz.channels.select
+
+
+  
+      async
+  " href="../../../../reference/frequenz/channels/#frequenz.channels.select"><code>select()</code></a> instead.</p>
 <h2 id="frequenz.channels._merge--stopping">Stopping<a class="headerlink" href="#frequenz.channels._merge--stopping" title="Permanent link">¤</a></h2>
 <p>A merge receiver will be stopped automatically when all the receivers that it merges are
 stopped. When using the async iterator interface, this means that the iterator will stop
 as soon as all the receivers are stopped. When using
-<a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a>, this means that the method will raise
-a <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a> exception as soon as
+<a class="autorefs autorefs-internal" title="receive
+
+
+  
+      async
+  " href="../../../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a>, this means that the method will raise
+a <a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverStoppedError" href="../../../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a> exception as soon as
 all the receivers are stopped.</p>
 <p>If you want to stop a merge receiver manually, you can use the
-<a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Merger.stop"><code>stop()</code></a> method.</p>
-<p>When using <a class="autorefs autorefs-internal" href="../../../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a>, you should make sure to
+<a class="autorefs autorefs-internal" title="stop
+
+
+  
+      async
+  " href="../../../../reference/frequenz/channels/#frequenz.channels.Merger.stop"><code>stop()</code></a> method.</p>
+<p>When using <a class="autorefs autorefs-internal" title="receive
+
+
+  
+      async
+  " href="../../../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a>, you should make sure to
 either stop all the receivers that you are merging, or to stop the merge receiver
 manually. This is to make sure that all the tasks created by the merge receiver are
 cleaned up properly.</p>

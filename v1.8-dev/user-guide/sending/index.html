@@ -1453,17 +1453,41 @@
         <p>Sender interface and related exceptions.</p>
 <h2 id="frequenz.channels._sender--senders">Senders<a class="headerlink" href="#frequenz.channels._sender--senders" title="Permanent link">¤</a></h2>
 <p>Messages are sent to a <a href="/user-guide/channels">channel</a> through
-<a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Sender">Sender</a> objects. <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Sender">Senders</a> are
+<a class="autorefs autorefs-internal" title="frequenz.channels.Sender" href="../../reference/frequenz/channels/#frequenz.channels.Sender">Sender</a> objects. <a class="autorefs autorefs-internal" title="frequenz.channels.Sender" href="../../reference/frequenz/channels/#frequenz.channels.Sender">Senders</a> are
 usually created by calling <code>channel.new_sender()</code>, and are a very simple abstraction
-that only provides a single <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Sender.send"><code>send()</code></a> method:</p>
+that only provides a single <a class="autorefs autorefs-internal" title="send
+
+
+  
+      abstractmethod
+      async
+  " href="../../reference/frequenz/channels/#frequenz.channels.Sender.send"><code>send()</code></a> method:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">await</span> <span class="n">sender</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;Hello, world!&quot;</span><span class="p">)</span>
 </span></code></pre></div>
-<p>Although <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Sender.send"><code>send()</code></a> is an asynchronous method, some
+<p>Although <a class="autorefs autorefs-internal" title="send
+
+
+  
+      abstractmethod
+      async
+  " href="../../reference/frequenz/channels/#frequenz.channels.Sender.send"><code>send()</code></a> is an asynchronous method, some
 channels may implement it in a synchronous, non-blocking way. For example, buffered
 channels that drop messages when the buffer is full could guarantee that
-<a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Sender.send"><code>send()</code></a> never blocks. However, please keep in mind
+<a class="autorefs autorefs-internal" title="send
+
+
+  
+      abstractmethod
+      async
+  " href="../../reference/frequenz/channels/#frequenz.channels.Sender.send"><code>send()</code></a> never blocks. However, please keep in mind
 that the <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio">asyncio</a> event loop could give control to another task at any time,
-effectively making the <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.Sender.send"><code>send()</code></a> method blocking.</p>
+effectively making the <a class="autorefs autorefs-internal" title="send
+
+
+  
+      abstractmethod
+      async
+  " href="../../reference/frequenz/channels/#frequenz.channels.Sender.send"><code>send()</code></a> method blocking.</p>
 <h2 id="frequenz.channels._sender--error-handling">Error Handling<a class="headerlink" href="#frequenz.channels._sender--error-handling" title="Permanent link">¤</a></h2>
 <div class="admonition tip inline end">
 <p class="admonition-title">Tip</p>
@@ -1471,7 +1495,7 @@ effectively making the <a class="autorefs autorefs-internal" href="../../referen
 <a href="/user-guide/error-handling/">Error Handling</a> section of the user guide.</p>
 </div>
 <p>If there is any failure sending a message,
-a <a class="autorefs autorefs-internal" href="../../reference/frequenz/channels/#frequenz.channels.SenderError">SenderError</a> exception is raised.</p>
+a <a class="autorefs autorefs-internal" title="frequenz.channels.SenderError" href="../../reference/frequenz/channels/#frequenz.channels.SenderError">SenderError</a> exception is raised.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">try</span><span class="p">:</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">await</span> <span class="n">sender</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;Hello, world!&quot;</span><span class="p">)</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">except</span> <span class="n">SenderError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>

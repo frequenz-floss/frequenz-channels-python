@@ -1304,6 +1304,42 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#frequenz.channels.event.Event._event" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;_event
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequenz.channels.event.Event._is_set" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;_is_set
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequenz.channels.event.Event._is_stopped" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;_is_stopped
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequenz.channels.event.Event._name" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;_name
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#frequenz.channels.event.Event.is_set" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;is_set
@@ -1706,6 +1742,42 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#frequenz.channels.event.Event._event" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;_event
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequenz.channels.event.Event._is_set" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;_is_set
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequenz.channels.event.Event._is_stopped" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;_is_stopped
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequenz.channels.event.Event._name" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;_name
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#frequenz.channels.event.Event.is_set" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;is_set
@@ -1929,12 +2001,12 @@
         <p>A receiver that can be made ready directly.</p>
 <div class="admonition tip inline end">
 <p class="admonition-title">Tip</p>
-<p>Read the <a class="autorefs autorefs-internal" href="#frequenz.channels.event.Event"><code>Event</code></a> documentation for more
+<p>Read the <a class="autorefs autorefs-internal" title="frequenz.channels.event.Event" href="#frequenz.channels.event.Event"><code>Event</code></a> documentation for more
 information.</p>
 </div>
 <p>This module contains the following:</p>
 <ul>
-<li><a class="autorefs autorefs-internal" href="#frequenz.channels.event.Event"><code>Event</code></a>:
+<li><a class="autorefs autorefs-internal" title="frequenz.channels.event.Event" href="#frequenz.channels.event.Event"><code>Event</code></a>:
     A receiver that can be made ready directly.</li>
 </ul>
 
@@ -1967,21 +2039,26 @@ information.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="frequenz.channels._receiver.Receiver" href="../#frequenz.channels.Receiver">Receiver</a>[None]</code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="frequenz.channels.Receiver (frequenz.channels._receiver.Receiver)" href="../#frequenz.channels.Receiver">Receiver</a>[None]</code></p>
 
 
         <p>A receiver that can be made ready directly.</p>
 <h5 id="frequenz.channels.event.Event--usage">Usage<a class="headerlink" href="#frequenz.channels.event.Event--usage" title="Permanent link">¤</a></h5>
 <p>There are cases where it is useful to be able to send a signal to
-a <a class="autorefs autorefs-internal" href="../#frequenz.channels.select"><code>select()</code></a> loop, for example, to stop a loop from
+a <a class="autorefs autorefs-internal" title="frequenz.channels.select
+
+
+  
+      async
+  " href="../#frequenz.channels.select"><code>select()</code></a> loop, for example, to stop a loop from
 outside the loop itself.</p>
-<p>To do that, you can use an <a class="autorefs autorefs-internal" href="#frequenz.channels.event.Event"><code>Event</code></a> receiver and
-call <a class="autorefs autorefs-internal" href="#frequenz.channels.event.Event.set"><code>set()</code></a> on it when you want to make it
+<p>To do that, you can use an <a class="autorefs autorefs-internal" title="frequenz.channels.event.Event" href="#frequenz.channels.event.Event"><code>Event</code></a> receiver and
+call <a class="autorefs autorefs-internal" title="set" href="#frequenz.channels.event.Event.set"><code>set()</code></a> on it when you want to make it
 ready.</p>
 <h5 id="frequenz.channels.event.Event--stopping">Stopping<a class="headerlink" href="#frequenz.channels.event.Event--stopping" title="Permanent link">¤</a></h5>
 <p>The receiver will be re-activated (will keep blocking) after the current set
 event is received. To stop the receiver completely, you can call
-<a class="autorefs autorefs-internal" href="#frequenz.channels.event.Event.stop"><code>stop()</code></a>.</p>
+<a class="autorefs autorefs-internal" title="stop" href="#frequenz.channels.event.Event.stop"><code>stop()</code></a>.</p>
 <h5 id="frequenz.channels.event.Event--example">Example<a class="headerlink" href="#frequenz.channels.event.Event--example" title="Permanent link">¤</a></h5>
 
 
@@ -2382,6 +2459,103 @@ event is received. To stop the receiver completely, you can call
 
 
 
+<h6 id="frequenz.channels.event.Event._event" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">_event</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#frequenz.channels.event.Event._event" class="headerlink" title="Permanent link">¤</a></h6>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">_event</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="asyncio.Event" href="https://docs.python.org/3/library/asyncio-sync.html#asyncio.Event">Event</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-external" title="asyncio.Event" href="https://docs.python.org/3/library/asyncio-sync.html#asyncio.Event">Event</a></span><span class="p">()</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The event that is set when the receiver is ready.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h6 id="frequenz.channels.event.Event._is_set" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">_is_set</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#frequenz.channels.event.Event._is_set" class="headerlink" title="Permanent link">¤</a></h6>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">_is_set</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">False</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Whether the receiver is ready to be consumed.</p>
+<p>This is used to differentiate between when the receiver was stopped (the event
+is triggered too) but still there is an event to be consumed and when it was
+stopped but was not explicitly set().</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h6 id="frequenz.channels.event.Event._is_stopped" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">_is_stopped</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#frequenz.channels.event.Event._is_stopped" class="headerlink" title="Permanent link">¤</a></h6>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">_is_stopped</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span> <span class="o">=</span> <span class="kc">False</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Whether the receiver is stopped.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h6 id="frequenz.channels.event.Event._name" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">_name</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#frequenz.channels.event.Event._name" class="headerlink" title="Permanent link">¤</a></h6>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">_name</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#id">id</a></span><span class="p">(</span><span class="n"><span title="frequenz.channels.event.Event(self)">self</span></span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span> <span class="k">if</span> <span class="n"><span title="frequenz.channels.event.Event(name)">name</span></span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n"><span title="frequenz.channels.event.Event(name)">name</span></span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The name of the receiver.</p>
+<p>This is for debugging purposes, it will be shown in the string representation
+of the receiver.</p>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
 <h6 id="frequenz.channels.event.Event.is_set" class="doc doc-heading">
             <span class="doc doc-object-name doc-attribute-name">is_set</span>
 
@@ -2523,7 +2697,12 @@ of this receiver.</p>
   </span>
 
 <a href="#frequenz.channels.event.Event.__anext__" class="headerlink" title="Permanent link">¤</a></h6>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="fm">__anext__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nf"><a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="fm">__anext__</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nf"><a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -2542,7 +2721,12 @@ of this receiver.</p>
           <tr class="doc-section-item">
             <td>
                 <span class="doc-returns-annotation">
-                    <code><a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></code>
+                    <code><a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></code>
                 </span>
             </td>
             <td class="doc-returns-details">
@@ -2578,7 +2762,7 @@ of this receiver.</p>
           <tr class="doc-section-item">
             <td>
               <span class="doc-raises-annotation">
-                  <code><a class="autorefs autorefs-internal" title="frequenz.channels._receiver.ReceiverError" href="../#frequenz.channels.ReceiverError">ReceiverError</a></code>
+                  <code><a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverError (frequenz.channels._receiver.ReceiverError)" href="../#frequenz.channels.ReceiverError">ReceiverError</a></code>
               </span>
             </td>
             <td class="doc-raises-details">
@@ -2859,7 +3043,7 @@ string representation of the receiver.</p>
           <tr class="doc-section-item">
             <td>
               <span class="doc-raises-annotation">
-                  <code><a class="autorefs autorefs-internal" title="frequenz.channels._receiver.ReceiverStoppedError" href="../#frequenz.channels.ReceiverStoppedError">ReceiverStoppedError</a></code>
+                  <code><a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverStoppedError (frequenz.channels._receiver.ReceiverStoppedError)" href="../#frequenz.channels.ReceiverStoppedError">ReceiverStoppedError</a></code>
               </span>
             </td>
             <td class="doc-raises-details">
@@ -2921,25 +3105,55 @@ string representation of the receiver.</p>
           <div class="doc-overloads">
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">filter</span><span class="p">(</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nf">filter_function</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a></span><span class="p">[</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span><span class="p">],</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span><span class="p">],</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="n"><a class="autorefs autorefs-external" title="typing.TypeGuard" href="https://docs.python.org/3/library/typing.html#typing.TypeGuard">TypeGuard</a></span><span class="p">[</span><span class="n"><span title="frequenz.channels._receiver.FilteredMessageT_co">FilteredMessageT_co</span></span><span class="p">],</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="p">],</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._receiver.Receiver" href="../#frequenz.channels.Receiver">Receiver</a></span><span class="p">[</span><span class="n"><span title="frequenz.channels._receiver.FilteredMessageT_co">FilteredMessageT_co</span></span><span class="p">]</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.Receiver (frequenz.channels._receiver.Receiver)" href="../#frequenz.channels.Receiver">Receiver</a></span><span class="p">[</span><span class="n"><span title="frequenz.channels._receiver.FilteredMessageT_co">FilteredMessageT_co</span></span><span class="p">]</span>
 </span></code></pre></div><div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">filter</span><span class="p">(</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nf">filter_function</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a></span><span class="p">[[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span><span class="p">],</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._receiver.Receiver" href="../#frequenz.channels.Receiver">Receiver</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span><span class="p">]</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nf">filter_function</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a></span><span class="p">[[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span><span class="p">],</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.Receiver (frequenz.channels._receiver.Receiver)" href="../#frequenz.channels.Receiver">Receiver</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span><span class="p">]</span>
 </span></code></pre></div>          </div>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">filter</span><span class="p">(</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nf">filter_function</span><span class="p">:</span> <span class="p">(</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="n"><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a></span><span class="p">[[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span><span class="p">]</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="n"><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a></span><span class="p">[[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a></span><span class="p">]</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="o">|</span> <span class="n"><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a></span><span class="p">[</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>            <span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span><span class="p">],</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>            <span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span><span class="p">],</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>            <span class="n"><a class="autorefs autorefs-external" title="typing.TypeGuard" href="https://docs.python.org/3/library/typing.html#typing.TypeGuard">TypeGuard</a></span><span class="p">[</span><span class="n"><span title="frequenz.channels._receiver.FilteredMessageT_co">FilteredMessageT_co</span></span><span class="p">],</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="p">]</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="p">),</span>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._receiver.Receiver" href="../#frequenz.channels.Receiver">Receiver</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span><span class="p">]</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="o">|</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._receiver.Receiver" href="../#frequenz.channels.Receiver">Receiver</a></span><span class="p">[</span><span class="n"><span title="frequenz.channels._receiver.FilteredMessageT_co">FilteredMessageT_co</span></span><span class="p">]</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.Receiver (frequenz.channels._receiver.Receiver)" href="../#frequenz.channels.Receiver">Receiver</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span><span class="p">]</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="o">|</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.Receiver (frequenz.channels._receiver.Receiver)" href="../#frequenz.channels.Receiver">Receiver</a></span><span class="p">[</span><span class="n"><span title="frequenz.channels._receiver.FilteredMessageT_co">FilteredMessageT_co</span></span><span class="p">]</span>
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="p">)</span>
 </span></code></pre></div>
 
@@ -2982,7 +3196,17 @@ determine if they should be received.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a>], <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a>] | <a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a>], <a class="autorefs autorefs-external" title="typing.TypeGuard" href="https://docs.python.org/3/library/typing.html#typing.TypeGuard">TypeGuard</a>[<span title="frequenz.channels._receiver.FilteredMessageT_co">FilteredMessageT_co</span>]]</code>
+                      <code><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a>], <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#bool">bool</a>] | <a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a>], <a class="autorefs autorefs-external" title="typing.TypeGuard" href="https://docs.python.org/3/library/typing.html#typing.TypeGuard">TypeGuard</a>[<span title="frequenz.channels._receiver.FilteredMessageT_co">FilteredMessageT_co</span>]]</code>
                   </span>
               </p>
             </td>
@@ -3002,7 +3226,12 @@ determine if they should be received.</p>
           <tr class="doc-section-item">
             <td>
                 <span class="doc-returns-annotation">
-                    <code><a class="autorefs autorefs-internal" title="frequenz.channels._receiver.Receiver" href="../#frequenz.channels.Receiver">Receiver</a>[<a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a>] | <a class="autorefs autorefs-internal" title="frequenz.channels._receiver.Receiver" href="../#frequenz.channels.Receiver">Receiver</a>[<span title="frequenz.channels._receiver.FilteredMessageT_co">FilteredMessageT_co</span>]</code>
+                    <code><a class="autorefs autorefs-internal" title="frequenz.channels.Receiver (frequenz.channels._receiver.Receiver)" href="../#frequenz.channels.Receiver">Receiver</a>[<a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a>] | <a class="autorefs autorefs-internal" title="frequenz.channels.Receiver (frequenz.channels._receiver.Receiver)" href="../#frequenz.channels.Receiver">Receiver</a>[<span title="frequenz.channels._receiver.FilteredMessageT_co">FilteredMessageT_co</span>]</code>
                 </span>
             </td>
             <td class="doc-returns-details">
@@ -3087,9 +3316,24 @@ determine if they should be received.</p>
 <a href="#frequenz.channels.event.Event.map" class="headerlink" title="Permanent link">¤</a></h6>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">map</span><span class="p">(</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="nf">mapping_function</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a></span><span class="p">[</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._generic.MappedMessageT_co" href="../#frequenz.channels.MappedMessageT_co">MappedMessageT_co</a></span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span><span class="p">],</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.MappedMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.MappedMessageT_co)" href="../#frequenz.channels.MappedMessageT_co">MappedMessageT_co</a></span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">],</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._receiver.Receiver" href="../#frequenz.channels.Receiver">Receiver</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._generic.MappedMessageT_co" href="../#frequenz.channels.MappedMessageT_co">MappedMessageT_co</a></span><span class="p">]</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.Receiver (frequenz.channels._receiver.Receiver)" href="../#frequenz.channels.Receiver">Receiver</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.MappedMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.MappedMessageT_co)" href="../#frequenz.channels.MappedMessageT_co">MappedMessageT_co</a></span><span class="p">]</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -3124,7 +3368,17 @@ original receiver and use that instead.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a>], <a class="autorefs autorefs-internal" title="frequenz.channels._generic.MappedMessageT_co" href="../#frequenz.channels.MappedMessageT_co">MappedMessageT_co</a>]</code>
+                      <code><a class="autorefs autorefs-external" title="collections.abc.Callable" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable">Callable</a>[[<a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a>], <a class="autorefs autorefs-internal" title="frequenz.channels.MappedMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.MappedMessageT_co)" href="../#frequenz.channels.MappedMessageT_co">MappedMessageT_co</a>]</code>
                   </span>
               </p>
             </td>
@@ -3144,7 +3398,12 @@ original receiver and use that instead.</p>
           <tr class="doc-section-item">
             <td>
                 <span class="doc-returns-annotation">
-                    <code><a class="autorefs autorefs-internal" title="frequenz.channels._receiver.Receiver" href="../#frequenz.channels.Receiver">Receiver</a>[<a class="autorefs autorefs-internal" title="frequenz.channels._generic.MappedMessageT_co" href="../#frequenz.channels.MappedMessageT_co">MappedMessageT_co</a>]</code>
+                    <code><a class="autorefs autorefs-internal" title="frequenz.channels.Receiver (frequenz.channels._receiver.Receiver)" href="../#frequenz.channels.Receiver">Receiver</a>[<a class="autorefs autorefs-internal" title="frequenz.channels.MappedMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.MappedMessageT_co)" href="../#frequenz.channels.MappedMessageT_co">MappedMessageT_co</a>]</code>
                 </span>
             </td>
             <td class="doc-returns-details">
@@ -3283,7 +3542,12 @@ original receiver and use that instead.</p>
   </span>
 
 <a href="#frequenz.channels.event.Event.receive" class="headerlink" title="Permanent link">¤</a></h6>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">receive</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">receive</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -3302,7 +3566,12 @@ original receiver and use that instead.</p>
           <tr class="doc-section-item">
             <td>
                 <span class="doc-returns-annotation">
-                    <code><a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></code>
+                    <code><a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></code>
                 </span>
             </td>
             <td class="doc-returns-details">
@@ -3326,7 +3595,7 @@ original receiver and use that instead.</p>
           <tr class="doc-section-item">
             <td>
               <span class="doc-raises-annotation">
-                  <code><a class="autorefs autorefs-internal" title="frequenz.channels._receiver.ReceiverStoppedError" href="../#frequenz.channels.ReceiverStoppedError">ReceiverStoppedError</a></code>
+                  <code><a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverStoppedError (frequenz.channels._receiver.ReceiverStoppedError)" href="../#frequenz.channels.ReceiverStoppedError">ReceiverStoppedError</a></code>
               </span>
             </td>
             <td class="doc-raises-details">
@@ -3338,7 +3607,7 @@ original receiver and use that instead.</p>
           <tr class="doc-section-item">
             <td>
               <span class="doc-raises-annotation">
-                  <code><a class="autorefs autorefs-internal" title="frequenz.channels._receiver.ReceiverError" href="../#frequenz.channels.ReceiverError">ReceiverError</a></code>
+                  <code><a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverError (frequenz.channels._receiver.ReceiverError)" href="../#frequenz.channels.ReceiverError">ReceiverError</a></code>
               </span>
             </td>
             <td class="doc-raises-details">
@@ -3476,19 +3745,34 @@ original receiver and use that instead.</p>
 
 <a href="#frequenz.channels.event.Event.triggered" class="headerlink" title="Permanent link">¤</a></h6>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">triggered</span><span class="p">(</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">selected</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._select.Selected" href="../#frequenz.channels.Selected">Selected</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">],</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.TypeGuard" href="https://docs.python.org/3/library/typing.html#typing.TypeGuard">TypeGuard</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._select.Selected" href="../#frequenz.channels.Selected">Selected</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span><span class="p">]]</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">selected</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.Selected (frequenz.channels._select.Selected)" href="../#frequenz.channels.Selected">Selected</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a></span><span class="p">],</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-external" title="typing.TypeGuard" href="https://docs.python.org/3/library/typing.html#typing.TypeGuard">TypeGuard</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.Selected (frequenz.channels._select.Selected)" href="../#frequenz.channels.Selected">Selected</a></span><span class="p">[</span><span class="n"><a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a></span><span class="p">]]</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Check whether this receiver was selected by <a class="autorefs autorefs-internal" href="../#frequenz.channels.select"><code>select()</code></a>.</p>
+        <p>Check whether this receiver was selected by <a class="autorefs autorefs-internal" title="frequenz.channels.select
+
+
+  
+      async
+  " href="../#frequenz.channels.select"><code>select()</code></a>.</p>
 <p>This method is used in conjunction with the
-<a class="autorefs autorefs-internal" href="../#frequenz.channels.Selected"><code>Selected</code></a> class to determine which receiver was
+<a class="autorefs autorefs-internal" title="frequenz.channels.Selected" href="../#frequenz.channels.Selected"><code>Selected</code></a> class to determine which receiver was
 selected in <code>select()</code> iteration.</p>
 <p>It also works as a <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/typing.html#typing.TypeGuard">type guard</a> to narrow the type of the
 <code>Selected</code> instance to the type of the receiver.</p>
-<p>Please see <a class="autorefs autorefs-internal" href="../#frequenz.channels.select"><code>select()</code></a> for an example.</p>
+<p>Please see <a class="autorefs autorefs-internal" title="frequenz.channels.select
+
+
+  
+      async
+  " href="../#frequenz.channels.select"><code>select()</code></a> for an example.</p>
 
 
 <table>
@@ -3510,7 +3794,7 @@ selected in <code>select()</code> iteration.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="frequenz.channels._select.Selected" href="../#frequenz.channels.Selected">Selected</a>[<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>]</code>
+                      <code><a class="autorefs autorefs-internal" title="frequenz.channels.Selected (frequenz.channels._select.Selected)" href="../#frequenz.channels.Selected">Selected</a>[<a class="autorefs autorefs-external" title="typing.Any" href="https://docs.python.org/3/library/typing.html#typing.Any">Any</a>]</code>
                   </span>
               </p>
             </td>
@@ -3530,7 +3814,12 @@ selected in <code>select()</code> iteration.</p>
           <tr class="doc-section-item">
             <td>
                 <span class="doc-returns-annotation">
-                    <code><a class="autorefs autorefs-external" title="typing.TypeGuard" href="https://docs.python.org/3/library/typing.html#typing.TypeGuard">TypeGuard</a>[<a class="autorefs autorefs-internal" title="frequenz.channels._select.Selected" href="../#frequenz.channels.Selected">Selected</a>[<a class="autorefs autorefs-internal" title="frequenz.channels._generic.ReceiverMessageT_co" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a>]]</code>
+                    <code><a class="autorefs autorefs-external" title="typing.TypeGuard" href="https://docs.python.org/3/library/typing.html#typing.TypeGuard">TypeGuard</a>[<a class="autorefs autorefs-internal" title="frequenz.channels.Selected (frequenz.channels._select.Selected)" href="../#frequenz.channels.Selected">Selected</a>[<a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverMessageT_co
+
+
+  
+      module-attribute
+   (frequenz.channels._generic.ReceiverMessageT_co)" href="../#frequenz.channels.ReceiverMessageT_co">ReceiverMessageT_co</a>]]</code>
                 </span>
             </td>
             <td class="doc-returns-details">

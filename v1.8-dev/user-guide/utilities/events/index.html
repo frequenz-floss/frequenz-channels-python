@@ -1472,15 +1472,20 @@
         <p>A receiver that can be made ready directly.</p>
 <h2 id="frequenz.channels.event.Event--usage">Usage<a class="headerlink" href="#frequenz.channels.event.Event--usage" title="Permanent link">¤</a></h2>
 <p>There are cases where it is useful to be able to send a signal to
-a <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.select"><code>select()</code></a> loop, for example, to stop a loop from
+a <a class="autorefs autorefs-internal" title="frequenz.channels.select
+
+
+  
+      async
+  " href="../../../reference/frequenz/channels/#frequenz.channels.select"><code>select()</code></a> loop, for example, to stop a loop from
 outside the loop itself.</p>
-<p>To do that, you can use an <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/event/#frequenz.channels.event.Event"><code>Event</code></a> receiver and
-call <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/event/#frequenz.channels.event.Event.set"><code>set()</code></a> on it when you want to make it
+<p>To do that, you can use an <a class="autorefs autorefs-internal" title="frequenz.channels.event.Event" href="../../../reference/frequenz/channels/event/#frequenz.channels.event.Event"><code>Event</code></a> receiver and
+call <a class="autorefs autorefs-internal" title="set" href="../../../reference/frequenz/channels/event/#frequenz.channels.event.Event.set"><code>set()</code></a> on it when you want to make it
 ready.</p>
 <h2 id="frequenz.channels.event.Event--stopping">Stopping<a class="headerlink" href="#frequenz.channels.event.Event--stopping" title="Permanent link">¤</a></h2>
 <p>The receiver will be re-activated (will keep blocking) after the current set
 event is received. To stop the receiver completely, you can call
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/event/#frequenz.channels.event.Event.stop"><code>stop()</code></a>.</p>
+<a class="autorefs autorefs-internal" title="stop" href="../../../reference/frequenz/channels/event/#frequenz.channels.event.Event.stop"><code>stop()</code></a>.</p>
 <h2 id="frequenz.channels.event.Event--example">Example<a class="headerlink" href="#frequenz.channels.event.Event--example" title="Permanent link">¤</a></h2>
 
 

@@ -1471,20 +1471,35 @@
 
         <p>A receiver that watches for file events.</p>
 <h2 id="frequenz.channels.file_watcher.FileWatcher--usage">Usage<a class="headerlink" href="#frequenz.channels.file_watcher.FileWatcher--usage" title="Permanent link">¤</a></h2>
-<p>A <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.FileWatcher"><code>FileWatcher</code></a> receiver can be used
+<p>A <a class="autorefs autorefs-internal" title="frequenz.channels.file_watcher.FileWatcher" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.FileWatcher"><code>FileWatcher</code></a> receiver can be used
 to watch for changes in a set of files. It will generate an
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.Event"><code>Event</code></a> message every time a file is
+<a class="autorefs autorefs-internal" title="frequenz.channels.file_watcher.Event
+
+
+  
+      dataclass
+  " href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.Event"><code>Event</code></a> message every time a file is
 created, modified or deleted, depending on the type of events that it is configured
 to watch for.</p>
-<p>The <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.EventType">event</a> message contains the
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.Event.type"><code>type</code></a> of change that was observed and
-the <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.Event.path"><code>path</code></a> where the change was
+<p>The <a class="autorefs autorefs-internal" title="frequenz.channels.file_watcher.EventType" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.EventType">event</a> message contains the
+<a class="autorefs autorefs-internal" title="type
+
+
+  
+      instance-attribute
+  " href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.Event.type"><code>type</code></a> of change that was observed and
+the <a class="autorefs autorefs-internal" title="path
+
+
+  
+      instance-attribute
+  " href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.Event.path"><code>path</code></a> where the change was
 observed.</p>
 
 
 <details class="note" open>
   <summary>Note</summary>
-  <p>The owner of the <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.FileWatcher"><code>FileWatcher</code></a>
+  <p>The owner of the <a class="autorefs autorefs-internal" title="frequenz.channels.file_watcher.FileWatcher" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.FileWatcher"><code>FileWatcher</code></a>
 receiver is responsible for recreating the <code>FileWatcher</code> after it has been
 cancelled or stopped.
 For example, if a <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/asyncio-task.html#asyncio.Task"><code>Task</code></a> uses an asynchronous iterator to consume
@@ -1494,11 +1509,29 @@ task to consume events. In this case, a new FileWatcher instance must be created
 </details>        <h2 id="frequenz.channels.file_watcher.FileWatcher--event-types">Event Types<a class="headerlink" href="#frequenz.channels.file_watcher.FileWatcher--event-types" title="Permanent link">¤</a></h2>
 <p>The following event types are available:</p>
 <ul>
-<li><a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.EventType.CREATE"><code>CREATE</code></a>:
+<li><a class="autorefs autorefs-internal" title="CREATE
+
+
+  
+      class-attribute
+      instance-attribute
+  " href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.EventType.CREATE"><code>CREATE</code></a>:
     The file was created.</li>
-<li><a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.EventType.MODIFY"><code>MODIFY</code></a>:
+<li><a class="autorefs autorefs-internal" title="MODIFY
+
+
+  
+      class-attribute
+      instance-attribute
+  " href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.EventType.MODIFY"><code>MODIFY</code></a>:
     The file was modified.</li>
-<li><a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.EventType.DELETE"><code>DELETE</code></a>:
+<li><a class="autorefs autorefs-internal" title="DELETE
+
+
+  
+      class-attribute
+      instance-attribute
+  " href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.EventType.DELETE"><code>DELETE</code></a>:
     The file was deleted.</li>
 </ul>
 <h2 id="frequenz.channels.file_watcher.FileWatcher--example">Example<a class="headerlink" href="#frequenz.channels.file_watcher.FileWatcher--example" title="Permanent link">¤</a></h2>

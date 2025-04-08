@@ -1455,12 +1455,12 @@
 <h2 id="frequenz.channels._anycast.Anycast--description">Description<a class="headerlink" href="#frequenz.channels._anycast.Anycast--description" title="Permanent link">¤</a></h2>
 <div class="admonition tip inline end">
 <p class="admonition-title">Tip</p>
-<p><a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast">Anycast</a> channels behave like the
+<p><a class="autorefs autorefs-internal" title="frequenz.channels.Anycast" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast">Anycast</a> channels behave like the
 <a href="https://golang.org/">Golang</a> <a href="https://go.dev/ref/spec#Channel_types">channels</a>.</p>
 </div>
-<p><a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast">Anycast</a> channels support multiple
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.Sender">senders</a> and multiple
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.Receiver">receivers</a>. Each message sent through any of the
+<p><a class="autorefs autorefs-internal" title="frequenz.channels.Anycast" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast">Anycast</a> channels support multiple
+<a class="autorefs autorefs-internal" title="frequenz.channels.Sender" href="../../../reference/frequenz/channels/#frequenz.channels.Sender">senders</a> and multiple
+<a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../../reference/frequenz/channels/#frequenz.channels.Receiver">receivers</a>. Each message sent through any of the
 senders will be received by exactly one receiver (but <strong>any</strong> receiver).</p>
 <p><center></p>
 <p><svg xmlns="http://www.w3.org/2000/svg" width="504" height="144">    <style>        line, path, circle,rect,polygon{stroke:black;stroke-width:2;stroke-opacity:1;fill-opacity:1;stroke-linecap:round;stroke-linejoin:miter;}text{font-family:monospace;font-size:14px;}rect.backdrop{stroke:none;fill:white;}.broken{stroke-dasharray:8;}.filled{fill:black;}.bg_filled{fill:white;}.nofill{fill:white;}.end_marked_arrow{marker-end:url(#arrow);}.start_marked_arrow{marker-start:url(#arrow);}.end_marked_diamond{marker-end:url(#diamond);}.start_marked_diamond{marker-start:url(#diamond);}.end_marked_circle{marker-end:url(#circle);}.start_marked_circle{marker-start:url(#circle);}.end_marked_open_circle{marker-end:url(#open_circle);}.start_marked_open_circle{marker-start:url(#open_circle);}.end_marked_big_open_circle{marker-end:url(#big_open_circle);}.start_marked_big_open_circle{marker-start:url(#big_open_circle);}            </style>    <defs>        <marker id="arrow" viewBox="-2 -2 8 8" refX="4" refY="2" markerWidth="7" markerHeight="7" orient="auto-start-reverse">            <polygon points="0,0 0,4 4,2 0,0"></polygon>        </marker>        <marker id="diamond" viewBox="-2 -2 8 8" refX="4" refY="2" markerWidth="7" markerHeight="7" orient="auto-start-reverse">            <polygon points="0,2 2,0 4,2 2,4 0,2"></polygon>        </marker>        <marker id="circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">            <circle cx="4" cy="4" r="2" class="filled"></circle>        </marker>        <marker id="open_circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">            <circle cx="4" cy="4" r="2" class="bg_filled"></circle>        </marker>        <marker id="big_open_circle" viewBox="0 0 8 8" refX="4" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">            <circle cx="4" cy="4" r="3" class="bg_filled"></circle>        </marker>    </defs>    <rect class="backdrop" x="0" y="0" width="504" height="144"></rect>    <rect x="396" y="24" width="96" height="32" class="solid nofill" rx="4"></rect>    <text x="410" y="44" >Receiver</text>    <rect x="396" y="88" width="96" height="32" class="solid nofill" rx="4"></rect>    <text x="410" y="108" >Receiver</text>    <text x="98" y="28" >msg1</text>    <text x="346" y="28" >msg1</text>    <text x="18" y="44" >Sender</text>    <text x="210" y="76" >Channel</text>    <text x="18" y="108" >Sender</text>    <text x="98" y="124" >msg2</text>    <text x="346" y="124" >msg2</text>    <g>        <path d="M 8,24 A 4,4 0,0,0 4,28" class="nofill"></path>        <line x1="4" y1="28" x2="4" y2="52" class="solid"></line>        <line x1="8" y1="24" x2="80" y2="24" class="solid"></line>        <path d="M 80,24 A 4,4 0,0,1 84,28" class="nofill"></path>        <line x1="84" y1="28" x2="84" y2="52" class="solid"></line>        <line x1="84" y1="40" x2="136" y2="40" class="solid"></line>        <path d="M 136,40 A 4,4 0,0,1 140,44" class="nofill"></path>        <line x1="140" y1="44" x2="140" y2="100" class="solid"></line>        <path d="M 4,52 A 4,4 0,0,0 8,56" class="nofill"></path>        <line x1="8" y1="56" x2="80" y2="56" class="solid"></line>        <path d="M 84,52 A 4,4 0,0,1 80,56" class="nofill"></path>        <line x1="140" y1="72" x2="184" y2="72" class="solid"></line>        <polygon points="184,68 192,72 184,76" class="filled"></polygon>        <path d="M 8,88 A 4,4 0,0,0 4,92" class="nofill"></path>        <line x1="4" y1="92" x2="4" y2="116" class="solid"></line>        <line x1="8" y1="88" x2="80" y2="88" class="solid"></line>        <path d="M 80,88 A 4,4 0,0,1 84,92" class="nofill"></path>        <line x1="84" y1="92" x2="84" y2="116" class="solid"></line>        <line x1="84" y1="104" x2="136" y2="104" class="solid"></line>        <path d="M 140,100 A 4,4 0,0,1 136,104" class="nofill"></path>        <path d="M 4,116 A 4,4 0,0,0 8,120" class="nofill"></path>        <line x1="8" y1="120" x2="80" y2="120" class="solid"></line>        <path d="M 84,116 A 4,4 0,0,1 80,120" class="nofill"></path>    </g>    <g>        <path d="M 336,40 A 4,4 0,0,0 332,44" class="nofill"></path>        <line x1="332" y1="44" x2="332" y2="100" class="solid"></line>        <line x1="336" y1="40" x2="384" y2="40" class="solid"></line>        <polygon points="384,36 392,40 384,44" class="filled"></polygon>        <path d="M 332,100 A 4,4 0,0,0 336,104" class="nofill"></path>        <line x1="336" y1="104" x2="384" y2="104" class="solid"></line>        <polygon points="384,100 392,104 384,108" class="filled"></polygon>        <path d="M 200,56 A 4,4 0,0,0 196,60" class="nofill"></path>        <line x1="196" y1="60" x2="196" y2="84" class="solid"></line>        <line x1="200" y1="56" x2="280" y2="56" class="solid"></line>        <path d="M 280,56 A 4,4 0,0,1 284,60" class="nofill"></path>        <line x1="284" y1="60" x2="284" y2="84" class="solid"></line>        <line x1="284" y1="72" x2="332" y2="72" class="solid"></line>        <path d="M 196,84 A 4,4 0,0,0 200,88" class="nofill"></path>        <line x1="200" y1="88" x2="280" y2="88" class="solid"></line>        <path d="M 284,84 A 4,4 0,0,1 280,88" class="nofill"></path>    </g></svg></p>
@@ -1477,7 +1477,13 @@ senders will be received by exactly one receiver (but <strong>any</strong> recei
 </div>
 <p>This channel is buffered, and if the senders are faster than the receivers, then the
 channel's buffer will fill up. In that case, the senders will block at the
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.Sender.send"><code>send()</code></a> method until the receivers consume the
+<a class="autorefs autorefs-internal" title="send
+
+
+  
+      abstractmethod
+      async
+  " href="../../../reference/frequenz/channels/#frequenz.channels.Sender.send"><code>send()</code></a> method until the receivers consume the
 messages in the channel's buffer. The channel's buffer size can be configured at
 creation time via the <code>limit</code> argument.</p>
 <p>The first receiver that is awaited will get the next message. When multiple
@@ -1487,20 +1493,36 @@ massage.</p>
 messages, depending on how tasks are schduled.</p>
 <p>If you need to ensure some delivery policy (like round-robin or uniformly random),
 then you will have to implement it yourself.</p>
-<p>To create a new <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.Sender">senders</a> and
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.Receiver">receivers</a> you can use the
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast.new_sender"><code>new_sender()</code></a> and
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast.new_receiver"><code>new_receiver()</code></a> methods
+<p>To create a new <a class="autorefs autorefs-internal" title="frequenz.channels.Sender" href="../../../reference/frequenz/channels/#frequenz.channels.Sender">senders</a> and
+<a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../../reference/frequenz/channels/#frequenz.channels.Receiver">receivers</a> you can use the
+<a class="autorefs autorefs-internal" title="new_sender" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast.new_sender"><code>new_sender()</code></a> and
+<a class="autorefs autorefs-internal" title="new_receiver" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast.new_receiver"><code>new_receiver()</code></a> methods
 respectively.</p>
 <p>When the channel is not needed anymore, it should be closed with the
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast.close"><code>close()</code></a> method. This will prevent further
-attempts to <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.Sender.send"><code>send()</code></a> data. Receivers will still be
+<a class="autorefs autorefs-internal" title="close
+
+
+  
+      async
+  " href="../../../reference/frequenz/channels/#frequenz.channels.Anycast.close"><code>close()</code></a> method. This will prevent further
+attempts to <a class="autorefs autorefs-internal" title="send
+
+
+  
+      abstractmethod
+      async
+  " href="../../../reference/frequenz/channels/#frequenz.channels.Sender.send"><code>send()</code></a> data. Receivers will still be
 able to drain the pending messages on the channel, but after that, subsequent
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a> calls will raise a
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a> exception.</p>
+<a class="autorefs autorefs-internal" title="receive
+
+
+  
+      async
+  " href="../../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a> calls will raise a
+<a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverStoppedError" href="../../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a> exception.</p>
 <p>This channel is useful, for example, to distribute work across multiple workers.</p>
 <p>In cases where each message need to be received by every receiver, a
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.Broadcast">broadcast</a> channel may be used.</p>
+<a class="autorefs autorefs-internal" title="frequenz.channels.Broadcast" href="../../../reference/frequenz/channels/#frequenz.channels.Broadcast">broadcast</a> channel may be used.</p>
 <h2 id="frequenz.channels._anycast.Anycast--examples">Examples<a class="headerlink" href="#frequenz.channels._anycast.Anycast--examples" title="Permanent link">¤</a></h2>
 
 

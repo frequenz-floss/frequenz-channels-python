@@ -1377,11 +1377,11 @@
         <p>The LatestValueCache caches the latest value in a receiver.</p>
 <p>It provides a way to look up the latest value in a stream whenever required, as
 long as there has been one value received.</p>
-<p><a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.LatestValueCache">LatestValueCache</a> takes a
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.Receiver">Receiver</a> as an argument and stores the latest
+<p><a class="autorefs autorefs-internal" title="frequenz.channels.LatestValueCache" href="../../../reference/frequenz/channels/#frequenz.channels.LatestValueCache">LatestValueCache</a> takes a
+<a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../../reference/frequenz/channels/#frequenz.channels.Receiver">Receiver</a> as an argument and stores the latest
 value received by that receiver.  As soon as a value is received, its
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.LatestValueCache.has_value"><code>has_value</code></a> method returns
-<code>True</code>, and its <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.LatestValueCache.get"><code>get</code></a> method returns
+<a class="autorefs autorefs-internal" title="has_value" href="../../../reference/frequenz/channels/#frequenz.channels.LatestValueCache.has_value"><code>has_value</code></a> method returns
+<code>True</code>, and its <a class="autorefs autorefs-internal" title="get" href="../../../reference/frequenz/channels/#frequenz.channels.LatestValueCache.get"><code>get</code></a> method returns
 the latest value received.  The <code>get</code> method will raise an exception if called
 before any messages have been received from the receiver.</p>
 <p>Example:

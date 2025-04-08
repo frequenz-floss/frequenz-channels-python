@@ -1594,7 +1594,7 @@ it is extremely important to understand how timers behave when they are delayed.
 drifting</a> before using timers in production.</p>
 </details>        <p>If you need to do something as periodically as possible (avoiding
 <a href="#frequenz.channels.timer--missed-ticks-and-drifting">drifts</a>), you can use
-a <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> like this:</p>
+a <a class="autorefs autorefs-internal" title="frequenz.channels.timer.Timer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> like this:</p>
 
 
 <details class="example" open>
@@ -1617,7 +1617,7 @@ doing something else for a good amount of time. In extreme cases, if the loop wa
 busy for a few seconds, the timer will trigger a few times in a row to catch up, one
 for every missed tick.</p>
 </details>        <p>If, instead, you need a timeout, for example to abort waiting for other receivers after
-a certain amount of time, you can use a <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> like
+a certain amount of time, you can use a <a class="autorefs autorefs-internal" title="frequenz.channels.timer.Timer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> like
 this:</p>
 
 
@@ -1653,7 +1653,7 @@ trigger again after the selected interval, no matter what the current drift was.
 if the loop was busy for a few seconds, the timer will trigger immediately and then
 wait for another second before triggering again. The missed ticks are skipped.</p>
 </details>        <h2 id="frequenz.channels.timer--missed-ticks-and-drifting">Missed Ticks And Drifting<a class="headerlink" href="#frequenz.channels.timer--missed-ticks-and-drifting" title="Permanent link">¤</a></h2>
-<p>A <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> can be used to send a messages at regular
+<p>A <a class="autorefs autorefs-internal" title="frequenz.channels.timer.Timer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> can be used to send a messages at regular
 time intervals, but there is one fundamental issue with timers in the <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio">asyncio</a> world:
 the event loop could give control to another task at any time, and that task can take
 a long time to finish, making the time it takes the next timer message to be received
@@ -1663,11 +1663,11 @@ how timers behave when they are delayed. Timers will handle missed ticks accordi
 a <em>missing tick policy</em>.</p>
 <p>The following built-in policies are available:</p>
 <ul>
-<li><a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.SkipMissedAndDrift"><code>SkipMissedAndDrift</code></a>:
+<li><a class="autorefs autorefs-internal" title="frequenz.channels.timer.SkipMissedAndDrift" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.SkipMissedAndDrift"><code>SkipMissedAndDrift</code></a>:
     A policy that drops all the missed ticks, triggers immediately and resets.</li>
-<li><a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.SkipMissedAndResync"><code>SkipMissedAndResync</code></a>:
+<li><a class="autorefs autorefs-internal" title="frequenz.channels.timer.SkipMissedAndResync" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.SkipMissedAndResync"><code>SkipMissedAndResync</code></a>:
     A policy that drops all the missed ticks, triggers immediately and resyncs.</li>
-<li><a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.TriggerAllMissed"><code>TriggerAllMissed</code></a>:
+<li><a class="autorefs autorefs-internal" title="frequenz.channels.timer.TriggerAllMissed" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.TriggerAllMissed"><code>TriggerAllMissed</code></a>:
     A policy that triggers all the missed ticks immediately until it catches up.</li>
 </ul>
 
@@ -1707,13 +1707,18 @@ a <em>missing tick policy</em>.</p>
 
 
         <p>A policy that drops all the missed ticks, triggers immediately and resets.</p>
-<p>The <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.SkipMissedAndDrift"><code>SkipMissedAndDrift</code></a> policy will
+<p>The <a class="autorefs autorefs-internal" title="frequenz.channels.timer.SkipMissedAndDrift" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.SkipMissedAndDrift"><code>SkipMissedAndDrift</code></a> policy will
 behave effectively as if the timer was
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.reset">reset</a> every time it is triggered. This means
+<a class="autorefs autorefs-internal" title="reset" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.reset">reset</a> every time it is triggered. This means
 the start time will change and the drift will be accumulated each time a tick is
 delayed. Only the relative drift will be returned on each tick.</p>
 <p>The reset happens only if the delay is larger than the
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.SkipMissedAndDrift.delay_tolerance">delay tolerance</a>, so it
+<a class="autorefs autorefs-internal" title="delay_tolerance
+
+
+  
+      property
+  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.SkipMissedAndDrift.delay_tolerance">delay tolerance</a>, so it
 is possible to ignore small delays and not drift in those cases.</p>
 
 
@@ -1786,10 +1791,15 @@ is possible to ignore small delays and not drift in those cases.</p>
 
         <p>A policy that drops all the missed ticks, triggers immediately and resyncs.</p>
 <p>If ticks are missed, the
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.SkipMissedAndResync"><code>SkipMissedAndResync</code></a> policy will
-make the <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> trigger immediately and it will
+<a class="autorefs autorefs-internal" title="frequenz.channels.timer.SkipMissedAndResync" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.SkipMissedAndResync"><code>SkipMissedAndResync</code></a> policy will
+make the <a class="autorefs autorefs-internal" title="frequenz.channels.timer.Timer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> trigger immediately and it will
 schedule to trigger again on the next multiple of the
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.interval">interval</a>, effectively skipping any missed
+<a class="autorefs autorefs-internal" title="interval
+
+
+  
+      property
+  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.interval">interval</a>, effectively skipping any missed
 ticks, but re-syncing with the original start time.</p>
 
 
@@ -1863,7 +1873,7 @@ ticks, but re-syncing with the original start time.</p>
 
 
         <p>A policy that triggers all the missed ticks immediately until it catches up.</p>
-<p>The <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.TriggerAllMissed"><code>TriggerAllMissed</code></a> policy will
+<p>The <a class="autorefs autorefs-internal" title="frequenz.channels.timer.TriggerAllMissed" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.TriggerAllMissed"><code>TriggerAllMissed</code></a> policy will
 trigger all missed ticks immediately until it catches up with the current time.
 This means that if the timer is delayed for any reason, when it finally gets some
 time to run, it will trigger all the missed ticks in a burst. The drift is not
@@ -1944,22 +1954,32 @@ time.</p>
 
 
         <p>A receiver that sends a message regularly.</p>
-<p><a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a>s are started by default after they are
+<p><a class="autorefs autorefs-internal" title="frequenz.channels.timer.Timer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a>s are started by default after they are
 created. This can be disabled by using <code>auto_start=False</code> option when creating
 them. In this case, the timer will not be started until
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.reset"><code>reset()</code></a> is called. Receiving from the timer
-(either using <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.receive"><code>receive()</code></a> or using the
+<a class="autorefs autorefs-internal" title="reset" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.reset"><code>reset()</code></a> is called. Receiving from the timer
+(either using <a class="autorefs autorefs-internal" title="receive
+
+
+  
+      async
+  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.receive"><code>receive()</code></a> or using the
 async iterator interface) will also start the timer at that point.</p>
 <p>Timers need to be created in a context where
 a <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio"><code>asyncio</code></a> loop is already running. If no
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.loop"><code>loop</code></a> is specified, the current running loop
+<a class="autorefs autorefs-internal" title="loop
+
+
+  
+      property
+  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.loop"><code>loop</code></a> is specified, the current running loop
 is used.</p>
-<p>Timers can be stopped by calling <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.stop"><code>stop()</code></a>.
+<p>Timers can be stopped by calling <a class="autorefs autorefs-internal" title="stop" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.stop"><code>stop()</code></a>.
 A stopped timer will raise
-a <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a> or stop the async
+a <a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverStoppedError" href="../../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a> or stop the async
 iteration as usual.</p>
 <p>Once a timer is explicitly stopped, it can only be started again by explicitly
-calling <a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.reset"><code>reset()</code></a> (trying to receive from it
+calling <a class="autorefs autorefs-internal" title="reset" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.reset"><code>reset()</code></a> (trying to receive from it
 or using the async iterator interface will keep failing).</p>
 <p>Timer messages are <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta"><code>timedelta</code></a>s containing the drift of the
 timer, i.e. the difference between when the timer should have triggered and the time
@@ -1975,12 +1995,22 @@ as the timer uses <a class="autorefs autorefs-external" href="https://docs.pytho
   <p>Even when the <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio"><code>asyncio</code></a> loop's monotonic clock is a <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/functions.html#float"><code>float</code></a>, timers use
 <code>int</code>s to represent time internally. The internal time is tracked in
 microseconds, so the timer resolution is 1 microsecond
-(<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.interval"><code>interval</code></a> must be at least
+(<a class="autorefs autorefs-internal" title="interval
+
+
+  
+      property
+  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.interval"><code>interval</code></a> must be at least
  1 microsecond).</p>
 <p>This is to avoid floating point errors when performing calculations with time,
 which can lead to issues that are very hard to reproduce and debug.</p>
 </details>        <p>If the timer is delayed too much, then it will behave according to the
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.missed_tick_policy"><code>missed_tick_policy</code></a>. Missing
+<a class="autorefs autorefs-internal" title="missed_tick_policy
+
+
+  
+      property
+  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.missed_tick_policy"><code>missed_tick_policy</code></a>. Missing
 ticks might or might not trigger a message and the drift could be accumulated or not
 depending on the chosen policy.</p>
 
@@ -2021,8 +2051,13 @@ depending on the chosen policy.</p>
 
         <p>A policy to handle timer missed ticks.</p>
 <p>To implement a custom policy you need to subclass
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MissedTickPolicy"><code>MissedTickPolicy</code></a> and implement the
-<a class="autorefs autorefs-internal" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MissedTickPolicy.calculate_next_tick_time"><code>calculate_next_tick_time</code></a>
+<a class="autorefs autorefs-internal" title="frequenz.channels.timer.MissedTickPolicy" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MissedTickPolicy"><code>MissedTickPolicy</code></a> and implement the
+<a class="autorefs autorefs-internal" title="calculate_next_tick_time
+
+
+  
+      abstractmethod
+  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MissedTickPolicy.calculate_next_tick_time"><code>calculate_next_tick_time</code></a>
 method.</p>
 
 
