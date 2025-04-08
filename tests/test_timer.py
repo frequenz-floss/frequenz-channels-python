@@ -58,6 +58,10 @@ def _assert_tick_is_aligned(
     assert (next_tick_time - scheduled_tick_time) % interval == pytest.approx(0.0)
 
 
+# https://github.com/frequenz-floss/frequenz-channels-python/issues/405
+@pytest.mark.filterwarnings(
+    r"default:Exception ignored in. <socket\.socket.*:pytest.PytestUnraisableExceptionWarning"
+)
 @hypothesis.given(**_calculate_next_tick_time_args)
 def test_policy_trigger_all_missed(
     now: int, scheduled_tick_time: int, interval: int
