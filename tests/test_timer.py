@@ -58,6 +58,10 @@ def _assert_tick_is_aligned(
     assert (next_tick_time - scheduled_tick_time) % interval == pytest.approx(0.0)
 
 
+# https://github.com/frequenz-floss/frequenz-channels-python/issues/405
+@pytest.mark.filterwarnings(
+    r"default:Exception ignored in. <socket\.socket.*:pytest.PytestUnraisableExceptionWarning"
+)
 @hypothesis.given(**_calculate_next_tick_time_args)
 def test_policy_trigger_all_missed(
     now: int, scheduled_tick_time: int, interval: int
@@ -252,11 +256,14 @@ async def test_timer_construction_defaults() -> None:
 def test_timer_construction_no_async() -> None:
     """Test the construction outside of async (using a custom loop)."""
     loop = async_solipsism.EventLoop()
-    timer = Timer(timedelta(seconds=1.0), TriggerAllMissed(), loop=loop)
-    assert timer.interval == timedelta(seconds=1.0)
-    assert isinstance(timer.missed_tick_policy, TriggerAllMissed)
-    assert timer.loop is loop
-    assert timer.is_running is True
+    try:
+        timer = Timer(timedelta(seconds=1.0), TriggerAllMissed(), loop=loop)
+        assert timer.interval == timedelta(seconds=1.0)
+        assert isinstance(timer.missed_tick_policy, TriggerAllMissed)
+        assert timer.loop is loop
+        assert timer.is_running is True
+    finally:
+        loop.close()
 
 
 def test_timer_construction_no_event_loop() -> None:
