@@ -84,7 +84,7 @@ async def benchmark_broadcast(
 
     await asyncio.gather(*senders)
     for bcast in channels:
-        await bcast.close()
+        await bcast.aclose()
     await receivers_runs
     recv_tracker = sum(recv_trackers)
     assert recv_tracker == num_messages * num_channels * num_receivers

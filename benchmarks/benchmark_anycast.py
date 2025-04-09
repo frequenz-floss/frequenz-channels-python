@@ -66,7 +66,7 @@ async def benchmark_anycast(
 
     await asyncio.gather(*senders)
     for bcast in channels:
-        await bcast.close()
+        await bcast.aclose()
     await receivers_runs
     return recv_trackers[0]
 
