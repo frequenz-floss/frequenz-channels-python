@@ -10,7 +10,7 @@ from asyncio import Condition
 from collections import deque
 from typing import Generic, TypeVar
 
-from typing_extensions import override
+from typing_extensions import deprecated, override
 
 from ._exceptions import ChannelClosedError
 from ._generic import ChannelMessageT
@@ -78,7 +78,7 @@ class Anycast(Generic[ChannelMessageT]):
     respectively.
 
     When the channel is not needed anymore, it should be closed with the
-    [`close()`][frequenz.channels.Anycast.close] method. This will prevent further
+    [`aclose()`][frequenz.channels.Anycast.aclose] method. This will prevent further
     attempts to [`send()`][frequenz.channels.Sender.send] data. Receivers will still be
     able to drain the pending messages on the channel, but after that, subsequent
     [`receive()`][frequenz.channels.Receiver.receive] calls will raise a
@@ -266,7 +266,7 @@ class Anycast(Generic[ChannelMessageT]):
         assert maxlen is not None
         return maxlen
 
-    async def close(self) -> None:
+    async def aclose(self) -> None:
         """Close the channel.
 
         Any further attempts to [send()][frequenz.channels.Sender.send] data
@@ -282,6 +282,11 @@ class Anycast(Generic[ChannelMessageT]):
             self._send_cv.notify_all()
         async with self._recv_cv:
             self._recv_cv.notify_all()
+
+    @deprecated("The close() method is deprecated, use aclose() instead")
+    async def close(self) -> None:  # noqa: D402
+        """Close the channel, deprecated alias for `aclose()`."""  # noqa: D402
+        return await self.aclose()
 
     def new_sender(self) -> Sender[ChannelMessageT]:
         """Return a new sender attached to this channel."""

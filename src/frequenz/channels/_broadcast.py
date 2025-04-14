@@ -11,7 +11,7 @@ from asyncio import Condition
 from collections import deque
 from typing import Generic, TypeVar
 
-from typing_extensions import override
+from typing_extensions import deprecated, override
 
 from ._exceptions import ChannelClosedError
 from ._generic import ChannelMessageT
@@ -65,7 +65,7 @@ class Broadcast(Generic[ChannelMessageT]):
     respectively.
 
     When a channel is not needed anymore, it should be closed with
-    [`close()`][frequenz.channels.Broadcast.close]. This will prevent further
+    [`aclose()`][frequenz.channels.Broadcast.aclose]. This will prevent further
     attempts to [`send()`][frequenz.channels.Sender.send] data, and will allow
     receivers to drain the pending items on their queues, but after that,
     subsequent [receive()][frequenz.channels.Receiver.receive] calls will
@@ -248,7 +248,7 @@ class Broadcast(Generic[ChannelMessageT]):
         """
         return self._closed
 
-    async def close(self) -> None:
+    async def aclose(self) -> None:
         """Close this channel.
 
         Any further attempts to [send()][frequenz.channels.Sender.send] data
@@ -263,6 +263,11 @@ class Broadcast(Generic[ChannelMessageT]):
         self._closed = True
         async with self._recv_cv:
             self._recv_cv.notify_all()
+
+    @deprecated("The close() method is deprecated, use aclose() instead")
+    async def close(self) -> None:  # noqa: D402
+        """Close the channel, deprecated alias for `aclose()`."""  # noqa: D402
+        return await self.aclose()
 
     def new_sender(self) -> Sender[ChannelMessageT]:
         """Return a new sender attached to this channel."""
