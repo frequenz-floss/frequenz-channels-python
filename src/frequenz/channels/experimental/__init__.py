@@ -9,11 +9,13 @@ Warning:
     removal, even in minor updates.
 """
 
+from ._optional_receiver import OptionalReceiver
 from ._pipe import Pipe
 from ._relay_sender import RelaySender
 from ._with_previous import WithPrevious
 
 __all__ = [
+    "OptionalReceiver",
     "WithPrevious",
     "Pipe",
     "RelaySender",
