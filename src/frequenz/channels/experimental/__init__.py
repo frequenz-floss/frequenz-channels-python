@@ -5,8 +5,9 @@
 
 Warning:
     This package contains experimental channel primitives that are not yet
-    considered stable. They are subject to change without notice, including
-    removal, even in minor updates.
+    considered stable. For more information on what to expect and how to use the
+    `experimental` package please read the [`experimental` package
+    guidelines](https://github.com/frequenz-floss/docs/blob/v0.x.x/python/experimental-packages.md).
 """
 
 from ._pipe import Pipe
