@@ -25,17 +25,34 @@ class Pipe(typing.Generic[ChannelMessageT]):
 
     Example:
         ```python
-        from frequenz.channels import Broadcast, Pipe
+        import asyncio
+        from contextlib import closing, aclosing, AsyncExitStack
 
-        channel1: Broadcast[int] = Broadcast(name="channel1")
-        channel2: Broadcast[int] = Broadcast(name="channel2")
+        from frequenz.channels import Broadcast, Pipe, Receiver
 
-        receiver_chan1 = channel1.new_receiver()
-        sender_chan2 = channel2.new_sender()
+        async def main() -> None:
+            # Channels, receivers and Pipe are in AsyncExitStack
+            # to close and stop them at the end.
+            async with AsyncExitStack() as stack:
+                source_channel = await stack.enter_async_context(
+                    aclosing(Broadcast[int](name="source channel"))
+                )
+                source_receiver = stack.enter_context(closing(source_channel.new_receiver()))
 
-        async with Pipe(channel2.new_receiver(), channel1.new_sender()):
-            await sender_chan2.send(10)
-            assert await receiver_chan1.receive() == 10
+                forwarding_channel = await stack.enter_async_context(
+                    aclosing(Broadcast[int](name="forwarding channel"))
+                )
+                await stack.enter_async_context(
+                    Pipe(source_receiver, forwarding_channel.new_sender())
+                )
+
+                receiver = stack.enter_context(closing(forwarding_channel.new_receiver()))
+
+                source_sender = source_channel.new_sender()
+                await source_sender.send(10)
+                assert await receiver.receive() == 11
+
+        asyncio.run(main())
         ```
     """
 
@@ -59,8 +76,8 @@ class Pipe(typing.Generic[ChannelMessageT]):
 
     async def __aexit__(
         self,
-        _exc_type: typing.Type[BaseException],
-        _exc: BaseException,
+        _exc_type: typing.Type[BaseException] | None,
+        _exc: BaseException | None,
         _tb: typing.Any,
     ) -> None:
         """Exit the runtime context."""

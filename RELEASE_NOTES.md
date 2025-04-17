@@ -13,7 +13,8 @@
 
 ## New Features
 
-* Add a new `OptionalReceiver` class that wraps an optional underlying receiver, allowing for indefinite waiting when no receiver is set.
+- Add a new `OptionalReceiver` class that wraps an optional underlying receiver, allowing for indefinite waiting when no receiver is set.
+- Improve documentation of the `frequenz.channels.experimental.Pipe`
 
 ## Bug Fixes
 
