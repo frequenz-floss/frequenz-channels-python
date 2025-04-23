@@ -2,7 +2,7 @@
 
 ## Summary
 
-<!-- Here goes a general summary of what this release is about -->
+This release focuses on improving `async` patterns and flexibility in the channel's library.
 
 ## Upgrading
 
@@ -15,7 +15,3 @@
 
 - Add a new `OptionalReceiver` class that wraps an optional underlying receiver, allowing for indefinite waiting when no receiver is set.
 - Improve documentation of the `frequenz.channels.experimental.Pipe`
-
-## Bug Fixes
-
-<!-- Here goes notable bug fixes that are worth a special mention or explanation -->
