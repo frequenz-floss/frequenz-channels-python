@@ -3,8 +3,8 @@
 
 [build-system]
 requires = [
-  "setuptools == 80.1.0",
-  "setuptools_scm[toml] == 8.2.0",
+  "setuptools == 80.3.1",
+  "setuptools_scm[toml] == 8.3.1",
   "frequenz-repo-config[lib] == 0.13.3",
 ]
 build-backend = "setuptools.build_meta"
@@ -45,7 +45,7 @@ dev-flake8 = [
 ]
 dev-formatting = ["black == 25.1.0", "isort == 6.0.1"]
 dev-mkdocs = [
-  "Markdown == 3.7",
+  "Markdown == 3.8",
   "black == 25.1.0",
   "frequenz-repo-config[lib] == 0.13.3",
   "markdown-callouts == 0.4.0",
@@ -64,9 +64,9 @@ dev-mypy = [
   # For checking the noxfile, docs/ script, and tests
   "frequenz-channels[dev-mkdocs,dev-noxfile,dev-pytest]",
   "mypy == 1.15.0",
-  "types-Markdown == 3.7.0.20250322",
+  "types-Markdown == 3.8.0.20250415",
 ]
-dev-noxfile = ["nox == 2025.2.9", "frequenz-repo-config[lib] == 0.13.3"]
+dev-noxfile = ["nox == 2025.5.1", "frequenz-repo-config[lib] == 0.13.3"]
 dev-pylint = [
   # For checking the noxfile, docs/ script, and tests
   "frequenz-channels[dev-mkdocs,dev-noxfile,dev-pytest]",
@@ -75,7 +75,7 @@ dev-pylint = [
 dev-pytest = [
   "async-solipsism == 0.7",
   "frequenz-repo-config[extra-lint-examples] == 0.13.3",
-  "hypothesis == 6.130.12",
+  "hypothesis == 6.131.9",
   "pytest == 8.3.5",
   "pytest-asyncio == 0.26.0",
   "pytest-mock == 3.14.0",
