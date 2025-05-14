@@ -17,7 +17,7 @@ from ._with_previous import WithPrevious
 
 __all__ = [
     "OptionalReceiver",
-    "WithPrevious",
     "Pipe",
     "RelaySender",
+    "WithPrevious",
 ]
