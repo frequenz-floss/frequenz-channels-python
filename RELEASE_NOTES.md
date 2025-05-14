@@ -10,7 +10,7 @@
 
 ## New Features
 
-<!-- Here goes the main new features and examples or instructions on how to use them -->
+- An experimental `NopReceiver` implementation has been added, which can be used as a place-holder receiver that never receives a message.
 
 ## Bug Fixes
 
