@@ -10,11 +10,12 @@ this receiver to wait indefinitely if it is not set.
 
 import asyncio
 
-from typing_extensions import override
+from typing_extensions import deprecated, override
 
 from frequenz.channels import Receiver, ReceiverError, ReceiverMessageT_co
 
 
+@deprecated("Use `frequenz.channels.experimental.NopReceiver` instead.")
 class OptionalReceiver(Receiver[ReceiverMessageT_co]):
     """A receiver that will wait indefinitely if there is no underlying receiver.
 
