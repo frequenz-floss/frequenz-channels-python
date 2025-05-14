@@ -64,7 +64,7 @@ async def test_anycast() -> None:
         senders.append(send_msg(acast.new_sender()))
 
     await asyncio.gather(*senders)
-    await acast.close()
+    await acast.aclose()
     await receivers_runs
 
     with pytest.raises(SenderError):
@@ -92,7 +92,7 @@ async def test_anycast_after_close() -> None:
 
     await sender.send(2)
 
-    await acast.close()
+    await acast.aclose()
 
     with pytest.raises(SenderError):
         await sender.send(5)
@@ -174,7 +174,7 @@ async def test_anycast_async_iterator() -> None:
     async def send_messages() -> None:
         for val in ["one", "two", "three", "four", "five"]:
             await sender.send(val)
-        await acast.close()
+        await acast.aclose()
 
     sender_task = asyncio.create_task(send_messages())
 
