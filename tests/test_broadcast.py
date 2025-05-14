@@ -58,7 +58,7 @@ async def test_broadcast() -> None:
         senders.append(send_msg(bcast.new_sender()))
 
     await asyncio.gather(*senders)
-    await bcast.close()
+    await bcast.aclose()
     await receivers_runs
 
     actual_sum = 0
@@ -93,7 +93,7 @@ async def test_broadcast_after_close() -> None:
     receiver = bcast.new_receiver()
     sender = bcast.new_sender()
 
-    await bcast.close()
+    await bcast.aclose()
 
     with pytest.raises(SenderError):
         await sender.send(5)
@@ -204,7 +204,7 @@ async def test_broadcast_async_iterator() -> None:
     async def send_messages() -> None:
         for val in range(0, 10):
             await sender.send(val)
-        await bcast.close()
+        await bcast.aclose()
 
     sender_task = asyncio.create_task(send_messages())
 

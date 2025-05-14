@@ -22,9 +22,9 @@ async def test_merge() -> None:
         for ctr in range(5):
             await ch1.send(ctr + 1)
             await ch2.send(ctr + 101)
-        await chan1.close()
+        await chan1.aclose()
         await ch2.send(1000)
-        await chan2.close()
+        await chan2.aclose()
 
     senders = asyncio.create_task(send(chan1.new_sender(), chan2.new_sender()))
 
@@ -52,8 +52,8 @@ async def test_merge_close_receiver() -> None:
         for ctr in range(5):
             await ch1.send(ctr + 1)
             await ch2.send(ctr + 101)
-        await chan1.close()
-        await chan2.close()
+        await chan1.aclose()
+        await chan2.aclose()
 
     rx1 = chan1.new_receiver()
     rx2 = chan2.new_receiver()
