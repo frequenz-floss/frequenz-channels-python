@@ -1379,11 +1379,17 @@
 long as there has been one value received.</p>
 <p><a class="autorefs autorefs-internal" title="frequenz.channels.LatestValueCache" href="../../../reference/frequenz/channels/#frequenz.channels.LatestValueCache">LatestValueCache</a> takes a
 <a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../../reference/frequenz/channels/#frequenz.channels.Receiver">Receiver</a> as an argument and stores the latest
-value received by that receiver.  As soon as a value is received, its
+value received by that receiver.  It also takes an optional <code>key</code> function
+that allows you to group the values by a specific key.  If the <code>key</code> is
+provided, the cache will store the latest value for each key separately,
+otherwise it will store only the latest value received overall.</p>
+<p>As soon as a value is received, its
 <a class="autorefs autorefs-internal" title="has_value" href="../../../reference/frequenz/channels/#frequenz.channels.LatestValueCache.has_value"><code>has_value</code></a> method returns
 <code>True</code>, and its <a class="autorefs autorefs-internal" title="get" href="../../../reference/frequenz/channels/#frequenz.channels.LatestValueCache.get"><code>get</code></a> method returns
 the latest value received.  The <code>get</code> method will raise an exception if called
 before any messages have been received from the receiver.</p>
+<p>Both <code>has_value</code> and <code>get</code> methods can take an optional <code>key</code> argument to
+check or retrieve the latest value for that specific key.</p>
 <p>Example:
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">frequenz.channels</span><span class="w"> </span><span class="kn">import</span> <span class="n">Broadcast</span><span class="p">,</span> <span class="n">LatestValueCache</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
