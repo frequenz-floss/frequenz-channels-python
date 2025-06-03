@@ -51,15 +51,21 @@ T_co = typing.TypeVar("T_co", covariant=True)
 HashableT = typing.TypeVar("HashableT", bound=typing.Hashable)
 
 
-class _Sentinel:
+class Sentinel:
     """A sentinel to denote that no value has been received yet."""
+
+    def __init__(self, desc: str) -> None:
+        """Initialize the sentinel."""
+        self._desc = desc
 
     def __str__(self) -> str:
         """Return a string representation of this sentinel."""
-        return "<no value received yet>"
+        return f"<Sentinel: {self._desc}>"
 
 
-_SENTINEL = _Sentinel()
+NO_KEY: typing.Final[Sentinel] = Sentinel("no key provided")
+NO_KEY_FUNCTION: typing.Final[Sentinel] = Sentinel("no key function provided")
+NO_VALUE_RECEIVED: typing.Final[Sentinel] = Sentinel("no value received yet")
 
 
 class LatestValueCache(typing.Generic[T_co, HashableT]):
@@ -71,11 +77,11 @@ class LatestValueCache(typing.Generic[T_co, HashableT]):
 
     @typing.overload
     def __init__(
-        self: LatestValueCache[T_co, _Sentinel],
+        self: LatestValueCache[T_co, Sentinel],
         receiver: Receiver[T_co],
         *,
         unique_id: str | None = None,
-        key: _Sentinel = _SENTINEL,
+        key: Sentinel = NO_KEY_FUNCTION,
     ) -> None:
         """Create a new cache that does not use keys.
 
@@ -111,7 +117,7 @@ class LatestValueCache(typing.Generic[T_co, HashableT]):
         receiver: Receiver[T_co],
         *,
         unique_id: str | None = None,
-        key: typing.Callable[[T_co], typing.Any] | _Sentinel = _SENTINEL,
+        key: typing.Callable[[T_co], typing.Any] | Sentinel = NO_KEY_FUNCTION,
     ) -> None:
         """Create a new cache.
 
@@ -126,9 +132,9 @@ class LatestValueCache(typing.Generic[T_co, HashableT]):
                 received overall.
         """
         self._receiver = receiver
-        self._key: typing.Callable[[T_co], HashableT] | _Sentinel = key
+        self._key: typing.Callable[[T_co], HashableT] | Sentinel = key
         self._unique_id: str = hex(id(self)) if unique_id is None else unique_id
-        self._latest_value: T_co | _Sentinel = _SENTINEL
+        self._latest_value: T_co | Sentinel = NO_VALUE_RECEIVED
         self._latest_value_by_key: dict[HashableT, T_co] = {}
         self._task = asyncio.create_task(
             self._run(), name=f"LatestValueCache«{self._unique_id}»"
@@ -139,7 +145,7 @@ class LatestValueCache(typing.Generic[T_co, HashableT]):
         """The unique identifier of this instance."""
         return self._unique_id
 
-    def get(self, key: HashableT | _Sentinel = _SENTINEL) -> T_co:
+    def get(self, key: HashableT | Sentinel = NO_KEY) -> T_co:
         """Return the latest value that has been received.
 
         This raises a `ValueError` if no value has been received yet. Use `has_value` to
@@ -156,16 +162,16 @@ class LatestValueCache(typing.Generic[T_co, HashableT]):
         Raises:
             ValueError: If no value has been received yet.
         """
-        if not isinstance(key, _Sentinel):
+        if not isinstance(key, Sentinel):
             if key not in self._latest_value_by_key:
                 raise ValueError(f"No value received for key: {key!r}")
             return self._latest_value_by_key[key]
 
-        if isinstance(self._latest_value, _Sentinel):
+        if isinstance(self._latest_value, Sentinel):
             raise ValueError("No value has been received yet.")
         return self._latest_value
 
-    def has_value(self, key: HashableT | _Sentinel = _SENTINEL) -> bool:
+    def has_value(self, key: HashableT | Sentinel = NO_KEY) -> bool:
         """Check whether a value has been received yet.
 
         If `key` is provided, it checks whether a value has been received for that key.
@@ -176,14 +182,14 @@ class LatestValueCache(typing.Generic[T_co, HashableT]):
         Returns:
             `True` if a value has been received, `False` otherwise.
         """
-        if not isinstance(key, _Sentinel):
+        if not isinstance(key, Sentinel):
             return key in self._latest_value_by_key
-        return not isinstance(self._latest_value, _Sentinel)
+        return not isinstance(self._latest_value, Sentinel)
 
     async def _run(self) -> None:
         async for value in self._receiver:
             self._latest_value = value
-            if not isinstance(self._key, _Sentinel):
+            if not isinstance(self._key, Sentinel):
                 key = self._key(value)
                 self._latest_value_by_key[key] = value
 
