@@ -44,6 +44,8 @@ async def test_latest_value_cache() -> None:
 
     assert cache.get() == 19
 
+    assert cache.keys() == set()
+
 
 @pytest.mark.integration
 async def test_latest_value_cache_key() -> None:
@@ -59,6 +61,8 @@ async def test_latest_value_cache_key() -> None:
     with pytest.raises(ValueError, match="No value received for key: 0"):
         cache.get(0)
 
+    assert cache.keys() == set()
+
     await sender.send((5, "a"))
     await sender.send((6, "b"))
     await sender.send((5, "c"))
@@ -72,6 +76,8 @@ async def test_latest_value_cache_key() -> None:
     assert cache.get() == (5, "c")
     assert cache.get(5) == (5, "c")
     assert cache.get(6) == (6, "b")
+
+    assert cache.keys() == {5, 6}
 
     with pytest.raises(ValueError, match="No value received for key: 7"):
         cache.get(7)
@@ -92,3 +98,5 @@ async def test_latest_value_cache_key() -> None:
     await asyncio.sleep(0)
 
     assert cache.get(6) == (6, "g")
+
+    assert cache.keys() == {5, 6, 12}

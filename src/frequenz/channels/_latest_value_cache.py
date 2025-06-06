@@ -44,6 +44,7 @@ from __future__ import annotations
 
 import asyncio
 import typing
+from collections.abc import Set
 
 from ._receiver import Receiver
 
@@ -144,6 +145,13 @@ class LatestValueCache(typing.Generic[T_co, HashableT]):
     def unique_id(self) -> str:
         """The unique identifier of this instance."""
         return self._unique_id
+
+    def keys(self) -> Set[HashableT]:
+        """Return the set of keys for which values have been received.
+
+        If no key function is provided, this will return an empty set.
+        """
+        return self._latest_value_by_key.keys()
 
     def get(self, key: HashableT | Sentinel = NO_KEY) -> T_co:
         """Return the latest value that has been received.
