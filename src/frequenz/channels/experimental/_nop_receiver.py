@@ -20,7 +20,9 @@ class NopReceiver(Receiver[ReceiverMessageT_co]):
 
     def __init__(self) -> None:
         """Initialize this instance."""
-        self._ready_future: asyncio.Future[bool] = asyncio.Future()
+        self._ready_future: asyncio.Future[bool] = (
+            asyncio.get_running_loop().create_future()
+        )
 
     @override
     async def ready(self) -> bool:
