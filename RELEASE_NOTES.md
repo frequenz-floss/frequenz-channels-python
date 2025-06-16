@@ -10,7 +10,7 @@
 
 ## New Features
 
-<!-- Here goes the main new features and examples or instructions on how to use them -->
+- This release introduces the experimental `GroupingLatestValueCache`.  It is similar to the `LatestValueCache`, but accepts an additional key-function as an argument, which takes each incoming message and returns a key for that message.  The latest value received for each unique key gets cached and is available to look up on-demand.
 
 ## Bug Fixes
 
