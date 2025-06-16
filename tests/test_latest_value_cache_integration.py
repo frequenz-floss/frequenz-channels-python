@@ -100,3 +100,18 @@ async def test_latest_value_cache_key() -> None:
     assert cache.get(6) == (6, "g")
 
     assert cache.keys() == {5, 6, 12}
+
+    cache.clear()
+    assert not cache.has_value()
+
+    assert cache.keys() == {5, 6, 12}
+    assert cache.has_value(5)
+    assert cache.get(5) == (5, "c")
+
+    cache.clear(5)
+    assert not cache.has_value(5)
+    assert cache.has_value(6)
+
+    with pytest.raises(ValueError, match="No value received for key: 5"):
+        assert cache.get(5)
+    assert cache.keys() == {6, 12}
