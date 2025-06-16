@@ -194,6 +194,22 @@ class LatestValueCache(typing.Generic[T_co, HashableT]):
             return key in self._latest_value_by_key
         return not isinstance(self._latest_value, Sentinel)
 
+    def clear(self, key: HashableT | Sentinel = NO_KEY) -> None:
+        """Clear the latest value or the latest value for a specific key.
+
+        If `key` is provided, it clears the latest value for that key. If no key is
+        provided, it clears the latest value received overall.
+
+        Args:
+            key: An optional key to clear the latest value for that key. If not
+                provided, it clears the latest value received overall.
+        """
+        if not isinstance(key, Sentinel):
+            _ = self._latest_value_by_key.pop(key, None)
+            return
+
+        self._latest_value = NO_VALUE_RECEIVED
+
     async def _run(self) -> None:
         async for value in self._receiver:
             self._latest_value = value
