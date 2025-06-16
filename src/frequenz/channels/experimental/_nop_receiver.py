@@ -20,7 +20,7 @@ class NopReceiver(Receiver[ReceiverMessageT_co]):
 
     def __init__(self) -> None:
         """Initialize this instance."""
-        self._closed: bool = False
+        self._ready_future: asyncio.Future[bool] = asyncio.Future()
 
     @override
     async def ready(self) -> bool:
@@ -29,10 +29,9 @@ class NopReceiver(Receiver[ReceiverMessageT_co]):
         Returns:
             Whether the receiver is still active.
         """
-        if self._closed:
+        if self._ready_future.done():
             return False
-        await asyncio.Future()
-        return False
+        return await self._ready_future
 
     @override
     def consume(self) -> ReceiverMessageT_co:  # noqa: DOC503 (raised indirectly)
@@ -47,11 +46,12 @@ class NopReceiver(Receiver[ReceiverMessageT_co]):
             ReceiverStoppedError: If the receiver stopped producing messages.
             ReceiverError: If there is some problem with the underlying receiver.
         """
-        if self._closed:
+        if self._ready_future.done():
             raise ReceiverStoppedError(self)
         raise ReceiverError("`consume()` must be preceded by a call to `ready()`", self)
 
     @override
     def close(self) -> None:
         """Stop the receiver."""
-        self._closed = True
+        if not self._ready_future.done():
+            self._ready_future.set_result(False)
