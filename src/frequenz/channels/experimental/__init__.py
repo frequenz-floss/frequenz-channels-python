@@ -10,6 +10,7 @@ Warning:
     guidelines](https://github.com/frequenz-floss/docs/blob/v0.x.x/python/experimental-packages.md).
 """
 
+from ._grouping_latest_value_cache import GroupingLatestValueCache
 from ._nop_receiver import NopReceiver
 from ._optional_receiver import OptionalReceiver
 from ._pipe import Pipe
@@ -17,6 +18,7 @@ from ._relay_sender import RelaySender
 from ._with_previous import WithPrevious
 
 __all__ = [
+    "GroupingLatestValueCache",
     "NopReceiver",
     "OptionalReceiver",
     "Pipe",
