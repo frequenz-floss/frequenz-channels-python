@@ -430,6 +430,9 @@ async def select(  # noqa: DOC503
     receivers_map: dict[str, Receiver[Any]] = {str(hash(r)): r for r in receivers}
     pending: set[asyncio.Task[bool]] = set()
 
+    if asyncio.get_event_loop().is_closed():
+        raise SelectError("Cannot select on a closed event loop")
+
     try:
         for name, recv in receivers_map.items():
             pending.add(asyncio.create_task(recv.ready(), name=name))
