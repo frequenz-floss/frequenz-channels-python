@@ -18,22 +18,22 @@ check if a value has been received for a specific key, and a
 the cached value for a specific key.
 
 Example:
-```python
-from frequenz.channels import Broadcast
-from frequenz.channels.experimental import GroupingLatestValueCache
+    ```python
+    from frequenz.channels import Broadcast
+    from frequenz.channels.experimental import GroupingLatestValueCache
 
-channel = Broadcast[tuple[int, str]](name="lvc_test")
+    channel = Broadcast[tuple[int, str]](name="lvc_test")
 
-cache = GroupingLatestValueCache(channel.new_receiver(), key=lambda x: x[0])
-sender = channel.new_sender()
+    cache = GroupingLatestValueCache(channel.new_receiver(), key=lambda x: x[0])
+    sender = channel.new_sender()
 
-assert not cache.has_value(6)
+    assert not cache.has_value(6)
 
-await sender.send((6, "twenty-six"))
+    await sender.send((6, "twenty-six"))
 
-assert cache.has_value(6)
-assert cache.get(6) == (6, "twenty-six")
-```
+    assert cache.has_value(6)
+    assert cache.get(6) == (6, "twenty-six")
+    ```
 """
 
 
