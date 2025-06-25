@@ -6,7 +6,7 @@
 
 import asyncio
 import typing
-from collections.abc import ItemsView, Iterator, KeysView, Mapping, ValuesView
+from collections.abc import Callable, ItemsView, Iterator, KeysView, Mapping, ValuesView
 
 from typing_extensions import override
 
@@ -82,7 +82,7 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
         self,
         receiver: Receiver[ValueT_co],
         *,
-        key: typing.Callable[[ValueT_co], HashableT],
+        key: Callable[[ValueT_co], HashableT],
         unique_id: str | None = None,
     ) -> None:
         """Create a new cache.
@@ -96,7 +96,7 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
                 [`id()`][id]. It is used mostly for debugging purposes.
         """
         self._receiver: Receiver[ValueT_co] = receiver
-        self._key: typing.Callable[[ValueT_co], HashableT] = key
+        self._key: Callable[[ValueT_co], HashableT] = key
         self._unique_id: str = hex(id(self)) if unique_id is None else unique_id
         self._latest_value_by_key: dict[HashableT, ValueT_co] = {}
         self._task: asyncio.Task[None] = asyncio.create_task(
