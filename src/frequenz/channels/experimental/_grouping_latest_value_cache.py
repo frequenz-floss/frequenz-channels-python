@@ -1,43 +1,7 @@
 # License: MIT
 # Copyright © 2025 Frequenz Energy-as-a-Service GmbH
 
-"""The GroupingLatestValueCache caches the latest values in a receiver grouped by key.
-
-It provides a way to look up on demand, the latest value in a stream for any key, as
-long as there has been at least one value received for that key.
-
-[GroupingLatestValueCache][frequenz.channels.experimental.GroupingLatestValueCache]
-takes a [Receiver][frequenz.channels.Receiver] and a `key` function as arguments and
-stores the latest value received by that receiver for each key separately.
-
-The `GroupingLatestValueCache` implements the [`Mapping`][collections.abc.Mapping]
-interface, so it can be used like a dictionary. It is not
-a [`MutableMapping`][collections.abc.MutableMapping] because users can't mutate the
-cache directly, it is only mutated by the underlying receiver. There is one exception
-though, users can clear individual keys from the cache using the
-[clear][frequenz.channels.experimental.GroupingLatestValueCache.clear] method.
-
-Example:
-    ```python
-    from frequenz.channels import Broadcast
-    from frequenz.channels.experimental import GroupingLatestValueCache
-
-    channel = Broadcast[tuple[int, str]](name="lvc_test")
-
-    cache = GroupingLatestValueCache(channel.new_receiver(), key=lambda x: x[0])
-    sender = channel.new_sender()
-
-    assert cache.get(6) is None
-    assert 6 not in cache
-
-    await sender.send((6, "twenty-six"))
-
-    assert 6 in cache
-    assert cache.get(6) == (6, "twenty-six")
-
-    await cache.stop()
-    ```
-"""
+"""The GroupingLatestValueCache caches the latest values in a receiver grouped by key."""
 
 
 import asyncio
@@ -59,7 +23,43 @@ HashableT = typing.TypeVar("HashableT", bound=typing.Hashable)
 
 
 class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
-    """A cache that stores the latest value in a receiver, grouped by key."""
+    """A cache that stores the latest value in a receiver, grouped by key.
+
+    It provides a way to look up on demand, the latest value in a stream for any key, as
+    long as there has been at least one value received for that key.
+
+    [GroupingLatestValueCache][frequenz.channels.experimental.GroupingLatestValueCache]
+    takes a [Receiver][frequenz.channels.Receiver] and a `key` function as arguments and
+    stores the latest value received by that receiver for each key separately.
+
+    The `GroupingLatestValueCache` implements the [`Mapping`][collections.abc.Mapping]
+    interface, so it can be used like a dictionary. It is not
+    a [`MutableMapping`][collections.abc.MutableMapping] because users can't mutate the
+    cache directly, it is only mutated by the underlying receiver. There is one exception
+    though, users can clear individual keys from the cache using the
+    [clear][frequenz.channels.experimental.GroupingLatestValueCache.clear] method.
+
+    Example:
+        ```python
+        from frequenz.channels import Broadcast
+        from frequenz.channels.experimental import GroupingLatestValueCache
+
+        channel = Broadcast[tuple[int, str]](name="lvc_test")
+
+        cache = GroupingLatestValueCache(channel.new_receiver(), key=lambda x: x[0])
+        sender = channel.new_sender()
+
+        assert cache.get(6) is None
+        assert 6 not in cache
+
+        await sender.send((6, "twenty-six"))
+
+        assert 6 in cache
+        assert cache.get(6) == (6, "twenty-six")
+
+        await cache.stop()
+        ```
+    """
 
     def __init__(
         self,
