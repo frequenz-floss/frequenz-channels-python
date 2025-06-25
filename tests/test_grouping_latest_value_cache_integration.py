@@ -16,14 +16,13 @@ async def test_latest_value_cache_key() -> None:
     """Ensure LatestValueCache works with keys."""
     channel = Broadcast[tuple[int, str]](name="lvc_test")
 
-    cache: GroupingLatestValueCache[tuple[int, str], int] = GroupingLatestValueCache(
+    cache: GroupingLatestValueCache[int, tuple[int, str]] = GroupingLatestValueCache(
         channel.new_receiver(), key=lambda x: x[0]
     )
     sender = channel.new_sender()
 
-    assert not cache.has_value(5)
-    with pytest.raises(ValueError, match="No value received for key: 0"):
-        cache.get(0)
+    assert 5 not in cache
+    assert cache.get(0) is None
 
     assert cache.keys() == set()
 
@@ -32,17 +31,16 @@ async def test_latest_value_cache_key() -> None:
     await sender.send((5, "c"))
     await asyncio.sleep(0)
 
-    assert cache.has_value(5)
-    assert cache.has_value(6)
-    assert not cache.has_value(7)
+    assert 5 in cache
+    assert 6 in cache
+    assert 7 not in cache
 
     assert cache.get(5) == (5, "c")
     assert cache.get(6) == (6, "b")
 
     assert cache.keys() == {5, 6}
 
-    with pytest.raises(ValueError, match="No value received for key: 7"):
-        cache.get(7)
+    assert cache.get(7, default=(7, "default")) == (7, "default")
 
     await sender.send((12, "d"))
     await asyncio.sleep(0)
@@ -62,9 +60,8 @@ async def test_latest_value_cache_key() -> None:
     assert cache.keys() == {5, 6, 12}
 
     cache.clear(5)
-    assert not cache.has_value(5)
-    assert cache.has_value(6)
+    assert 5 not in cache
+    assert 6 in cache
 
-    with pytest.raises(ValueError, match="No value received for key: 5"):
-        assert cache.get(5)
+    assert cache.get(5) is None
     assert cache.keys() == {6, 12}
