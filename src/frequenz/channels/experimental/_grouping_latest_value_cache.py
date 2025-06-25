@@ -11,11 +11,11 @@ takes a [Receiver][frequenz.channels.Receiver] and a `key` function as arguments
 stores the latest value received by that receiver for each key separately.
 
 The `GroupingLatestValueCache` implements the [`Mapping`][collections.abc.Mapping]
-interface, so it can be used like a dictionary.  In addition, it provides a
-[has_value][frequenz.channels.experimental.GroupingLatestValueCache.has_value] method to
-check if a value has been received for a specific key, and a
-[clear][frequenz.channels.experimental.GroupingLatestValueCache.clear] method to clear
-the cached value for a specific key.
+interface, so it can be used like a dictionary. It is not
+a [`MutableMapping`][collections.abc.MutableMapping] because users can't mutate the
+cache directly, it is only mutated by the underlying receiver. There is one exception
+though, users can clear individual keys from the cache using the
+[clear][frequenz.channels.experimental.GroupingLatestValueCache.clear] method.
 
 Example:
     ```python
@@ -27,12 +27,15 @@ Example:
     cache = GroupingLatestValueCache(channel.new_receiver(), key=lambda x: x[0])
     sender = channel.new_sender()
 
-    assert not cache.has_value(6)
+    assert cache.get(6) is None
+    assert 6 not in cache
 
     await sender.send((6, "twenty-six"))
 
-    assert cache.has_value(6)
+    assert 6 in cache
     assert cache.get(6) == (6, "twenty-six")
+
+    await cache.stop()
     ```
 """
 
