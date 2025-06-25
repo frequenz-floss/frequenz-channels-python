@@ -200,9 +200,13 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
         Returns:
             `True` if the caches are equal, `False` otherwise.
         """
-        if not isinstance(other, GroupingLatestValueCache):
-            return NotImplemented
-        return self._latest_value_by_key == other._latest_value_by_key
+        match other:
+            case GroupingLatestValueCache():
+                return self._latest_value_by_key == other._latest_value_by_key
+            case Mapping():
+                return self._latest_value_by_key == other
+            case _:
+                return NotImplemented
 
     @override
     def __ne__(self, value: object, /) -> bool:

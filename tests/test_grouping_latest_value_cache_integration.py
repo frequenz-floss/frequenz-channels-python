@@ -88,7 +88,7 @@ async def test_latest_value_cache_key() -> None:  # pylint: disable=too-many-sta
     assert cache.keys() == expected.keys()
     assert list(cache.values()) == list(expected.values())
     assert list(cache.items()) == list(expected.items())
-    # assert cache == expected
+    assert cache == expected
     assert list(cache) == list(expected)
 
     cache.clear()
