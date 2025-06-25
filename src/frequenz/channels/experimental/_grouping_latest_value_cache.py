@@ -45,19 +45,24 @@ from typing_extensions import override
 
 from .._receiver import Receiver
 
-T_co = typing.TypeVar("T_co", covariant=True)
-T = typing.TypeVar("T")
+ValueT_co = typing.TypeVar("ValueT_co", covariant=True)
+"""Covariant type variable for the values cached by the `GroupingLatestValueCache`."""
+
+DefaultT = typing.TypeVar("DefaultT")
+"""Type variable for the default value returned by `GroupingLatestValueCache.get`."""
+
 HashableT = typing.TypeVar("HashableT", bound=typing.Hashable)
+"""Type variable for the keys used to group values in the `GroupingLatestValueCache`."""
 
 
-class GroupingLatestValueCache(Mapping[HashableT, T_co]):
+class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
     """A cache that stores the latest value in a receiver, grouped by key."""
 
     def __init__(
         self,
-        receiver: Receiver[T_co],
+        receiver: Receiver[ValueT_co],
         *,
-        key: typing.Callable[[T_co], HashableT],
+        key: typing.Callable[[ValueT_co], HashableT],
         unique_id: str | None = None,
     ) -> None:
         """Create a new cache.
@@ -70,10 +75,10 @@ class GroupingLatestValueCache(Mapping[HashableT, T_co]):
                 provided, a unique identifier will be generated from the object's
                 [`id()`][id]. It is used mostly for debugging purposes.
         """
-        self._receiver: Receiver[T_co] = receiver
-        self._key: typing.Callable[[T_co], HashableT] = key
+        self._receiver: Receiver[ValueT_co] = receiver
+        self._key: typing.Callable[[ValueT_co], HashableT] = key
         self._unique_id: str = hex(id(self)) if unique_id is None else unique_id
-        self._latest_value_by_key: dict[HashableT, T_co] = {}
+        self._latest_value_by_key: dict[HashableT, ValueT_co] = {}
         self._task: asyncio.Task[None] = asyncio.create_task(
             self._run(), name=f"LatestValueCache«{self._unique_id}»"
         )
@@ -92,28 +97,30 @@ class GroupingLatestValueCache(Mapping[HashableT, T_co]):
         return self._latest_value_by_key.keys()
 
     @override
-    def items(self) -> ItemsView[HashableT, T_co]:
+    def items(self) -> ItemsView[HashableT, ValueT_co]:
         """Return an iterator over the key-value pairs of the latest values received."""
         return self._latest_value_by_key.items()
 
     @override
-    def values(self) -> ValuesView[T_co]:
+    def values(self) -> ValuesView[ValueT_co]:
         """Return an iterator over the latest values received."""
         return self._latest_value_by_key.values()
 
     @typing.overload
-    def get(self, key: HashableT, default: None = None) -> T_co | None:
+    def get(self, key: HashableT, default: None = None) -> ValueT_co | None:
         """Return the latest value that has been received for a specific key."""
 
     # MyPy passes this overload as a valid signature, but pylint does not like it.
     @typing.overload
     def get(  # pylint: disable=signature-differs
-        self, key: HashableT, default: T
-    ) -> T_co | T:
+        self, key: HashableT, default: DefaultT
+    ) -> ValueT_co | DefaultT:
         """Return the latest value that has been received for a specific key."""
 
     @override
-    def get(self, key: HashableT, default: T | None = None) -> T_co | T | None:
+    def get(
+        self, key: HashableT, default: DefaultT | None = None
+    ) -> ValueT_co | DefaultT | None:
         """Return the latest value that has been received.
 
         Args:
@@ -138,7 +145,7 @@ class GroupingLatestValueCache(Mapping[HashableT, T_co]):
         return len(self._latest_value_by_key)
 
     @override
-    def __getitem__(self, key: HashableT) -> T_co:
+    def __getitem__(self, key: HashableT) -> ValueT_co:
         """Return the latest value that has been received for a specific key.
 
         Args:
