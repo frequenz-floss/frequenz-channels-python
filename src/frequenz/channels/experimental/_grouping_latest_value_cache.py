@@ -214,9 +214,7 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
         Returns:
             `True` if the caches are not equal, `False` otherwise.
         """
-        if not isinstance(value, GroupingLatestValueCache):
-            return NotImplemented
-        return self._latest_value_by_key != value._latest_value_by_key
+        return not self.__eq__(value)
 
     def __delitem__(self, key: HashableT) -> None:
         """Clear the latest value for a specific key.
