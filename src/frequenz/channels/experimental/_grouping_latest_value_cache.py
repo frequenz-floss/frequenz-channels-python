@@ -37,7 +37,8 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
     a [`MutableMapping`][collections.abc.MutableMapping] because users can't mutate the
     cache directly, it is only mutated by the underlying receiver. There is one exception
     though, users can clear individual keys from the cache using the
-    [clear][frequenz.channels.experimental.GroupingLatestValueCache.clear] method.
+    [__delitem__][frequenz.channels.experimental.GroupingLatestValueCache.__delitem__]
+    method.
 
     Example:
         ```python
@@ -56,6 +57,11 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
 
         assert 6 in cache
         assert cache.get(6) == (6, "twenty-six")
+
+        del cache[6]
+
+        assert cache.get(6) is None
+        assert 6 not in cache
 
         await cache.stop()
         ```
@@ -206,13 +212,13 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
             return NotImplemented
         return self._latest_value_by_key != value._latest_value_by_key
 
-    def clear(self, key: HashableT) -> None:
+    def __delitem__(self, key: HashableT) -> None:
         """Clear the latest value for a specific key.
 
         Args:
             key: The key for which to clear the latest value.
         """
-        _ = self._latest_value_by_key.pop(key, None)
+        del self._latest_value_by_key[key]
 
     async def stop(self) -> None:
         """Stop the cache."""

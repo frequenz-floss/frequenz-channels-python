@@ -59,7 +59,7 @@ async def test_latest_value_cache_key() -> None:
 
     assert cache.keys() == {5, 6, 12}
 
-    cache.clear(5)
+    del cache[5]
     assert 5 not in cache
     assert 6 in cache
 
