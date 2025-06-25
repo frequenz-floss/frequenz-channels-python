@@ -5,20 +5,20 @@
 
 
 import asyncio
-import typing
 from collections.abc import Callable, ItemsView, Iterator, KeysView, Mapping, ValuesView
+from typing import Hashable, TypeVar, overload
 
 from typing_extensions import override
 
 from .._receiver import Receiver
 
-ValueT_co = typing.TypeVar("ValueT_co", covariant=True)
+ValueT_co = TypeVar("ValueT_co", covariant=True)
 """Covariant type variable for the values cached by the `GroupingLatestValueCache`."""
 
-DefaultT = typing.TypeVar("DefaultT")
+DefaultT = TypeVar("DefaultT")
 """Type variable for the default value returned by `GroupingLatestValueCache.get`."""
 
-HashableT = typing.TypeVar("HashableT", bound=typing.Hashable)
+HashableT = TypeVar("HashableT", bound=Hashable)
 """Type variable for the keys used to group values in the `GroupingLatestValueCache`."""
 
 
@@ -126,12 +126,12 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
         """Return an iterator over the latest values received."""
         return self._latest_value_by_key.values()
 
-    @typing.overload
+    @overload
     def get(self, key: HashableT, default: None = None) -> ValueT_co | None:
         """Return the latest value that has been received for a specific key."""
 
     # MyPy passes this overload as a valid signature, but pylint does not like it.
-    @typing.overload
+    @overload
     def get(  # pylint: disable=signature-differs
         self, key: HashableT, default: DefaultT
     ) -> ValueT_co | DefaultT:
@@ -228,11 +228,11 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
         """
         del self._latest_value_by_key[key]
 
-    @typing.overload
+    @overload
     def pop(self, key: HashableT, /) -> ValueT_co | None:
         """Remove the latest value for a specific key and return it."""
 
-    @typing.overload
+    @overload
     def pop(self, key: HashableT, /, default: DefaultT) -> ValueT_co | DefaultT:
         """Remove the latest value for a specific key and return it."""
 
