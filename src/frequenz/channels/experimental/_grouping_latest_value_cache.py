@@ -173,12 +173,7 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
 
         Returns:
             The latest value that has been received for that key.
-
-        Raises:
-            KeyError: If no value has been received yet for that key.
         """
-        if key not in self._latest_value_by_key:
-            raise KeyError(f"No value received for key: {key!r}")
         return self._latest_value_by_key[key]
 
     @override
