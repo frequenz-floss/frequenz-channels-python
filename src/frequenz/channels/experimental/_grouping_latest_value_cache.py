@@ -1,68 +1,96 @@
 # License: MIT
 # Copyright © 2025 Frequenz Energy-as-a-Service GmbH
 
-"""The GroupingLatestValueCache caches the latest values in a receiver grouped by key.
-
-It provides a way to look up on demand, the latest value in a stream for any key, as
-long as there has been at least one value received for that key.
-
-[GroupingLatestValueCache][frequenz.channels.experimental.GroupingLatestValueCache]
-takes a [Receiver][frequenz.channels.Receiver] and a `key` function as arguments and
-stores the latest value received by that receiver for each key separately.
-
-The `GroupingLatestValueCache` implements the [`Mapping`][collections.abc.Mapping]
-interface, so it can be used like a dictionary.  In addition, it provides a
-[has_value][frequenz.channels.experimental.GroupingLatestValueCache.has_value] method to
-check if a value has been received for a specific key, and a
-[clear][frequenz.channels.experimental.GroupingLatestValueCache.clear] method to clear
-the cached value for a specific key.
-
-Example:
-```python
-from frequenz.channels import Broadcast
-from frequenz.channels.experimental import GroupingLatestValueCache
-
-channel = Broadcast[tuple[int, str]](name="lvc_test")
-
-cache = GroupingLatestValueCache(channel.new_receiver(), key=lambda x: x[0])
-sender = channel.new_sender()
-
-assert not cache.has_value(6)
-
-await sender.send((6, "twenty-six"))
-
-assert cache.has_value(6)
-assert cache.get(6) == (6, "twenty-six")
-```
-"""
+"""The GroupingLatestValueCache caches the latest values in a receiver grouped by key."""
 
 
 import asyncio
-import typing
-from collections.abc import ItemsView, Iterator, KeysView, Mapping, ValuesView
+from collections.abc import (
+    Callable,
+    Hashable,
+    ItemsView,
+    Iterator,
+    KeysView,
+    Mapping,
+    ValuesView,
+)
+from typing import TypeVar, overload
 
 from typing_extensions import override
 
 from .._receiver import Receiver
 
-ValueT_co = typing.TypeVar("ValueT_co", covariant=True)
+ValueT_co = TypeVar("ValueT_co", covariant=True)
 """Covariant type variable for the values cached by the `GroupingLatestValueCache`."""
 
-DefaultT = typing.TypeVar("DefaultT")
+DefaultT = TypeVar("DefaultT")
 """Type variable for the default value returned by `GroupingLatestValueCache.get`."""
 
-HashableT = typing.TypeVar("HashableT", bound=typing.Hashable)
+HashableT = TypeVar("HashableT", bound=Hashable)
 """Type variable for the keys used to group values in the `GroupingLatestValueCache`."""
 
 
+class _NotSpecified:
+    """A sentinel value to indicate that no default value was provided."""
+
+    def __repr__(self) -> str:
+        """Return a string representation of this sentinel."""
+        return "<_NotSpecified>"
+
+
 class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
-    """A cache that stores the latest value in a receiver, grouped by key."""
+    """A cache that stores the latest value in a receiver, grouped by key.
+
+    It provides a way to look up on demand, the latest value in a stream for any key, as
+    long as there has been at least one value received for that key.
+
+    [GroupingLatestValueCache][frequenz.channels.experimental.GroupingLatestValueCache]
+    takes a [Receiver][frequenz.channels.Receiver] and a `key` function as arguments and
+    stores the latest value received by that receiver for each key separately.
+
+    The `GroupingLatestValueCache` implements the [`Mapping`][collections.abc.Mapping]
+    interface, so it can be used like a dictionary.  Additionally other methods from
+    [`MutableMapping`][collections.abc.MutableMapping] are implemented, but only
+    methods removing items from the cache are allowed, such as
+    [`pop()`][frequenz.channels.experimental.GroupingLatestValueCache.pop],
+    [`popitem()`][frequenz.channels.experimental.GroupingLatestValueCache.popitem],
+    [`clear()`][frequenz.channels.experimental.GroupingLatestValueCache.clear], and
+    [`__delitem__()`][frequenz.channels.experimental.GroupingLatestValueCache.__delitem__].
+    Other update methods are not provided because the user should not update the
+    cache values directly.
+
+    Example:
+        ```python
+        from frequenz.channels import Broadcast
+        from frequenz.channels.experimental import GroupingLatestValueCache
+
+        channel = Broadcast[tuple[int, str]](name="lvc_test")
+
+        cache = GroupingLatestValueCache(channel.new_receiver(), key=lambda x: x[0])
+        sender = channel.new_sender()
+
+        assert cache.get(6) is None
+        assert 6 not in cache
+
+        await sender.send((6, "twenty-six"))
+
+        assert 6 in cache
+        assert cache.get(6) == (6, "twenty-six")
+
+        del cache[6]
+
+        assert cache.get(6) is None
+        assert 6 not in cache
+
+        await cache.stop()
+        ```
+    """
 
     def __init__(
         self,
         receiver: Receiver[ValueT_co],
         *,
-        key: typing.Callable[[ValueT_co], HashableT],
+        key: Callable[[ValueT_co], HashableT],
         unique_id: str | None = None,
     ) -> None:
         """Create a new cache.
@@ -76,7 +104,7 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
                 [`id()`][id]. It is used mostly for debugging purposes.
         """
         self._receiver: Receiver[ValueT_co] = receiver
-        self._key: typing.Callable[[ValueT_co], HashableT] = key
+        self._key: Callable[[ValueT_co], HashableT] = key
         self._unique_id: str = hex(id(self)) if unique_id is None else unique_id
         self._latest_value_by_key: dict[HashableT, ValueT_co] = {}
         self._task: asyncio.Task[None] = asyncio.create_task(
@@ -106,12 +134,12 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
         """Return an iterator over the latest values received."""
         return self._latest_value_by_key.values()
 
-    @typing.overload
+    @overload
     def get(self, key: HashableT, default: None = None) -> ValueT_co | None:
         """Return the latest value that has been received for a specific key."""
 
     # MyPy passes this overload as a valid signature, but pylint does not like it.
-    @typing.overload
+    @overload
     def get(  # pylint: disable=signature-differs
         self, key: HashableT, default: DefaultT
     ) -> ValueT_co | DefaultT:
@@ -153,12 +181,7 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
 
         Returns:
             The latest value that has been received for that key.
-
-        Raises:
-            KeyError: If no value has been received yet for that key.
         """
-        if key not in self._latest_value_by_key:
-            raise KeyError(f"No value received for key: {key!r}")
         return self._latest_value_by_key[key]
 
     @override
@@ -185,9 +208,13 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
         Returns:
             `True` if the caches are equal, `False` otherwise.
         """
-        if not isinstance(other, GroupingLatestValueCache):
-            return NotImplemented
-        return self._latest_value_by_key == other._latest_value_by_key
+        match other:
+            case GroupingLatestValueCache():
+                return self._latest_value_by_key == other._latest_value_by_key
+            case Mapping():
+                return self._latest_value_by_key == other
+            case _:
+                return NotImplemented
 
     @override
     def __ne__(self, value: object, /) -> bool:
@@ -199,17 +226,59 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
         Returns:
             `True` if the caches are not equal, `False` otherwise.
         """
-        if not isinstance(value, GroupingLatestValueCache):
-            return NotImplemented
-        return self._latest_value_by_key != value._latest_value_by_key
+        return not self.__eq__(value)
 
-    def clear(self, key: HashableT) -> None:
+    def __delitem__(self, key: HashableT) -> None:
         """Clear the latest value for a specific key.
 
         Args:
             key: The key for which to clear the latest value.
         """
-        _ = self._latest_value_by_key.pop(key, None)
+        del self._latest_value_by_key[key]
+
+    @overload
+    def pop(self, key: HashableT, /) -> ValueT_co | None:
+        """Remove the latest value for a specific key and return it."""
+
+    @overload
+    def pop(self, key: HashableT, /, default: DefaultT) -> ValueT_co | DefaultT:
+        """Remove the latest value for a specific key and return it."""
+
+    def pop(
+        self, key: HashableT, /, default: DefaultT | _NotSpecified = _NotSpecified()
+    ) -> ValueT_co | DefaultT | None:
+        """Remove the latest value for a specific key and return it.
+
+        If no value has been received yet for that key, it returns the default value or
+        raises a `KeyError` if no default value is provided.
+
+        Args:
+            key: The key for which to remove the latest value.
+            default: The default value to return if no value has been received yet for
+                the specified key.
+
+        Returns:
+            The latest value that has been received for that key, or the default value if
+                no value has been received yet and a default value is provided.
+        """
+        if isinstance(default, _NotSpecified):
+            return self._latest_value_by_key.pop(key)
+        return self._latest_value_by_key.pop(key, default)
+
+    def popitem(self) -> tuple[HashableT, ValueT_co]:
+        """Remove and return a (key, value) pair from the cache.
+
+        Pairs are returned in LIFO (last-in, first-out) order.
+
+        Returns:
+            A tuple containing the key and the latest value that has been received for
+                that key.
+        """
+        return self._latest_value_by_key.popitem()
+
+    def clear(self) -> None:
+        """Clear all entries from the cache."""
+        self._latest_value_by_key.clear()
 
     async def stop(self) -> None:
         """Stop the cache."""

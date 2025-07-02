@@ -4,7 +4,8 @@
 """Composable predicate to cache and compare with the previous message."""
 
 
-from typing import Callable, Final, Generic, TypeGuard
+from collections.abc import Callable
+from typing import Final, Generic, TypeGuard
 
 from frequenz.channels._generic import ChannelMessageT
 
