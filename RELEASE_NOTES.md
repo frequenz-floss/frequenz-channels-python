@@ -15,3 +15,5 @@
 ## Bug Fixes
 
 - Fix `NopReceiver.ready()` to properly terminate when receiver is closed.
+
+- The `__str__` representation of broadcast receivers now include the receiver's name.
