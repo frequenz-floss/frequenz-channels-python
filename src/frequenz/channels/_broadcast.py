@@ -515,7 +515,7 @@ class _Receiver(Receiver[_T]):
 
     def __str__(self) -> str:
         """Return a string representation of this receiver."""
-        return f"{self._channel}:{type(self).__name__}"
+        return f"{self._channel}:{type(self).__name__}:{self._name}"
 
     def __repr__(self) -> str:
         """Return a string representation of this receiver."""
