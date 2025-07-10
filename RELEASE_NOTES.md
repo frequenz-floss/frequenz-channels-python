@@ -2,11 +2,7 @@
 
 ## Summary
 
-<!-- Here goes a general summary of what this release is about -->
-
-## Upgrading
-
-<!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
+This release introduces the experimental `GroupingLatestValueCache` and includes a couple of bug fixes.
 
 ## New Features
 
@@ -14,6 +10,6 @@
 
 ## Bug Fixes
 
-- Fix `NopReceiver.ready()` to properly terminate when receiver is closed.
+- Any open calls to `NopReceiver.ready()` now return as soon as the receiver is closed.
 
 - The `__str__` representation of broadcast receivers now include the receiver's name.
