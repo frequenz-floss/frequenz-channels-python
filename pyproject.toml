@@ -73,7 +73,7 @@ dev-pylint = [
   "pylint == 3.3.7",
 ]
 dev-pytest = [
-  "async-solipsism == 0.7",
+  "async-solipsism == 0.8",
   "frequenz-repo-config[extra-lint-examples] == 0.13.5",
   "hypothesis == 6.132.0",
   "pytest == 8.3.5",
