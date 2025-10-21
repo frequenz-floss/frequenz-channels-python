@@ -59,8 +59,10 @@ def _assert_tick_is_aligned(
 
 
 # https://github.com/frequenz-floss/frequenz-channels-python/issues/405
+@pytest.mark.filterwarnings("ignore::pytest.PytestUnraisableExceptionWarning")
+@pytest.mark.filterwarnings("ignore::ResourceWarning")
 @pytest.mark.filterwarnings(
-    r"default:Exception ignored in. <socket\.socket.*:pytest.PytestUnraisableExceptionWarning"
+    "ignore:Exception ignored in.* <function BaseEventLoop.__del__.*"
 )
 @hypothesis.given(**_calculate_next_tick_time_args)
 def test_policy_trigger_all_missed(
@@ -103,6 +105,12 @@ def test_policy_trigger_all_missed_examples() -> None:
     )
 
 
+# https://github.com/frequenz-floss/frequenz-channels-python/issues/405
+@pytest.mark.filterwarnings("ignore::pytest.PytestUnraisableExceptionWarning")
+@pytest.mark.filterwarnings("ignore::ResourceWarning")
+@pytest.mark.filterwarnings(
+    "ignore:Exception ignored in.* <function BaseEventLoop.__del__.*"
+)
 @hypothesis.given(**_calculate_next_tick_time_args)
 def test_policy_skip_missed_and_resync(
     now: int, scheduled_tick_time: int, interval: int
@@ -144,6 +152,12 @@ def test_policy_skip_missed_and_resync_examples() -> None:
     )
 
 
+# https://github.com/frequenz-floss/frequenz-channels-python/issues/405
+@pytest.mark.filterwarnings("ignore::pytest.PytestUnraisableExceptionWarning")
+@pytest.mark.filterwarnings("ignore::ResourceWarning")
+@pytest.mark.filterwarnings(
+    "ignore:Exception ignored in.* <function BaseEventLoop.__del__.*"
+)
 @hypothesis.given(
     tolerance=st.floats(
         min_value=timedelta.min.total_seconds(),
@@ -159,6 +173,12 @@ def test_policy_skip_missed_and_drift_invalid_tolerance(tolerance: float) -> Non
         SkipMissedAndDrift(delay_tolerance=timedelta(microseconds=tolerance))
 
 
+# https://github.com/frequenz-floss/frequenz-channels-python/issues/405
+@pytest.mark.filterwarnings("ignore::pytest.PytestUnraisableExceptionWarning")
+@pytest.mark.filterwarnings("ignore::ResourceWarning")
+@pytest.mark.filterwarnings(
+    "ignore:Exception ignored in.* <function BaseEventLoop.__del__.*"
+)
 @hypothesis.given(
     tolerance=st.floats(
         min_value=0,
