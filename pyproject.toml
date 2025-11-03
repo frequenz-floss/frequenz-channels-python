@@ -70,7 +70,7 @@ dev-noxfile = ["nox == 2025.10.16", "frequenz-repo-config[lib] == 0.13.6"]
 dev-pylint = [
   # For checking the noxfile, docs/ script, and tests
   "frequenz-channels[dev-mkdocs,dev-noxfile,dev-pytest]",
-  "pylint == 3.3.8",
+  "pylint == 4.0.2",
 ]
 dev-pytest = [
   "async-solipsism == 0.8",
