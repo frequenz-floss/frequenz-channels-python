@@ -108,8 +108,8 @@ plugins:
       default_handler: python
       handlers:
         python:
+          paths: ["src"]
           options:
-            paths: ["src"]
             docstring_section_style: spacy
             inherited_members: true
             merge_init_into_class: false
@@ -121,7 +121,7 @@ plugins:
             show_source: true
             show_symbol_type_toc: true
             signature_crossrefs: true
-          import:
+          inventories:
             # See https://mkdocstrings.github.io/python/usage/#import for details
             - https://docs.python.org/3/objects.inv
             - https://typing-extensions.readthedocs.io/en/stable/objects.inv
