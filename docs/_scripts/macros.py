@@ -35,7 +35,7 @@ def define_env(env: MacrosPlugin) -> None:
         return docstring.value
 
     # The decorator makes the function untyped
-    @env.macro  # type: ignore[misc]
+    @env.macro  # type: ignore[untyped-decorator]
     def docstring_summary(symbol: str) -> str:
         """Get the summary of a Python symbol.
 
