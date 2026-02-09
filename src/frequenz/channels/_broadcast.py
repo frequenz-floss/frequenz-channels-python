@@ -207,6 +207,9 @@ class Broadcast(Generic[ChannelMessageT]):
         self._recv_cv: Condition = Condition()
         """The condition to wait for data in the channel's buffer."""
 
+        self._sender_count: int = 0
+        """The number of senders attached to this channel."""
+
         self._receivers: dict[
             int, weakref.ReferenceType[_Receiver[ChannelMessageT]]
         ] = {}
@@ -337,6 +340,8 @@ class _Sender(ClonableSubscribableSender[_T]):
         self._closed: bool = False
         """Whether this sender is closed."""
 
+        self._channel._sender_count += 1
+
     @override
     async def send(self, message: _T, /) -> None:
         """Send a message to all broadcast receivers.
@@ -380,6 +385,7 @@ class _Sender(ClonableSubscribableSender[_T]):
         [SenderError][frequenz.channels.SenderError].
         """
         self._closed = True
+        self._channel._sender_count -= 1
 
     @override
     def clone(self) -> _Sender[_T]:
