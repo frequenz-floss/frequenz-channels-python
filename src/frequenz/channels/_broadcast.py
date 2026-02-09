@@ -21,6 +21,43 @@ from ._sender import ClonableSubscribableSender, SenderClosedError, SenderError
 _logger = logging.getLogger(__name__)
 
 
+def broadcast(
+    message_type: type[ChannelMessageT],  # pylint: disable=unused-argument
+    /,
+    *,
+    name: str,
+    resend_latest: bool = False,
+) -> tuple[ClonableSubscribableSender[ChannelMessageT], Receiver[ChannelMessageT]]:
+    """Create a new Broadcast channel and return a sender and a receiver attached to it.
+
+    The channel will be automatically closed when all senders or all receivers
+    are closed.
+
+    Args:
+        message_type: The type of messages that will be sent through this channel. This
+            is only for type checking purposes, it is not used at runtime.
+        name: The name of the channel. This is for logging purposes, and it will be
+            shown in the string representation of the channel.
+        resend_latest: When True, every time a new receiver is created with
+            `new_receiver`, the last message seen by the channel will be sent to the
+            new receiver automatically. This allows new receivers on slow streams to
+            get the latest message as soon as they are created, without having to
+            wait for the next message on the channel to arrive.  It is safe to be
+            set in data/reporting channels, but is not recommended for use in
+            channels that stream control instructions.
+
+    Returns:
+        A tuple of a sender and a receiver attached to the created channel.
+    """
+    channel = Broadcast[ChannelMessageT](
+        name=name, resend_latest=resend_latest, auto_close=True
+    )
+    return channel.new_sender(), channel.new_receiver()
+
+
+@deprecated(
+    "Please use the `broadcast` function to create a Broadcast channel instead."
+)
 class Broadcast(  # pylint: disable=too-many-instance-attributes
     Generic[ChannelMessageT]
 ):
