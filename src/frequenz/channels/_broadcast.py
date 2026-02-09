@@ -21,7 +21,9 @@ from ._sender import ClonableSubscribableSender, SenderClosedError, SenderError
 _logger = logging.getLogger(__name__)
 
 
-class Broadcast(Generic[ChannelMessageT]):
+class Broadcast(  # pylint: disable=too-many-instance-attributes
+    Generic[ChannelMessageT]
+):
     """A channel that deliver all messages to all receivers.
 
     # Description
@@ -184,7 +186,13 @@ class Broadcast(Generic[ChannelMessageT]):
         ```
     """
 
-    def __init__(self, *, name: str, resend_latest: bool = False) -> None:
+    def __init__(
+        self,
+        *,
+        name: str,
+        resend_latest: bool = False,
+        auto_close: bool = False,
+    ) -> None:
         """Initialize this channel.
 
         Args:
@@ -197,6 +205,8 @@ class Broadcast(Generic[ChannelMessageT]):
                 wait for the next message on the channel to arrive.  It is safe to be
                 set in data/reporting channels, but is not recommended for use in
                 channels that stream control instructions.
+            auto_close: If True, the channel will be closed when all senders or all
+                receivers are closed.
         """
         self._name: str = name
         """The name of the broadcast channel.
@@ -220,6 +230,9 @@ class Broadcast(Generic[ChannelMessageT]):
 
         self._latest: ChannelMessageT | None = None
         """The latest message sent to the channel."""
+
+        self._auto_close: bool = auto_close
+        """Whether to close the channel when all senders or all receivers are closed."""
 
         self.resend_latest: bool = resend_latest
         """Whether to resend the latest message to new receivers.
@@ -355,13 +368,20 @@ class _Sender(ClonableSubscribableSender[_T]):
                 set as the cause.
             SenderClosedError: If this sender was closed.
         """
-        if self._closed:
-            raise SenderClosedError(self)
         # pylint: disable=protected-access
         if self._channel._closed:
             raise SenderError("The channel was closed", self) from ChannelClosedError(
                 self._channel
             )
+        if self._channel._auto_close and (
+            self._channel._sender_count == 0 or len(self._channel._receivers) == 0
+        ):
+            await self._channel.aclose()
+            raise SenderError("The channel was closed", self) from ChannelClosedError(
+                self._channel
+            )
+        if self._closed:
+            raise SenderClosedError(self)
         self._channel._latest = message
         stale_refs = []
         for _hash, recv_ref in self._channel._receivers.items():
@@ -507,6 +527,11 @@ class _Receiver(Receiver[_T]):
         # pylint: disable=protected-access
         while len(self._q) == 0:
             if self._channel._closed or self._closed:
+                return False
+            if self._channel._auto_close and (
+                self._channel._sender_count == 0 or len(self._channel._receivers) == 0
+            ):
+                await self._channel.aclose()
                 return False
             async with self._channel._recv_cv:
                 await self._channel._recv_cv.wait()
