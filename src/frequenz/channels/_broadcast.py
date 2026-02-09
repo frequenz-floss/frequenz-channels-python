@@ -16,7 +16,7 @@ from typing_extensions import deprecated, override
 from ._exceptions import ChannelClosedError
 from ._generic import ChannelMessageT
 from ._receiver import Receiver, ReceiverStoppedError
-from ._sender import ClonableSubscribableSender, SenderError
+from ._sender import ClonableSubscribableSender, SenderClosedError, SenderError
 
 _logger = logging.getLogger(__name__)
 
@@ -334,6 +334,9 @@ class _Sender(ClonableSubscribableSender[_T]):
         self._channel: Broadcast[_T] = channel
         """The broadcast channel this sender belongs to."""
 
+        self._closed: bool = False
+        """Whether this sender is closed."""
+
     @override
     async def send(self, message: _T, /) -> None:
         """Send a message to all broadcast receivers.
@@ -345,7 +348,10 @@ class _Sender(ClonableSubscribableSender[_T]):
             SenderError: If the underlying channel was closed.
                 A [ChannelClosedError][frequenz.channels.ChannelClosedError] is
                 set as the cause.
+            SenderClosedError: If this sender was closed.
         """
+        if self._closed:
+            raise SenderClosedError(self)
         # pylint: disable=protected-access
         if self._channel._closed:
             raise SenderError("The channel was closed", self) from ChannelClosedError(
@@ -364,6 +370,16 @@ class _Sender(ClonableSubscribableSender[_T]):
         async with self._channel._recv_cv:
             self._channel._recv_cv.notify_all()
         # pylint: enable=protected-access
+
+    @override
+    def close(self) -> None:
+        """Close this sender.
+
+        After a sender is closed, it can no longer be used to send messages. Any
+        attempt to send a message through a closed sender will raise a
+        [SenderError][frequenz.channels.SenderError].
+        """
+        self._closed = True
 
     @override
     def clone(self) -> _Sender[_T]:

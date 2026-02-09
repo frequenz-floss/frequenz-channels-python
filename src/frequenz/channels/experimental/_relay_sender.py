@@ -7,15 +7,13 @@ The `RelaySender` class takes multiple senders and forwards all the messages sen
 to the senders it was created with.
 """
 
-import typing
-
 from typing_extensions import override
 
 from .._generic import SenderMessageT_contra
 from .._sender import Sender
 
 
-class RelaySender(typing.Generic[SenderMessageT_contra], Sender[SenderMessageT_contra]):
+class RelaySender(Sender[SenderMessageT_contra]):
     """A Sender for sending messages to multiple senders.
 
     The `RelaySender` class takes multiple senders and forwards all the messages sent to
@@ -57,3 +55,9 @@ class RelaySender(typing.Generic[SenderMessageT_contra], Sender[SenderMessageT_c
         """
         for sender in self._senders:
             await sender.send(message)
+
+    @override
+    def close(self) -> None:
+        """Close this sender."""
+        for sender in self._senders:
+            sender.close()
