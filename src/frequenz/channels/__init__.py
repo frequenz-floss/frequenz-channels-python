@@ -92,6 +92,7 @@ from ._generic import (
 )
 from ._latest_value_cache import LatestValueCache
 from ._merge import Merger, merge
+from ._oneshot import OneshotChannel, OneshotReceiver, OneshotSender
 from ._receiver import Receiver, ReceiverError, ReceiverStoppedError
 from ._select import (
     Selected,
@@ -113,6 +114,9 @@ __all__ = [
     "LatestValueCache",
     "MappedMessageT_co",
     "Merger",
+    "OneshotChannel",
+    "OneshotReceiver",
+    "OneshotSender",
     "Receiver",
     "ReceiverError",
     "ReceiverMessageT_co",
