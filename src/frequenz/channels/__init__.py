@@ -100,7 +100,7 @@ from ._select import (
     select,
     selected_from,
 )
-from ._sender import Sender, SenderError
+from ._sender import Sender, SenderClosedError, SenderError
 
 __all__ = [
     "Anycast",
@@ -120,6 +120,7 @@ __all__ = [
     "SelectError",
     "Selected",
     "Sender",
+    "SenderClosedError",
     "SenderError",
     "SenderMessageT_co",
     "SenderMessageT_contra",

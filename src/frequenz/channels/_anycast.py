@@ -15,7 +15,7 @@ from typing_extensions import deprecated, override
 from ._exceptions import ChannelClosedError
 from ._generic import ChannelMessageT
 from ._receiver import Receiver, ReceiverStoppedError
-from ._sender import Sender, SenderError
+from ._sender import Sender, SenderClosedError, SenderError
 
 _logger = logging.getLogger(__name__)
 
@@ -327,6 +327,9 @@ class _Sender(Sender[_T]):
         self._channel: Anycast[_T] = channel
         """The channel that this sender belongs to."""
 
+        self._closed: bool = False
+        """Whether the sender is closed."""
+
     @override
     async def send(self, message: _T, /) -> None:
         """Send a message across the channel.
@@ -343,7 +346,11 @@ class _Sender(Sender[_T]):
             SenderError: If the underlying channel was closed.
                 A [ChannelClosedError][frequenz.channels.ChannelClosedError] is
                 set as the cause.
+            SenderClosedError: If this sender was closed.
         """
+        if self._closed:
+            raise SenderClosedError(self)
+
         # pylint: disable=protected-access
         if self._channel._closed:
             raise SenderError("The channel was closed", self) from ChannelClosedError(
@@ -366,6 +373,16 @@ class _Sender(Sender[_T]):
         async with self._channel._recv_cv:
             self._channel._recv_cv.notify(1)
         # pylint: enable=protected-access
+
+    @override
+    async def aclose(self) -> None:
+        """Close this sender.
+
+        After closing, the sender will not be able to send any more messages. Any
+        attempt to send a message through a closed sender will raise a
+        [SenderError][frequenz.channels.SenderError].
+        """
+        self._closed = True
 
     def __str__(self) -> str:
         """Return a string representation of this sender."""
