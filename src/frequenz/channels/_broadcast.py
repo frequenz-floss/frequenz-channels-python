@@ -16,7 +16,7 @@ from typing_extensions import deprecated, override
 from ._exceptions import ChannelClosedError
 from ._generic import ChannelMessageT
 from ._receiver import Receiver, ReceiverStoppedError
-from ._sender import Sender, SenderError
+from ._sender import ClonableSubscribableSender, SenderError
 
 _logger = logging.getLogger(__name__)
 
@@ -269,7 +269,7 @@ class Broadcast(Generic[ChannelMessageT]):
         """Close the channel, deprecated alias for `aclose()`."""  # noqa: D402
         return await self.aclose()
 
-    def new_sender(self) -> Sender[ChannelMessageT]:
+    def new_sender(self) -> ClonableSubscribableSender[ChannelMessageT]:
         """Return a new sender attached to this channel."""
         return _Sender(self)
 
@@ -317,7 +317,7 @@ class Broadcast(Generic[ChannelMessageT]):
 _T = TypeVar("_T")
 
 
-class _Sender(Sender[_T]):
+class _Sender(ClonableSubscribableSender[_T]):
     """A sender to send messages to the broadcast channel.
 
     Should not be created directly, but through the
@@ -364,6 +364,16 @@ class _Sender(Sender[_T]):
         async with self._channel._recv_cv:
             self._channel._recv_cv.notify_all()
         # pylint: enable=protected-access
+
+    @override
+    def clone(self) -> _Sender[_T]:
+        """Return a clone of this sender."""
+        return _Sender(self._channel)
+
+    @override
+    def subscribe(self) -> Receiver[_T]:
+        """Return a new receiver attached to this sender's channel."""
+        return self._channel.new_receiver()
 
     def __str__(self) -> str:
         """Return a string representation of this sender."""
