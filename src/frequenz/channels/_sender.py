@@ -49,11 +49,14 @@ except SenderError as error:
 ```
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from typing import Generic
 
 from ._exceptions import Error
 from ._generic import SenderMessageT_co, SenderMessageT_contra
+from ._receiver import Receiver
 
 
 class Sender(ABC, Generic[SenderMessageT_contra]):
@@ -109,3 +112,35 @@ class SenderClosedError(SenderError[SenderMessageT_co]):
             sender: The [Sender][frequenz.channels.Sender] that was closed.
         """
         super().__init__("Sender is closed", sender)
+
+
+class SubscribableSender(Sender[SenderMessageT_contra], ABC):
+    """A [Sender][frequenz.channels.Sender] that can be subscribed to."""
+
+    @abstractmethod
+    def subscribe(self) -> Receiver[SenderMessageT_contra]:
+        """Subscribe to this sender.
+
+        Returns:
+            A new sender that sends messages to the same channel as this sender.
+        """
+
+
+class ClonableSender(Sender[SenderMessageT_contra], ABC):
+    """A [Sender][frequenz.channels.Sender] that can be cloned."""
+
+    @abstractmethod
+    def clone(self) -> ClonableSender[SenderMessageT_contra]:
+        """Clone this sender.
+
+        Returns:
+            A new sender that sends messages to the same channel as this sender.
+        """
+
+
+class ClonableSubscribableSender(
+    SubscribableSender[SenderMessageT_contra],
+    ClonableSender[SenderMessageT_contra],
+    ABC,
+):
+    """A [Sender][frequenz.channels.Sender] that can be both cloned and subscribed to."""

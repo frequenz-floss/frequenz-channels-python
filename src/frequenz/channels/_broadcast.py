@@ -16,7 +16,7 @@ from typing_extensions import deprecated, override
 from ._exceptions import ChannelClosedError
 from ._generic import ChannelMessageT
 from ._receiver import Receiver, ReceiverStoppedError
-from ._sender import Sender, SenderClosedError, SenderError
+from ._sender import ClonableSubscribableSender, SenderClosedError, SenderError
 
 _logger = logging.getLogger(__name__)
 
@@ -269,7 +269,7 @@ class Broadcast(Generic[ChannelMessageT]):
         """Close the channel, deprecated alias for `aclose()`."""  # noqa: D402
         return await self.aclose()
 
-    def new_sender(self) -> Sender[ChannelMessageT]:
+    def new_sender(self) -> ClonableSubscribableSender[ChannelMessageT]:
         """Return a new sender attached to this channel."""
         return _Sender(self)
 
@@ -317,7 +317,7 @@ class Broadcast(Generic[ChannelMessageT]):
 _T = TypeVar("_T")
 
 
-class _Sender(Sender[_T]):
+class _Sender(ClonableSubscribableSender[_T]):
     """A sender to send messages to the broadcast channel.
 
     Should not be created directly, but through the
@@ -380,6 +380,43 @@ class _Sender(Sender[_T]):
         [SenderClosedError][frequenz.channels.SenderClosedError].
         """
         self._closed = True
+
+    @override
+    def clone(self) -> _Sender[_T]:
+        """Return a clone of this sender."""
+        return _Sender(self._channel)
+
+    @override
+    def subscribe(
+        self,
+        name: str | None = None,
+        limit: int = 50,
+        warn_on_overflow: bool = True,
+    ) -> Receiver[_T]:
+        """Return a new receiver attached to this sender's channel.
+
+        Args:
+            name: A name to identify the receiver in the logs.
+            limit: Number of messages the receiver can hold in its buffer.
+            warn_on_overflow: Whether to log a warning when the receiver's buffer is
+                full and a message is dropped.
+
+        Returns:
+            A new receiver attached to this sender's channel.
+
+        Raises:
+            SenderError: If the underlying channel is closed.
+            SenderClosedError: If this sender is closed.
+        """
+        if self._closed:
+            raise SenderClosedError(self)
+        if self._channel._closed:  # pylint: disable=protected-access
+            raise SenderError("The channel was closed", self) from ChannelClosedError(
+                self._channel
+            )
+        return self._channel.new_receiver(
+            name=name, limit=limit, warn_on_overflow=warn_on_overflow
+        )
 
     def __str__(self) -> str:
         """Return a string representation of this sender."""
