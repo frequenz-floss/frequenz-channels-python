@@ -122,7 +122,7 @@ class SubscribableSender(Sender[SenderMessageT_contra], ABC):
         """Subscribe to this sender.
 
         Returns:
-            A new sender that sends messages to the same channel as this sender.
+            A new receiver attached to this sender's channel.
         """
 
 

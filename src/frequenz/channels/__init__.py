@@ -80,7 +80,7 @@ Extra utility receivers:
 """
 
 from ._anycast import Anycast
-from ._broadcast import Broadcast, BroadcastReceiver, BroadcastSender
+from ._broadcast import Broadcast, BroadcastChannel, BroadcastReceiver, BroadcastSender
 from ._exceptions import ChannelClosedError, ChannelError, Error
 from ._generic import (
     ChannelMessageT,
@@ -101,16 +101,26 @@ from ._select import (
     select,
     selected_from,
 )
-from ._sender import Sender, SenderClosedError, SenderError
+from ._sender import (
+    ClonableSender,
+    ClonableSubscribableSender,
+    Sender,
+    SenderClosedError,
+    SenderError,
+    SubscribableSender,
+)
 
 __all__ = [
     "Anycast",
     "Broadcast",
+    "BroadcastChannel",
     "BroadcastReceiver",
     "BroadcastSender",
     "ChannelClosedError",
     "ChannelError",
     "ChannelMessageT",
+    "ClonableSender",
+    "ClonableSubscribableSender",
     "Error",
     "ErroredChannelT_co",
     "LatestValueCache",
@@ -130,6 +140,7 @@ __all__ = [
     "SenderError",
     "SenderMessageT_co",
     "SenderMessageT_contra",
+    "SubscribableSender",
     "UnhandledSelectedError",
     "merge",
     "select",
