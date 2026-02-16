@@ -53,6 +53,9 @@ class LatestValueCache(typing.Generic[T_co]):
 
     It provides a way to look up the latest value in a stream without any delay,
     as long as there has been one value received.
+
+    Takes ownership of the receiver.  When the cache is stopped, the receiver
+    will be closed.
     """
 
     def __init__(
@@ -108,7 +111,8 @@ class LatestValueCache(typing.Generic[T_co]):
             self._latest_value = value
 
     async def stop(self) -> None:
-        """Stop the cache."""
+        """Stop the cache and close the owned receiver."""
+        self._receiver.close()
         if not self._task.done():
             self._task.cancel()
             try:
