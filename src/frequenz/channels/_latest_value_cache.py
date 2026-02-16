@@ -69,10 +69,10 @@ class LatestValueCache(typing.Generic[T_co]):
                 provided, a unique identifier will be generated from the object's
                 [`id()`][id]. It is used mostly for debugging purposes.
         """
-        self._receiver = receiver
+        self._receiver: Receiver[T_co] = receiver
         self._unique_id: str = hex(id(self)) if unique_id is None else unique_id
         self._latest_value: T_co | _Sentinel = _Sentinel()
-        self._task = asyncio.create_task(
+        self._task: asyncio.Task[None] = asyncio.create_task(
             self._run(), name=f"LatestValueCache«{self._unique_id}»"
         )
 
