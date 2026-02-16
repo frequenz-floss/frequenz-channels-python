@@ -75,6 +75,7 @@ class LatestValueCache(typing.Generic[T_co]):
         self._task: asyncio.Task[None] = asyncio.create_task(
             self._run(), name=f"LatestValueCache«{self._unique_id}»"
         )
+        self._stopped: bool = False
 
     @property
     def unique_id(self) -> str:
@@ -96,6 +97,8 @@ class LatestValueCache(typing.Generic[T_co]):
         """
         if isinstance(self._latest_value, _Sentinel):
             raise ValueError("No value has been received yet.")
+        if self._stopped:
+            raise ValueError("Cache has been stopped.")
         return self._latest_value
 
     def has_value(self) -> bool:
@@ -113,6 +116,7 @@ class LatestValueCache(typing.Generic[T_co]):
     async def stop(self) -> None:
         """Stop the cache and close the owned receiver."""
         self._receiver.close()
+        self._stopped = True
         if not self._task.done():
             self._task.cancel()
             try:
