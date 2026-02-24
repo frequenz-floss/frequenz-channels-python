@@ -6,7 +6,8 @@
 
 ## Upgrading
 
-<!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
+- `LatestValueCache` now closes the receiver when it is stopped.
+- Fetching values from stopped `LatestValueCache` instances is now disallowed.
 
 ## New Features
 
