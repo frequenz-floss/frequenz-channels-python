@@ -211,7 +211,7 @@ class Broadcast(Generic[ChannelMessageT]):
         """The number of senders attached to this channel."""
 
         self._receivers: dict[
-            int, weakref.ReferenceType[_Receiver[ChannelMessageT]]
+            int, weakref.ReferenceType[BroadcastReceiver[ChannelMessageT]]
         ] = {}
         """The receivers attached to the channel, indexed by their hash()."""
 
@@ -272,13 +272,13 @@ class Broadcast(Generic[ChannelMessageT]):
         """Close the channel, deprecated alias for `aclose()`."""  # noqa: D402
         return await self.aclose()
 
-    def new_sender(self) -> ClonableSubscribableSender[ChannelMessageT]:
+    def new_sender(self) -> BroadcastSender[ChannelMessageT]:
         """Return a new sender attached to this channel."""
-        return _Sender(self)
+        return BroadcastSender(self)
 
     def new_receiver(
         self, *, name: str | None = None, limit: int = 50, warn_on_overflow: bool = True
-    ) -> Receiver[ChannelMessageT]:
+    ) -> BroadcastReceiver[ChannelMessageT]:
         """Return a new receiver attached to this channel.
 
         Broadcast receivers have their own buffer, and when messages are not
@@ -294,7 +294,7 @@ class Broadcast(Generic[ChannelMessageT]):
         Returns:
             A new receiver attached to this channel.
         """
-        recv: _Receiver[ChannelMessageT] = _Receiver(
+        recv: BroadcastReceiver[ChannelMessageT] = BroadcastReceiver(
             self, name=name, limit=limit, warn_on_overflow=warn_on_overflow
         )
         self._receivers[hash(recv)] = weakref.ref(recv)
@@ -320,7 +320,7 @@ class Broadcast(Generic[ChannelMessageT]):
 _T = TypeVar("_T")
 
 
-class _Sender(ClonableSubscribableSender[_T]):
+class BroadcastSender(ClonableSubscribableSender[_T]):
     """A sender to send messages to the broadcast channel.
 
     Should not be created directly, but through the
@@ -400,9 +400,9 @@ class _Sender(ClonableSubscribableSender[_T]):
             self._channel._sender_count -= 1
 
     @override
-    def clone(self) -> _Sender[_T]:
+    def clone(self) -> BroadcastSender[_T]:
         """Return a clone of this sender."""
-        return _Sender(self._channel)
+        return BroadcastSender(self._channel)
 
     @override
     def subscribe(
@@ -410,7 +410,7 @@ class _Sender(ClonableSubscribableSender[_T]):
         name: str | None = None,
         limit: int = 50,
         warn_on_overflow: bool = True,
-    ) -> Receiver[_T]:
+    ) -> BroadcastReceiver[_T]:
         """Return a new receiver attached to this sender's channel.
 
         Args:
@@ -445,7 +445,7 @@ class _Sender(ClonableSubscribableSender[_T]):
         return f"{type(self).__name__}({self._channel!r})"
 
 
-class _Receiver(Receiver[_T]):
+class BroadcastReceiver(Receiver[_T]):
     """A receiver to receive messages from the broadcast channel.
 
     Should not be created directly, but through the

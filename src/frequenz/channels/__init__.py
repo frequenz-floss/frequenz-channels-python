@@ -80,7 +80,7 @@ Extra utility receivers:
 """
 
 from ._anycast import Anycast
-from ._broadcast import Broadcast
+from ._broadcast import Broadcast, BroadcastReceiver, BroadcastSender
 from ._exceptions import ChannelClosedError, ChannelError, Error
 from ._generic import (
     ChannelMessageT,
@@ -106,6 +106,8 @@ from ._sender import Sender, SenderClosedError, SenderError
 __all__ = [
     "Anycast",
     "Broadcast",
+    "BroadcastReceiver",
+    "BroadcastSender",
     "ChannelClosedError",
     "ChannelError",
     "ChannelMessageT",

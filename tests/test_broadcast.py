@@ -107,7 +107,7 @@ async def test_broadcast_after_close() -> None:
 async def test_broadcast_overflow() -> None:
     """Ensure messages sent to full broadcast receivers get dropped."""
     from frequenz.channels._broadcast import (  # pylint: disable=import-outside-toplevel
-        _Receiver,
+        BroadcastReceiver,
     )
 
     bcast: Broadcast[int] = Broadcast(name="meter_5")
@@ -117,9 +117,9 @@ async def test_broadcast_overflow() -> None:
     sender = bcast.new_sender()
 
     big_receiver = bcast.new_receiver(name="named-recv", limit=big_recv_size)
-    assert isinstance(big_receiver, _Receiver)
+    assert isinstance(big_receiver, BroadcastReceiver)
     small_receiver = bcast.new_receiver(limit=small_recv_size)
-    assert isinstance(small_receiver, _Receiver)
+    assert isinstance(small_receiver, BroadcastReceiver)
 
     async def drain_receivers() -> tuple[int, int]:
         big_sum = 0
