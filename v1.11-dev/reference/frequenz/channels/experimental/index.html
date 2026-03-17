@@ -1882,6 +1882,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#frequenz.channels.experimental.RelaySender.aclose" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;aclose
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#frequenz.channels.experimental.RelaySender.send" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;send
@@ -2717,6 +2726,15 @@
   <a href="#frequenz.channels.experimental.RelaySender.__init__" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;__init__
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#frequenz.channels.experimental.RelaySender.aclose" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;aclose
     </span>
   </a>
   
@@ -8267,12 +8285,7 @@ by forwarding all the messages received by the receiver to the sender.</p>
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-external" title="typing.Generic" href="https://docs.python.org/3/library/typing.html#typing.Generic">Generic</a>[<a class="autorefs autorefs-internal" title="frequenz.channels.SenderMessageT_contra
-
-
-  
-      module-attribute
-   (frequenz.channels._generic.SenderMessageT_contra)" href="../#frequenz.channels.SenderMessageT_contra">SenderMessageT_contra</a>]</code>, <code><a class="autorefs autorefs-internal" title="frequenz.channels.Sender (frequenz.channels._sender.Sender)" href="../#frequenz.channels.Sender">Sender</a>[<a class="autorefs autorefs-internal" title="frequenz.channels.SenderMessageT_contra
+              Bases: <code><a class="autorefs autorefs-internal" title="frequenz.channels.Sender (frequenz.channels._sender.Sender)" href="../#frequenz.channels.Sender">Sender</a>[<a class="autorefs autorefs-internal" title="frequenz.channels.SenderMessageT_contra
 
 
   
@@ -8353,7 +8366,12 @@ it, to the senders it was created with.</p>
 <span class="normal"><a href="#__codelineno-0-56">56</a></span>
 <span class="normal"><a href="#__codelineno-0-57">57</a></span>
 <span class="normal"><a href="#__codelineno-0-58">58</a></span>
-<span class="normal"><a href="#__codelineno-0-59">59</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="k">class</span><span class="w"> </span><span class="nc">RelaySender</span><span class="p">(</span><span class="n">typing</span><span class="o">.</span><span class="n">Generic</span><span class="p">[</span><span class="n">SenderMessageT_contra</span><span class="p">],</span> <span class="n">Sender</span><span class="p">[</span><span class="n">SenderMessageT_contra</span><span class="p">]):</span>
+<span class="normal"><a href="#__codelineno-0-59">59</a></span>
+<span class="normal"><a href="#__codelineno-0-60">60</a></span>
+<span class="normal"><a href="#__codelineno-0-61">61</a></span>
+<span class="normal"><a href="#__codelineno-0-62">62</a></span>
+<span class="normal"><a href="#__codelineno-0-63">63</a></span>
+<span class="normal"><a href="#__codelineno-0-64">64</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="k">class</span><span class="w"> </span><span class="nc">RelaySender</span><span class="p">(</span><span class="n">Sender</span><span class="p">[</span><span class="n">SenderMessageT_contra</span><span class="p">]):</span>
 </span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A Sender for sending messages to multiple senders.</span>
 </span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a>
 </span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="sd">    The `RelaySender` class takes multiple senders and forwards all the messages sent to</span>
@@ -8395,6 +8413,11 @@ it, to the senders it was created with.</p>
 </span><span id="__span-0-57"><a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="__span-0-58"><a id="__codelineno-0-58" name="__codelineno-0-58"></a>        <span class="k">for</span> <span class="n">sender</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_senders</span><span class="p">:</span>
 </span><span id="__span-0-59"><a id="__codelineno-0-59" name="__codelineno-0-59"></a>            <span class="k">await</span> <span class="n">sender</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</span><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a>
+</span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a>    <span class="nd">@override</span>
+</span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">aclose</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Close this sender.&quot;&quot;&quot;</span>
+</span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a>        <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">sender</span><span class="o">.</span><span class="n">aclose</span><span class="p">()</span> <span class="k">for</span> <span class="n">sender</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_senders</span><span class="p">))</span>
 </span></code></pre></div></td></tr></table></div>
               </details>
 
@@ -8484,6 +8507,41 @@ it, to the senders it was created with.</p>
 </span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="sd">        *senders: The senders to send messages to.</span>
 </span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_senders</span> <span class="o">=</span> <span class="n">senders</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h6 id="frequenz.channels.experimental.RelaySender.aclose" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">aclose</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-async"><code>async</code></small>
+  </span>
+
+<a href="#frequenz.channels.experimental.RelaySender.aclose" class="headerlink" title="Permanent link">¤</a></h6>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">aclose</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Close this sender.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>src/frequenz/channels/experimental/_relay_sender.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-61">61</a></span>
+<span class="normal"><a href="#__codelineno-0-62">62</a></span>
+<span class="normal"><a href="#__codelineno-0-63">63</a></span>
+<span class="normal"><a href="#__codelineno-0-64">64</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a><span class="nd">@override</span>
+</span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">aclose</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Close this sender.&quot;&quot;&quot;</span>
+</span><span id="__span-0-64"><a id="__codelineno-0-64" name="__codelineno-0-64"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">sender</span><span class="o">.</span><span class="n">aclose</span><span class="p">()</span> <span class="k">for</span> <span class="n">sender</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_senders</span><span class="p">))</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
