@@ -70,6 +70,15 @@ class Sender(ABC, Generic[SenderMessageT_contra]):
             SenderError: If there was an error sending the message.
         """
 
+    @abstractmethod
+    async def aclose(self) -> None:
+        """Close this sender.
+
+        After a sender is closed, it can no longer be used to send messages. Any
+        attempt to send a message through a closed sender will raise a
+        [SenderClosedError][frequenz.channels.SenderClosedError].
+        """
+
 
 class SenderError(Error, Generic[SenderMessageT_co]):
     """An error that originated in a [Sender][frequenz.channels.Sender].
@@ -88,3 +97,15 @@ class SenderError(Error, Generic[SenderMessageT_co]):
         super().__init__(message)
         self.sender: Sender[SenderMessageT_co] = sender
         """The sender where the error happened."""
+
+
+class SenderClosedError(SenderError[SenderMessageT_co]):
+    """An error indicating that a send operation was attempted on a closed sender."""
+
+    def __init__(self, sender: Sender[SenderMessageT_co]):
+        """Initialize this error.
+
+        Args:
+            sender: The [Sender][frequenz.channels.Sender] that was closed.
+        """
+        super().__init__("Sender is closed", sender)

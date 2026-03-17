@@ -92,6 +92,7 @@ from ._generic import (
 )
 from ._latest_value_cache import LatestValueCache
 from ._merge import Merger, merge
+from ._oneshot import OneshotChannel, OneshotReceiver, OneshotSender
 from ._receiver import Receiver, ReceiverError, ReceiverStoppedError
 from ._select import (
     Selected,
@@ -100,7 +101,7 @@ from ._select import (
     select,
     selected_from,
 )
-from ._sender import Sender, SenderError
+from ._sender import Sender, SenderClosedError, SenderError
 
 __all__ = [
     "Anycast",
@@ -113,6 +114,9 @@ __all__ = [
     "LatestValueCache",
     "MappedMessageT_co",
     "Merger",
+    "OneshotChannel",
+    "OneshotReceiver",
+    "OneshotSender",
     "Receiver",
     "ReceiverError",
     "ReceiverMessageT_co",
@@ -120,6 +124,7 @@ __all__ = [
     "SelectError",
     "Selected",
     "Sender",
+    "SenderClosedError",
     "SenderError",
     "SenderMessageT_co",
     "SenderMessageT_contra",
