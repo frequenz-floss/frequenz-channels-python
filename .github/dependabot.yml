@@ -34,11 +34,14 @@ updates:
           - "minor"
         exclude-patterns:
           - "async-solipsism"
-          - "frequenz-repo-config*"
+          - "frequenz-repo-config"
+          - "frequenz-repo-config[lib]"
+          - "frequenz-repo-config[extra-lint-examples]"
           - "markdown-callouts"
           - "mkdocs-gen-files"
           - "mkdocs-literate-nav"
           - "mkdocstrings*"
+          - "mkdocstrings[python]"
           - "pydoclint"
           - "pymdownx-superfence-filter-lines"
           - "pytest-asyncio"
@@ -47,10 +50,13 @@ updates:
       # each if we don't group them.
       repo-config:
         patterns:
-          - "frequenz-repo-config*"
+          - "frequenz-repo-config"
+          - "frequenz-repo-config[lib]"
+          - "frequenz-repo-config[extra-lint-examples]"
       mkdocstrings:
         patterns:
           - "mkdocstrings*"
+          - "mkdocstrings[python]"
 
   - package-ecosystem: "github-actions"
     directory: "/"
