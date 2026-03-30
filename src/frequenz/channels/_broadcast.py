@@ -381,11 +381,6 @@ class BroadcastSender(ClonableSubscribableSender[_T]):
             raise SenderError("The channel was closed", self) from ChannelClosedError(
                 self._channel
             )
-        if self._channel._auto_close_enabled and len(self._channel._receivers) == 0:
-            raise SenderError("The channel was closed", self) from ChannelClosedError(
-                self._channel
-            )
-        self._channel._latest = message
         stale_refs = []
         for _hash, recv_ref in self._channel._receivers.items():
             recv = recv_ref()
@@ -395,6 +390,11 @@ class BroadcastSender(ClonableSubscribableSender[_T]):
             recv._enqueue(message)
         for _hash in stale_refs:
             del self._channel._receivers[_hash]
+        if self._channel._auto_close_enabled and len(self._channel._receivers) == 0:
+            raise SenderError("The channel was closed", self) from ChannelClosedError(
+                self._channel
+            )
+        self._channel._latest = message
         async with self._channel._recv_cv:
             self._channel._recv_cv.notify_all()
         # pylint: enable=protected-access
