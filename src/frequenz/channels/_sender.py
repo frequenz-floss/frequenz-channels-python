@@ -126,11 +126,11 @@ class SubscribableSender(Sender[SenderMessageT_contra], ABC):
         """
 
 
-class ClonableSender(Sender[SenderMessageT_contra], ABC):
+class CloneableSender(Sender[SenderMessageT_contra], ABC):
     """A [Sender][frequenz.channels.Sender] that can be cloned."""
 
     @abstractmethod
-    def clone(self) -> ClonableSender[SenderMessageT_contra]:
+    def clone(self) -> CloneableSender[SenderMessageT_contra]:
         """Clone this sender.
 
         Returns:
@@ -138,9 +138,9 @@ class ClonableSender(Sender[SenderMessageT_contra], ABC):
         """
 
 
-class ClonableSubscribableSender(
+class CloneableSubscribableSender(
     SubscribableSender[SenderMessageT_contra],
-    ClonableSender[SenderMessageT_contra],
+    CloneableSender[SenderMessageT_contra],
     ABC,
 ):
     """A [Sender][frequenz.channels.Sender] that can be both cloned and subscribed to."""

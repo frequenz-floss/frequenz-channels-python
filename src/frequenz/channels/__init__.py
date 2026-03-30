@@ -102,8 +102,8 @@ from ._select import (
     selected_from,
 )
 from ._sender import (
-    ClonableSender,
-    ClonableSubscribableSender,
+    CloneableSender,
+    CloneableSubscribableSender,
     Sender,
     SenderClosedError,
     SenderError,
@@ -119,8 +119,8 @@ __all__ = [
     "ChannelClosedError",
     "ChannelError",
     "ChannelMessageT",
-    "ClonableSender",
-    "ClonableSubscribableSender",
+    "CloneableSender",
+    "CloneableSubscribableSender",
     "Error",
     "ErroredChannelT_co",
     "LatestValueCache",

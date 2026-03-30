@@ -16,7 +16,7 @@ from typing_extensions import deprecated, override
 from ._exceptions import ChannelClosedError
 from ._generic import ChannelMessageT
 from ._receiver import Receiver, ReceiverStoppedError
-from ._sender import ClonableSubscribableSender, SenderClosedError, SenderError
+from ._sender import CloneableSubscribableSender, SenderClosedError, SenderError
 
 _logger = logging.getLogger(__name__)
 
@@ -334,7 +334,7 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
 _T = TypeVar("_T")
 
 
-class BroadcastSender(ClonableSubscribableSender[_T]):
+class BroadcastSender(CloneableSubscribableSender[_T]):
     """A sender to send messages to the broadcast channel.
 
     Should not be created directly, but through the
