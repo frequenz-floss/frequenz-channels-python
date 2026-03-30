@@ -313,7 +313,7 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
         )
         self._receivers[hash(recv)] = weakref.ref(recv)
         if self.resend_latest and self._latest is not None:
-            recv.enqueue(self._latest)
+            recv._enqueue(self._latest)  # pylint: disable=protected-access
         return recv
 
     def __str__(self) -> str:
@@ -392,7 +392,7 @@ class BroadcastSender(ClonableSubscribableSender[_T]):
             if recv is None:
                 stale_refs.append(_hash)
                 continue
-            recv.enqueue(message)
+            recv._enqueue(message)
         for _hash in stale_refs:
             del self._channel._receivers[_hash]
         async with self._channel._recv_cv:
@@ -515,7 +515,7 @@ class BroadcastReceiver(Receiver[_T]):
         self._closed: bool = False
         """Whether the receiver is closed."""
 
-    def enqueue(self, message: _T, /) -> None:
+    def _enqueue(self, message: _T, /) -> None:
         """Put a message into this receiver's queue.
 
         To be called by broadcast senders.  If the receiver's queue is already
