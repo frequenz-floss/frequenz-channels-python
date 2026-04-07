@@ -391,6 +391,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
         for _hash in stale_refs:
             del self._channel._receivers[_hash]
         if self._channel._auto_close_enabled and len(self._channel._receivers) == 0:
+            await self._channel.aclose()
             raise SenderError("The channel was closed", self) from ChannelClosedError(
                 self._channel
             )

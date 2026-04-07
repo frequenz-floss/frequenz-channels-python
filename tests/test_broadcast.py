@@ -473,3 +473,18 @@ async def test_broadcast_auto_close_2() -> None:
     with pytest.raises(ReceiverStoppedError) as excinfo:
         await receiver.receive()
     assert isinstance(excinfo.value.__cause__, ChannelClosedError)
+
+
+async def test_broadcast_closed_channels_remain_closed() -> None:
+    """Ensure that a closed channel can't be resurrected."""
+    sender, receiver = BroadcastChannel[int](name="auto-close-test")
+
+    receiver.close()
+
+    with pytest.raises(SenderError) as excinfo:
+        await sender.send(1)
+    assert isinstance(excinfo.value.__cause__, ChannelClosedError)
+
+    with pytest.raises(SenderError) as excinfo:
+        _ = sender.subscribe()
+    assert isinstance(excinfo.value.__cause__, ChannelClosedError)
