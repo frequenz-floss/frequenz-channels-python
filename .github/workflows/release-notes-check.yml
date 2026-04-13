@@ -16,7 +16,7 @@ on:
 jobs:
   check-release-notes:
     name: Check release notes are updated
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     steps:
       - name: Check for a release notes update
         if: github.event_name == 'pull_request'
