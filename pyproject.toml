@@ -5,7 +5,7 @@
 requires = [
   "setuptools == 80.9.0",
   "setuptools_scm[toml] == 9.2.2",
-  "frequenz-repo-config[lib] == 0.14.0",
+  "frequenz-repo-config[lib] == 0.17.0",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -13,12 +13,12 @@ build-backend = "setuptools.build_meta"
 name = "frequenz-channels"
 description = "Channel implementations for Python"
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 keywords = ["frequenz", "python", "lib", "library", "channels", "channel"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
   "Topic :: Software Development :: Libraries",
@@ -38,6 +38,7 @@ email = "floss@frequenz.com"
 [project.optional-dependencies]
 dev-flake8 = [
   "flake8 == 7.3.0",
+  "flake8-datetimez == 20.10.0",
   "flake8-docstrings == 1.7.0",
   "flake8-pyproject == 1.2.4", # For reading the flake8 config from pyproject.toml
   "pydoclint == 0.7.6",
@@ -47,7 +48,7 @@ dev-formatting = ["black == 25.9.0", "isort == 7.0.0"]
 dev-mkdocs = [
   "Markdown == 3.9",
   "black == 25.9.0",
-  "frequenz-repo-config[lib] == 0.14.0",
+  "frequenz-repo-config[lib] == 0.17.0",
   "markdown-callouts == 0.4.0",
   "markdown-svgbob == 202406.1023",
   "mike == 2.1.4",
@@ -67,7 +68,7 @@ dev-mypy = [
   "mypy == 1.18.2",
   "types-Markdown == 3.9.0.20250906",
 ]
-dev-noxfile = ["nox == 2025.10.16", "frequenz-repo-config[lib] == 0.14.0"]
+dev-noxfile = ["nox == 2025.10.16", "frequenz-repo-config[lib] == 0.17.0"]
 dev-pylint = [
   # For checking the noxfile, docs/ script, and tests
   "frequenz-channels[dev-mkdocs,dev-noxfile,dev-pytest]",
@@ -75,7 +76,7 @@ dev-pylint = [
 ]
 dev-pytest = [
   "async-solipsism == 0.9",
-  "frequenz-repo-config[extra-lint-examples] == 0.14.0",
+  "frequenz-repo-config[extra-lint-examples] == 0.17.0",
   "hypothesis == 6.143.0",
   "pytest == 8.4.2",
   "pytest-asyncio == 1.1.0",
