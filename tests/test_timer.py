@@ -70,6 +70,8 @@ def test_policy_trigger_all_missed(
 ) -> None:
     """Test the TriggerAllMissed policy."""
     hypothesis.assume(now >= scheduled_tick_time)
+    # It looks like hypothesis let pylint think it is NoReturn
+    # pylint: disable-next=unreachable
     assert (
         TriggerAllMissed().calculate_next_tick_time(
             now=now, interval=interval, scheduled_tick_time=scheduled_tick_time
@@ -118,6 +120,8 @@ def test_policy_skip_missed_and_resync(
     """Test the SkipMissedAndResync policy."""
     hypothesis.assume(now >= scheduled_tick_time)
 
+    # It looks like hypothesis let pylint think it is NoReturn
+    # pylint: disable-next=unreachable
     next_tick_time = SkipMissedAndResync().calculate_next_tick_time(
         now=now, interval=interval, scheduled_tick_time=scheduled_tick_time
     )
@@ -214,6 +218,8 @@ def test_policy_skip_missed_and_drift(
     """Test the SkipMissedAndDrift policy."""
     hypothesis.assume(now >= scheduled_tick_time)
 
+    # It looks like hypothesis let pylint think it is NoReturn
+    # pylint: disable-next=unreachable
     next_tick_time = SkipMissedAndDrift(
         delay_tolerance=timedelta(microseconds=tolerance)
     ).calculate_next_tick_time(
