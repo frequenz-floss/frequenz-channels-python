@@ -5,7 +5,7 @@
 requires = [
   "setuptools == 80.9.0",
   "setuptools_scm[toml] == 9.2.2",
-  "frequenz-repo-config[lib] == 0.14.0",
+  "frequenz-repo-config[lib] == 0.17.0",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -47,7 +47,7 @@ dev-formatting = ["black == 25.9.0", "isort == 7.0.0"]
 dev-mkdocs = [
   "Markdown == 3.9",
   "black == 25.9.0",
-  "frequenz-repo-config[lib] == 0.14.0",
+  "frequenz-repo-config[lib] == 0.17.0",
   "markdown-callouts == 0.4.0",
   "markdown-svgbob == 202406.1023",
   "mike == 2.1.4",
@@ -67,7 +67,7 @@ dev-mypy = [
   "mypy == 1.18.2",
   "types-Markdown == 3.9.0.20250906",
 ]
-dev-noxfile = ["nox == 2025.10.16", "frequenz-repo-config[lib] == 0.14.0"]
+dev-noxfile = ["nox == 2025.10.16", "frequenz-repo-config[lib] == 0.17.0"]
 dev-pylint = [
   # For checking the noxfile, docs/ script, and tests
   "frequenz-channels[dev-mkdocs,dev-noxfile,dev-pytest]",
@@ -75,7 +75,7 @@ dev-pylint = [
 ]
 dev-pytest = [
   "async-solipsism == 0.9",
-  "frequenz-repo-config[extra-lint-examples] == 0.14.0",
+  "frequenz-repo-config[extra-lint-examples] == 0.17.0",
   "hypothesis == 6.143.0",
   "pytest == 8.4.2",
   "pytest-asyncio == 1.1.0",
