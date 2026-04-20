@@ -1,11 +1,17 @@
 # Frequenz channels Release Notes
 
+## Summary
+
+<!-- Here goes a general summary of what this release is about -->
+
 ## Upgrading
 
-- The old `Broadcast` class is deprecated in favour of the new auto-closing `BroadcastChannel`.
-
-- The `Anycast` class is deprecated, because of the lack of use-cases and the maintenance cost.
+<!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
 
 ## New Features
 
-- There's a new `BroadcastChannel`, which returns a broadcast sender and a broadcast receiver.  The channel is auto-closing, meaning when all the senders or all the receivers are closed, the channel is closed.
+<!-- Here goes the main new features and examples or instructions on how to use them -->
+
+## Bug Fixes
+
+<!-- Here goes notable bug fixes that are worth a special mention or explanation -->
