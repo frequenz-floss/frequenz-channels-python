@@ -12,6 +12,7 @@ import pytest
 
 from frequenz.channels import (
     Broadcast,
+    BroadcastChannel,
     ChannelClosedError,
     Receiver,
     ReceiverStoppedError,
@@ -107,7 +108,7 @@ async def test_broadcast_after_close() -> None:
 async def test_broadcast_overflow() -> None:
     """Ensure messages sent to full broadcast receivers get dropped."""
     from frequenz.channels._broadcast import (  # pylint: disable=import-outside-toplevel
-        _Receiver,
+        BroadcastReceiver,
     )
 
     bcast: Broadcast[int] = Broadcast(name="meter_5")
@@ -117,9 +118,9 @@ async def test_broadcast_overflow() -> None:
     sender = bcast.new_sender()
 
     big_receiver = bcast.new_receiver(name="named-recv", limit=big_recv_size)
-    assert isinstance(big_receiver, _Receiver)
+    assert isinstance(big_receiver, BroadcastReceiver)
     small_receiver = bcast.new_receiver(limit=small_recv_size)
-    assert isinstance(small_receiver, _Receiver)
+    assert isinstance(small_receiver, BroadcastReceiver)
 
     async def drain_receivers() -> tuple[int, int]:
         big_sum = 0
@@ -425,3 +426,65 @@ async def test_broadcast_close_receiver() -> None:
 
     with pytest.raises(ReceiverStoppedError):
         _ = await receiver_2.receive()
+
+
+async def test_broadcast_auto_close_1() -> None:
+    """Ensure broadcast auto close works when all receivers are closed."""
+    sender, receiver = BroadcastChannel[int](name="auto-close-test")
+
+    receiver_2 = sender.subscribe()
+
+    await sender.send(1)
+
+    assert (await receiver.receive()) == 1
+    assert (await receiver_2.receive()) == 1
+
+    receiver.close()
+
+    await sender.send(2)
+
+    assert (await receiver_2.receive()) == 2
+
+    receiver_2.close()
+
+    with pytest.raises(SenderError) as excinfo:
+        await sender.send(3)
+    assert isinstance(excinfo.value.__cause__, ChannelClosedError)
+
+
+async def test_broadcast_auto_close_2() -> None:
+    """Ensure broadcast auto close works when all senders are closed."""
+    sender, receiver = BroadcastChannel[int](name="auto-close-test")
+
+    await sender.send(1)
+
+    assert (await receiver.receive()) == 1
+
+    sender_2 = sender.clone()
+
+    await sender.aclose()
+
+    await sender_2.send(2)
+
+    await sender_2.aclose()
+
+    assert (await receiver.receive()) == 2
+
+    with pytest.raises(ReceiverStoppedError) as excinfo:
+        await receiver.receive()
+    assert isinstance(excinfo.value.__cause__, ChannelClosedError)
+
+
+async def test_broadcast_closed_channels_remain_closed() -> None:
+    """Ensure that a closed channel can't be resurrected."""
+    sender, receiver = BroadcastChannel[int](name="auto-close-test")
+
+    receiver.close()
+
+    with pytest.raises(SenderError) as excinfo:
+        await sender.send(1)
+    assert isinstance(excinfo.value.__cause__, ChannelClosedError)
+
+    with pytest.raises(SenderError) as excinfo:
+        _ = sender.subscribe()
+    assert isinstance(excinfo.value.__cause__, ChannelClosedError)

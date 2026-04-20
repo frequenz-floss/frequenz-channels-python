@@ -6,11 +6,13 @@
 
 ## Upgrading
 
-<!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
+- The old `Broadcast` class is deprecated in favour of the new auto-closing `BroadcastChannel`.
+
+- The `Anycast` class is deprecated, because of the lack of use-cases and the maintenance cost.
 
 ## New Features
 
-<!-- Here goes the main new features and examples or instructions on how to use them -->
+- There's a new `BroadcastChannel`, which returns a broadcast sender and a broadcast receiver.  The channel is auto-closing, meaning when all the senders or all the receivers are closed, the channel is closed.
 
 ## Bug Fixes
 

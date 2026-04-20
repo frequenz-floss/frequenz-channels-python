@@ -20,6 +20,12 @@ from ._sender import Sender, SenderClosedError, SenderError
 _logger = logging.getLogger(__name__)
 
 
+@deprecated(
+    "Anycast channels are deprecated, because of the high cost of maintaining "
+    "something for which we don't have a use case. The implementation will "
+    "remain in the codebase in its current form at least until the next major "
+    "version."
+)
 class Anycast(Generic[ChannelMessageT]):
     """A channel that delivers each message to exactly one receiver.
 
