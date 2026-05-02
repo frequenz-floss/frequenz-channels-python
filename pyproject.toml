@@ -57,7 +57,7 @@ dev-mkdocs = [
   "mkdocs-literate-nav == 0.6.3",
   "mkdocs-macros-plugin == 1.5.0",
   "mkdocs-material == 9.7.6",
-  "mkdocstrings[python] == 1.0.3",
+  "mkdocstrings[python] == 1.0.4",
   "mkdocstrings-python == 1.18.2",
   "pymdownx-superfence-filter-lines == 0.1.0",
   "griffe==1.15.0",
@@ -65,7 +65,7 @@ dev-mkdocs = [
 dev-mypy = [
   # For checking the noxfile, docs/ script, and tests
   "frequenz-channels[dev-mkdocs,dev-noxfile,dev-pytest]",
-  "mypy == 1.20.1",
+  "mypy == 1.20.2",
   "types-Markdown == 3.10.2.20260408",
 ]
 dev-noxfile = ["nox == 2025.10.16", "frequenz-repo-config[lib] == 0.17.0"]
