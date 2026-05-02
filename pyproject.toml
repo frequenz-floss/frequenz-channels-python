@@ -60,7 +60,7 @@ dev-mkdocs = [
   "mkdocstrings[python] == 1.0.4",
   "mkdocstrings-python == 1.18.2",
   "pymdownx-superfence-filter-lines == 0.1.0",
-  "griffe==1.15.0",
+  "griffe==2.0.2",
 ]
 dev-mypy = [
   # For checking the noxfile, docs/ script, and tests
