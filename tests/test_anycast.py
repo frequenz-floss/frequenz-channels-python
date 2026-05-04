@@ -3,7 +3,6 @@
 
 """Tests for the Channel implementation."""
 
-
 import asyncio
 
 import pytest

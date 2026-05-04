@@ -3,7 +3,6 @@
 
 """Tests for the timer."""
 
-
 import asyncio
 import enum
 import re

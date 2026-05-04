@@ -3,7 +3,6 @@
 
 """Composable predicate to cache and compare with the previous message."""
 
-
 from collections.abc import Callable
 from typing import Final, Generic, TypeGuard
 

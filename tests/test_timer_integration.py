@@ -3,7 +3,6 @@
 
 """Integration tests for the timer."""
 
-
 import asyncio
 from datetime import timedelta
 
