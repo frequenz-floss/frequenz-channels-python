@@ -3,7 +3,6 @@
 
 """The GroupingLatestValueCache caches the latest values in a receiver grouped by key."""
 
-
 import asyncio
 from collections.abc import (
     Callable,

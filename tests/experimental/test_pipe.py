@@ -3,7 +3,6 @@
 
 """Tests for the Pipe class."""
 
-
 import asyncio
 import typing
 from contextlib import AsyncExitStack, aclosing, closing

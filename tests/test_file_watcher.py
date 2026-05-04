@@ -3,7 +3,6 @@
 
 """Tests for `channel.FileWatcher`."""
 
-
 import pathlib
 from collections.abc import AsyncGenerator, Iterator, Sequence
 from typing import Any

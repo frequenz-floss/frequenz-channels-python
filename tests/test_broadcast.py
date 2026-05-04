@@ -3,7 +3,6 @@
 
 """Tests for the Broadcast implementation."""
 
-
 import asyncio
 from dataclasses import dataclass
 from typing import TypeGuard, assert_never
