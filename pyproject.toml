@@ -44,7 +44,7 @@ dev-flake8 = [
   "pydoclint == 0.7.6",
   "pydocstyle == 6.3.0",
 ]
-dev-formatting = ["black == 25.9.0", "isort == 7.0.0"]
+dev-formatting = ["black == 25.9.0", "isort == 8.0.1"]
 dev-mkdocs = [
   "Markdown == 3.10.2",
   "black == 25.9.0",
