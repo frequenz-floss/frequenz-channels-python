@@ -47,7 +47,7 @@ jobs:
 
     steps:
       - name: Run nox
-        uses: frequenz-floss/gh-action-nox@e1351cf45e05e85afc1c79ab883e06322892d34c # v1.1.0
+        uses: frequenz-floss/gh-action-nox@80a9845a59ffc71d27b9c41099eb6cb55bc7b671 # v1.1.1
         with:
           python-version: ${{ matrix.python }}
           nox-session: ${{ matrix.nox-session }}
@@ -97,7 +97,7 @@ jobs:
         run: python -Im build
 
       - name: Upload distribution files
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: dist-packages
           path: dist/
@@ -202,7 +202,7 @@ jobs:
           python -I "$(command -v mike)" set-default "$MIKE_VERSION"
 
       - name: Upload site
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: docs-site
           path: site/
@@ -347,4 +347,4 @@ jobs:
           path: dist
 
       - name: Publish the Python distribution to PyPI
-        uses: pypa/gh-action-pypi-publish@ed0c53931b1dc9bd32cbe73a98c7f6766f8a527e # v1.13.0
+        uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0
