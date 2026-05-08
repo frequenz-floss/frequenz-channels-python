@@ -6,7 +6,7 @@
 from frequenz.repo.config.mkdocs.mkdocstrings_macros import hook_env_with_everything
 from griffe import ModulesCollection, Object
 from mkdocs_macros.plugin import MacrosPlugin
-from mkdocstrings_handlers.python.handler import PythonHandler
+from mkdocstrings_handlers.python import PythonHandler
 
 
 def define_env(env: MacrosPlugin) -> None:
@@ -47,8 +47,7 @@ def define_env(env: MacrosPlugin) -> None:
         """
         docstring = _get_docstring(symbol)
         summary = docstring.splitlines(keepends=False)[0]
-        # The python_handler is untyped here, so ignore the type
-        return python_handler.do_convert_markdown(  # type: ignore[no-any-return]
+        return python_handler.do_convert_markdown(
             summary, heading_level=1, strip_paragraph=True
         )
 
