@@ -2842,7 +2842,7 @@ a <em>missing tick policy</em>.</p>
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -2866,6 +2866,7 @@ a <em>missing tick policy</em>.</p>
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
               Bases: <code><a class="autorefs autorefs-external" title="abc.ABC" href="https://docs.python.org/3/library/abc.html#abc.ABC">ABC</a></code></p>
+
 
 
         <p>A policy to handle timer missed ticks.</p>
@@ -2910,7 +2911,7 @@ tick is missed:</p>
 
 
 
-              <details class="quote">
+              <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-125">125</a></span>
 <span class="normal"><a href="#__codelineno-0-126">126</a></span>
@@ -3030,7 +3031,7 @@ tick is missed:</p>
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -3057,7 +3058,7 @@ tick is missed:</p>
         <p>Return a string representation of this policy.</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-179">179</a></span>
 <span class="normal"><a href="#__codelineno-0-180">180</a></span>
@@ -3181,7 +3182,7 @@ trigger (in microseconds).</p>
     </table>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-158">158</a></span>
 <span class="normal"><a href="#__codelineno-0-159">159</a></span>
@@ -3252,6 +3253,7 @@ trigger (in microseconds).</p>
               Bases: <code><a class="autorefs autorefs-internal" title="frequenz.channels.timer.MissedTickPolicy" href="#frequenz.channels.timer.MissedTickPolicy">MissedTickPolicy</a></code></p>
 
 
+
         <p>A policy that drops all the missed ticks, triggers immediately and resets.</p>
 <p>The <a class="autorefs autorefs-internal" title="frequenz.channels.timer.SkipMissedAndDrift" href="#frequenz.channels.timer.SkipMissedAndDrift"><code>SkipMissedAndDrift</code></a> policy will
 behave effectively as if the timer was
@@ -3307,7 +3309,7 @@ is possible to ignore small delays and not drift in those cases.</p>
 
 
 
-              <details class="quote">
+              <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-317">317</a></span>
 <span class="normal"><a href="#__codelineno-0-318">318</a></span>
@@ -3519,7 +3521,7 @@ is possible to ignore small delays and not drift in those cases.</p>
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -3630,7 +3632,7 @@ accumulate this drift.</p>
     </table>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-364">364</a></span>
 <span class="normal"><a href="#__codelineno-0-365">365</a></span>
@@ -3691,7 +3693,7 @@ accumulate this drift.</p>
         <p>Return a string representation of this policy.</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-417">417</a></span>
 <span class="normal"><a href="#__codelineno-0-418">418</a></span>
@@ -3720,7 +3722,7 @@ accumulate this drift.</p>
         <p>Return a string representation of this policy.</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-413">413</a></span>
 <span class="normal"><a href="#__codelineno-0-414">414</a></span>
@@ -3840,7 +3842,7 @@ trigger (in microseconds).</p>
     </table>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-389">389</a></span>
 <span class="normal"><a href="#__codelineno-0-390">390</a></span>
@@ -3917,6 +3919,7 @@ trigger (in microseconds).</p>
               Bases: <code><a class="autorefs autorefs-internal" title="frequenz.channels.timer.MissedTickPolicy" href="#frequenz.channels.timer.MissedTickPolicy">MissedTickPolicy</a></code></p>
 
 
+
         <p>A policy that drops all the missed ticks, triggers immediately and resyncs.</p>
 <p>If ticks are missed, the
 <a class="autorefs autorefs-internal" title="frequenz.channels.timer.SkipMissedAndResync" href="#frequenz.channels.timer.SkipMissedAndResync"><code>SkipMissedAndResync</code></a> policy will
@@ -3972,7 +3975,7 @@ ticks, but re-syncing with the original start time.</p>
 
 
 
-              <details class="quote">
+              <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-250">250</a></span>
 <span class="normal"><a href="#__codelineno-0-251">251</a></span>
@@ -4108,7 +4111,7 @@ ticks, but re-syncing with the original start time.</p>
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -4135,7 +4138,7 @@ ticks, but re-syncing with the original start time.</p>
         <p>Return a string representation of this policy.</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-179">179</a></span>
 <span class="normal"><a href="#__codelineno-0-180">180</a></span>
@@ -4252,7 +4255,7 @@ trigger (in microseconds).</p>
     </table>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-295">295</a></span>
 <span class="normal"><a href="#__codelineno-0-296">296</a></span>
@@ -4323,6 +4326,7 @@ trigger (in microseconds).</p>
               Bases: <code><a class="autorefs autorefs-internal" title="frequenz.channels.Receiver (frequenz.channels._receiver.Receiver)" href="../#frequenz.channels.Receiver">Receiver</a>[<a class="autorefs autorefs-external" title="datetime.timedelta" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta">timedelta</a>]</code></p>
 
 
+
         <p>A receiver that sends a message regularly.</p>
 <p><a class="autorefs autorefs-internal" title="frequenz.channels.timer.Timer" href="#frequenz.channels.timer.Timer"><code>Timer</code></a>s are started by default after they are
 created. This can be disabled by using <code>auto_start=False</code> option when creating
@@ -4391,7 +4395,7 @@ depending on the chosen policy.</p>
 
 
 
-              <details class="quote">
+              <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-422">422</a></span>
 <span class="normal"><a href="#__codelineno-0-423">423</a></span>
@@ -5137,7 +5141,7 @@ depending on the chosen policy.</p>
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -5284,7 +5288,7 @@ depending on the chosen policy.</p>
     </table>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/_receiver.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-242">242</a></span>
 <span class="normal"><a href="#__codelineno-0-243">243</a></span>
@@ -5395,7 +5399,7 @@ depending on the chosen policy.</p>
     </table>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/_receiver.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-190">190</a></span>
 <span class="normal"><a href="#__codelineno-0-191">191</a></span>
@@ -5637,7 +5641,7 @@ but <code>auto_start</code> is <code>False</code>.</p>
     </table>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-472">472</a></span>
 <span class="normal"><a href="#__codelineno-0-473">473</a></span>
@@ -5880,7 +5884,7 @@ but <code>auto_start</code> is <code>False</code>.</p>
         <p>Return a string with the internal representation of this timer.</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-786">786</a></span>
 <span class="normal"><a href="#__codelineno-0-787">787</a></span>
@@ -5915,7 +5919,7 @@ but <code>auto_start</code> is <code>False</code>.</p>
         <p>Return a string representation of this timer.</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-782">782</a></span>
 <span class="normal"><a href="#__codelineno-0-783">783</a></span>
@@ -5944,7 +5948,7 @@ but <code>auto_start</code> is <code>False</code>.</p>
         <p>Close the timer.</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-769">769</a></span>
 <span class="normal"><a href="#__codelineno-0-770">770</a></span>
@@ -6027,7 +6031,7 @@ time when it actually did.</p>
     </table>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-742">742</a></span>
 <span class="normal"><a href="#__codelineno-0-743">743</a></span>
@@ -6236,7 +6240,7 @@ determine if they should be received.</p>
     </table>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/_receiver.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-343">343</a></span>
 <span class="normal"><a href="#__codelineno-0-344">344</a></span>
@@ -6409,7 +6413,7 @@ original receiver and use that instead.</p>
     </table>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/_receiver.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-278">278</a></span>
 <span class="normal"><a href="#__codelineno-0-279">279</a></span>
@@ -6525,7 +6529,7 @@ until it is consumed.</p>
     </table>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-670">670</a></span>
 <span class="normal"><a href="#__codelineno-0-671">671</a></span>
@@ -6764,7 +6768,7 @@ until it is consumed.</p>
     </table>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/_receiver.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-252">252</a></span>
 <span class="normal"><a href="#__codelineno-0-253">253</a></span>
@@ -6960,7 +6964,7 @@ the <code>start_delay</code>.</p>
     </table>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-604">604</a></span>
 <span class="normal"><a href="#__codelineno-0-605">605</a></span>
@@ -7084,7 +7088,7 @@ a <code>ReceiverStoppedError</code>.</p>
 <p>You can restart the timer with <code>reset()</code>.</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-653">653</a></span>
 <span class="normal"><a href="#__codelineno-0-654">654</a></span>
@@ -7215,7 +7219,7 @@ selected in <code>select()</code> iteration.</p>
     </table>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/_receiver.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-372">372</a></span>
 <span class="normal"><a href="#__codelineno-0-373">373</a></span>
@@ -7292,6 +7296,7 @@ selected in <code>select()</code> iteration.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="frequenz.channels.timer.MissedTickPolicy" href="#frequenz.channels.timer.MissedTickPolicy">MissedTickPolicy</a></code></p>
 
 
+
         <p>A policy that triggers all the missed ticks immediately until it catches up.</p>
 <p>The <a class="autorefs autorefs-internal" title="frequenz.channels.timer.TriggerAllMissed" href="#frequenz.channels.timer.TriggerAllMissed"><code>TriggerAllMissed</code></a> policy will
 trigger all missed ticks immediately until it catches up with the current time.
@@ -7345,7 +7350,7 @@ time.</p>
 
 
 
-              <details class="quote">
+              <details class="mkdocstrings-source">
                 <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
                 <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-184">184</a></span>
 <span class="normal"><a href="#__codelineno-0-185">185</a></span>
@@ -7479,7 +7484,7 @@ time.</p>
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -7506,7 +7511,7 @@ time.</p>
         <p>Return a string representation of this policy.</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-179">179</a></span>
 <span class="normal"><a href="#__codelineno-0-180">180</a></span>
@@ -7624,7 +7629,7 @@ trigger (in microseconds).</p>
     </table>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>src/frequenz/channels/timer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-230">230</a></span>
 <span class="normal"><a href="#__codelineno-0-231">231</a></span>
