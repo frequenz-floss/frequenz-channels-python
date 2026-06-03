@@ -45,7 +45,7 @@ jobs:
     steps:
       - name: Generate token
         id: create-app-token
-        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ secrets.FREQUENZ_AUTO_DEPENDABOT_APP_ID }}
           private-key: ${{ secrets.FREQUENZ_AUTO_DEPENDABOT_APP_PRIVATE_KEY }}
@@ -58,7 +58,7 @@ jobs:
           # Allow pushes when migration changes workflow files.
           permission-workflows: write
       - name: Migrate
-        uses: frequenz-floss/gh-action-dependabot-migrate@45994e185a9040449304a470e8f02d0e197873b4 # v1.1.1
+        uses: frequenz-floss/gh-action-dependabot-migrate@eb100d3cf732b4808a7776eee8f303521efd494b # v1.2.1
         with:
           script-url-template: >-
             https://raw.githubusercontent.com/frequenz-floss/frequenz-repo-config-python/{version}/cookiecutter/migrate.py
