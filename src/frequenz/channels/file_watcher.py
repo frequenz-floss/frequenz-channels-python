@@ -67,18 +67,22 @@ class FileWatcher(Receiver[Event]):
     created, modified or deleted, depending on the type of events that it is configured
     to watch for.
 
-    The [`EventType`][frequenz.channels.file_watcher.EventType] of the event contains the [`type`][frequenz.channels.file_watcher.Event.type] of change that was observed and
+    The [`EventType`][frequenz.channels.file_watcher.EventType] of the event contains the
+    [`type`][frequenz.channels.file_watcher.Event.type] of change that was observed and
     the [`path`][frequenz.channels.file_watcher.Event.path] where the change was
     observed.
 
     Note:
         The owner of the [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher]
-        receiver is responsible for recreating the [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher] after it has been
+        receiver is responsible for recreating the
+        [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher] after it has been
         cancelled or stopped.
         For example, if a [`Task`][asyncio.Task] uses an asynchronous iterator to consume
-        events from the [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher] and the task is cancelled, the [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher] will
+        events from the [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher] and the
+        task is cancelled, the [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher] will
         also stop. Therefore, the same `FileWatcher` instance cannot be reused for a new
-        task to consume events. In this case, a new [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher] instance must be created.
+        task to consume events. In this case, a new
+        [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher] instance must be created.
 
     # Event Types
 
@@ -190,7 +194,8 @@ class FileWatcher(Receiver[Event]):
         """Wait until the receiver is ready with a message or an error.
 
         Once a call to [`ready()`][..ready] has finished, the message should be read with
-        a call to [`consume()`][..consume] ([`receive()`][..receive] or iterated over). The receiver will
+        a call to [`consume()`][..consume]
+        ([`receive()`][..receive] or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.
 

@@ -63,8 +63,8 @@ Tip:
 
 # Stopping
 
-The [`select()`][frequenz.channels.select] async iterator will stop as soon as all the receivers are stopped. You
-can also end the iteration early by breaking out of the loop as normal.
+The [`select()`][frequenz.channels.select] async iterator will stop as soon as all the receivers
+are stopped. You can also end the iteration early by breaking out of the loop as normal.
 
 When a single [`Receiver`][frequenz.channels.Receiver] is stopped, it will be reported
 via the [`Selected`][frequenz.channels.Selected] object. You can use the
@@ -275,10 +275,11 @@ def selected_from(
 class SelectError(Error):
     """An error that happened during a [`select()`][frequenz.channels.select] operation.
 
-    This exception is raised when a [`select()`][frequenz.channels.select] iteration fails.  It is raised as
-    a single exception when one receiver fails during normal operation (while calling
-    [`ready()`][frequenz.channels.Receiver.ready] for example).  It is raised as a group exception
-    ([`BaseExceptionGroup`][]) when a [`select()`][frequenz.channels.select] loop is cleaning up after it's done.
+    This exception is raised when a [`select()`][frequenz.channels.select] iteration fails.
+    It is raised as a single exception when one receiver fails during normal operation
+    (while calling [`ready()`][frequenz.channels.Receiver.ready] for example).
+    It is raised as a group exception ([`BaseExceptionGroup`][]) when a
+    [`select()`][frequenz.channels.select] loop is cleaning up after it's done.
     """
 
 
@@ -353,13 +354,15 @@ async def select(  # noqa: DOC503
     to determine which receiver was selected in a select operation.
 
     An exhaustiveness check is performed at runtime to make sure all selected receivers
-    are handled in the if-chain, so you should call [`selected_from()`][frequenz.channels.selected_from] with all the
-    receivers passed to [`select()`][frequenz.channels.select] inside the select loop, even if you plan to ignore
-    a message, to signal [`select()`][frequenz.channels.select] that you are purposefully ignoring the message.
+    are handled in the if-chain, so you should call
+    [`selected_from()`][frequenz.channels.selected_from] with all the receivers passed to
+    [`select()`][frequenz.channels.select] inside the select loop, even if you plan to ignore
+    a message, to signal [`select()`][frequenz.channels.select] that you are purposefully
+    ignoring the message.
 
     Note:
-        The [`select()`][frequenz.channels.select] function is intended to be used in cases where the set of
-        receivers is static and known beforehand.  If you need to dynamically add/remove
+        The [`select()`][frequenz.channels.select] function is intended to be used in cases where
+        the set of receivers is static and known beforehand.  If you need to dynamically add/remove
         receivers from a select loop, there are a few alternatives.  Depending on your
         use case, one or the other could work better for you:
 
@@ -367,7 +370,8 @@ async def select(  # noqa: DOC503
           unknown number of receivers of the same type that can be handled as a group.
         * Use tasks to manage each receiver individually: this is better if there are no
           relationships between the receivers.
-        * Break the [`select()`][frequenz.channels.select] loop and start a new one with the new set of receivers
+        * Break the [`select()`][frequenz.channels.select] loop and start a new one with the
+          new set of receivers
           (this should be the last resort, as it has some performance implications
            because the loop needs to be restarted).
 
@@ -423,7 +427,8 @@ async def select(  # noqa: DOC503
         BaseExceptionGroup: If there is an error while finishing the select operation
             and receivers fail while cleaning up.
         SelectError: If there is an error while selecting receivers during normal
-            operation.  For example if a receiver raises an exception in the [`ready()`][frequenz.channels.Receiver.ready]
+            operation.  For example if a receiver raises an exception in the
+            [`ready()`][frequenz.channels.Receiver.ready]
             method.  Normal errors while receiving messages are not raised, but reported
             via the [`Selected`][frequenz.channels.Selected] instance.
     """

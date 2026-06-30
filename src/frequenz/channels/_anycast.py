@@ -320,7 +320,8 @@ _T = TypeVar("_T")
 class _Sender(Sender[_T]):
     """A sender to send messages to an Anycast channel.
 
-    Should not be created directly, but through the [`Anycast.new_sender()`][frequenz.channels.Anycast.new_sender]
+    Should not be created directly, but through the
+    [`Anycast.new_sender()`][frequenz.channels.Anycast.new_sender]
     method.
     """
 
@@ -406,7 +407,8 @@ class _Empty:
 class _Receiver(Receiver[_T]):
     """A receiver to receive messages from an Anycast channel.
 
-    Should not be created directly, but through the [`Anycast.new_receiver()`][frequenz.channels.Anycast.new_receiver]
+    Should not be created directly, but through the
+    [`Anycast.new_receiver()`][frequenz.channels.Anycast.new_receiver]
     method.
     """
 
@@ -429,7 +431,8 @@ class _Receiver(Receiver[_T]):
         """Wait until the receiver is ready with a message or an error.
 
         Once a call to [`.ready()`][..ready] has finished, the message should be read with
-        a call to [`.consume()`][..consume] ([`receive()`][frequenz.channels.Receiver.receive] or iterated over). The receiver will
+        a call to [`.consume()`][..consume] ([`receive()`][frequenz.channels.Receiver.receive]
+        or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.
 

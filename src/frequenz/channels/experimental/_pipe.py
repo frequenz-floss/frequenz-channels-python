@@ -3,7 +3,8 @@
 
 """Pipe between a receiver and a sender.
 
-The [`Pipe`][frequenz.channels.experimental.Pipe] class takes a receiver and a sender and creates a pipe between them by
+The [`Pipe`][frequenz.channels.experimental.Pipe] class takes a receiver and a sender and
+creates a pipe between them by
 forwarding all the messages received by the receiver to the sender.
 """
 
@@ -20,7 +21,8 @@ from .._sender import Sender
 class Pipe(typing.Generic[ChannelMessageT]):
     """A pipe between two channels.
 
-    The [`Pipe`][frequenz.channels.experimental.Pipe] class takes a receiver and a sender and creates a pipe between them
+    The [`Pipe`][frequenz.channels.experimental.Pipe] class takes a receiver and a sender and
+    creates a pipe between them
     by forwarding all the messages received by the receiver to the sender.
 
     Example:

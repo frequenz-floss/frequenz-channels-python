@@ -1,7 +1,7 @@
 # License: MIT
 # Copyright © 2025 Frequenz Energy-as-a-Service GmbH
 
-"""The [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache] caches the latest values in a receiver grouped by key."""
+"""Caches the latest values in a receiver, grouped by key."""
 
 import asyncio
 from collections.abc import (
@@ -20,13 +20,19 @@ from typing_extensions import override
 from .._receiver import Receiver
 
 ValueT_co = TypeVar("ValueT_co", covariant=True)
-"""Covariant type variable for the values cached by the [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache]."""
+"""Covariant type variable for the values cached by the
+[`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache].
+"""
 
 DefaultT = TypeVar("DefaultT")
-"""Type variable for the default value returned by [`GroupingLatestValueCache.get`][frequenz.channels.experimental.GroupingLatestValueCache.get]."""
+"""Type variable for the default value returned by
+[`GroupingLatestValueCache.get`][frequenz.channels.experimental.GroupingLatestValueCache.get].
+"""
 
 HashableT = TypeVar("HashableT", bound=Hashable)
-"""Type variable for the keys used to group values in the [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache]."""
+"""Type variable for the keys used to group values in the
+[`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache].
+"""
 
 
 class _NotSpecified:
@@ -47,7 +53,8 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
     takes a [`Receiver`][frequenz.channels.Receiver] and a `key` function as arguments and
     stores the latest value received by that receiver for each key separately.
 
-    The [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache] implements the [`Mapping`][collections.abc.Mapping]
+    The [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache]
+    implements the [`Mapping`][collections.abc.Mapping]
     interface, so it can be used like a dictionary.  Additionally other methods from
     [`MutableMapping`][collections.abc.MutableMapping] are implemented, but only
     methods removing items from the cache are allowed, such as
@@ -168,7 +175,7 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
         return len(self._latest_value_by_key)
 
     @override
-    def __getitem__(self, key: HashableT) -> ValueT_co:
+    def __getitem__(self, key: HashableT) -> ValueT_co:  # noqa: DOC502
         """Return the latest value that has been received for a specific key.
 
         Args:
@@ -226,7 +233,7 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
         """
         return not self.__eq__(value)
 
-    def __delitem__(self, key: HashableT) -> None:
+    def __delitem__(self, key: HashableT) -> None:  # noqa: DOC502
         """Clear the latest value for a specific key.
 
         Args:
@@ -245,7 +252,7 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
     def pop(self, key: HashableT, /, default: DefaultT) -> ValueT_co | DefaultT:
         """Remove the latest value for a specific key and return it."""
 
-    def pop(
+    def pop(  # noqa: DOC502
         self, key: HashableT, /, default: DefaultT | _NotSpecified = _NotSpecified()
     ) -> ValueT_co | DefaultT | None:
         """Remove the latest value for a specific key and return it.
@@ -269,7 +276,7 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
             return self._latest_value_by_key.pop(key)
         return self._latest_value_by_key.pop(key, default)
 
-    def popitem(self) -> tuple[HashableT, ValueT_co]:
+    def popitem(self) -> tuple[HashableT, ValueT_co]:  # noqa: DOC502
         """Remove and return a (key, value) pair from the cache.
 
         Pairs are returned in LIFO (last-in, first-out) order.

@@ -36,9 +36,12 @@ class NopReceiver(Receiver[ReceiverMessageT_co]):
 
     @override
     def consume(self) -> ReceiverMessageT_co:  # noqa: DOC503 (raised indirectly)
-        """Raise [`ReceiverError`][frequenz.channels.ReceiverError] unless the [`NopReceiver`][frequenz.channels.experimental.NopReceiver] is closed.
+        """Raise [`ReceiverError`][frequenz.channels.ReceiverError] or stop.
 
-        If the receiver is closed, then raise [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+        If the [`NopReceiver`][frequenz.channels.experimental.NopReceiver] is not closed,
+        raise [`ReceiverError`][frequenz.channels.ReceiverError].
+        If the receiver is closed, then raise
+        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
 
         Returns:
             The next message received.

@@ -1,7 +1,7 @@
 # License: MIT
 # Copyright © 2024 Frequenz Energy-as-a-Service GmbH
 
-"""The [`LatestValueCache`][frequenz.channels.LatestValueCache] caches the latest value in a receiver.
+"""Caches the latest value received from a [`Receiver`][frequenz.channels.Receiver].
 
 It provides a way to look up the latest value in a stream whenever required, as
 long as there has been one value received.
@@ -11,7 +11,8 @@ long as there has been one value received.
 value received by that receiver.  As soon as a value is received, its
 [`has_value`][frequenz.channels.LatestValueCache.has_value] method returns
 `True`, and its [`get`][frequenz.channels.LatestValueCache.get] method returns
-the latest value received.  The [`get`][frequenz.channels.LatestValueCache.get] method will raise an exception if called
+the latest value received.  The [`get`][frequenz.channels.LatestValueCache.get] method will
+raise an exception if called
 before any messages have been received from the receiver.
 
 Example:
@@ -54,7 +55,8 @@ class LatestValueCache(typing.Generic[T_co]):
     It provides a way to look up the latest value in a stream without any delay,
     as long as there has been one value received.
 
-    Takes ownership of the [`Receiver`][frequenz.channels.Receiver].  When the cache is stopped, the receiver
+    Takes ownership of the [`Receiver`][frequenz.channels.Receiver].
+    When the cache is stopped, the receiver
     will be closed.
     """
 
@@ -85,7 +87,8 @@ class LatestValueCache(typing.Generic[T_co]):
     def get(self) -> T_co:
         """Return the latest value that has been received.
 
-        This raises a `ValueError` if no value has been received yet. Use [`has_value`][..has_value] to
+        This raises a `ValueError` if no value has been received yet.
+        Use [`has_value`][..has_value] to
         check whether a value has been received yet, before trying to access the value,
         to avoid the exception.
 
@@ -93,8 +96,7 @@ class LatestValueCache(typing.Generic[T_co]):
             The latest value that has been received.
 
         Raises:
-            ValueError: If no value has been received yet.
-            ValueError: If the cache has been stopped.
+            ValueError: If no value has been received yet or the cache has been stopped.
         """
         if isinstance(self._latest_value, _Sentinel):
             raise ValueError("No value has been received yet.")

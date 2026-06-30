@@ -159,11 +159,12 @@ class MissedTickPolicy(abc.ABC):
     def calculate_next_tick_time(
         self, *, interval: int, scheduled_tick_time: int, now: int
     ) -> int:
-        """Calculate the next tick time according to [`missed_tick_policy`][frequenz.channels.timer.Timer.missed_tick_policy].
+        """Calculate the next tick time according to the missed tick policy.
 
-        This method is called by [`ready()`][frequenz.channels.timer.Timer.ready] after it has determined that the
-        timer has triggered.  It will check if the timer has missed any ticks
-        and handle them according to [`missed_tick_policy`][frequenz.channels.timer.Timer.missed_tick_policy].
+        This method is called by [`ready()`][frequenz.channels.timer.Timer.ready] after it
+        has determined that the timer has triggered.  It will check if the timer has missed
+        any ticks and handle them according to
+        [`missed_tick_policy`][frequenz.channels.timer.Timer.missed_tick_policy].
 
         Args:
             interval: The interval between ticks (in microseconds).
@@ -488,8 +489,11 @@ class Timer(Receiver[timedelta]):
             interval: The time between timer ticks. Must be at least
                 1 microsecond.
             missed_tick_policy: The policy of the timer when it misses a tick.
-                Commonly one of [`TriggerAllMissed`][frequenz.channels.timer.TriggerAllMissed], [`SkipMissedAndResync`][frequenz.channels.timer.SkipMissedAndResync], [`SkipMissedAndDrift`][frequenz.channels.timer.SkipMissedAndDrift]
-                or a custom class deriving from [`MissedTickPolicy`][frequenz.channels.timer.MissedTickPolicy]. See the
+                Commonly one of [`TriggerAllMissed`][frequenz.channels.timer.TriggerAllMissed],
+                [`SkipMissedAndResync`][frequenz.channels.timer.SkipMissedAndResync],
+                [`SkipMissedAndDrift`][frequenz.channels.timer.SkipMissedAndDrift]
+                or a custom class deriving from
+                [`MissedTickPolicy`][frequenz.channels.timer.MissedTickPolicy]. See the
                 documentation of each class for more details.
             auto_start: Whether the timer should be started when the
                 instance is created. This can only be `True` if there is
@@ -534,7 +538,8 @@ class Timer(Receiver[timedelta]):
         self._missed_tick_policy: MissedTickPolicy = missed_tick_policy
         """The policy of the timer when it misses a tick.
 
-        See the documentation of [`MissedTickPolicy`][frequenz.channels.timer.MissedTickPolicy] for details.
+        See the documentation of [`MissedTickPolicy`][frequenz.channels.timer.MissedTickPolicy]
+        for details.
         """
 
         self._reset_event = asyncio.Event()
@@ -654,7 +659,8 @@ class Timer(Receiver[timedelta]):
         """Stop the timer.
 
         Once `stop` has been called, all subsequent calls to [`ready()`][..ready] will
-        immediately return False and calls to [`consume()`][..consume] / [`receive()`][..receive] or any
+        immediately return False and calls to [`consume()`][..consume] /
+        [`receive()`][..receive] or any
         use of the async iterator interface will raise
         a [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
 
@@ -672,7 +678,8 @@ class Timer(Receiver[timedelta]):
         """Wait until the timer [`interval`][..interval] elapses.
 
         Once a call to [`ready()`][..ready] has finished, the resulting tick information
-        must be read with a call to [`consume()`][..consume] ([`receive()`][..receive] or iterated over)
+        must be read with a call to [`consume()`][..consume]
+        ([`receive()`][..receive] or iterated over)
         to tell the timer it should wait for the next interval.
 
         The timer will remain ready (this method will return immediately)

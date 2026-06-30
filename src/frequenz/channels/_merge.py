@@ -84,8 +84,8 @@ def merge(*receivers: Receiver[ReceiverMessageT_co]) -> Merger[ReceiverMessageT_
         *receivers: The receivers to merge.
 
     Returns:
-        A [`Merger`][frequenz.channels.Merger] that merges the messages coming from multiple receivers into a
-            single stream.
+        A [`Merger`][frequenz.channels.Merger] that merges the messages coming from multiple
+            receivers into a single stream.
 
     Raises:
         ValueError: If no receivers are provided.
@@ -142,7 +142,8 @@ class Merger(Receiver[ReceiverMessageT_co]):
         """Wait until the receiver is ready with a message or an error.
 
         Once a call to [`ready()`][..ready] has finished, the message should be read with
-        a call to [`consume()`][..consume] ([`receive()`][frequenz.channels.Receiver.receive] or iterated over). The receiver will
+        a call to [`consume()`][..consume] ([`receive()`][frequenz.channels.Receiver.receive]
+        or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.
 

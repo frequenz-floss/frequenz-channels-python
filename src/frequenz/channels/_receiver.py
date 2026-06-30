@@ -131,7 +131,8 @@ repeatedly creating new receivers.  The
 [`Receiver.close()`][frequenz.channels.Receiver.close] method can be used for this
 purpose.
 
-After [`Receiver.close()`][frequenz.channels.Receiver.close] is called, we can still receive messages that are in the receiver's
+After [`Receiver.close()`][frequenz.channels.Receiver.close] is called, we can still receive
+messages that are in the receiver's
 buffer, but as soon as the receiver's buffer has been drained, trying to receive further
 messages from a *closed* receiver will raise a
 [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
@@ -208,8 +209,8 @@ class Receiver(ABC, Generic[ReceiverMessageT_co]):
         """Wait until the receiver is ready with a message or an error.
 
         Once a call to [`ready()`][..ready] has finished, the message should be read with
-        a call to [`consume()`][..consume] ([`receive()`][..receive] or iterated over). The receiver will
-        remain ready (this method will return immediately) until it is
+        a call to [`consume()`][..consume] ([`receive()`][..receive] or iterated over). The receiver
+        will remain ready (this method will return immediately) until it is
         consumed.
 
         Returns:
@@ -283,8 +284,8 @@ class Receiver(ABC, Generic[ReceiverMessageT_co]):
         Tip:
             The returned receiver type won't have all the methods of the original
             receiver. If you need to access methods of the original receiver that are
-            not part of the [`Receiver`][frequenz.channels.Receiver] interface you should save a reference to the
-            original receiver and use that instead.
+            not part of the [`Receiver`][frequenz.channels.Receiver] interface you should save a
+            reference to the original receiver and use that instead.
 
         Args:
             mapping_function: The function to be applied on incoming messages.
@@ -307,8 +308,8 @@ class Receiver(ABC, Generic[ReceiverMessageT_co]):
         Tip:
             The returned receiver type won't have all the methods of the original
             receiver. If you need to access methods of the original receiver that are
-            not part of the [`Receiver`][frequenz.channels.Receiver] interface you should save a reference to the
-            original receiver and use that instead.
+            not part of the [`Receiver`][frequenz.channels.Receiver] interface you should save a
+            reference to the original receiver and use that instead.
 
         Args:
             filter_function: The function to be applied on incoming messages to
@@ -328,8 +329,8 @@ class Receiver(ABC, Generic[ReceiverMessageT_co]):
         Tip:
             The returned receiver type won't have all the methods of the original
             receiver. If you need to access methods of the original receiver that are
-            not part of the [`Receiver`][frequenz.channels.Receiver] interface you should save a reference to the
-            original receiver and use that instead.
+            not part of the [`Receiver`][frequenz.channels.Receiver] interface you should save a
+            reference to the original receiver and use that instead.
 
         Args:
             filter_function: The function to be applied on incoming messages to
@@ -357,8 +358,8 @@ class Receiver(ABC, Generic[ReceiverMessageT_co]):
         Tip:
             The returned receiver type won't have all the methods of the original
             receiver. If you need to access methods of the original receiver that are
-            not part of the [`Receiver`][frequenz.channels.Receiver] interface you should save a reference to the
-            original receiver and use that instead.
+            not part of the [`Receiver`][frequenz.channels.Receiver] interface you should save a
+            reference to the original receiver and use that instead.
 
         Args:
             filter_function: The function to be applied on incoming messages to
@@ -462,8 +463,8 @@ class _Mapper(
         """Wait until the receiver is ready with a message or an error.
 
         Once a call to [`ready()`][..ready] has finished, the message should be read with
-        a call to [`consume()`][..consume] ([`receive()`][..receive] or iterated over). The receiver will
-        remain ready (this method will return immediately) until it is
+        a call to [`consume()`][..consume] ([`receive()`][..receive] or iterated over). The receiver
+        will remain ready (this method will return immediately) until it is
         consumed.
 
         Returns:
@@ -550,8 +551,8 @@ class _Filter(Receiver[ReceiverMessageT_co], Generic[ReceiverMessageT_co]):
         """Wait until the receiver is ready with a message or an error.
 
         Once a call to [`ready()`][..ready] has finished, the message should be read with
-        a call to [`consume()`][..consume] ([`receive()`][..receive] or iterated over). The receiver will
-        remain ready (this method will return immediately) until it is
+        a call to [`consume()`][..consume] ([`receive()`][..receive] or iterated over). The receiver
+        will remain ready (this method will return immediately) until it is
         consumed.
 
         Returns:

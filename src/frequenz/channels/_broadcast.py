@@ -200,7 +200,8 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
             name: The name of the channel. This is for logging purposes, and it will be
                 shown in the string representation of the channel.
             resend_latest: When True, every time a new receiver is created with
-                [`.new_receiver()`][..new_receiver], the last message seen by the channel will be sent to the
+                [`.new_receiver()`][..new_receiver], the last message seen by the channel
+                will be sent to the
                 new receiver automatically. This allows new receivers on slow streams to
                 get the latest message as soon as they are created, without having to
                 wait for the next message on the channel to arrive.  It is safe to be
@@ -238,7 +239,8 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
         self.resend_latest: bool = resend_latest
         """Whether to resend the latest message to new receivers.
 
-        When `True`, every time a new receiver is created with [`.new_receiver()`][..new_receiver], it will
+        When `True`, every time a new receiver is created with [`.new_receiver()`][..new_receiver],
+        it will
         automatically get sent the latest message on the channel.  This allows new
         receivers on slow streams to get the latest message as soon as they are created,
         without having to wait for the next message on the channel to arrive.
@@ -489,8 +491,8 @@ class BroadcastReceiver(Receiver[_T]):
         get dropped just in this receiver.
 
         Args:
-            channel: A reference to the [`Broadcast`][frequenz.channels.Broadcast] channel that this receiver
-                belongs to.
+            channel: A reference to the [`Broadcast`][frequenz.channels.Broadcast]
+                channel that this receiver belongs to.
             name: A name to identify the receiver in the logs. If `None` an
                 `id(self)`-based name will be used.  This is only for debugging
                 purposes, it will be shown in the string representation of the
@@ -548,7 +550,8 @@ class BroadcastReceiver(Receiver[_T]):
         """Wait until the receiver is ready with a message or an error.
 
         Once a call to [`.ready()`][..ready] has finished, the message should be read with
-        a call to [`.consume()`][..consume] ([`receive()`][frequenz.channels.Receiver.receive] or iterated over). The receiver will
+        a call to [`.consume()`][..consume] ([`receive()`][frequenz.channels.Receiver.receive]
+        or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.
 
@@ -802,7 +805,8 @@ class BroadcastChannel(
             name: The name of the channel. This is for logging purposes, and it will be
                 shown in the string representation of the channel.
             resend_latest: When True, every time a new receiver is created with
-                [`Broadcast.new_receiver()`][frequenz.channels.Broadcast.new_receiver], the last message seen by the channel will be sent to the
+                [`Broadcast.new_receiver()`][frequenz.channels.Broadcast.new_receiver],
+                the last message seen by the channel will be sent to the
                 new receiver automatically. This allows new receivers on slow streams to
                 get the latest message as soon as they are created, without having to
                 wait for the next message on the channel to arrive.  It is safe to be

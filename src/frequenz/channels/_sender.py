@@ -134,7 +134,8 @@ class CloneableSender(Sender[SenderMessageT_contra], ABC):
         """Clone this sender.
 
         Returns:
-            A new [`CloneableSender`][frequenz.channels.CloneableSender] that sends messages to the same channel as this sender.
+            A new [`CloneableSender`][frequenz.channels.CloneableSender]
+            that sends messages to the same channel as this sender.
         """
 
 

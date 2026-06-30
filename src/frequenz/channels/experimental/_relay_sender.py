@@ -3,7 +3,8 @@
 
 """A Sender for sending messages to multiple senders.
 
-The [`RelaySender`][frequenz.channels.experimental.RelaySender] class takes multiple senders and forwards all the messages sent to it,
+The [`RelaySender`][frequenz.channels.experimental.RelaySender] class takes multiple senders and
+forwards all the messages sent to it,
 to the senders it was created with.
 """
 
@@ -18,8 +19,8 @@ from .._sender import Sender
 class RelaySender(Sender[SenderMessageT_contra]):
     """A [`Sender`][frequenz.channels.Sender] for sending messages to multiple senders.
 
-    The [`RelaySender`][frequenz.channels.experimental.RelaySender] class takes multiple senders and forwards all the messages sent to
-    it, to the senders it was created with.
+    The [`RelaySender`][frequenz.channels.experimental.RelaySender] class takes multiple senders and
+    forwards all the messages sent to it, to the senders it was created with.
 
     Example:
         ```python
