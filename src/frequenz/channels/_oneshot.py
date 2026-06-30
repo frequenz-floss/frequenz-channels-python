@@ -25,7 +25,7 @@ class _Oneshot(typing.Generic[ChannelMessageT]):
 
     A one-shot channel is a channel that can only send one message. After the first
     message is sent, the sender is closed and any further attempts to send a message
-    will raise a `SenderClosedError`.
+    will raise a [`SenderClosedError`][].
     """
 
     def __init__(self) -> None:
@@ -44,7 +44,14 @@ class OneshotSender(Sender[ChannelMessageT]):
         self._channel = channel
 
     async def send(self, message: ChannelMessageT, /) -> None:
-        """Send a message through this sender."""
+        """Send a message through this sender.
+
+        Args:
+            message: The message to send.
+
+        Raises:
+            SenderClosedError: If the sender has already been closed.
+        """
         if self._channel.closed:
             raise SenderClosedError(self)
         self._channel.message = message
@@ -67,7 +74,7 @@ class OneshotReceiver(Receiver[ChannelMessageT]):
         self._channel = channel
 
     async def ready(self) -> bool:
-        """Check if a message is ready to be received.
+        """Wait until a message is ready to be received.
 
         Returns:
             `True` if a message is ready to be received, `False` if the sender
@@ -109,13 +116,9 @@ class OneshotChannel(
 
     A one-shot channel is a channel that can only send one message. After the first
     message is sent, the sender is closed and any further attempts to send a message
-    will raise a `SenderClosedError`.
+    will raise a [`SenderClosedError`][].
 
-    # Example
-
-        This example demonstrates how to use a one-shot channel to send a message
-        from one task to another.
-
+    Example: Sending a message from one task to another
         ```python
         import asyncio
 

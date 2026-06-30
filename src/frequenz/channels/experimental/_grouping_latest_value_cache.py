@@ -1,7 +1,7 @@
 # License: MIT
 # Copyright © 2025 Frequenz Energy-as-a-Service GmbH
 
-"""The GroupingLatestValueCache caches the latest values in a receiver grouped by key."""
+"""The [`GroupingLatestValueCache`][] caches the latest values in a receiver grouped by key."""
 
 import asyncio
 from collections.abc import (
@@ -20,13 +20,13 @@ from typing_extensions import override
 from .._receiver import Receiver
 
 ValueT_co = TypeVar("ValueT_co", covariant=True)
-"""Covariant type variable for the values cached by the `GroupingLatestValueCache`."""
+"""Covariant type variable for the values cached by the [`GroupingLatestValueCache`][]."""
 
 DefaultT = TypeVar("DefaultT")
-"""Type variable for the default value returned by `GroupingLatestValueCache.get`."""
+"""Type variable for the default value returned by [`GroupingLatestValueCache.get`][]."""
 
 HashableT = TypeVar("HashableT", bound=Hashable)
-"""Type variable for the keys used to group values in the `GroupingLatestValueCache`."""
+"""Type variable for the keys used to group values in the [`GroupingLatestValueCache`][]."""
 
 
 class _NotSpecified:
@@ -43,18 +43,18 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
     It provides a way to look up on demand, the latest value in a stream for any key, as
     long as there has been at least one value received for that key.
 
-    [GroupingLatestValueCache][frequenz.channels.experimental.GroupingLatestValueCache]
-    takes a [Receiver][frequenz.channels.Receiver] and a `key` function as arguments and
+    [`GroupingLatestValueCache`][]
+    takes a [`Receiver`][..Receiver] and a `key` function as arguments and
     stores the latest value received by that receiver for each key separately.
 
-    The `GroupingLatestValueCache` implements the [`Mapping`][collections.abc.Mapping]
+    The [`GroupingLatestValueCache`][] implements the [`Mapping`][collections.abc.Mapping]
     interface, so it can be used like a dictionary.  Additionally other methods from
     [`MutableMapping`][collections.abc.MutableMapping] are implemented, but only
     methods removing items from the cache are allowed, such as
-    [`pop()`][frequenz.channels.experimental.GroupingLatestValueCache.pop],
-    [`popitem()`][frequenz.channels.experimental.GroupingLatestValueCache.popitem],
-    [`clear()`][frequenz.channels.experimental.GroupingLatestValueCache.clear], and
-    [`__delitem__()`][frequenz.channels.experimental.GroupingLatestValueCache.__delitem__].
+    [`pop()`][.pop],
+    [`popitem()`][.popitem],
+    [`clear()`][.clear], and
+    [`__delitem__()`][.__delitem__].
     Other update methods are not provided because the user should not update the
     cache values directly.
 
@@ -96,7 +96,7 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
 
         Args:
             receiver: The receiver to cache values from.
-            key: An function that takes a value and returns a key to group the values
+            key: A function that takes a value and returns a key to group the values
                 by.
             unique_id: A string to help uniquely identify this instance. If not
                 provided, a unique identifier will be generated from the object's
@@ -117,10 +117,7 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
 
     @override
     def keys(self) -> KeysView[HashableT]:
-        """Return the set of keys for which values have been received.
-
-        If no key function is provided, this will return an empty set.
-        """
+        """Return the keys for which values have been received."""
         return self._latest_value_by_key.keys()
 
     @override
@@ -151,8 +148,7 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
         """Return the latest value that has been received.
 
         Args:
-            key: An optional key to retrieve the latest value for that key. If not
-                provided, it retrieves the latest value received overall.
+            key: The key to retrieve the latest value for.
             default: The default value to return if no value has been received yet for
                 the specified key. If not provided, it defaults to `None`.
 
@@ -180,12 +176,15 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
 
         Returns:
             The latest value that has been received for that key.
+
+        Raises:
+            KeyError: If no value has been received for `key` yet.
         """
         return self._latest_value_by_key[key]
 
     @override
     def __contains__(self, key: object, /) -> bool:
-        """Check if a value has been received for a specific key.
+        """Return whether a value has been received for a specific key.
 
         Args:
             key: The key to check for.
@@ -197,7 +196,7 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
 
     @override
     def __eq__(self, other: object, /) -> bool:
-        """Check if this cache is equal to another object.
+        """Return whether this cache is equal to another object.
 
         Two caches are considered equal if they have the same keys and values.
 
@@ -217,7 +216,7 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
 
     @override
     def __ne__(self, value: object, /) -> bool:
-        """Check if this cache is not equal to another object.
+        """Return whether this cache is not equal to another object.
 
         Args:
             value: The object to compare with.
@@ -232,6 +231,9 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
 
         Args:
             key: The key for which to clear the latest value.
+
+        Raises:
+            KeyError: If no value has been received for `key` yet.
         """
         del self._latest_value_by_key[key]
 
@@ -249,7 +251,7 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
         """Remove the latest value for a specific key and return it.
 
         If no value has been received yet for that key, it returns the default value or
-        raises a `KeyError` if no default value is provided.
+        raises a [`KeyError`][] if no default value is provided.
 
         Args:
             key: The key for which to remove the latest value.
@@ -259,6 +261,9 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
         Returns:
             The latest value that has been received for that key, or the default value if
                 no value has been received yet and a default value is provided.
+
+        Raises:
+            KeyError: If no value has been received for `key` and no `default` was provided.
         """
         if isinstance(default, _NotSpecified):
             return self._latest_value_by_key.pop(key)
@@ -272,6 +277,9 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
         Returns:
             A tuple containing the key and the latest value that has been received for
                 that key.
+
+        Raises:
+            KeyError: If the cache is empty.
         """
         return self._latest_value_by_key.popitem()
 

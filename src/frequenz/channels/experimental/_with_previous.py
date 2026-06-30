@@ -21,7 +21,7 @@ _SENTINEL: Final[_Sentinel] = _Sentinel()
 
 
 class WithPrevious(Generic[ChannelMessageT]):
-    """A composable predicate to build predicates that can use also the previous message.
+    """A composable predicate to build predicates that can also use the previous message.
 
     This predicate can be used to filter messages based on a custom condition on the
     previous and current messages. This can be useful in cases where you want to
