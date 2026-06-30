@@ -121,6 +121,7 @@ plugins:
             show_source: true
             show_symbol_type_toc: true
             signature_crossrefs: true
+            relative_crossrefs: true
           inventories:
             # See https://mkdocstrings.github.io/python/usage/#import for details
             - https://docs.python.org/3/objects.inv
