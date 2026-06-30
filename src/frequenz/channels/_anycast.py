@@ -33,12 +33,12 @@ class Anycast(Generic[ChannelMessageT]):
 
     !!! Tip inline end
 
-        [Anycast][frequenz.channels.Anycast] channels behave like the
+        [`Anycast`][] channels behave like the
         [Golang](https://golang.org/) [channels](https://go.dev/ref/spec#Channel_types).
 
-    [Anycast][frequenz.channels.Anycast] channels support multiple
-    [senders][frequenz.channels.Sender] and multiple
-    [receivers][frequenz.channels.Receiver]. Each message sent through any of the
+    [`Anycast`][] channels support multiple
+    [senders][Sender] and multiple
+    [receivers][Receiver]. Each message sent through any of the
     senders will be received by exactly one receiver (but **any** receiver).
 
     <center>
@@ -63,37 +63,37 @@ class Anycast(Generic[ChannelMessageT]):
 
     This channel is buffered, and if the senders are faster than the receivers, then the
     channel's buffer will fill up. In that case, the senders will block at the
-    [`send()`][frequenz.channels.Sender.send] method until the receivers consume the
+        [`send()`][Sender.send] method until the receivers consume the
     messages in the channel's buffer. The channel's buffer size can be configured at
     creation time via the `limit` argument.
 
     The first receiver that is awaited will get the next message. When multiple
     receivers are waiting, the [asyncio][] loop scheduler picks a receiver for each next
-    massage.
+    message.
 
     This means that, in practice, there might be only one receiver receiving all the
-    messages, depending on how tasks are schduled.
+    messages, depending on how tasks are scheduled.
 
     If you need to ensure some delivery policy (like round-robin or uniformly random),
     then you will have to implement it yourself.
 
-    To create a new [senders][frequenz.channels.Sender] and
-    [receivers][frequenz.channels.Receiver] you can use the
-    [`new_sender()`][frequenz.channels.Anycast.new_sender] and
-    [`new_receiver()`][frequenz.channels.Anycast.new_receiver] methods
+    To create a new [senders][Sender] and
+    [receivers][Receiver] you can use the
+    [`.new_sender()`][.new_sender] and
+    [`.new_receiver()`][.new_receiver] methods
     respectively.
 
     When the channel is not needed anymore, it should be closed with the
-    [`aclose()`][frequenz.channels.Anycast.aclose] method. This will prevent further
-    attempts to [`send()`][frequenz.channels.Sender.send] data. Receivers will still be
+    [`.aclose()`][.aclose] method. This will prevent further
+    attempts to [`send()`][Sender.send] data. Receivers will still be
     able to drain the pending messages on the channel, but after that, subsequent
-    [`receive()`][frequenz.channels.Receiver.receive] calls will raise a
-    [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError] exception.
+    [`receive()`][Receiver.receive] calls will raise a
+    [`ReceiverStoppedError`][] exception.
 
     This channel is useful, for example, to distribute work across multiple workers.
 
-    In cases where each message need to be received by every receiver, a
-    [broadcast][frequenz.channels.Broadcast] channel may be used.
+    In cases where each message needs to be received by every receiver, a
+    [broadcast][Broadcast] channel may be used.
 
     # Examples
 
@@ -265,7 +265,7 @@ class Anycast(Generic[ChannelMessageT]):
         """The maximum number of messages that can be stored in the channel's buffer.
 
         If the length of channel's buffer reaches the limit, then the sender
-        blocks at the [send()][frequenz.channels.Sender.send] method until
+        blocks at the [`send()`][Sender.send] method until
         a message is consumed.
         """
         maxlen = self._deque.maxlen
@@ -275,12 +275,12 @@ class Anycast(Generic[ChannelMessageT]):
     async def aclose(self) -> None:
         """Close the channel.
 
-        Any further attempts to [send()][frequenz.channels.Sender.send] data
-        will return `False`.
+        Any further attempts to [`send()`][Sender.send] data
+        will raise a [`SenderError`][].
 
         Receivers will still be able to drain the pending messages on the channel,
         but after that, subsequent
-        [receive()][frequenz.channels.Receiver.receive] calls will return `None`
+        [`receive()`][Receiver.receive] calls will return `None`
         immediately.
         """
         self._closed = True
@@ -291,7 +291,7 @@ class Anycast(Generic[ChannelMessageT]):
 
     @deprecated("The close() method is deprecated, use aclose() instead")
     async def close(self) -> None:  # noqa: D402
-        """Close the channel, deprecated alias for `aclose()`."""  # noqa: D402
+        """Close the channel, deprecated alias for [`.aclose()`][.aclose]."""  # noqa: D402
         return await self.aclose()
 
     def new_sender(self) -> Sender[ChannelMessageT]:
@@ -320,7 +320,7 @@ _T = TypeVar("_T")
 class _Sender(Sender[_T]):
     """A sender to send messages to an Anycast channel.
 
-    Should not be created directly, but through the `Anycast.new_sender()`
+    Should not be created directly, but through the [`Anycast.new_sender()`][]
     method.
     """
 
@@ -350,7 +350,7 @@ class _Sender(Sender[_T]):
 
         Raises:
             SenderError: If the underlying channel was closed.
-                A [ChannelClosedError][frequenz.channels.ChannelClosedError] is
+                A [`ChannelClosedError`][] is
                 set as the cause.
             SenderClosedError: If this sender was closed.
         """
@@ -386,7 +386,7 @@ class _Sender(Sender[_T]):
 
         After closing, the sender will not be able to send any more messages. Any
         attempt to send a message through a closed sender will raise a
-        [SenderError][frequenz.channels.SenderError].
+        [`SenderError`][].
         """
         self._closed = True
 
@@ -406,7 +406,7 @@ class _Empty:
 class _Receiver(Receiver[_T]):
     """A receiver to receive messages from an Anycast channel.
 
-    Should not be created directly, but through the `Anycast.new_receiver()`
+    Should not be created directly, but through the [`Anycast.new_receiver()`][]
     method.
     """
 
@@ -428,8 +428,8 @@ class _Receiver(Receiver[_T]):
     async def ready(self) -> bool:
         """Wait until the receiver is ready with a message or an error.
 
-        Once a call to `ready()` has finished, the message should be read with
-        a call to `consume()` (`receive()` or iterated over). The receiver will
+        Once a call to [`.ready()`][.ready] has finished, the message should be read with
+        a call to [`.consume()`][.consume] ([`receive()`][Receiver.receive] or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.
 
@@ -457,7 +457,7 @@ class _Receiver(Receiver[_T]):
 
     @override
     def consume(self) -> _T:
-        """Return the latest message once `ready()` is complete.
+        """Return the latest message once [`ready()`][.ready] is complete.
 
         Returns:
             The next message that was received.

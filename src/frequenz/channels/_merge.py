@@ -6,7 +6,7 @@
 # Usage
 
 If you just need to receive the same type of messages but from multiple sources in one
-stream, you can use [`merge()`][frequenz.channels.merge] to create a new receiver that
+stream, you can use [`merge()`][] to create a new receiver that
 will receive messages from all the given receivers:
 
 ```python show_lines="8:"
@@ -27,21 +27,21 @@ soon as it is available.
 
 This can be helpful when you just need to receive messages and don't care about
 where are they coming from specifically. If you need to know where the message came
-from, you can use [`select()`][frequenz.channels.select] instead.
+from, you can use [`select()`][] instead.
 
 # Stopping
 
 A merge receiver will be stopped automatically when all the receivers that it merges are
 stopped. When using the async iterator interface, this means that the iterator will stop
 as soon as all the receivers are stopped. When using
-[`receive()`][frequenz.channels.Receiver.receive], this means that the method will raise
-a [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError] exception as soon as
+[`receive()`][], this means that the method will raise
+a [`ReceiverStoppedError`][] exception as soon as
 all the receivers are stopped.
 
 If you want to stop a merge receiver manually, you can use the
-[`stop()`][frequenz.channels.Merger.stop] method.
+[`stop()`][.Merger.stop] method.
 
-When using [`receive()`][frequenz.channels.Receiver.receive], you should make sure to
+When using [`receive()`][], you should make sure to
 either stop all the receivers that you are merging, or to stop the merge receiver
 manually. This is to make sure that all the tasks created by the merge receiver are
 cleaned up properly.
@@ -84,7 +84,7 @@ def merge(*receivers: Receiver[ReceiverMessageT_co]) -> Merger[ReceiverMessageT_
         *receivers: The receivers to merge.
 
     Returns:
-        A receiver that merges the messages coming from multiple receivers into a
+        A [`Merger`][] that merges the messages coming from multiple receivers into a
             single stream.
 
     Raises:
@@ -100,8 +100,8 @@ class Merger(Receiver[ReceiverMessageT_co]):
     """A receiver that merges messages coming from multiple receivers into a single stream.
 
     Tip:
-        Please consider using the more idiomatic [`merge()`][frequenz.channels.merge]
-        function instead of creating a `Merger` instance directly.
+        Please consider using the more idiomatic [`merge()`][]
+        function instead of creating a [`Merger`][] instance directly.
     """
 
     def __init__(
@@ -141,8 +141,8 @@ class Merger(Receiver[ReceiverMessageT_co]):
     async def ready(self) -> bool:
         """Wait until the receiver is ready with a message or an error.
 
-        Once a call to `ready()` has finished, the message should be read with
-        a call to `consume()` (`receive()` or iterated over). The receiver will
+        Once a call to [`ready()`][.ready] has finished, the message should be read with
+        a call to [`consume()`][.consume] ([`receive()`][] or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.
 
@@ -176,7 +176,7 @@ class Merger(Receiver[ReceiverMessageT_co]):
 
     @override
     def consume(self) -> ReceiverMessageT_co:
-        """Return the latest message once `ready` is complete.
+        """Return the latest message once [`ready()`][.ready] is complete.
 
         Returns:
             The next message that was received.
@@ -197,7 +197,7 @@ class Merger(Receiver[ReceiverMessageT_co]):
 
         After calling this method, new messages will not be received.  Once the
         receiver's buffer is drained, trying to receive a message will raise a
-        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+        [`ReceiverStoppedError`][].
         """
         for task in self._pending:
             if not task.done() and task.get_loop().is_running():
