@@ -6,7 +6,7 @@
 # Receivers
 
 Messages are received from [channels](/user-guide/channels/index.md) through
-[`Receiver`][frequenz.channels.Receiver] objects. [`Receiver`][frequenz.channels.Receiver]s
+[`Receiver`][..Receiver] objects. [`Receiver`][..Receiver]s
 are usually created by calling `channel.new_receiver()` and are [async
 iterators][typing.AsyncIterator], so the easiest way to receive messages from them as
 a stream is to use `async for`:
@@ -22,7 +22,7 @@ async for message in receiver:
 ```
 
 If you need to receive messages in different places or expecting a particular
-sequence, you can use the [`receive()`][frequenz.channels.Receiver.receive] method:
+sequence, you can use the [`receive()`][..Receiver.receive] method:
 
 ```python show_lines="6:"
 from frequenz.channels import Anycast
@@ -40,7 +40,7 @@ print(f"Second message: {second_message}")
 # Message Transformation
 
 If you need to transform the received messages, receivers provide a
-[`map()`][frequenz.channels.Receiver.map] method to easily do so:
+[`map()`][..Receiver.map] method to easily do so:
 
 ```python show_lines="6:"
 from frequenz.channels import Anycast
@@ -52,13 +52,13 @@ async for message in receiver.map(lambda x: x + 1):
     print(message)
 ```
 
-[`map()`][frequenz.channels.Receiver.map] returns a new full receiver, so you can
+[`map()`][..Receiver.map] returns a new full receiver, so you can
 use it in any of the ways described above.
 
 # Message Filtering
 
 If you need to filter the received messages, receivers provide a
-[`filter()`][frequenz.channels.Receiver.filter] method to easily do so:
+[`filter()`][..Receiver.filter] method to easily do so:
 
 ```python show_lines="6:"
 from frequenz.channels import Anycast
@@ -70,8 +70,8 @@ async for message in receiver.filter(lambda x: x % 2 == 0):
     print(message)  # Only even numbers will be printed
 ```
 
-As with [`map()`][frequenz.channels.Receiver.map],
-[`filter()`][frequenz.channels.Receiver.filter] returns a new full receiver, so you can
+As with [`map()`][..Receiver.map],
+[`filter()`][..Receiver.filter] returns a new full receiver, so you can
 use it in any of the ways described above.
 
 # Error Handling
@@ -82,13 +82,13 @@ use it in any of the ways described above.
     [Error Handling](/user-guide/error-handling/) section of the user guide.
 
 If there is an error while receiving a message,
-a [`ReceiverError`][frequenz.channels.ReceiverError] exception is raised for both
-[`receive()`][frequenz.channels.Receiver.receive] method and async iteration
+a [`ReceiverError`][..ReceiverError] exception is raised for both
+[`receive()`][..Receiver.receive] method and async iteration
 interface.
 
 If the receiver has completely stopped (for example the underlying channel was
-closed), a [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError] exception
-is raised by [`receive()`][frequenz.channels.Receiver.receive] method.
+closed), a [`ReceiverStoppedError`][..ReceiverStoppedError] exception
+is raised by [`receive()`][..Receiver.receive] method.
 
 ```python show_lines="6:"
 from frequenz.channels import Anycast
@@ -128,14 +128,14 @@ except ReceiverError as error:
 When a particular stream of data is no-longer required, it is a good practice to close
 the receiver to free up resources. This is especially important in applications that are
 repeatedly creating new receivers.  The
-[`Receiver.close()`][frequenz.channels.Receiver.close] method can be used for this
+[`Receiver.close()`][..Receiver.close] method can be used for this
 purpose.
 
-After [`Receiver.close()`][frequenz.channels.Receiver.close] is called, we can still receive
+After [`Receiver.close()`][..Receiver.close] is called, we can still receive
 messages that are in the receiver's
 buffer, but as soon as the receiver's buffer has been drained, trying to receive further
 messages from a *closed* receiver will raise a
-[`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+[`ReceiverStoppedError`][..ReceiverStoppedError].
 
 # Advanced Usage
 
@@ -146,22 +146,22 @@ messages from a *closed* receiver will raise a
     ignore this section.
 
 Receivers extend on the [async iterator protocol][typing.AsyncIterator] by providing
-a [`ready()`][frequenz.channels.Receiver.ready] and
-a [`consume()`][frequenz.channels.Receiver.consume] method.
+a [`ready()`][..Receiver.ready] and
+a [`consume()`][..Receiver.consume] method.
 
-The [`ready()`][frequenz.channels.Receiver.ready] method is used to await until the
+The [`ready()`][..Receiver.ready] method is used to await until the
 receiver has a new message available, but without actually consuming it. The
-[`consume()`][frequenz.channels.Receiver.consume] method consumes the next available
+[`consume()`][..Receiver.consume] method consumes the next available
 message and returns it.
 
-[`ready()`][frequenz.channels.Receiver.ready] can be called multiple times, and it
+[`ready()`][..Receiver.ready] can be called multiple times, and it
 will return immediately if the receiver is already ready.
-[`consume()`][frequenz.channels.Receiver.consume] must be called only after
-[`ready()`][frequenz.channels.Receiver.ready] is done and only once, until the next
-call to [`ready()`][frequenz.channels.Receiver.ready].
+[`consume()`][..Receiver.consume] must be called only after
+[`ready()`][..Receiver.ready] is done and only once, until the next
+call to [`ready()`][..Receiver.ready].
 
-Exceptions are never raised by [`ready()`][frequenz.channels.Receiver.ready], they
-are always delayed until [`consume()`][frequenz.channels.Receiver.consume] is
+Exceptions are never raised by [`ready()`][..Receiver.ready], they
+are always delayed until [`consume()`][..Receiver.consume] is
 called.
 """
 
@@ -236,7 +236,7 @@ class Receiver(ABC, Generic[ReceiverMessageT_co]):
 
         After calling this method, new messages will not be available from the receiver.
         Once the receiver's buffer is drained, trying to receive a message will raise a
-        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+        [`ReceiverStoppedError`][...ReceiverStoppedError].
         """
         raise NotImplementedError("close() must be implemented by subclasses")
 
@@ -406,7 +406,7 @@ class ReceiverError(Error, Generic[ReceiverMessageT_co]):
 
         Args:
             message: The error message.
-            receiver: The [`Receiver`][frequenz.channels.Receiver] where the
+            receiver: The [`Receiver`][...Receiver] where the
                 error happened.
         """
         super().__init__(message)
@@ -421,7 +421,7 @@ class ReceiverStoppedError(ReceiverError[ReceiverMessageT_co]):
         """Initialize this error.
 
         Args:
-            receiver: The [`Receiver`][frequenz.channels.Receiver] where the
+            receiver: The [`Receiver`][...Receiver] where the
                 error happened.
         """
         super().__init__(f"Receiver {receiver} was stopped", receiver)
@@ -493,7 +493,7 @@ class _Mapper(
 
         After calling this method, new messages will not be received.  Once the
         receiver's buffer is drained, trying to receive a message will raise a
-        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+        [`ReceiverStoppedError`][...ReceiverStoppedError].
         """
         self._receiver.close()
 
@@ -592,7 +592,7 @@ class _Filter(Receiver[ReceiverMessageT_co], Generic[ReceiverMessageT_co]):
 
         After calling this method, new messages will not be received.  Once the
         receiver's buffer is drained, trying to receive a message will raise a
-        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+        [`ReceiverStoppedError`][...ReceiverStoppedError].
         """
         self._receiver.close()
 

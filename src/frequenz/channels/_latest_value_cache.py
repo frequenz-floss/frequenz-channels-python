@@ -1,17 +1,17 @@
 # License: MIT
 # Copyright © 2024 Frequenz Energy-as-a-Service GmbH
 
-"""Caches the latest value received from a [`Receiver`][frequenz.channels.Receiver].
+"""Caches the latest value received from a [`Receiver`][..Receiver].
 
 It provides a way to look up the latest value in a stream whenever required, as
 long as there has been one value received.
 
-[`LatestValueCache`][frequenz.channels.LatestValueCache] takes a
-[`Receiver`][frequenz.channels.Receiver] as an argument and stores the latest
+[`LatestValueCache`][..LatestValueCache] takes a
+[`Receiver`][..Receiver] as an argument and stores the latest
 value received by that receiver.  As soon as a value is received, its
-[`has_value`][frequenz.channels.LatestValueCache.has_value] method returns
-`True`, and its [`get`][frequenz.channels.LatestValueCache.get] method returns
-the latest value received.  The [`get`][frequenz.channels.LatestValueCache.get] method will
+[`has_value`][..LatestValueCache.has_value] method returns
+`True`, and its [`get`][..LatestValueCache.get] method returns
+the latest value received.  The [`get`][..LatestValueCache.get] method will
 raise an exception if called
 before any messages have been received from the receiver.
 
@@ -55,7 +55,7 @@ class LatestValueCache(typing.Generic[T_co]):
     It provides a way to look up the latest value in a stream without any delay,
     as long as there has been one value received.
 
-    Takes ownership of the [`Receiver`][frequenz.channels.Receiver].
+    Takes ownership of the [`Receiver`][..Receiver].
     When the cache is stopped, the receiver
     will be closed.
     """
@@ -117,7 +117,7 @@ class LatestValueCache(typing.Generic[T_co]):
             self._latest_value = value
 
     async def stop(self) -> None:
-        """Stop the cache and close the owned [`Receiver`][frequenz.channels.Receiver]."""
+        """Stop the cache and close the owned [`Receiver`][...Receiver]."""
         self._receiver.close()
         self._stopped = True
         if not self._task.done():

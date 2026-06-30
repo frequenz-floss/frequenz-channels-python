@@ -265,7 +265,7 @@ class Anycast(Generic[ChannelMessageT]):
         """The maximum number of messages that can be stored in the channel's buffer.
 
         If the length of channel's buffer reaches the limit, then the sender
-        blocks at the [`send()`][frequenz.channels.Sender.send] method until
+        blocks at the [`send()`][...Sender.send] method until
         a message is consumed.
         """
         maxlen = self._deque.maxlen
@@ -275,12 +275,12 @@ class Anycast(Generic[ChannelMessageT]):
     async def aclose(self) -> None:
         """Close the channel.
 
-        Any further attempts to [`send()`][frequenz.channels.Sender.send] data
-        will raise a [`SenderError`][frequenz.channels.SenderError].
+        Any further attempts to [`send()`][...Sender.send] data
+        will raise a [`SenderError`][...SenderError].
 
         Receivers will still be able to drain the pending messages on the channel,
         but after that, subsequent
-        [`receive()`][frequenz.channels.Receiver.receive] calls will return `None`
+        [`receive()`][...Receiver.receive] calls will return `None`
         immediately.
         """
         self._closed = True
@@ -351,7 +351,7 @@ class _Sender(Sender[_T]):
 
         Raises:
             SenderError: If the underlying channel was closed.
-                A [`ChannelClosedError`][frequenz.channels.ChannelClosedError] is
+                A [`ChannelClosedError`][...ChannelClosedError] is
                 set as the cause.
             SenderClosedError: If this sender was closed.
         """
@@ -387,7 +387,7 @@ class _Sender(Sender[_T]):
 
         After closing, the sender will not be able to send any more messages. Any
         attempt to send a message through a closed sender will raise a
-        [`SenderError`][frequenz.channels.SenderError].
+        [`SenderError`][...SenderError].
         """
         self._closed = True
 
@@ -431,7 +431,7 @@ class _Receiver(Receiver[_T]):
         """Wait until the receiver is ready with a message or an error.
 
         Once a call to [`.ready()`][..ready] has finished, the message should be read with
-        a call to [`.consume()`][..consume] ([`receive()`][frequenz.channels.Receiver.receive]
+        a call to [`.consume()`][..consume] ([`receive()`][...Receiver.receive]
         or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.

@@ -21,17 +21,17 @@ from .._receiver import Receiver
 
 ValueT_co = TypeVar("ValueT_co", covariant=True)
 """Covariant type variable for the values cached by the
-[`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache].
+[`GroupingLatestValueCache`][..GroupingLatestValueCache].
 """
 
 DefaultT = TypeVar("DefaultT")
 """Type variable for the default value returned by
-[`GroupingLatestValueCache.get`][frequenz.channels.experimental.GroupingLatestValueCache.get].
+[`GroupingLatestValueCache.get`][..GroupingLatestValueCache.get].
 """
 
 HashableT = TypeVar("HashableT", bound=Hashable)
 """Type variable for the keys used to group values in the
-[`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache].
+[`GroupingLatestValueCache`][..GroupingLatestValueCache].
 """
 
 
@@ -49,11 +49,11 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
     It provides a way to look up on demand, the latest value in a stream for any key, as
     long as there has been at least one value received for that key.
 
-    [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache]
-    takes a [`Receiver`][frequenz.channels.Receiver] and a `key` function as arguments and
+    [`GroupingLatestValueCache`][..GroupingLatestValueCache]
+    takes a [`Receiver`][...Receiver] and a `key` function as arguments and
     stores the latest value received by that receiver for each key separately.
 
-    The [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache]
+    The [`GroupingLatestValueCache`][..GroupingLatestValueCache]
     implements the [`Mapping`][collections.abc.Mapping]
     interface, so it can be used like a dictionary.  Additionally other methods from
     [`MutableMapping`][collections.abc.MutableMapping] are implemented, but only

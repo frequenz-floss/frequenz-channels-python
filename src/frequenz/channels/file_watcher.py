@@ -5,16 +5,16 @@
 
 !!! Tip inline end
 
-    Read the [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher]
+    Read the [`FileWatcher`][.FileWatcher]
     documentation for more information.
 
 This module contains the following:
 
-* [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher]:
+* [`FileWatcher`][.FileWatcher]:
     {{docstring_summary("frequenz.channels.file_watcher.FileWatcher")}}
-* [`Event`][frequenz.channels.file_watcher.Event]:
+* [`Event`][.Event]:
     {{docstring_summary("frequenz.channels.file_watcher.Event")}}
-* [`EventType`][frequenz.channels.file_watcher.EventType]:
+* [`EventType`][.EventType]:
     {{docstring_summary("frequenz.channels.file_watcher.EventType")}}
 """
 
@@ -61,38 +61,38 @@ class FileWatcher(Receiver[Event]):
 
     # Usage
 
-    A [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher] receiver can be used
+    A [`FileWatcher`][..FileWatcher] receiver can be used
     to watch for changes in a set of files. It will generate an
-    [`Event`][frequenz.channels.file_watcher.Event] message every time a file is
+    [`Event`][..Event] message every time a file is
     created, modified or deleted, depending on the type of events that it is configured
     to watch for.
 
-    The [`EventType`][frequenz.channels.file_watcher.EventType] of the event contains the
-    [`type`][frequenz.channels.file_watcher.Event.type] of change that was observed and
-    the [`path`][frequenz.channels.file_watcher.Event.path] where the change was
+    The [`EventType`][..EventType] of the event contains the
+    [`type`][..Event.type] of change that was observed and
+    the [`path`][..Event.path] where the change was
     observed.
 
     Note:
-        The owner of the [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher]
+        The owner of the [`FileWatcher`][..FileWatcher]
         receiver is responsible for recreating the
-        [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher] after it has been
+        [`FileWatcher`][..FileWatcher] after it has been
         cancelled or stopped.
         For example, if a [`Task`][asyncio.Task] uses an asynchronous iterator to consume
-        events from the [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher] and the
-        task is cancelled, the [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher] will
+        events from the [`FileWatcher`][..FileWatcher] and the
+        task is cancelled, the [`FileWatcher`][..FileWatcher] will
         also stop. Therefore, the same `FileWatcher` instance cannot be reused for a new
         task to consume events. In this case, a new
-        [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher] instance must be created.
+        [`FileWatcher`][..FileWatcher] instance must be created.
 
     # Event Types
 
     The following event types are available:
 
-    * [`CREATE`][frequenz.channels.file_watcher.EventType.CREATE]:
+    * [`CREATE`][..EventType.CREATE]:
         {{docstring_summary("frequenz.channels.file_watcher.EventType.CREATE")}}
-    * [`MODIFY`][frequenz.channels.file_watcher.EventType.MODIFY]:
+    * [`MODIFY`][..EventType.MODIFY]:
         {{docstring_summary("frequenz.channels.file_watcher.EventType.MODIFY")}}
-    * [`DELETE`][frequenz.channels.file_watcher.EventType.DELETE]:
+    * [`DELETE`][..EventType.DELETE]:
         {{docstring_summary("frequenz.channels.file_watcher.EventType.DELETE")}}
 
     # Example

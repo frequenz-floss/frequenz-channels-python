@@ -3,7 +3,7 @@
 
 """A receiver that will wait indefinitely if there is no underlying receiver.
 
-The [`OptionalReceiver`][frequenz.channels.experimental.OptionalReceiver] is useful when the
+The [`OptionalReceiver`][.OptionalReceiver] is useful when the
 underlying receiver is not set initially.
 Instead of making `if-else` branches to check if the receiver is set, you can use
 this receiver to wait indefinitely if it is not set.
@@ -39,7 +39,7 @@ class OptionalReceiver(Receiver[ReceiverMessageT_co]):
 
         Once a call to [`ready()`][..ready] has finished, the message should be read with
         a call to [`consume()`][..consume]
-        ([`receive()`][frequenz.channels.Receiver.receive] or iterated over). The receiver will
+        ([`receive()`][....Receiver.receive] or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.
 
