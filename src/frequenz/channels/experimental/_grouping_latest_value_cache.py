@@ -1,7 +1,7 @@
 # License: MIT
 # Copyright © 2025 Frequenz Energy-as-a-Service GmbH
 
-"""The [`GroupingLatestValueCache`][] caches the latest values in a receiver grouped by key."""
+"""The [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache] caches the latest values in a receiver grouped by key."""
 
 import asyncio
 from collections.abc import (
@@ -20,13 +20,13 @@ from typing_extensions import override
 from .._receiver import Receiver
 
 ValueT_co = TypeVar("ValueT_co", covariant=True)
-"""Covariant type variable for the values cached by the [`GroupingLatestValueCache`][]."""
+"""Covariant type variable for the values cached by the [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache]."""
 
 DefaultT = TypeVar("DefaultT")
-"""Type variable for the default value returned by [`GroupingLatestValueCache.get`][]."""
+"""Type variable for the default value returned by [`GroupingLatestValueCache.get`][frequenz.channels.experimental.GroupingLatestValueCache.get]."""
 
 HashableT = TypeVar("HashableT", bound=Hashable)
-"""Type variable for the keys used to group values in the [`GroupingLatestValueCache`][]."""
+"""Type variable for the keys used to group values in the [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache]."""
 
 
 class _NotSpecified:
@@ -43,11 +43,11 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
     It provides a way to look up on demand, the latest value in a stream for any key, as
     long as there has been at least one value received for that key.
 
-    [`GroupingLatestValueCache`][]
-    takes a [`Receiver`][..Receiver] and a `key` function as arguments and
+    [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache]
+    takes a [`Receiver`][frequenz.channels.Receiver] and a `key` function as arguments and
     stores the latest value received by that receiver for each key separately.
 
-    The [`GroupingLatestValueCache`][] implements the [`Mapping`][collections.abc.Mapping]
+    The [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache] implements the [`Mapping`][collections.abc.Mapping]
     interface, so it can be used like a dictionary.  Additionally other methods from
     [`MutableMapping`][collections.abc.MutableMapping] are implemented, but only
     methods removing items from the cache are allowed, such as

@@ -1,17 +1,17 @@
 # License: MIT
 # Copyright © 2024 Frequenz Energy-as-a-Service GmbH
 
-"""The [`LatestValueCache`][] caches the latest value in a receiver.
+"""The [`LatestValueCache`][frequenz.channels.LatestValueCache] caches the latest value in a receiver.
 
 It provides a way to look up the latest value in a stream whenever required, as
 long as there has been one value received.
 
-[`LatestValueCache`][] takes a
-[`Receiver`][] as an argument and stores the latest
+[`LatestValueCache`][frequenz.channels.LatestValueCache] takes a
+[`Receiver`][frequenz.channels.Receiver] as an argument and stores the latest
 value received by that receiver.  As soon as a value is received, its
-[`has_value`][.LatestValueCache.has_value] method returns
-`True`, and its [`get`][.LatestValueCache.get] method returns
-the latest value received.  The [`get`][.LatestValueCache.get] method will raise an exception if called
+[`has_value`][frequenz.channels.LatestValueCache.has_value] method returns
+`True`, and its [`get`][frequenz.channels.LatestValueCache.get] method returns
+the latest value received.  The [`get`][frequenz.channels.LatestValueCache.get] method will raise an exception if called
 before any messages have been received from the receiver.
 
 Example:
@@ -54,7 +54,7 @@ class LatestValueCache(typing.Generic[T_co]):
     It provides a way to look up the latest value in a stream without any delay,
     as long as there has been one value received.
 
-    Takes ownership of the [`Receiver`][].  When the cache is stopped, the receiver
+    Takes ownership of the [`Receiver`][frequenz.channels.Receiver].  When the cache is stopped, the receiver
     will be closed.
     """
 
@@ -85,7 +85,7 @@ class LatestValueCache(typing.Generic[T_co]):
     def get(self) -> T_co:
         """Return the latest value that has been received.
 
-        This raises a `ValueError` if no value has been received yet. Use [`has_value`][.has_value] to
+        This raises a `ValueError` if no value has been received yet. Use [`has_value`][..has_value] to
         check whether a value has been received yet, before trying to access the value,
         to avoid the exception.
 
@@ -115,7 +115,7 @@ class LatestValueCache(typing.Generic[T_co]):
             self._latest_value = value
 
     async def stop(self) -> None:
-        """Stop the cache and close the owned [`Receiver`][]."""
+        """Stop the cache and close the owned [`Receiver`][frequenz.channels.Receiver]."""
         self._receiver.close()
         self._stopped = True
         if not self._task.done():

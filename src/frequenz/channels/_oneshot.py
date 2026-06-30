@@ -25,7 +25,7 @@ class _Oneshot(typing.Generic[ChannelMessageT]):
 
     A one-shot channel is a channel that can only send one message. After the first
     message is sent, the sender is closed and any further attempts to send a message
-    will raise a [`SenderClosedError`][].
+    will raise a [`SenderClosedError`][frequenz.channels.SenderClosedError].
     """
 
     def __init__(self) -> None:
@@ -116,7 +116,7 @@ class OneshotChannel(
 
     A one-shot channel is a channel that can only send one message. After the first
     message is sent, the sender is closed and any further attempts to send a message
-    will raise a [`SenderClosedError`][].
+    will raise a [`SenderClosedError`][frequenz.channels.SenderClosedError].
 
     Example: Sending a message from one task to another
         ```python
