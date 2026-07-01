@@ -58,7 +58,7 @@ dev-mkdocs = [
   "mkdocs-macros-plugin == 1.5.0",
   "mkdocs-material == 9.7.6",
   "mkdocstrings[python] == 1.0.4",
-  "mkdocstrings-python == 2.0.3",
+  "mkdocstrings-python == 2.0.5",
   "pymdownx-superfence-filter-lines == 0.1.0",
   "griffe==2.0.2",
 ]
@@ -72,12 +72,12 @@ dev-noxfile = ["nox == 2026.4.10", "frequenz-repo-config[lib] == 0.18.0"]
 dev-pylint = [
   # For checking the noxfile, docs/ script, and tests
   "frequenz-channels[dev-mkdocs,dev-noxfile,dev-pytest]",
-  "pylint == 4.0.5",
+  "pylint == 4.0.6",
 ]
 dev-pytest = [
   "async-solipsism == 0.9",
   "frequenz-repo-config[extra-lint-examples] == 0.18.0",
-  "hypothesis == 6.155.1",
+  "hypothesis == 6.155.7",
   "pytest == 9.0.3",
   "pytest-asyncio == 1.4.0",
   "pytest-mock == 3.15.1",
