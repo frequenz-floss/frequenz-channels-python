@@ -5,18 +5,18 @@
 
 # Usage
 
-If you need to receiver different types of messages from different receivers, you need
+If you need to receive different types of messages from different receivers, you need
 to know the source of a particular received message to know the type of the message.
 
-[`select()`][frequenz.channels.select] allows you to do that. It is an
+[`select()`][..select] allows you to do that. It is an
 [async iterator][typing.AsyncIterator] that will iterate over the messages of all
 receivers as they receive new messages.
 
-It yields a [`Selected`][frequenz.channels.Selected] object that will tell you the
+It yields a [`Selected`][..Selected] object that will tell you the
 source of the received message. To make sure the received message is *cast* to the
-correct type, you need to use the [`selected_from()`][frequenz.channels.selected_from]
+correct type, you need to use the [`selected_from()`][..selected_from]
 function to check the source of the message, and the
-[`message`][frequenz.channels.Selected.message] attribute to access the message:
+[`message`][..Selected.message] attribute to access the message:
 
 ```python show_lines="8:"
 from frequenz.channels import Anycast, ReceiverStoppedError, select, selected_from
@@ -37,11 +37,11 @@ async for selected in select(receiver1, receiver2):
 
 Tip:
     To prevent common bugs, like when a new receiver is added to the select loop but
-    the handling code is forgotten, [`select()`][frequenz.channels.select] will check
+    the handling code is forgotten, [`select()`][..select] will check
     that all the selected receivers are handled in the if-chain.
 
     If this happens, it will raise an
-    [`UnhandledSelectedError`][frequenz.channels.UnhandledSelectedError] exception.
+    [`UnhandledSelectedError`][..UnhandledSelectedError] exception.
 
     If for some reason you want to ignore a received message, just add the receiver to
     the if-chain and do nothing with the message:
@@ -63,13 +63,13 @@ Tip:
 
 # Stopping
 
-The `select()` async iterator will stop as soon as all the receivers are stopped. You
-can also end the iteration early by breaking out of the loop as normal.
+The [`select()`][..select] async iterator will stop as soon as all the receivers
+are stopped. You can also end the iteration early by breaking out of the loop as normal.
 
-When a single [receiver][frequenz.channels.Receiver] is stopped, it will be reported
-via the [`Selected`][frequenz.channels.Selected] object. You can use the
-[`was_stopped`][frequenz.channels.Selected.was_stopped] method to check if the
-selected [receiver][frequenz.channels.Receiver] was stopped:
+When a single [`Receiver`][..Receiver] is stopped, it will be reported
+via the [`Selected`][..Selected] object. You can use the
+[`was_stopped`][..Selected.was_stopped] method to check if the
+selected [`Receiver`][..Receiver] was stopped:
 
 ```python show_lines="8:"
 from frequenz.channels import Anycast, select, selected_from
@@ -89,10 +89,10 @@ async for selected in select(receiver1, receiver2):
 ```
 
 Tip:
-    The [`was_stopped`][frequenz.channels.Selected.was_stopped] method is a
+    The [`was_stopped`][..Selected.was_stopped] method is a
     convenience method that is equivalent to checking if the
-    [`exception`][frequenz.channels.Selected.exception] attribute is an instance of
-    [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+    [`exception`][..Selected.exception] attribute is an instance of
+    [`ReceiverStoppedError`][..ReceiverStoppedError].
 
 # Error Handling
 
@@ -101,8 +101,8 @@ Tip:
     [Error Handling](/user-guide/error-handling/) section of the user guide.
 
 If a receiver raises an exception while receiving a message, the exception will be
-raised by the [`message`][frequenz.channels.Selected.message] attribute of the
-[`Selected`][frequenz.channels.Selected] object.
+raised by the [`message`][..Selected.message] attribute of the
+[`Selected`][..Selected] object.
 
 You can use a try-except block to handle exceptions as usual:
 
@@ -126,8 +126,8 @@ async for selected in select(receiver1, receiver2):
     # ...
 ```
 
-The [`Selected`][frequenz.channels.Selected] object also has a
-[`exception`][frequenz.channels.Selected.exception] attribute that will contain the
+The [`Selected`][..Selected] object also has a
+[`exception`][..Selected.exception] attribute that will contain the
 exception that was raised by the receiver.
 """
 
@@ -152,17 +152,17 @@ class _EmptyResult:
 
 
 class Selected(Generic[ReceiverMessageT_co]):
-    """A result of a [`select()`][frequenz.channels.select] iteration.
+    """A result of a [`select()`][..select] iteration.
 
     The selected receiver is consumed immediately and the received message is stored in
     the instance, unless there was an exception while receiving the message, in which
     case the exception is stored instead.
 
-    `Selected` instances should be used in conjunction with the
-    [`selected_from()`][frequenz.channels.selected_from] function to determine
+    [`Selected`][..Selected] instances should be used in conjunction with the
+    [`selected_from()`][..selected_from] function to determine
     which receiver was selected.
 
-    Please see [`select()`][frequenz.channels.select] for an example.
+    Please see [`select()`][..select] for an example.
     """
 
     def __init__(self, receiver: Receiver[ReceiverMessageT_co], /) -> None:
@@ -170,9 +170,9 @@ class Selected(Generic[ReceiverMessageT_co]):
 
         The receiver is consumed immediately when creating the instance and the received
         message is stored in the instance for later use as
-        [`message`][frequenz.channels.Selected.message].  If there was an exception
+        [`message`][..message].  If there was an exception
         while receiving the message, then the exception is stored in the instance
-        instead (as [`exception`][frequenz.channels.Selected.exception]).
+        instead (as [`exception`][..exception]).
 
         Args:
             receiver: The receiver that was selected.
@@ -207,7 +207,7 @@ class Selected(Generic[ReceiverMessageT_co]):
 
         Raises:
             Exception: If there was an exception while receiving the message. Normally
-                this should be an [`frequenz.channels.Error`][frequenz.channels.Error]
+                this should be an [`Error`][...Error]
                 instance, but catches all exceptions in case some receivers can raise
                 anything else.
         """
@@ -251,19 +251,19 @@ class Selected(Generic[ReceiverMessageT_co]):
 def selected_from(
     selected: Selected[Any], receiver: Receiver[ReceiverMessageT_co]
 ) -> TypeGuard[Selected[ReceiverMessageT_co]]:
-    """Check whether the given receiver was selected by [`select()`][frequenz.channels.select].
+    """Return whether the given receiver was selected by [`select()`][..select].
 
     This function is used in conjunction with the
-    [`Selected`][frequenz.channels.Selected] class to determine which receiver was
-    selected in `select()` iteration.
+    [`Selected`][..Selected] class to determine which receiver was
+    selected in [`select()`][..select] iteration.
 
-    It also works as a [type guard][typing.TypeGuard] to narrow the type of the
-    `Selected` instance to the type of the receiver.
+    It also works as a [`TypeGuard`][typing.TypeGuard] to narrow the type of the
+    [`Selected`][..Selected] instance to the type of the receiver.
 
-    Please see [`select()`][frequenz.channels.select] for an example.
+    Please see [`select()`][..select] for an example.
 
     Args:
-        selected: The result of a `select()` iteration.
+        selected: The result of a [`select()`][..select] iteration.
         receiver: The receiver to check if it was the source of a select operation.
 
     Returns:
@@ -273,20 +273,21 @@ def selected_from(
 
 
 class SelectError(Error):
-    """An error that happened during a [`select()`][frequenz.channels.select] operation.
+    """An error that happened during a [`select()`][..select] operation.
 
-    This exception is raised when a `select()` iteration fails.  It is raised as
-    a single exception when one receiver fails during normal operation (while calling
-    `ready()` for example).  It is raised as a group exception
-    ([`BaseExceptionGroup`][]) when a `select` loop is cleaning up after it's done.
+    This exception is raised when a [`select()`][..select] iteration fails.
+    It is raised as a single exception when one receiver fails during normal operation
+    (while calling [`ready()`][..Receiver.ready] for example).
+    It is raised as a group exception ([`BaseExceptionGroup`][]) when a
+    [`select()`][..select] loop is cleaning up after it's done.
     """
 
 
 class UnhandledSelectedError(SelectError, Generic[ReceiverMessageT_co]):
-    """A receiver was not handled in a [`select()`][frequenz.channels.select] iteration.
+    """A receiver was not handled in a [`select()`][..select] iteration.
 
-    This exception is raised when a [`select()`][frequenz.channels.select] iteration
-    finishes without a call to [`selected_from()`][frequenz.channels.selected_from] for
+    This exception is raised when a [`select()`][..select] iteration
+    finishes without a call to [`selected_from()`][..selected_from] for
     the selected receiver.
     """
 
@@ -348,26 +349,29 @@ async def select(  # noqa: DOC503
 
     This function is used to iterate over the messages of all receivers as they receive
     new messages.  It is used in conjunction with the
-    [`Selected`][frequenz.channels.Selected] class and the
-    [`selected_from()`][frequenz.channels.selected_from] function to determine
-    which function to determine which receiver was selected in a select operation.
+    [`Selected`][..Selected] class and the
+    [`selected_from()`][..selected_from] function to determine
+    to determine which receiver was selected in a select operation.
 
     An exhaustiveness check is performed at runtime to make sure all selected receivers
-    are handled in the if-chain, so you should call `selected_from()` with all the
-    receivers passed to `select()` inside the select loop, even if you plan to ignore
-    a message, to signal `select()` that you are purposefully ignoring the message.
+    are handled in the if-chain, so you should call
+    [`selected_from()`][..selected_from] with all the receivers passed to
+    [`select()`][..select] inside the select loop, even if you plan to ignore
+    a message, to signal [`select()`][..select] that you are purposefully
+    ignoring the message.
 
     Note:
-        The `select()` function is intended to be used in cases where the set of
-        receivers is static and known beforehand.  If you need to dynamically add/remove
+        The [`select()`][..select] function is intended to be used in cases where
+        the set of receivers is static and known beforehand.  If you need to dynamically add/remove
         receivers from a select loop, there are a few alternatives.  Depending on your
         use case, one or the other could work better for you:
 
-        * Use [`merge()`][frequenz.channels.merge]: this is useful when you have an
+        * Use [`merge()`][..merge]: this is useful when you have an
           unknown number of receivers of the same type that can be handled as a group.
         * Use tasks to manage each receiver individually: this is better if there are no
           relationships between the receivers.
-        * Break the `select()` loop and start a new one with the new set of receivers
+        * Break the [`select()`][..select] loop and start a new one with the
+          new set of receivers
           (this should be the last resort, as it has some performance implications
            because the loop needs to be restarted).
 
@@ -423,9 +427,10 @@ async def select(  # noqa: DOC503
         BaseExceptionGroup: If there is an error while finishing the select operation
             and receivers fail while cleaning up.
         SelectError: If there is an error while selecting receivers during normal
-            operation.  For example if a receiver raises an exception in the `ready()`
+            operation.  For example if a receiver raises an exception in the
+            [`ready()`][..Receiver.ready]
             method.  Normal errors while receiving messages are not raised, but reported
-            via the `Selected` instance.
+            via the [`Selected`][..Selected] instance.
     """
     receivers_map: dict[str, Receiver[Any]] = {str(hash(r)): r for r in receivers}
     pending: set[asyncio.Task[bool]] = set()

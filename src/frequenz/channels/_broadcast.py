@@ -25,11 +25,11 @@ _logger = logging.getLogger(__name__)
 class Broadcast(  # pylint: disable=too-many-instance-attributes
     Generic[ChannelMessageT]
 ):
-    """A channel that deliver all messages to all receivers.
+    """A channel that delivers all messages to all receivers.
 
     # Description
 
-    [Broadcast][frequenz.channels.Broadcast] channels can have multiple
+    [`Broadcast`][frequenz.channels.Broadcast] channels can have multiple
     [senders][frequenz.channels.Sender] and multiple
     [receivers][frequenz.channels.Receiver]. Each message sent through any of the
     senders will be received by all receivers.
@@ -63,15 +63,15 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
 
     To create a new [senders][frequenz.channels.Sender] and
     [receivers][frequenz.channels.Receiver] you can use the
-    [`new_sender()`][frequenz.channels.Broadcast.new_sender] and
-    [`new_receiver()`][frequenz.channels.Broadcast.new_receiver] methods
+    [`.new_sender()`][.new_sender] and
+    [`.new_receiver()`][.new_receiver] methods
     respectively.
 
     When a channel is not needed anymore, it should be closed with
-    [`aclose()`][frequenz.channels.Broadcast.aclose]. This will prevent further
+    [`.aclose()`][.aclose]. This will prevent further
     attempts to [`send()`][frequenz.channels.Sender.send] data, and will allow
     receivers to drain the pending items on their queues, but after that,
-    subsequent [receive()][frequenz.channels.Receiver.receive] calls will
+    subsequent [`receive()`][frequenz.channels.Receiver.receive] calls will
     raise a [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
 
     This channel is useful, for example, to implement a pub/sub pattern, where
@@ -200,7 +200,8 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
             name: The name of the channel. This is for logging purposes, and it will be
                 shown in the string representation of the channel.
             resend_latest: When True, every time a new receiver is created with
-                `new_receiver`, the last message seen by the channel will be sent to the
+                [`.new_receiver()`][..new_receiver], the last message seen by the channel
+                will be sent to the
                 new receiver automatically. This allows new receivers on slow streams to
                 get the latest message as soon as they are created, without having to
                 wait for the next message on the channel to arrive.  It is safe to be
@@ -238,7 +239,8 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
         self.resend_latest: bool = resend_latest
         """Whether to resend the latest message to new receivers.
 
-        When `True`, every time a new receiver is created with `new_receiver`, it will
+        When `True`, every time a new receiver is created with [`.new_receiver()`][..new_receiver],
+        it will
         automatically get sent the latest message on the channel.  This allows new
         receivers on slow streams to get the latest message as soon as they are created,
         without having to wait for the next message on the channel to arrive.
@@ -268,12 +270,12 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
     async def aclose(self) -> None:
         """Close this channel.
 
-        Any further attempts to [send()][frequenz.channels.Sender.send] data
-        will return `False`.
+        Any further attempts to [`send()`][...Sender.send] data
+        will raise a [`SenderError`][...SenderError].
 
         Receivers will still be able to drain the pending items on their queues,
         but after that, subsequent
-        [receive()][frequenz.channels.Receiver.receive] calls will return `None`
+        [`receive()`][...Receiver.receive] calls will return `None`
         immediately.
         """
         self._latest = None
@@ -283,7 +285,7 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
 
     @deprecated("The close() method is deprecated, use aclose() instead")
     async def close(self) -> None:  # noqa: D402
-        """Close the channel, deprecated alias for `aclose()`."""  # noqa: D402
+        """Close the channel, deprecated alias for [`.aclose()`][..aclose]."""  # noqa: D402
         return await self.aclose()
 
     def new_sender(self) -> BroadcastSender[ChannelMessageT]:
@@ -338,7 +340,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
     """A sender to send messages to the broadcast channel.
 
     Should not be created directly, but through the
-    [BroadcastSender.clone()][frequenz.channels.BroadcastSender.clone]
+    [`.clone()`][.clone]
     method of an existing sender.
     """
 
@@ -358,7 +360,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
 
     @property
     def sender_count(self) -> int:
-        """Return the number of open senders attached to this sender's channel."""
+        """The number of open senders attached to this sender's channel."""
         return self._channel._sender_count  # pylint: disable=protected-access
 
     @override
@@ -370,7 +372,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
 
         Raises:
             SenderError: If the underlying channel was closed.
-                A [ChannelClosedError][frequenz.channels.ChannelClosedError] is
+                A [`ChannelClosedError`][...ChannelClosedError] is
                 set as the cause.
             SenderClosedError: If this sender was closed.
         """
@@ -406,7 +408,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
 
         After a sender is closed, it can no longer be used to send messages. Any
         attempt to send a message through a closed sender will raise a
-        [SenderClosedError][frequenz.channels.SenderClosedError].
+        [`SenderClosedError`][...SenderClosedError].
         """
         if self._closed:
             return
@@ -469,7 +471,7 @@ class BroadcastReceiver(Receiver[_T]):
     """A receiver to receive messages from the broadcast channel.
 
     Should not be created directly, but through the
-    [BroadcastSender.subscribe()][frequenz.channels.BroadcastSender.subscribe]
+    [`BroadcastSender.subscribe()`][frequenz.channels.BroadcastSender.subscribe]
     method of an existing sender.
     """
 
@@ -489,8 +491,8 @@ class BroadcastReceiver(Receiver[_T]):
         get dropped just in this receiver.
 
         Args:
-            channel: a reference to the Broadcast channel that this receiver
-                belongs to.
+            channel: A reference to the [`Broadcast`][...Broadcast]
+                channel that this receiver belongs to.
             name: A name to identify the receiver in the logs. If `None` an
                 `id(self)`-based name will be used.  This is only for debugging
                 purposes, it will be shown in the string representation of the
@@ -547,8 +549,9 @@ class BroadcastReceiver(Receiver[_T]):
     async def ready(self) -> bool:
         """Wait until the receiver is ready with a message or an error.
 
-        Once a call to `ready()` has finished, the message should be read with
-        a call to `consume()` (`receive()` or iterated over). The receiver will
+        Once a call to [`.ready()`][..ready] has finished, the message should be read with
+        a call to [`.consume()`][..consume] ([`receive()`][...Receiver.receive]
+        or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.
 
@@ -577,7 +580,7 @@ class BroadcastReceiver(Receiver[_T]):
 
     @override
     def consume(self) -> _T:
-        """Return the latest message once `ready` is complete.
+        """Return the latest message once [`ready()`][..ready] is complete.
 
         Returns:
             The next message that was received.
@@ -600,7 +603,7 @@ class BroadcastReceiver(Receiver[_T]):
 
         After calling this method, new messages will not be received.  Once the
         receiver's buffer is drained, trying to receive a message will raise a
-        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+        [`ReceiverStoppedError`][...ReceiverStoppedError].
         """
         self._closed = True
         self._channel._receivers.pop(  # pylint: disable=protected-access
@@ -624,11 +627,11 @@ class BroadcastReceiver(Receiver[_T]):
 class BroadcastChannel(
     tuple[BroadcastSender[ChannelMessageT], BroadcastReceiver[ChannelMessageT]]
 ):
-    """A channel that deliver all messages to all receivers.
+    """A channel that delivers all messages to all receivers.
 
     # Description
 
-    [BroadcastChannel][frequenz.channels.BroadcastChannel]s can have multiple
+    [`BroadcastChannel`][frequenz.channels.BroadcastChannel]s can have multiple
     [senders][frequenz.channels.BroadcastSender] and multiple
     [receivers][frequenz.channels.BroadcastReceiver]. Each message sent through
     any of the senders will be received by all receivers.
@@ -662,17 +665,17 @@ class BroadcastChannel(
 
     Instantiating this class will create a new broadcast channel, and return an
     initial sender and a receiver.  Further senders and receivers can be created
-    with the [BroadcastSender.clone()][frequenz.channels.BroadcastSender.clone],
+    with the [`BroadcastSender.clone()`][frequenz.channels.BroadcastSender.clone],
     and
-    [BroadcastSender.subscribe()][frequenz.channels.BroadcastSender.subscribe]
+    [`BroadcastSender.subscribe()`][frequenz.channels.BroadcastSender.subscribe]
     methods respectively.
 
     When a sender or a receiver is not needed anymore, it should be closed with
-    [`aclose()`][frequenz.channels.BroadcastSender.aclose] or
-    [`close()`][frequenz.channels.BroadcastReceiver.close]. This will prevent
+    [`BroadcastSender.aclose()`][frequenz.channels.BroadcastSender.aclose] or
+    [`BroadcastReceiver.close()`][frequenz.channels.BroadcastReceiver.close]. This will prevent
     further attempts to [`send()`][frequenz.channels.BroadcastSender.send] data,
     and will allow receivers to drain the pending items on their queues, but
-    after that, subsequent [receive()][frequenz.channels.Receiver.receive] calls
+    after that, subsequent [`receive()`][frequenz.channels.Receiver.receive] calls
     will raise a
     [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
 
@@ -802,7 +805,8 @@ class BroadcastChannel(
             name: The name of the channel. This is for logging purposes, and it will be
                 shown in the string representation of the channel.
             resend_latest: When True, every time a new receiver is created with
-                `new_receiver`, the last message seen by the channel will be sent to the
+                [`Broadcast.new_receiver()`][...Broadcast.new_receiver],
+                the last message seen by the channel will be sent to the
                 new receiver automatically. This allows new receivers on slow streams to
                 get the latest message as soon as they are created, without having to
                 wait for the next message on the channel to arrive.  It is safe to be

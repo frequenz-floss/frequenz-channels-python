@@ -5,16 +5,16 @@
 
 !!! Tip inline end
 
-    Read the [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher]
+    Read the [`FileWatcher`][.FileWatcher]
     documentation for more information.
 
 This module contains the following:
 
-* [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher]:
+* [`FileWatcher`][.FileWatcher]:
     {{docstring_summary("frequenz.channels.file_watcher.FileWatcher")}}
-* [`Event`][frequenz.channels.file_watcher.Event]:
+* [`Event`][.Event]:
     {{docstring_summary("frequenz.channels.file_watcher.Event")}}
-* [`EventType`][frequenz.channels.file_watcher.EventType]:
+* [`EventType`][.EventType]:
     {{docstring_summary("frequenz.channels.file_watcher.EventType")}}
 """
 
@@ -61,35 +61,38 @@ class FileWatcher(Receiver[Event]):
 
     # Usage
 
-    A [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher] receiver can be used
+    A [`FileWatcher`][..FileWatcher] receiver can be used
     to watch for changes in a set of files. It will generate an
-    [`Event`][frequenz.channels.file_watcher.Event] message every time a file is
+    [`Event`][..Event] message every time a file is
     created, modified or deleted, depending on the type of events that it is configured
     to watch for.
 
-    The [event][frequenz.channels.file_watcher.EventType] message contains the
-    [`type`][frequenz.channels.file_watcher.Event.type] of change that was observed and
-    the [`path`][frequenz.channels.file_watcher.Event.path] where the change was
+    The [`EventType`][..EventType] of the event contains the
+    [`type`][..Event.type] of change that was observed and
+    the [`path`][..Event.path] where the change was
     observed.
 
     Note:
-        The owner of the [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher]
-        receiver is responsible for recreating the `FileWatcher` after it has been
+        The owner of the [`FileWatcher`][..FileWatcher]
+        receiver is responsible for recreating the
+        [`FileWatcher`][..FileWatcher] after it has been
         cancelled or stopped.
         For example, if a [`Task`][asyncio.Task] uses an asynchronous iterator to consume
-        events from the `FileWatcher` and the task is cancelled, the `FileWatcher` will
+        events from the [`FileWatcher`][..FileWatcher] and the
+        task is cancelled, the [`FileWatcher`][..FileWatcher] will
         also stop. Therefore, the same `FileWatcher` instance cannot be reused for a new
-        task to consume events. In this case, a new FileWatcher instance must be created.
+        task to consume events. In this case, a new
+        [`FileWatcher`][..FileWatcher] instance must be created.
 
     # Event Types
 
     The following event types are available:
 
-    * [`CREATE`][frequenz.channels.file_watcher.EventType.CREATE]:
+    * [`CREATE`][..EventType.CREATE]:
         {{docstring_summary("frequenz.channels.file_watcher.EventType.CREATE")}}
-    * [`MODIFY`][frequenz.channels.file_watcher.EventType.MODIFY]:
+    * [`MODIFY`][..EventType.MODIFY]:
         {{docstring_summary("frequenz.channels.file_watcher.EventType.MODIFY")}}
-    * [`DELETE`][frequenz.channels.file_watcher.EventType.DELETE]:
+    * [`DELETE`][..EventType.DELETE]:
         {{docstring_summary("frequenz.channels.file_watcher.EventType.DELETE")}}
 
     # Example
@@ -190,8 +193,9 @@ class FileWatcher(Receiver[Event]):
     async def ready(self) -> bool:
         """Wait until the receiver is ready with a message or an error.
 
-        Once a call to `ready()` has finished, the message should be read with
-        a call to `consume()` (`receive()` or iterated over). The receiver will
+        Once a call to [`ready()`][..ready] has finished, the message should be read with
+        a call to [`consume()`][..consume]
+        ([`receive()`][..receive] or iterated over). The receiver will
         remain ready (this method will return immediately) until it is
         consumed.
 
@@ -216,13 +220,13 @@ class FileWatcher(Receiver[Event]):
 
     @override
     def consume(self) -> Event:
-        """Return the latest event once `ready` is complete.
+        """Return the latest event once [`ready()`][..ready] is complete.
 
         Returns:
             The next event that was received.
 
         Raises:
-            ReceiverStoppedError: If there is some problem with the receiver.
+            ReceiverStoppedError: If the receiver stopped producing messages.
         """
         if not self._changes and self._awatch_stopped_exc is not None:
             raise ReceiverStoppedError(self) from self._awatch_stopped_exc

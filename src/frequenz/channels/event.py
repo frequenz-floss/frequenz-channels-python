@@ -5,12 +5,12 @@
 
 !!! Tip inline end
 
-    Read the [`Event`][frequenz.channels.event.Event] documentation for more
+    Read the [`Event`][.Event] documentation for more
     information.
 
 This module contains the following:
 
-* [`Event`][frequenz.channels.event.Event]:
+* [`Event`][.Event]:
     {{docstring_summary("frequenz.channels.event.Event")}}
 """
 
@@ -27,18 +27,18 @@ class Event(Receiver[None]):
     # Usage
 
     There are cases where it is useful to be able to send a signal to
-    a [`select()`][frequenz.channels.select] loop, for example, to stop a loop from
+    a [`select()`][...select] loop, for example, to stop a loop from
     outside the loop itself.
 
-    To do that, you can use an [`Event`][frequenz.channels.event.Event] receiver and
-    call [`set()`][frequenz.channels.event.Event.set] on it when you want to make it
+    To do that, you can use an [`Event`][..Event] receiver and
+    call [`set()`][.set] on it when you want to make it
     ready.
 
     # Stopping
 
     The receiver will be re-activated (will keep blocking) after the current set
     event is received. To stop the receiver completely, you can call
-    [`stop()`][frequenz.channels.event.Event.stop].
+    [`stop()`][.stop].
 
     # Example
 
@@ -118,7 +118,7 @@ class Event(Receiver[None]):
     def name(self) -> str:
         """The name of this receiver.
 
-        This is for debugging purposes, it will be shown in the string representation
+        This is for debugging purposes. It will be shown in the string representation
         of this receiver.
         """
         return self._name

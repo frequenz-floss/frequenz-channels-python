@@ -1,35 +1,36 @@
 # License: MIT
 # Copyright © 2024 Frequenz Energy-as-a-Service GmbH
 
-"""The LatestValueCache caches the latest value in a receiver.
+"""Caches the latest value received from a [`Receiver`][..Receiver].
 
 It provides a way to look up the latest value in a stream whenever required, as
 long as there has been one value received.
 
-[LatestValueCache][frequenz.channels.LatestValueCache] takes a
-[Receiver][frequenz.channels.Receiver] as an argument and stores the latest
+[`LatestValueCache`][..LatestValueCache] takes a
+[`Receiver`][..Receiver] as an argument and stores the latest
 value received by that receiver.  As soon as a value is received, its
-[`has_value`][frequenz.channels.LatestValueCache.has_value] method returns
-`True`, and its [`get`][frequenz.channels.LatestValueCache.get] method returns
-the latest value received.  The `get` method will raise an exception if called
+[`has_value`][..LatestValueCache.has_value] method returns
+`True`, and its [`get`][..LatestValueCache.get] method returns
+the latest value received.  The [`get`][..LatestValueCache.get] method will
+raise an exception if called
 before any messages have been received from the receiver.
 
 Example:
-```python
-from frequenz.channels import Broadcast, LatestValueCache
+    ```python
+    from frequenz.channels import Broadcast, LatestValueCache
 
-channel = Broadcast[int](name="lvc_test")
+    channel = Broadcast[int](name="lvc_test")
 
-cache = LatestValueCache(channel.new_receiver())
-sender = channel.new_sender()
+    cache = LatestValueCache(channel.new_receiver())
+    sender = channel.new_sender()
 
-assert not cache.has_value()
+    assert not cache.has_value()
 
-await sender.send(5)
+    await sender.send(5)
 
-assert cache.has_value()
-assert cache.get() == 5
-```
+    assert cache.has_value()
+    assert cache.get() == 5
+    ```
 """
 
 import asyncio
@@ -54,7 +55,8 @@ class LatestValueCache(typing.Generic[T_co]):
     It provides a way to look up the latest value in a stream without any delay,
     as long as there has been one value received.
 
-    Takes ownership of the receiver.  When the cache is stopped, the receiver
+    Takes ownership of the [`Receiver`][..Receiver].
+    When the cache is stopped, the receiver
     will be closed.
     """
 
@@ -85,7 +87,8 @@ class LatestValueCache(typing.Generic[T_co]):
     def get(self) -> T_co:
         """Return the latest value that has been received.
 
-        This raises a `ValueError` if no value has been received yet. Use `has_value` to
+        This raises a `ValueError` if no value has been received yet.
+        Use [`has_value`][..has_value] to
         check whether a value has been received yet, before trying to access the value,
         to avoid the exception.
 
@@ -93,7 +96,7 @@ class LatestValueCache(typing.Generic[T_co]):
             The latest value that has been received.
 
         Raises:
-            ValueError: If no value has been received yet.
+            ValueError: If no value has been received yet or the cache has been stopped.
         """
         if isinstance(self._latest_value, _Sentinel):
             raise ValueError("No value has been received yet.")
@@ -102,7 +105,7 @@ class LatestValueCache(typing.Generic[T_co]):
         return self._latest_value
 
     def has_value(self) -> bool:
-        """Check whether a value has been received yet.
+        """Return whether a value has been received yet.
 
         Returns:
             `True` if a value has been received, `False` otherwise.
@@ -114,7 +117,7 @@ class LatestValueCache(typing.Generic[T_co]):
             self._latest_value = value
 
     async def stop(self) -> None:
-        """Stop the cache and close the owned receiver."""
+        """Stop the cache and close the owned [`Receiver`][...Receiver]."""
         self._receiver.close()
         self._stopped = True
         if not self._task.done():

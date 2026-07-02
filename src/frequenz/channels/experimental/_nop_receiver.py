@@ -24,7 +24,7 @@ class NopReceiver(Receiver[ReceiverMessageT_co]):
 
     @override
     async def ready(self) -> bool:
-        """Wait for ever unless the receiver is closed.
+        """Wait forever unless the receiver is closed.
 
         Returns:
             Whether the receiver is still active.
@@ -36,9 +36,12 @@ class NopReceiver(Receiver[ReceiverMessageT_co]):
 
     @override
     def consume(self) -> ReceiverMessageT_co:  # noqa: DOC503 (raised indirectly)
-        """Raise `ReceiverError` unless the NopReceiver is closed.
+        """Raise [`ReceiverError`][....ReceiverError] or stop.
 
-        If the receiver is closed, then raise `ReceiverStoppedError`.
+        If the [`NopReceiver`][...NopReceiver] is not closed,
+        raise [`ReceiverError`][....ReceiverError].
+        If the receiver is closed, then raise
+        [`ReceiverStoppedError`][....ReceiverStoppedError].
 
         Returns:
             The next message received.

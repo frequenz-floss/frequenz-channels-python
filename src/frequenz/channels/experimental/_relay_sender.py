@@ -3,7 +3,8 @@
 
 """A Sender for sending messages to multiple senders.
 
-The `RelaySender` class takes multiple senders and forwards all the messages sent to it,
+The [`RelaySender`][.RelaySender] class takes multiple senders and
+forwards all the messages sent to it,
 to the senders it was created with.
 """
 
@@ -16,10 +17,10 @@ from .._sender import Sender
 
 
 class RelaySender(Sender[SenderMessageT_contra]):
-    """A Sender for sending messages to multiple senders.
+    """A [`Sender`][...Sender] for sending messages to multiple senders.
 
-    The `RelaySender` class takes multiple senders and forwards all the messages sent to
-    it, to the senders it was created with.
+    The [`RelaySender`][..RelaySender] class takes multiple senders and
+    forwards all the messages sent to it, to the senders it was created with.
 
     Example:
         ```python
@@ -41,7 +42,7 @@ class RelaySender(Sender[SenderMessageT_contra]):
     """
 
     def __init__(self, *senders: Sender[SenderMessageT_contra]) -> None:
-        """Create a new RelaySender.
+        """Create a new [`RelaySender`][...RelaySender].
 
         Args:
             *senders: The senders to send messages to.

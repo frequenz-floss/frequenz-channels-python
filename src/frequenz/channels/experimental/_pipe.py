@@ -3,7 +3,8 @@
 
 """Pipe between a receiver and a sender.
 
-The `Pipe` class takes a receiver and a sender and creates a pipe between them by
+The [`Pipe`][.Pipe] class takes a receiver and a sender and
+creates a pipe between them by
 forwarding all the messages received by the receiver to the sender.
 """
 
@@ -20,7 +21,8 @@ from .._sender import Sender
 class Pipe(typing.Generic[ChannelMessageT]):
     """A pipe between two channels.
 
-    The `Pipe` class takes a receiver and a sender and creates a pipe between them
+    The [`Pipe`][..Pipe] class takes a receiver and a sender and
+    creates a pipe between them
     by forwarding all the messages received by the receiver to the sender.
 
     Example:
@@ -28,7 +30,8 @@ class Pipe(typing.Generic[ChannelMessageT]):
         import asyncio
         from contextlib import closing, aclosing, AsyncExitStack
 
-        from frequenz.channels import Broadcast, Pipe, Receiver
+        from frequenz.channels import Broadcast
+        from frequenz.channels.experimental import Pipe
 
         async def main() -> None:
             # Channels, receivers and Pipe are in AsyncExitStack
@@ -50,7 +53,7 @@ class Pipe(typing.Generic[ChannelMessageT]):
 
                 source_sender = source_channel.new_sender()
                 await source_sender.send(10)
-                assert await receiver.receive() == 11
+                assert await receiver.receive() == 10
 
         asyncio.run(main())
         ```
