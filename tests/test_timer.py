@@ -7,6 +7,7 @@ import asyncio
 import enum
 import re
 from datetime import timedelta
+from typing import Any
 
 import async_solipsism
 import hypothesis
@@ -20,6 +21,21 @@ from frequenz.channels.timer import (
     Timer,
     TriggerAllMissed,
 )
+
+
+def _approx_timedelta(expected: timedelta) -> Any:
+    """Build an approximate comparison for a timedelta.
+
+    `pytest.approx()` requires an explicit tolerance to compare timedeltas, and since
+    timers work with a microsecond resolution, one microsecond is used as the tolerance.
+
+    Args:
+        expected: The timedelta the compared value should be close to.
+
+    Returns:
+        An object comparing equal to any timedelta within one microsecond of `expected`.
+    """
+    return pytest.approx(expected, abs=timedelta(microseconds=1))
 
 
 @pytest.fixture(autouse=True)
@@ -384,7 +400,7 @@ async def test_timer_close_receiver() -> None:
     timer = Timer(timedelta(seconds=1.0), TriggerAllMissed())
 
     drift = await timer.receive()
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
     assert event_loop.time() == pytest.approx(1.0)
 
     timer.close()
@@ -403,7 +419,7 @@ async def test_timer_autostart() -> None:
     # time 1.0 without any drift
     await asyncio.sleep(0.5)
     drift = await timer.receive()
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
     assert event_loop.time() == pytest.approx(1.0)
 
 
@@ -420,12 +436,12 @@ async def test_timer_autostart_with_delay() -> None:
     # time 1.5 without any drift
     await asyncio.sleep(1.2)
     drift = await timer.receive()
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
     assert event_loop.time() == pytest.approx(1.5)
 
     # Still the next tick should be at 2.5 (every second)
     drift = await timer.receive()
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
     assert event_loop.time() == pytest.approx(2.5)
 
 
@@ -437,12 +453,12 @@ async def test_timer_autostart_with_tick_at_start() -> None:
 
     # The first tick should be at 0.0, without any delay.
     drift = await timer.receive()
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
     assert event_loop.time() == pytest.approx(0.0)
 
     # The next tick should be at 1.0
     drift = await timer.receive()
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
     assert event_loop.time() == pytest.approx(1.0)
 
 
@@ -460,12 +476,12 @@ async def test_timer_autostart_with_delay_and_tick_at_start() -> None:
     # The first tick should be at 0.5, as soon as the start delay is over.
     await asyncio.sleep(0.3)
     drift = await timer.receive()
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
     assert event_loop.time() == pytest.approx(0.5)
 
     # The next tick should be at 1.5
     drift = await timer.receive()
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
     assert event_loop.time() == pytest.approx(1.5)
 
 
@@ -509,7 +525,7 @@ async def test_timer_no_autostart(
     else:
         assert False, f"Unknown start method {start_method}"
 
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
     assert event_loop.time() == pytest.approx(1.5)
 
 
@@ -523,7 +539,7 @@ async def test_timer_trigger_all_missed() -> None:
     # We let the first tick be triggered on time
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval)
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
 
     # Now we let the time pass interval plus a bit more, so we should get
     # a drift, but the next tick should be triggered still at a multiple of the
@@ -531,10 +547,10 @@ async def test_timer_trigger_all_missed() -> None:
     await asyncio.sleep(interval + 0.1)
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 2 + 0.1)
-    assert drift == pytest.approx(timedelta(seconds=0.1))
+    assert drift == _approx_timedelta(timedelta(seconds=0.1))
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 3)
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
 
     # Now we let the time pass by two times the interval, so we should get
     # a drift of a whole interval and then next tick should be triggered
@@ -542,10 +558,10 @@ async def test_timer_trigger_all_missed() -> None:
     await asyncio.sleep(2 * interval)
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 5)
-    assert drift == pytest.approx(timedelta(seconds=interval))
+    assert drift == _approx_timedelta(timedelta(seconds=interval))
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 5)
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
 
     # Finally we let the time pass by 5 times the interval plus some extra
     # delay (even when the tolerance should be irrelevant for this mode),
@@ -556,22 +572,22 @@ async def test_timer_trigger_all_missed() -> None:
     await asyncio.sleep(5 * interval + extra_delay)
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 10 + extra_delay)
-    assert drift == pytest.approx(timedelta(seconds=interval * 4 + extra_delay))
+    assert drift == _approx_timedelta(timedelta(seconds=interval * 4 + extra_delay))
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 10 + extra_delay)
-    assert drift == pytest.approx(timedelta(seconds=interval * 3 + extra_delay))
+    assert drift == _approx_timedelta(timedelta(seconds=interval * 3 + extra_delay))
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 10 + extra_delay)
-    assert drift == pytest.approx(timedelta(seconds=interval * 2 + extra_delay))
+    assert drift == _approx_timedelta(timedelta(seconds=interval * 2 + extra_delay))
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 10 + extra_delay)
-    assert drift == pytest.approx(timedelta(seconds=interval * 1 + extra_delay))
+    assert drift == _approx_timedelta(timedelta(seconds=interval * 1 + extra_delay))
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 10 + extra_delay)
-    assert drift == pytest.approx(timedelta(seconds=interval * 0 + extra_delay))
+    assert drift == _approx_timedelta(timedelta(seconds=interval * 0 + extra_delay))
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 11)
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
 
 
 async def test_timer_skip_missed_and_resync() -> None:
@@ -584,7 +600,7 @@ async def test_timer_skip_missed_and_resync() -> None:
     # We let the first tick be triggered on time
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval)
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
 
     # Now we let the time pass interval plus a bit more, so we should get
     # a drift, but the next tick should be triggered still at a multiple of the
@@ -592,10 +608,10 @@ async def test_timer_skip_missed_and_resync() -> None:
     await asyncio.sleep(interval + 0.1)
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 2 + 0.1)
-    assert drift == pytest.approx(timedelta(seconds=0.1))
+    assert drift == _approx_timedelta(timedelta(seconds=0.1))
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 3)
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
 
     # Now we let the time pass by two times the interval, so we should get
     # a drift of a whole interval and then next tick should an interval later,
@@ -603,10 +619,10 @@ async def test_timer_skip_missed_and_resync() -> None:
     await asyncio.sleep(2 * interval)
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 5)
-    assert drift == pytest.approx(timedelta(seconds=interval))
+    assert drift == _approx_timedelta(timedelta(seconds=interval))
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 6)
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
 
     # Finally we let the time pass by 5 times the interval plus some extra
     # delay. The timer should fire immediately once with a drift of 4 intervals
@@ -616,13 +632,13 @@ async def test_timer_skip_missed_and_resync() -> None:
     await asyncio.sleep(5 * interval + extra_delay)
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 11 + extra_delay)
-    assert drift == pytest.approx(timedelta(seconds=interval * 4 + extra_delay))
+    assert drift == _approx_timedelta(timedelta(seconds=interval * 4 + extra_delay))
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 12)
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 13)
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
 
 
 async def test_timer_skip_missed_and_drift() -> None:
@@ -647,10 +663,10 @@ async def test_timer_skip_missed_and_drift() -> None:
     await asyncio.sleep(interval + tolerance)
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 2 + tolerance)
-    assert drift == pytest.approx(timedelta(seconds=tolerance))
+    assert drift == _approx_timedelta(timedelta(seconds=tolerance))
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 3)
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
 
     # Now we let the time pass the interval plus two times the tolerance. Now
     # the timer should start to drift, and the next tick should be triggered at
@@ -658,10 +674,10 @@ async def test_timer_skip_missed_and_drift() -> None:
     await asyncio.sleep(interval + tolerance * 2)
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 4 + tolerance * 2)
-    assert drift == pytest.approx(timedelta(seconds=tolerance * 2))
+    assert drift == _approx_timedelta(timedelta(seconds=tolerance * 2))
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 5 + tolerance * 2)
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
 
     # Now we let the time pass by two times the interval, so we should missed
     # one tick (the tick at time = 6 + tolerance * 2) and the next tick should
@@ -671,10 +687,10 @@ async def test_timer_skip_missed_and_drift() -> None:
     await asyncio.sleep(2 * interval)
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 7 + tolerance * 2)
-    assert drift == pytest.approx(timedelta(seconds=interval))
+    assert drift == _approx_timedelta(timedelta(seconds=interval))
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 8 + tolerance * 2)
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
 
     # Finally we let the time pass by 5 times the interval plus a tiny bit more
     # than the tolerance, so we should missed 4 ticks (the ticks at times 9+,
@@ -683,10 +699,12 @@ async def test_timer_skip_missed_and_drift() -> None:
     await asyncio.sleep(5 * interval + tolerance + 0.001)
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 13 + tolerance * 3 + 0.001)
-    assert drift == pytest.approx(timedelta(seconds=interval * 4 + tolerance + 0.001))
+    assert drift == _approx_timedelta(
+        timedelta(seconds=interval * 4 + tolerance + 0.001)
+    )
     drift = await timer.receive()
     assert event_loop.time() == pytest.approx(interval * 14 + tolerance * 3 + 0.001)
-    assert drift == pytest.approx(timedelta(seconds=0.0))
+    assert drift == _approx_timedelta(timedelta(seconds=0.0))
 
 
 async def test_timer_reset_with_new_interval() -> None:
