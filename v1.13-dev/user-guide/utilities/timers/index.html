@@ -1855,7 +1855,7 @@ trigger again after the selected interval, no matter what the current drift was.
 if the loop was busy for a few seconds, the timer will trigger immediately and then
 wait for another second before triggering again. The missed ticks are skipped.</p>
 </details>        <h2 id="frequenz.channels.timer--missed-ticks-and-drifting">Missed Ticks And Drifting<a class="headerlink" href="#frequenz.channels.timer--missed-ticks-and-drifting" title="Permanent link">¤</a></h2>
-<p>A <a class="autorefs autorefs-internal" title="frequenz.channels.timer.Timer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> can be used to send a messages at regular
+<p>A <a class="autorefs autorefs-internal" title="frequenz.channels.timer.Timer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> can be used to send messages at regular
 time intervals, but there is one fundamental issue with timers in the <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio">asyncio</a> world:
 the event loop could give control to another task at any time, and that task can take
 a long time to finish, making the time it takes the next timer message to be received
@@ -1915,7 +1915,7 @@ a <em>missing tick policy</em>.</p>
         <p>A policy that drops all the missed ticks, triggers immediately and resets.</p>
 <p>The <a class="autorefs autorefs-internal" title="frequenz.channels.timer.SkipMissedAndDrift" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.SkipMissedAndDrift"><code>SkipMissedAndDrift</code></a> policy will
 behave effectively as if the timer was
-<a class="autorefs autorefs-internal" title="reset" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.reset">reset</a> every time it is triggered. This means
+<a class="autorefs autorefs-internal" title="reset" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.reset"><code>reset()</code></a> every time it is triggered. This means
 the start time will change and the drift will be accumulated each time a tick is
 delayed. Only the relative drift will be returned on each tick.</p>
 <p>The reset happens only if the delay is larger than the
@@ -1944,7 +1944,12 @@ is possible to ignore small delays and not drift in those cases.</p>
 <li>
 <p>The third tick, <code>T2.2</code>, happens at 2.3 seconds (0.1 seconds late), so it also
     triggers immediately but <strong>it doesn't drift</strong> because the delay is <strong>under
-    the <code>delay_tolerance</code></strong>. The next tick is expected at 3.2 seconds.</p>
+    the <a class="autorefs autorefs-internal" title="delay_tolerance
+
+
+  
+      property
+  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.SkipMissedAndDrift.delay_tolerance"><code>delay_tolerance</code></a></strong>. The next tick is expected at 3.2 seconds.</p>
 </li>
 <li>
 <p>The fourth tick, <code>T4.2</code>, triggers at 4.3 seconds (1.1 seconds late), so it
@@ -2009,7 +2014,7 @@ schedule to trigger again on the next multiple of the
 
   
       property
-  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.interval">interval</a>, effectively skipping any missed
+  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.interval"><code>interval</code></a>, effectively skipping any missed
 ticks, but re-syncing with the original start time.</p>
 
 
@@ -2184,7 +2189,7 @@ them. In this case, the timer will not be started until
   " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.receive"><code>receive()</code></a> or using the
 async iterator interface) will also start the timer at that point.</p>
 <p>Timers need to be created in a context where
-a <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio"><code>asyncio</code></a> loop is already running. If no
+an <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio"><code>asyncio</code></a> loop is already running. If no
 <a class="autorefs autorefs-internal" title="loop
 
 
@@ -2205,7 +2210,7 @@ when it actually triggered.</p>
 <p>This drift will likely never be <code>0</code>, because if there is a task that is
 running when it should trigger, the timer will be delayed. In this case the
 drift will be positive. A negative drift should be technically impossible,
-as the timer uses <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio"><code>asyncio</code></a>s loop monotonic clock.</p>
+as the timer uses the <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio"><code>asyncio</code></a> event loop's monotonic clock.</p>
 
 
 <details class="warning" open>

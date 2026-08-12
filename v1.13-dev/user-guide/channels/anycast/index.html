@@ -1634,10 +1634,10 @@
 <h2 id="frequenz.channels._anycast.Anycast--description">Description<a class="headerlink" href="#frequenz.channels._anycast.Anycast--description" title="Permanent link">¤</a></h2>
 <div class="admonition tip inline end">
 <p class="admonition-title">Tip</p>
-<p><a class="autorefs autorefs-internal" title="frequenz.channels.Anycast" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast">Anycast</a> channels behave like the
+<p><a class="autorefs autorefs-internal" title="frequenz.channels.Anycast" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast"><code>Anycast</code></a> channels behave like the
 <a href="https://golang.org/">Golang</a> <a href="https://go.dev/ref/spec#Channel_types">channels</a>.</p>
 </div>
-<p><a class="autorefs autorefs-internal" title="frequenz.channels.Anycast" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast">Anycast</a> channels support multiple
+<p><a class="autorefs autorefs-internal" title="frequenz.channels.Anycast" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast"><code>Anycast</code></a> channels support multiple
 <a class="autorefs autorefs-internal" title="frequenz.channels.Sender" href="../../../reference/frequenz/channels/#frequenz.channels.Sender">senders</a> and multiple
 <a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../../reference/frequenz/channels/#frequenz.channels.Receiver">receivers</a>. Each message sent through any of the
 senders will be received by exactly one receiver (but <strong>any</strong> receiver).</p>
@@ -1657,7 +1657,7 @@ senders will be received by exactly one receiver (but <strong>any</strong> recei
 </div>
 <p>This channel is buffered, and if the senders are faster than the receivers, then the
 channel's buffer will fill up. In that case, the senders will block at the
-<a class="autorefs autorefs-internal" title="send
+    <a class="autorefs autorefs-internal" title="send
 
 
   
@@ -1668,15 +1668,15 @@ messages in the channel's buffer. The channel's buffer size can be configured at
 creation time via the <code>limit</code> argument.</p>
 <p>The first receiver that is awaited will get the next message. When multiple
 receivers are waiting, the <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio">asyncio</a> loop scheduler picks a receiver for each next
-massage.</p>
+message.</p>
 <p>This means that, in practice, there might be only one receiver receiving all the
-messages, depending on how tasks are schduled.</p>
+messages, depending on how tasks are scheduled.</p>
 <p>If you need to ensure some delivery policy (like round-robin or uniformly random),
 then you will have to implement it yourself.</p>
 <p>To create a new <a class="autorefs autorefs-internal" title="frequenz.channels.Sender" href="../../../reference/frequenz/channels/#frequenz.channels.Sender">senders</a> and
 <a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../../reference/frequenz/channels/#frequenz.channels.Receiver">receivers</a> you can use the
-<a class="autorefs autorefs-internal" title="new_sender" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast.new_sender"><code>new_sender()</code></a> and
-<a class="autorefs autorefs-internal" title="new_receiver" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast.new_receiver"><code>new_receiver()</code></a> methods
+<a class="autorefs autorefs-internal" title="new_sender" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast.new_sender"><code>.new_sender()</code></a> and
+<a class="autorefs autorefs-internal" title="new_receiver" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast.new_receiver"><code>.new_receiver()</code></a> methods
 respectively.</p>
 <p>When the channel is not needed anymore, it should be closed with the
 <a class="autorefs autorefs-internal" title="aclose
@@ -1684,7 +1684,7 @@ respectively.</p>
 
   
       async
-  " href="../../../reference/frequenz/channels/#frequenz.channels.Anycast.aclose"><code>aclose()</code></a> method. This will prevent further
+  " href="../../../reference/frequenz/channels/#frequenz.channels.Anycast.aclose"><code>.aclose()</code></a> method. This will prevent further
 attempts to <a class="autorefs autorefs-internal" title="send
 
 
@@ -1701,7 +1701,7 @@ able to drain the pending messages on the channel, but after that, subsequent
   " href="../../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a> calls will raise a
 <a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverStoppedError" href="../../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a> exception.</p>
 <p>This channel is useful, for example, to distribute work across multiple workers.</p>
-<p>In cases where each message need to be received by every receiver, a
+<p>In cases where each message needs to be received by every receiver, a
 <a class="autorefs autorefs-internal" title="frequenz.channels.Broadcast" href="../../../reference/frequenz/channels/#frequenz.channels.Broadcast">broadcast</a> channel may be used.</p>
 <h2 id="frequenz.channels._anycast.Anycast--examples">Examples<a class="headerlink" href="#frequenz.channels._anycast.Anycast--examples" title="Permanent link">¤</a></h2>
 

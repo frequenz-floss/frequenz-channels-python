@@ -1630,9 +1630,9 @@
 
 
 
-        <p>A channel that deliver all messages to all receivers.</p>
+        <p>A channel that delivers all messages to all receivers.</p>
 <h2 id="frequenz.channels._broadcast.Broadcast--description">Description<a class="headerlink" href="#frequenz.channels._broadcast.Broadcast--description" title="Permanent link">¤</a></h2>
-<p><a class="autorefs autorefs-internal" title="frequenz.channels.Broadcast" href="../../../reference/frequenz/channels/#frequenz.channels.Broadcast">Broadcast</a> channels can have multiple
+<p><a class="autorefs autorefs-internal" title="frequenz.channels.Broadcast" href="../../../reference/frequenz/channels/#frequenz.channels.Broadcast"><code>Broadcast</code></a> channels can have multiple
 <a class="autorefs autorefs-internal" title="frequenz.channels.Sender" href="../../../reference/frequenz/channels/#frequenz.channels.Sender">senders</a> and multiple
 <a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../../reference/frequenz/channels/#frequenz.channels.Receiver">receivers</a>. Each message sent through any of the
 senders will be received by all receivers.</p>
@@ -1657,8 +1657,8 @@ receivers that can't keep up with the senders, and not for the whole
 channel.</p>
 <p>To create a new <a class="autorefs autorefs-internal" title="frequenz.channels.Sender" href="../../../reference/frequenz/channels/#frequenz.channels.Sender">senders</a> and
 <a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../../reference/frequenz/channels/#frequenz.channels.Receiver">receivers</a> you can use the
-<a class="autorefs autorefs-internal" title="new_sender" href="../../../reference/frequenz/channels/#frequenz.channels.Broadcast.new_sender"><code>new_sender()</code></a> and
-<a class="autorefs autorefs-internal" title="new_receiver" href="../../../reference/frequenz/channels/#frequenz.channels.Broadcast.new_receiver"><code>new_receiver()</code></a> methods
+<a class="autorefs autorefs-internal" title="new_sender" href="../../../reference/frequenz/channels/#frequenz.channels.Broadcast.new_sender"><code>.new_sender()</code></a> and
+<a class="autorefs autorefs-internal" title="new_receiver" href="../../../reference/frequenz/channels/#frequenz.channels.Broadcast.new_receiver"><code>.new_receiver()</code></a> methods
 respectively.</p>
 <p>When a channel is not needed anymore, it should be closed with
 <a class="autorefs autorefs-internal" title="aclose
@@ -1666,7 +1666,7 @@ respectively.</p>
 
   
       async
-  " href="../../../reference/frequenz/channels/#frequenz.channels.Broadcast.aclose"><code>aclose()</code></a>. This will prevent further
+  " href="../../../reference/frequenz/channels/#frequenz.channels.Broadcast.aclose"><code>.aclose()</code></a>. This will prevent further
 attempts to <a class="autorefs autorefs-internal" title="send
 
 
@@ -1680,7 +1680,7 @@ subsequent <a class="autorefs autorefs-internal" title="receive
 
   
       async
-  " href="../../../reference/frequenz/channels/#frequenz.channels.Receiver.receive">receive()</a> calls will
+  " href="../../../reference/frequenz/channels/#frequenz.channels.Receiver.receive"><code>receive()</code></a> calls will
 raise a <a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverStoppedError" href="../../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a>.</p>
 <p>This channel is useful, for example, to implement a pub/sub pattern, where
 multiple receivers can subscribe to a channel to receive all messages.</p>

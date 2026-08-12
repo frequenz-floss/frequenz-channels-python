@@ -1606,7 +1606,7 @@
         <p>Receiver interface and related exceptions.</p>
 <h2 id="frequenz.channels._receiver--receivers">Receivers<a class="headerlink" href="#frequenz.channels._receiver--receivers" title="Permanent link">¤</a></h2>
 <p>Messages are received from <a href="/user-guide/channels/index.md">channels</a> through
-<a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../reference/frequenz/channels/#frequenz.channels.Receiver">Receiver</a> objects. <a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../reference/frequenz/channels/#frequenz.channels.Receiver">Receivers</a>
+<a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../reference/frequenz/channels/#frequenz.channels.Receiver"><code>Receiver</code></a> objects. <a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../reference/frequenz/channels/#frequenz.channels.Receiver"><code>Receiver</code></a>s
 are usually created by calling <code>channel.new_receiver()</code> and are <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/typing.html#typing.AsyncIterator">async
 iterators</a>, so the easiest way to receive messages from them as
 a stream is to use <code>async for</code>:</p>
@@ -1690,7 +1690,8 @@ the receiver to free up resources. This is especially important in applications 
 repeatedly creating new receivers.  The
 <a class="autorefs autorefs-internal" title="close" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.close"><code>Receiver.close()</code></a> method can be used for this
 purpose.</p>
-<p>After <code>close()</code> is called, we can still receive messages that are in the receiver's
+<p>After <a class="autorefs autorefs-internal" title="close" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.close"><code>Receiver.close()</code></a> is called, we can still receive
+messages that are in the receiver's
 buffer, but as soon as the receiver's buffer has been drained, trying to receive further
 messages from a <em>closed</em> receiver will raise a
 <a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverStoppedError" href="../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a>.</p>

@@ -1652,7 +1652,7 @@
 
         <p>Select the first among multiple Receivers.</p>
 <h2 id="frequenz.channels._select--usage">Usage<a class="headerlink" href="#frequenz.channels._select--usage" title="Permanent link">¤</a></h2>
-<p>If you need to receiver different types of messages from different receivers, you need
+<p>If you need to receive different types of messages from different receivers, you need
 to know the source of a particular received message to know the type of the message.</p>
 <p><a class="autorefs autorefs-internal" title="frequenz.channels.select
 
@@ -1703,9 +1703,14 @@ the if-chain and do nothing with the message:</p>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Received from receiver2, length: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">selected</span><span class="o">.</span><span class="n">message</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </span></code></pre></div>
 </details>        <h2 id="frequenz.channels._select--stopping">Stopping<a class="headerlink" href="#frequenz.channels._select--stopping" title="Permanent link">¤</a></h2>
-<p>The <code>select()</code> async iterator will stop as soon as all the receivers are stopped. You
-can also end the iteration early by breaking out of the loop as normal.</p>
-<p>When a single <a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../../../reference/frequenz/channels/#frequenz.channels.Receiver">receiver</a> is stopped, it will be reported
+<p>The <a class="autorefs autorefs-internal" title="frequenz.channels.select
+
+
+  
+      async
+  " href="../../../../reference/frequenz/channels/#frequenz.channels.select"><code>select()</code></a> async iterator will stop as soon as all the receivers
+are stopped. You can also end the iteration early by breaking out of the loop as normal.</p>
+<p>When a single <a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../../../reference/frequenz/channels/#frequenz.channels.Receiver"><code>Receiver</code></a> is stopped, it will be reported
 via the <a class="autorefs autorefs-internal" title="frequenz.channels.Selected" href="../../../../reference/frequenz/channels/#frequenz.channels.Selected"><code>Selected</code></a> object. You can use the
 <a class="autorefs autorefs-internal" title="was_stopped
 
@@ -1713,7 +1718,7 @@ via the <a class="autorefs autorefs-internal" title="frequenz.channels.Selected"
   
       property
   " href="../../../../reference/frequenz/channels/#frequenz.channels.Selected.was_stopped"><code>was_stopped</code></a> method to check if the
-selected <a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../../../reference/frequenz/channels/#frequenz.channels.Receiver">receiver</a> was stopped:</p>
+selected <a class="autorefs autorefs-internal" title="frequenz.channels.Receiver" href="../../../../reference/frequenz/channels/#frequenz.channels.Receiver"><code>Receiver</code></a> was stopped:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">selected</span> <span class="ow">in</span> <span class="n">select</span><span class="p">(</span><span class="n">receiver1</span><span class="p">,</span> <span class="n">receiver2</span><span class="p">):</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">if</span> <span class="n">selected_from</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="n">receiver1</span><span class="p">):</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="k">if</span> <span class="n">selected</span><span class="o">.</span><span class="n">was_stopped</span><span class="p">:</span>

@@ -1664,7 +1664,7 @@ to watch for changes in a set of files. It will generate an
   " href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.Event"><code>Event</code></a> message every time a file is
 created, modified or deleted, depending on the type of events that it is configured
 to watch for.</p>
-<p>The <a class="autorefs autorefs-internal" title="frequenz.channels.file_watcher.EventType" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.EventType">event</a> message contains the
+<p>The <a class="autorefs autorefs-internal" title="frequenz.channels.file_watcher.EventType" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.EventType"><code>EventType</code></a> of the event contains the
 <a class="autorefs autorefs-internal" title="type
 
 
@@ -1683,12 +1683,15 @@ observed.</p>
 <details class="note" open>
   <summary>Note</summary>
   <p>The owner of the <a class="autorefs autorefs-internal" title="frequenz.channels.file_watcher.FileWatcher" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.FileWatcher"><code>FileWatcher</code></a>
-receiver is responsible for recreating the <code>FileWatcher</code> after it has been
+receiver is responsible for recreating the
+<a class="autorefs autorefs-internal" title="frequenz.channels.file_watcher.FileWatcher" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.FileWatcher"><code>FileWatcher</code></a> after it has been
 cancelled or stopped.
 For example, if a <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/asyncio-task.html#asyncio.Task"><code>Task</code></a> uses an asynchronous iterator to consume
-events from the <code>FileWatcher</code> and the task is cancelled, the <code>FileWatcher</code> will
+events from the <a class="autorefs autorefs-internal" title="frequenz.channels.file_watcher.FileWatcher" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.FileWatcher"><code>FileWatcher</code></a> and the
+task is cancelled, the <a class="autorefs autorefs-internal" title="frequenz.channels.file_watcher.FileWatcher" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.FileWatcher"><code>FileWatcher</code></a> will
 also stop. Therefore, the same <code>FileWatcher</code> instance cannot be reused for a new
-task to consume events. In this case, a new FileWatcher instance must be created.</p>
+task to consume events. In this case, a new
+<a class="autorefs autorefs-internal" title="frequenz.channels.file_watcher.FileWatcher" href="../../../reference/frequenz/channels/file_watcher/#frequenz.channels.file_watcher.FileWatcher"><code>FileWatcher</code></a> instance must be created.</p>
 </details>        <h2 id="frequenz.channels.file_watcher.FileWatcher--event-types">Event Types<a class="headerlink" href="#frequenz.channels.file_watcher.FileWatcher--event-types" title="Permanent link">¤</a></h2>
 <p>The following event types are available:</p>
 <ul>
