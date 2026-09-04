@@ -5,7 +5,7 @@
 requires = [
   "setuptools == 84.0.0",
   "setuptools_scm[toml] == 10.2.1",
-  "frequenz-repo-config[lib] == 0.18.0",
+  "frequenz-repo-config[lib] == 0.19.0",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -48,7 +48,7 @@ dev-formatting = ["black == 26.5.1", "isort == 9.0.1"]
 dev-mkdocs = [
   "Markdown == 3.10.3",
   "black == 26.5.1",
-  "frequenz-repo-config[lib] == 0.18.0",
+  "frequenz-repo-config[lib] == 0.19.0",
   "markdown-callouts == 0.4.0",
   "markdown-svgbob == 202406.1023",
   "mike == 2.2.0",
@@ -68,7 +68,7 @@ dev-mypy = [
   "mypy == 2.3.1",
   "types-Markdown == 3.10.2.20260712",
 ]
-dev-noxfile = ["nox == 2026.8.17", "frequenz-repo-config[lib] == 0.18.0"]
+dev-noxfile = ["nox == 2026.8.17", "frequenz-repo-config[lib] == 0.19.0"]
 dev-pylint = [
   # For checking the noxfile, docs/ script, and tests
   "frequenz-channels[dev-mkdocs,dev-noxfile,dev-pytest]",
@@ -76,7 +76,7 @@ dev-pylint = [
 ]
 dev-pytest = [
   "async-solipsism == 0.9",
-  "frequenz-repo-config[extra-lint-examples] == 0.18.0",
+  "frequenz-repo-config[extra-lint-examples] == 0.19.0",
   "hypothesis == 6.165.11",
   "pytest == 9.1.1",
   "pytest-asyncio == 1.4.0",
@@ -153,8 +153,9 @@ disable = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "-W=all -Werror -Wdefault::DeprecationWarning -Wdefault::PendingDeprecationWarning -vv"
+addopts = "-W=all -Werror -Wdefault::DeprecationWarning -Wdefault::PendingDeprecationWarning"
 testpaths = ["tests", "src"]
+asyncio_debug = true
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 required_plugins = ["pytest-asyncio", "pytest-mock"]
@@ -163,6 +164,7 @@ markers = [
 ]
 
 [tool.mypy]
+enable_error_code = ["exhaustive-match"]
 explicit_package_bases = true
 namespace_packages = true
 # This option disables mypy cache, and it is sometimes useful to enable it if
