@@ -746,3 +746,62 @@ async def test_broadcast_subscribe_inherits_receiver_options() -> None:
     assert not subscribed._warn_on_overflow
     assert overridden._warn_on_overflow
     # pylint: enable=protected-access
+
+
+async def test_broadcast_has_receivers() -> None:
+    """Ensure senders report whether their channel has receivers."""
+    sender, receiver = BroadcastChannel[int](name="has-receivers-test")
+    receiver_2 = sender.subscribe()
+    assert sender.has_receivers
+
+    receiver.close()
+    assert sender.has_receivers
+
+    receiver_2.close()
+    assert not sender.has_receivers
+
+
+async def test_broadcast_has_receivers_after_last_receiver_dropped() -> None:
+    """Ensure `has_receivers` doesn't count garbage-collected receivers."""
+    sender, receiver = BroadcastChannel[int](name="has-receivers-test")
+
+    del receiver
+    gc.collect()
+
+    assert not sender.has_receivers
+
+
+async def test_broadcast_has_senders() -> None:
+    """Ensure receivers report whether their channel has senders."""
+    sender, receiver = BroadcastChannel[int](name="has-senders-test")
+    sender_2 = sender.clone()
+    assert receiver.has_senders
+
+    await sender.aclose()
+    assert receiver.has_senders
+
+    await sender_2.send(1)
+    await sender_2.aclose()
+    assert not receiver.has_senders
+    assert await receiver.receive() == 1
+
+
+async def test_broadcast_has_receivers_and_senders_no_auto_close() -> None:
+    """Ensure non-auto-closing channels report their senders and receivers."""
+    chan = Broadcast[int](name="input-chan")
+    sender = chan.new_sender()
+    assert not sender.has_receivers
+
+    receiver = chan.new_receiver()
+    assert sender.has_receivers
+    assert receiver.has_senders
+
+    await sender.aclose()
+    assert not receiver.has_senders
+
+    sender_2 = chan.new_sender()
+    assert receiver.has_senders
+
+    await chan.aclose()
+    assert not receiver.has_senders
+    assert not sender_2.has_receivers

@@ -391,6 +391,25 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
         """The number of open senders attached to this sender's channel."""
         return self._channel._sender_count  # pylint: disable=protected-access
 
+    @property
+    def has_receivers(self) -> bool:
+        """Whether this sender's channel is open and has any receivers.
+
+        Producers can check this to stop producing messages that nobody would
+        receive.  When this is `False` on an open
+        [`BroadcastChannel`][frequenz.channels.BroadcastChannel],
+        [`send()`][frequenz.channels.BroadcastSender.send] on an open sender raises a
+        [`NoReceiversError`][frequenz.channels.NoReceiversError] until a new receiver is
+        created with [`subscribe()`][frequenz.channels.BroadcastSender.subscribe].
+
+        This doesn't check whether this sender itself is closed.
+        """
+        # pylint: disable=protected-access
+        return not self._channel._closed and any(
+            receiver_ref() is not None
+            for receiver_ref in self._channel._receivers.values()
+        )
+
     @override
     async def send(self, message: _T, /) -> None:  # noqa: DOC503 (raised indirectly)
         """Send a message to all broadcast receivers.
@@ -589,6 +608,22 @@ class BroadcastReceiver(Receiver[_T]):
                     self,
                 )
         self._q.append(message)
+
+    @property
+    def has_senders(self) -> bool:
+        """Whether this receiver's channel is open and has any senders.
+
+        A [`BroadcastChannel`][frequenz.channels.BroadcastChannel] is closed as soon
+        as its last sender is closed.  So once this is `False` on a
+        `BroadcastChannel`, it stays `False`, and no new messages will arrive.  The
+        messages already in this receiver's buffer can still be received.
+
+        A sender that was dropped without being closed still counts.
+
+        This doesn't check whether this receiver itself is closed.
+        """
+        # pylint: disable=protected-access
+        return not self._channel._closed and self._channel._sender_count > 0
 
     def __len__(self) -> int:
         """Return the number of unconsumed messages in the broadcast receiver.
