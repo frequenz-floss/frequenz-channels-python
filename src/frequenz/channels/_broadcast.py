@@ -386,7 +386,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
         return self._channel._sender_count  # pylint: disable=protected-access
 
     @override
-    async def send(self, message: _T, /) -> None:
+    async def send(self, message: _T, /) -> None:  # noqa: DOC503 (raised indirectly)
         """Send a message to all broadcast receivers.
 
         Args:
@@ -402,13 +402,8 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
                 [`BroadcastChannel`][frequenz.channels.BroadcastChannel] or a
                 `Broadcast` created with `auto_close=True`.
         """
-        if self._closed:
-            raise SenderClosedError(self)
+        self._check_open()
         # pylint: disable=protected-access
-        if self._channel._closed:
-            raise SenderError("The channel was closed", self) from ChannelClosedError(
-                self._channel
-            )
         stale_refs = []
         for _hash, recv_ref in self._channel._receivers.items():
             recv = recv_ref()
@@ -443,13 +438,36 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
         ):
             await self._channel.aclose()
 
+    def _check_open(self) -> None:
+        """Check that this sender and its channel are open.
+
+        Raises:
+            SenderError: If the underlying channel is closed.
+            SenderClosedError: If this sender is closed.
+        """
+        if self._closed:
+            raise SenderClosedError(self)
+        if self._channel._closed:  # pylint: disable=protected-access
+            raise SenderError("The channel was closed", self) from ChannelClosedError(
+                self._channel
+            )
+
     @override
-    def clone(self) -> BroadcastSender[_T]:
-        """Return a clone of this sender."""
+    def clone(self) -> BroadcastSender[_T]:  # noqa: DOC502 (raised indirectly)
+        """Return a clone of this sender.
+
+        Returns:
+            A new sender attached to this sender's channel.
+
+        Raises:
+            SenderError: If the underlying channel is closed.
+            SenderClosedError: If this sender is closed.
+        """
+        self._check_open()
         return BroadcastSender(self._channel)
 
     @override
-    def subscribe(
+    def subscribe(  # noqa: DOC502 (raised indirectly)
         self,
         name: str | None = None,
         limit: int = 50,
@@ -470,12 +488,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
             SenderError: If the underlying channel is closed.
             SenderClosedError: If this sender is closed.
         """
-        if self._closed:
-            raise SenderClosedError(self)
-        if self._channel._closed:  # pylint: disable=protected-access
-            raise SenderError("The channel was closed", self) from ChannelClosedError(
-                self._channel
-            )
+        self._check_open()
         return self._channel.new_receiver(
             name=name, limit=limit, warn_on_overflow=warn_on_overflow
         )

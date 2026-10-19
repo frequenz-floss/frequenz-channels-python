@@ -19,6 +19,7 @@ from frequenz.channels import (
     Receiver,
     ReceiverStoppedError,
     Sender,
+    SenderClosedError,
     SenderError,
     select,
     selected_from,
@@ -692,3 +693,22 @@ async def test_broadcast_closed_channels_remain_closed() -> None:
     with pytest.raises(SenderError) as excinfo:
         _ = sender.subscribe()
     assert isinstance(excinfo.value.__cause__, ChannelClosedError)
+
+    with pytest.raises(SenderError) as excinfo:
+        _ = sender.clone()
+    assert isinstance(excinfo.value.__cause__, ChannelClosedError)
+
+
+async def test_broadcast_closed_sender() -> None:
+    """Ensure a closed sender can't be used to send, clone or subscribe."""
+    sender, _receiver = BroadcastChannel[int](name="closed-sender-test")
+    sender_2 = sender.clone()
+    await sender.aclose()
+    assert sender_2.sender_count == 1
+
+    with pytest.raises(SenderClosedError):
+        await sender.send(1)
+    with pytest.raises(SenderClosedError):
+        _ = sender.clone()
+    with pytest.raises(SenderClosedError):
+        _ = sender.subscribe()
