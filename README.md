@@ -67,13 +67,11 @@ python3 -m pip install frequenz-channels
 ```python
 import asyncio
 
-from frequenz.channels import Anycast
+from frequenz.channels import BroadcastChannel
 
 
 async def main() -> None:
-    hello_channel = Anycast[str](name="hello-world-channel")
-    sender = hello_channel.new_sender()
-    receiver = hello_channel.new_receiver()
+    sender, receiver = BroadcastChannel[str](name="hello-world-channel")
 
     await sender.send("Hello World!")
     message = await receiver.receive()
@@ -100,8 +98,7 @@ from enum import Enum, auto
 from typing import assert_never
 
 from frequenz.channels import (
-    Anycast,
-    Broadcast,
+    BroadcastChannel,
     Receiver,
     Sender,
     merge,
@@ -151,6 +148,7 @@ async def send(
                     await control_reply.send(Reply(ReplyCommand.PONG, str(sender)))
                 case _ as unknown:
                     assert_never(unknown)
+    await sender.aclose()
     print(f"{sender}: Finished")
 
 
@@ -159,13 +157,16 @@ async def receive(
     control_command: Receiver[Command],
     control_reply: Sender[Reply],
 ) -> None:
-    """Receive data from multiple channels, until no more data is received for 2 seconds."""
+    """Receive data from multiple channels, until they're closed or idle for 2 seconds."""
     print("receive: Starting")
     timer = Timer(timedelta(seconds=2.0), SkipMissedAndDrift())
     print(f"{timer=}")
     merged = merge(*receivers)
     async for selected in select(merged, timer, control_command):
         if selected_from(selected, merged):
+            if selected.was_stopped:
+                print("receive: All data channels were closed")
+                break
             message = selected.message
             print(f"receive: Received {message=}")
             timer.reset()
@@ -191,51 +192,41 @@ async def receive(
 
 
 async def main() -> None:
-    data_channel_1 = Anycast[str](name="data-channel-1")
-    data_channel_2 = Anycast[str](name="data-channel-2")
-    command_channel = Broadcast[Command](name="control-channel")  # (1)!
-    reply_channel = Anycast[Reply](name="reply-channel")
+    data_sender_1, data_receiver_1 = BroadcastChannel[str](name="data-channel-1")
+    data_sender_2, data_receiver_2 = BroadcastChannel[str](name="data-channel-2")
+    command_sender, command_receiver = BroadcastChannel[Command](
+        name="control-channel"
+    )
+    reply_sender, reply_receiver = BroadcastChannel[Reply](name="reply-channel")
 
     async with asyncio.TaskGroup() as tasks:
         tasks.create_task(
-            send(
-                data_channel_1.new_sender(),
-                command_channel.new_receiver(),
-                reply_channel.new_sender(),
-            ),
+            send(data_sender_1, command_receiver, reply_sender.clone()),
             name="send-channel-1",
         )
         tasks.create_task(
-            send(
-                data_channel_2.new_sender(),
-                command_channel.new_receiver(),
-                reply_channel.new_sender(),
-            ),
+            send(data_sender_2, command_sender.subscribe(), reply_sender.clone()),
             name="send-channel-2",
         )
         tasks.create_task(
             receive(
-                [data_channel_1.new_receiver(), data_channel_2.new_receiver()],
-                command_channel.new_receiver(),
-                reply_channel.new_sender(),
+                [data_receiver_1, data_receiver_2],
+                command_sender.subscribe(),
+                reply_sender,
             ),
             name="receive",
         )
 
-        control_sender = command_channel.new_sender()
-        reply_receiver = reply_channel.new_receiver()
-
         # Send a ping command to all tasks and wait for the replies
-        await control_sender.send(Command.PING)
+        await command_sender.send(Command.PING)
         print(f"main: {await reply_receiver.receive()}")
         print(f"main: {await reply_receiver.receive()}")
         print(f"main: {await reply_receiver.receive()}")
 
         await asyncio.sleep(5.0)
 
-        # Stop senders, after 2 seconds not receiving any data,
-        # the receiver will stop too
-        await control_sender.send(Command.STOP_SENDER)
+        # Stop the senders.  This closes the data channels, so the receiver stops too.
+        await command_sender.send(Command.STOP_SENDER)
 
 
 asyncio.run(main())

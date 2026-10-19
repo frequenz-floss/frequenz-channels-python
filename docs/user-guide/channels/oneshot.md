@@ -1,6 +1,6 @@
-# Anycast
+# Oneshot
 
-::: frequenz.channels._anycast.Anycast
+::: frequenz.channels._oneshot.OneshotChannel
     options:
         inherited_members: []
         members: []
