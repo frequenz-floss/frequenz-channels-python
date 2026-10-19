@@ -427,6 +427,78 @@ async def test_broadcast_close_receiver() -> None:
         _ = await receiver_2.receive()
 
 
+async def test_broadcast_close_receiver_while_waiting() -> None:
+    """Ensure closing a receiver wakes up a task waiting on it."""
+    chan = Broadcast[int](name="input-chan")
+    receiver = chan.new_receiver()
+
+    waiter = asyncio.create_task(receiver.ready())
+    await asyncio.sleep(0)
+    assert not waiter.done()
+
+    receiver.close()
+
+    assert await asyncio.wait_for(waiter, timeout=1.0) is False
+
+
+def _wait_on_closed_loop(receiver: Receiver[int]) -> None:
+    """Leave a task waiting on the receiver in an event loop that is then closed."""
+
+    async def wait() -> None:
+        asyncio.create_task(receiver.ready())
+        await asyncio.sleep(0)
+
+    # The loop is closed without cancelling the waiting task.
+    loop = asyncio.new_event_loop()
+    try:
+        loop.run_until_complete(wait())
+    finally:
+        loop.close()
+
+
+def test_broadcast_wake_after_loop_closed() -> None:
+    """Ensure waking receivers works after a waiting receiver's loop closed."""
+    chan = Broadcast[int](name="input-chan")
+    sender = chan.new_sender()
+    receiver = chan.new_receiver()
+    receiver_2 = chan.new_receiver()
+
+    _wait_on_closed_loop(receiver)
+    receiver_2.close()
+    with pytest.raises(ReceiverStoppedError):
+        receiver_2.consume()
+
+    _wait_on_closed_loop(receiver)
+    asyncio.run(sender.send(1))
+    assert receiver.consume() == 1
+
+    _wait_on_closed_loop(receiver)
+    asyncio.run(chan.aclose())
+    assert chan.is_closed
+
+
+def test_broadcast_wake_from_other_thread_in_debug_mode() -> None:
+    """Ensure a wake-up from another thread still fails in debug mode."""
+
+    async def close_in_thread() -> None:
+        chan = Broadcast[int](name="input-chan")
+        receiver = chan.new_receiver()
+        receiver_2 = chan.new_receiver()
+        asyncio.create_task(receiver.ready())
+        await asyncio.sleep(0)
+        with pytest.raises(RuntimeError, match="Non-thread-safe operation"):
+            await asyncio.to_thread(receiver_2.close)
+
+    # The failed wake-up leaves the waiting task stuck, so this loop is closed
+    # without cancelling it.
+    loop = asyncio.new_event_loop()
+    loop.set_debug(True)
+    try:
+        loop.run_until_complete(close_in_thread())
+    finally:
+        loop.close()
+
+
 async def test_broadcast_auto_close_1() -> None:
     """Ensure broadcast auto close works when all receivers are closed."""
     sender, receiver = BroadcastChannel[int](name="auto-close-test")

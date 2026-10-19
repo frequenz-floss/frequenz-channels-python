@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import logging
 import weakref
-from asyncio import Condition
+from asyncio import Event
 from collections import deque
 from typing import Generic, TypeVar
 
@@ -216,8 +216,14 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
         Only used for debugging purposes.
         """
 
-        self._recv_cv: Condition = Condition()
-        """The condition to wait for data in the channel's buffer."""
+        self._wakeup: Event = Event()
+        """The event receivers wait on for new messages or state changes.
+
+        Setting it wakes up all receivers waiting on it, and it is then replaced
+        with a fresh event for the next wait.  It can be set from synchronous code
+        running on the receivers' event loop, like
+        [`BroadcastReceiver.close()`][frequenz.channels.BroadcastReceiver.close].
+        """
 
         self._sender_count: int = 0
         """The number of senders attached to this channel."""
@@ -280,8 +286,21 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
         """
         self._latest = None
         self._closed = True
-        async with self._recv_cv:
-            self._recv_cv.notify_all()
+        self._wake_receivers()
+
+    def _wake_receivers(self) -> None:
+        """Wake up all receivers waiting for new messages."""
+        wakeup, self._wakeup = self._wakeup, Event()
+        try:
+            wakeup.set()
+        except RuntimeError:
+            # `set()` raises if the waiters' loop is closed, and they can't be woken
+            # anyway.  All waiters of an event share one loop, so any other
+            # `RuntimeError`, like a call from another thread in debug mode, is
+            # re-raised.
+            loop = getattr(wakeup, "_loop", None)
+            if loop is None or not loop.is_closed():
+                raise
 
     @deprecated("The close() method is deprecated, use aclose() instead")
     async def close(self) -> None:
@@ -401,8 +420,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
                 self._channel
             )
         self._channel._latest = message
-        async with self._channel._recv_cv:
-            self._channel._recv_cv.notify_all()
+        self._channel._wake_receivers()
         # pylint: enable=protected-access
 
     @override
@@ -566,10 +584,8 @@ class BroadcastReceiver(Receiver[_T]):
         if self._q:
             return True
 
-        # Use a while loop here, to handle spurious wakeups of condition variables.
-        #
-        # The condition also makes sure that if there are already messages ready to be
-        # consumed, then we return immediately.
+        # Use a while loop here, because receivers are woken up on every channel
+        # state change, not only when a message for this receiver arrives.
         # pylint: disable=protected-access
         while len(self._q) == 0:
             if self._channel._closed or self._closed:
@@ -577,8 +593,7 @@ class BroadcastReceiver(Receiver[_T]):
             if self._channel._auto_close_enabled and self._channel._sender_count == 0:
                 await self._channel.aclose()
                 return False
-            async with self._channel._recv_cv:
-                await self._channel._recv_cv.wait()
+            await self._channel._wakeup.wait()
         return True
         # pylint: enable=protected-access
 
@@ -613,9 +628,10 @@ class BroadcastReceiver(Receiver[_T]):
         [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
         """
         self._closed = True
-        self._channel._receivers.pop(  # pylint: disable=protected-access
-            hash(self), None
-        )
+        # pylint: disable=protected-access
+        self._channel._receivers.pop(hash(self), None)
+        self._channel._wake_receivers()
+        # pylint: enable=protected-access
 
     def __str__(self) -> str:
         """Return a string representation of this receiver."""
