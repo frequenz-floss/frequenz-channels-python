@@ -712,3 +712,37 @@ async def test_broadcast_closed_sender() -> None:
         _ = sender.clone()
     with pytest.raises(SenderClosedError):
         _ = sender.subscribe()
+
+
+async def test_broadcast_subscribe_default_options(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Ensure receivers subscribed to a `Broadcast` use the default options."""
+    chan = Broadcast[int](name="subscribe-defaults-test")
+    sender = chan.new_sender()
+    receiver = sender.subscribe()
+
+    with caplog.at_level("WARNING", logger="frequenz.channels._broadcast"):
+        for i in range(51):
+            await sender.send(i)
+
+    assert len(receiver) == 50
+    assert "is full. Oldest message was dropped." in caplog.text
+
+
+async def test_broadcast_subscribe_inherits_receiver_options() -> None:
+    """Ensure subscribed receivers default to the channel's receiver options."""
+    sender, receiver = BroadcastChannel[int](
+        name="options-test", limit=2, warn_on_overflow=False
+    )
+    subscribed = sender.subscribe()
+    overridden = sender.subscribe(limit=3, warn_on_overflow=True)
+
+    for i in range(4):
+        await sender.send(i)
+
+    assert [len(receiver), len(subscribed), len(overridden)] == [2, 2, 3]
+    # pylint: disable=protected-access
+    assert not subscribed._warn_on_overflow
+    assert overridden._warn_on_overflow
+    # pylint: enable=protected-access
