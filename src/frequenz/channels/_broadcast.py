@@ -254,6 +254,12 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
         `auto_close` argument.
         """
 
+        self._default_limit: int = 50
+        """The default buffer size of receivers created with `BroadcastSender.subscribe()`."""
+
+        self._default_warn_on_overflow: bool = True
+        """The default overflow warning setting of subscribed receivers."""
+
         self.resend_latest: bool = resend_latest
         """Whether to resend the latest message to new receivers.
 
@@ -475,16 +481,20 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
     def subscribe(  # noqa: DOC502 (raised indirectly)
         self,
         name: str | None = None,
-        limit: int = 50,
-        warn_on_overflow: bool = True,
+        limit: int | None = None,
+        warn_on_overflow: bool | None = None,
     ) -> BroadcastReceiver[_T]:
         """Return a new receiver attached to this sender's channel.
 
         Args:
             name: A name to identify the receiver in the logs.
-            limit: Number of messages the receiver can hold in its buffer.
+            limit: Number of messages the receiver can hold in its buffer.  If
+                `None`, the `limit` the `BroadcastChannel` was created with is used,
+                or `50` for a `Broadcast`.
             warn_on_overflow: Whether to log a warning when the receiver's buffer is
-                full and a message is dropped.
+                full and a message is dropped.  If `None`, the `warn_on_overflow`
+                setting the `BroadcastChannel` was created with is used, or `True`
+                for a `Broadcast`.
 
         Returns:
             A new receiver attached to this sender's channel.
@@ -494,9 +504,17 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
             SenderClosedError: If this sender is closed.
         """
         self._check_open()
+        # pylint: disable=protected-access
         return self._channel.new_receiver(
-            name=name, limit=limit, warn_on_overflow=warn_on_overflow
+            name=name,
+            limit=self._channel._default_limit if limit is None else limit,
+            warn_on_overflow=(
+                self._channel._default_warn_on_overflow
+                if warn_on_overflow is None
+                else warn_on_overflow
+            ),
         )
+        # pylint: enable=protected-access
 
     def __str__(self) -> str:
         """Return a string representation of this sender."""
@@ -859,9 +877,13 @@ class BroadcastChannel(
                 to wait for the next message on the channel to arrive.  It is safe to
                 be set in data/reporting channels, but is not recommended for use in
                 channels that stream control instructions.
-            limit: Number of messages the receivers can hold in their buffers.
+            limit: Number of messages each receiver can hold in its buffer, for the
+                initial receiver and, by default, for receivers created with
+                [`BroadcastSender.subscribe()`][frequenz.channels.BroadcastSender.subscribe].
             warn_on_overflow: Whether to log a warning when a receiver's buffer is full
-                and a message is dropped.
+                and a message is dropped.  Applies to the initial receiver and, by
+                default, to receivers created with
+                [`BroadcastSender.subscribe()`][frequenz.channels.BroadcastSender.subscribe].
 
         Returns:
             A new BroadcastChannel instance that can be destructured into an initial
@@ -870,14 +892,9 @@ class BroadcastChannel(
         channel = Broadcast[ChannelMessageT](
             name=name, resend_latest=resend_latest, auto_close=True
         )
-        return tuple.__new__(
-            cls,
-            (
-                channel.new_sender(),
-                channel.new_receiver(
-                    name=f"{name}_receiver",
-                    limit=limit,
-                    warn_on_overflow=warn_on_overflow,
-                ),
-            ),
-        )
+        # pylint: disable=protected-access
+        channel._default_limit = limit
+        channel._default_warn_on_overflow = warn_on_overflow
+        # pylint: enable=protected-access
+        sender = channel.new_sender()
+        return tuple.__new__(cls, (sender, sender.subscribe(name=f"{name}_receiver")))
