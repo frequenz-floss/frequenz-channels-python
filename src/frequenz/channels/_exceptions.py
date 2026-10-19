@@ -19,11 +19,10 @@ When an exception is caused by another exception, for example if the underlying 
 was closed while sending or receiving a message, the original exception will be
 available as the cause of the exception:
 
-```python show_lines="6:"
-from frequenz.channels import Anycast, ChannelClosedError, SenderError
+```python show_lines="5:"
+from frequenz.channels import BroadcastChannel, ChannelClosedError, SenderError
 
-channel = Anycast[int](name="test-channel")
-sender = channel.new_sender()
+sender, receiver = BroadcastChannel[int](name="test-channel")
 
 try:
     await sender.send(42)
@@ -44,11 +43,10 @@ Tip:
     explicitly calling [`receive()`][frequenz.channels.Receiver.receive] on the
     receiver after the iteration is done:
 
-    ```python show_lines="6:"
-    from frequenz.channels import Anycast, ChannelClosedError, ReceiverStoppedError
+    ```python show_lines="5:"
+    from frequenz.channels import BroadcastChannel, ChannelClosedError, ReceiverStoppedError
 
-    channel = Anycast[int](name="test-channel")
-    receiver = channel.new_receiver()
+    sender, receiver = BroadcastChannel[int](name="test-channel")
 
     async for message in receiver:
         print(message)

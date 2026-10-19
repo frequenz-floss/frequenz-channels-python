@@ -9,21 +9,19 @@ If you just need to receive the same type of messages but from multiple sources 
 stream, you can use [`merge()`][frequenz.channels.merge] to create a new receiver that
 will receive messages from all the given receivers:
 
-```python show_lines="8:"
-from frequenz.channels import Anycast, Receiver, merge
+```python show_lines="6:"
+from frequenz.channels import BroadcastChannel, Receiver, merge
 
-channel1: Anycast[int] = Anycast(name="channel1")
-channel2: Anycast[int] = Anycast(name="channel2")
-receiver1 = channel1.new_receiver()
-receiver2 = channel2.new_receiver()
+sender1, receiver1 = BroadcastChannel[int](name="channel1")
+sender2, receiver2 = BroadcastChannel[int](name="channel2")
 
 async for message in merge(receiver1, receiver2):
     print(message)
 ```
 
-If the first message comes from `channel2` and the second message from `channel1`, the
-first message will be received immediately, and the second message will be received as
-soon as it is available.
+If the first message comes from `receiver2` and the second message from `receiver1`,
+the first message will be received immediately, and the second message will be
+received as soon as it is available.
 
 This can be helpful when you just need to receive messages and don't care about
 where are they coming from specifically. If you need to know where the message came
@@ -69,12 +67,10 @@ def merge(*receivers: Receiver[ReceiverMessageT_co]) -> Merger[ReceiverMessageT_
         stream like this:
 
         ```python
-        from frequenz.channels import Broadcast
+        from frequenz.channels import BroadcastChannel, merge
 
-        channel1 = Broadcast[int](name="input-channel-1")
-        channel2 = Broadcast[int](name="input-channel-2")
-        receiver1 = channel1.new_receiver()
-        receiver2 = channel2.new_receiver()
+        sender1, receiver1 = BroadcastChannel[int](name="input-channel-1")
+        sender2, receiver2 = BroadcastChannel[int](name="input-channel-2")
 
         async for message in merge(receiver1, receiver2):
             print(f"received {message}")

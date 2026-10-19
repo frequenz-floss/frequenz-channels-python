@@ -30,44 +30,42 @@ class WithPrevious(Generic[ChannelMessageT]):
 
     Example: Receiving only messages that are different from the previous one.
         ```python
-        from frequenz.channels import Broadcast
+        from frequenz.channels import BroadcastChannel
         from frequenz.channels.experimental import WithPrevious
 
-        channel = Broadcast[int](name="example")
-        receiver = channel.new_receiver().filter(WithPrevious(lambda old, new: old != new))
-        sender = channel.new_sender()
+        sender, receiver = BroadcastChannel[int](name="example")
+        filtered = receiver.filter(WithPrevious(lambda old, new: old != new))
 
         # This message will be received as it is the first message.
         await sender.send(1)
-        assert await receiver.receive() == 1
+        assert await filtered.receive() == 1
 
-        # This message will be skipped as it equals to the previous one.
+        # This message will be skipped as it equals the previous one.
         await sender.send(1)
 
-        # This message will be received as it is a different from the previous one.
+        # This message will be received as it is different from the previous one.
         await sender.send(0)
-        assert await receiver.receive() == 0
+        assert await filtered.receive() == 0
         ```
 
     Example: Receiving only messages if they are bigger than the previous one.
         ```python
-        from frequenz.channels import Broadcast
+        from frequenz.channels import BroadcastChannel
         from frequenz.channels.experimental import WithPrevious
 
-        channel = Broadcast[int](name="example")
-        receiver = channel.new_receiver().filter(
+        sender, receiver = BroadcastChannel[int](name="example")
+        filtered = receiver.filter(
             WithPrevious(lambda old, new: new > old, first_is_true=False)
         )
-        sender = channel.new_sender()
 
-        # This message will skipped as first_is_true is False.
+        # This message will be skipped as first_is_true is False.
         await sender.send(1)
 
         # This message will be received as it is bigger than the previous one (1).
         await sender.send(2)
-        assert await receiver.receive() == 2
+        assert await filtered.receive() == 2
 
-        # This message will be skipped as it is smaller than the previous one (1).
+        # This message will be skipped as it is smaller than the previous one (2).
         await sender.send(0)
 
         # This message will be skipped as it is not bigger than the previous one (0).
@@ -75,11 +73,11 @@ class WithPrevious(Generic[ChannelMessageT]):
 
         # This message will be received as it is bigger than the previous one (0).
         await sender.send(1)
-        assert await receiver.receive() == 1
+        assert await filtered.receive() == 1
 
         # This message will be received as it is bigger than the previous one (1).
         await sender.send(2)
-        assert await receiver.receive() == 2
+        assert await filtered.receive() == 2
         ```
     """
 

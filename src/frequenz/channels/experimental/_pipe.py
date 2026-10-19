@@ -28,30 +28,29 @@ class Pipe(typing.Generic[ChannelMessageT]):
     Example:
         ```python
         import asyncio
-        from contextlib import closing, aclosing, AsyncExitStack
+        from contextlib import closing, AsyncExitStack
 
-        from frequenz.channels import Broadcast
+        from frequenz.channels import BroadcastChannel
         from frequenz.channels.experimental import Pipe
 
         async def main() -> None:
-            # Channels, receivers and Pipe are in AsyncExitStack
+            # Senders, receivers and Pipe are in AsyncExitStack
             # to close and stop them at the end.
             async with AsyncExitStack() as stack:
-                source_channel = await stack.enter_async_context(
-                    aclosing(Broadcast[int](name="source channel"))
+                source_sender, source_receiver = BroadcastChannel[int](
+                    name="source channel"
                 )
-                source_receiver = stack.enter_context(closing(source_channel.new_receiver()))
+                stack.push_async_callback(source_sender.aclose)
+                stack.enter_context(closing(source_receiver))
 
-                forwarding_channel = await stack.enter_async_context(
-                    aclosing(Broadcast[int](name="forwarding channel"))
+                forwarding_sender, receiver = BroadcastChannel[int](
+                    name="forwarding channel"
                 )
-                await stack.enter_async_context(
-                    Pipe(source_receiver, forwarding_channel.new_sender())
-                )
+                stack.push_async_callback(forwarding_sender.aclose)
+                stack.enter_context(closing(receiver))
 
-                receiver = stack.enter_context(closing(forwarding_channel.new_receiver()))
+                await stack.enter_async_context(Pipe(source_receiver, forwarding_sender))
 
-                source_sender = source_channel.new_sender()
                 await source_sender.send(10)
                 assert await receiver.receive() == 10
 
