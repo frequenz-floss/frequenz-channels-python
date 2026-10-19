@@ -6,11 +6,13 @@
 import asyncio
 import gc
 import re
+import warnings
 from dataclasses import dataclass
 from typing import TypeGuard, assert_never
 
 import pytest
 
+from frequenz import channels
 from frequenz.channels import (
     Broadcast,
     BroadcastChannel,
@@ -805,3 +807,37 @@ async def test_broadcast_has_receivers_and_senders_no_auto_close() -> None:
     await chan.aclose()
     assert not receiver.has_senders
     assert not sender_2.has_receivers
+
+
+async def test_broadcast_channel_str() -> None:
+    """Ensure BroadcastChannel endpoints are named like Broadcast ones."""
+    sender, receiver = BroadcastChannel[int](name="str-test")
+
+    assert str(sender) == "Broadcast:str-test:BroadcastSender"
+    assert str(receiver) == "Broadcast:str-test:BroadcastReceiver:str-test_receiver"
+    assert repr(sender).startswith("BroadcastSender(Broadcast(name='str-test'")
+
+
+def test_broadcast_deprecated() -> None:
+    """Ensure reaching the `Broadcast` alias emits a deprecation warning."""
+    with pytest.deprecated_call(match="Please use BroadcastChannel instead."):
+        _ = channels.Broadcast
+
+
+async def test_broadcast_channel_closed_error_holds_broadcast() -> None:
+    """Ensure a closed `BroadcastChannel` reports a `Broadcast` in its error."""
+    sender, receiver = BroadcastChannel[int](name="closed-error-test")
+    await sender.aclose()
+
+    with pytest.raises(ReceiverStoppedError) as excinfo:
+        await receiver.receive()
+
+    assert isinstance(excinfo.value.__cause__, ChannelClosedError)
+    assert isinstance(excinfo.value.__cause__.channel, Broadcast)
+
+
+async def test_broadcast_channel_not_deprecated() -> None:
+    """Ensure creating a BroadcastChannel doesn't emit deprecation warnings."""
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        _ = BroadcastChannel[int](name="no-warnings-test")
