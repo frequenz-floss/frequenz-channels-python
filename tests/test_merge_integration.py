@@ -7,8 +7,7 @@ import asyncio
 
 import pytest
 
-from frequenz.channels import Anycast, Sender, merge
-from frequenz.channels._broadcast import Broadcast
+from frequenz.channels import Anycast, Broadcast, Sender, merge
 from frequenz.channels._receiver import ReceiverStoppedError
 
 

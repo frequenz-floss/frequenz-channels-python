@@ -26,8 +26,7 @@ from ._sender import (
 _logger = logging.getLogger(__name__)
 
 
-@deprecated("Please use BroadcastChannel instead.")
-class Broadcast(  # pylint: disable=too-many-instance-attributes
+class _Broadcast(  # pylint: disable=too-many-instance-attributes
     Generic[ChannelMessageT]
 ):
     """A channel that delivers all messages to all receivers.
@@ -353,12 +352,12 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
 
     def __str__(self) -> str:
         """Return a string representation of this channel."""
-        return f"{type(self).__name__}:{self._name}"
+        return f"{type(self).__name__.removeprefix('_')}:{self._name}"
 
     def __repr__(self) -> str:
         """Return a string representation of this channel."""
         return (
-            f"{type(self).__name__}(name={self._name!r}, "
+            f"{type(self).__name__.removeprefix('_')}(name={self._name!r}, "
             f"resend_latest={self.resend_latest!r}):<"
             f"latest={self._latest!r}, "
             f"receivers={len(self._receivers)!r}, "
@@ -377,13 +376,13 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
     method of an existing sender.
     """
 
-    def __init__(self, channel: Broadcast[_T], /) -> None:
+    def __init__(self, channel: _Broadcast[_T], /) -> None:
         """Initialize this sender.
 
         Args:
             channel: A reference to the broadcast channel this sender belongs to.
         """
-        self._channel: Broadcast[_T] = channel
+        self._channel: _Broadcast[_T] = channel
         """The broadcast channel this sender belongs to."""
 
         self._closed: bool = False
@@ -553,7 +552,7 @@ class BroadcastReceiver(Receiver[_T]):
 
     def __init__(
         self,
-        channel: Broadcast[_T],
+        channel: _Broadcast[_T],
         /,
         *,
         name: str | None,
@@ -585,7 +584,7 @@ class BroadcastReceiver(Receiver[_T]):
         Only used for debugging purposes.
         """
 
-        self._channel: Broadcast[_T] = channel
+        self._channel: _Broadcast[_T] = channel
         """The broadcast channel that this receiver belongs to."""
 
         self._q: deque[_T] = deque(maxlen=limit)
@@ -924,7 +923,7 @@ class BroadcastChannel(
             A new BroadcastChannel instance that can be destructured into an initial
                 sender and receiver.
         """
-        channel = Broadcast[ChannelMessageT](
+        channel = _Broadcast[ChannelMessageT](
             name=name, resend_latest=resend_latest, auto_close=True
         )
         # pylint: disable=protected-access
