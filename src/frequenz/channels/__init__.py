@@ -17,15 +17,29 @@ Base classes:
 * [`Sender`][frequenz.channels.Sender]: An object that can send messages to
   a channel.
 
+* [`CloneableSender`][frequenz.channels.CloneableSender],
+  [`SubscribableSender`][frequenz.channels.SubscribableSender] and
+  [`CloneableSubscribableSender`][frequenz.channels.CloneableSubscribableSender]:
+  Senders that can create more senders, or receivers, attached to the same channel.
+
 Channels:
 
-* [`Anycast`][frequenz.channels.Anycast]: A channel that supports multiple
+* [`BroadcastChannel`][frequenz.channels.BroadcastChannel]: A channel to broadcast
+  messages from multiple senders to multiple receivers. Each message sent through any
+  of the senders is received by all of the receivers.  The channel closes itself when
+  all its senders are closed.  A `send()` while it has no receivers raises a
+  [`NoReceiversError`][frequenz.channels.NoReceiversError].
+
+* [`OneshotChannel`][frequenz.channels.OneshotChannel]: A channel that can send a
+  single message from one sender to one receiver.
+
+* [`Anycast`][frequenz.channels.Anycast] (deprecated): A channel that supports multiple
   senders and multiple receivers.  A message sent through a sender will be
   received by exactly one receiver.
 
-* [`Broadcast`][frequenz.channels.Broadcast]: A channel to broadcast messages
-  from multiple senders to multiple receivers. Each message sent through any of
-  the senders is received by all of the receivers.
+* [`Broadcast`][frequenz.channels.Broadcast] (deprecated): The predecessor of
+  [`BroadcastChannel`][frequenz.channels.BroadcastChannel].  Unless it is created with
+  `auto_close=True`, it must be closed with `aclose()`.
 
 Utilities to work with channels:
 
