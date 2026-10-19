@@ -21,7 +21,7 @@ Example: Periodic Timer Example
     import asyncio
     from datetime import datetime, timedelta
 
-    from frequenz.channels.timer import Timer
+    from frequenz.channels.timer import Timer, TriggerAllMissed
 
 
     async def main() -> None:
@@ -46,13 +46,12 @@ Example: Timeout Example
     import asyncio
     from datetime import timedelta
 
-    from frequenz.channels import Anycast, select, selected_from
-    from frequenz.channels.timer import Timer
+    from frequenz.channels import BroadcastChannel, select, selected_from
+    from frequenz.channels.timer import SkipMissedAndDrift, Timer
 
 
     async def main() -> None:
-        channel = Anycast[int](name="data-channel")
-        data_receiver = channel.new_receiver()
+        sender, data_receiver = BroadcastChannel[int](name="data-channel")
 
         timer = Timer(timedelta(seconds=1.0), SkipMissedAndDrift())
 

@@ -93,7 +93,7 @@ class Anycast(Generic[ChannelMessageT]):
     This channel is useful, for example, to distribute work across multiple workers.
 
     In cases where each message needs to be received by every receiver, a
-    [broadcast][frequenz.channels.Broadcast] channel may be used.
+    [`BroadcastChannel`][frequenz.channels.BroadcastChannel] may be used.
 
     # Examples
 

@@ -6,15 +6,16 @@
 # Senders
 
 Messages are sent to a [channel](/user-guide/channels) through
-[`Sender`][frequenz.channels.Sender] objects. [`Sender`][frequenz.channels.Sender]s are
-usually created by calling `channel.new_sender()`, and are a very simple abstraction
-that only provides a single [`send()`][frequenz.channels.Sender.send] method:
+[`Sender`][frequenz.channels.Sender] objects. [`Sender`][frequenz.channels.Sender]s
+usually come from creating a channel, like a
+[`BroadcastChannel`][frequenz.channels.BroadcastChannel], or from calling
+`sender.clone()`.  They are a very simple abstraction that mainly provides a
+[`send()`][frequenz.channels.Sender.send] method:
 
-```python show_lines="6:"
-from frequenz.channels import Anycast
+```python show_lines="5:"
+from frequenz.channels import BroadcastChannel
 
-channel = Anycast[int](name="test-channel")
-sender = channel.new_sender()
+sender, receiver = BroadcastChannel[str](name="test-channel")
 
 await sender.send("Hello, world!")
 ```
@@ -36,11 +37,10 @@ effectively making the [`send()`][frequenz.channels.Sender.send] method blocking
 If there is any failure sending a message,
 a [`SenderError`][frequenz.channels.SenderError] exception is raised.
 
-```python show_lines="6:"
-from frequenz.channels import Anycast
+```python show_lines="5:"
+from frequenz.channels import BroadcastChannel, SenderError
 
-channel = Anycast[int](name="test-channel")
-sender = channel.new_sender()
+sender, receiver = BroadcastChannel[str](name="test-channel")
 
 try:
     await sender.send("Hello, world!")

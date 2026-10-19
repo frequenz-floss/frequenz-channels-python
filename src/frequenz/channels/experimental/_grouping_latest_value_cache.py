@@ -68,18 +68,20 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
 
     Example:
         ```python
-        from frequenz.channels import Broadcast
+        import asyncio
+
+        from frequenz.channels import BroadcastChannel
         from frequenz.channels.experimental import GroupingLatestValueCache
 
-        channel = Broadcast[tuple[int, str]](name="lvc_test")
+        sender, receiver = BroadcastChannel[tuple[int, str]](name="lvc_test")
 
-        cache = GroupingLatestValueCache(channel.new_receiver(), key=lambda x: x[0])
-        sender = channel.new_sender()
+        cache = GroupingLatestValueCache(receiver, key=lambda x: x[0])
 
         assert cache.get(6) is None
         assert 6 not in cache
 
         await sender.send((6, "twenty-six"))
+        await asyncio.sleep(0)  # Let the cache process the message
 
         assert 6 in cache
         assert cache.get(6) == (6, "twenty-six")
