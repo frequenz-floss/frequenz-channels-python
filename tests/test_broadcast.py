@@ -4,6 +4,8 @@
 """Tests for the Broadcast implementation."""
 
 import asyncio
+import gc
+import re
 from dataclasses import dataclass
 from typing import TypeGuard, assert_never
 
@@ -13,6 +15,7 @@ from frequenz.channels import (
     Broadcast,
     BroadcastChannel,
     ChannelClosedError,
+    NoReceiversError,
     Receiver,
     ReceiverStoppedError,
     Sender,
@@ -538,8 +541,8 @@ def test_broadcast_wake_from_other_thread_in_debug_mode() -> None:
         loop.close()
 
 
-async def test_broadcast_auto_close_1() -> None:
-    """Ensure broadcast auto close works when all receivers are closed."""
+async def test_broadcast_no_receivers_after_all_receivers_closed() -> None:
+    """Ensure sending fails once all receivers are closed."""
     sender, receiver = BroadcastChannel[int](name="auto-close-test")
 
     receiver_2 = sender.subscribe()
@@ -557,12 +560,16 @@ async def test_broadcast_auto_close_1() -> None:
 
     receiver_2.close()
 
-    with pytest.raises(SenderError) as excinfo:
+    with pytest.raises(
+        SenderError,
+        match=f"^Sender {re.escape(str(sender))} has no receivers$",
+    ) as excinfo:
         await sender.send(3)
-    assert isinstance(excinfo.value.__cause__, ChannelClosedError)
+    assert isinstance(excinfo.value, NoReceiversError)
+    assert excinfo.value.__cause__ is None
 
 
-async def test_broadcast_auto_close_2() -> None:
+async def test_broadcast_auto_close_on_all_senders_closed() -> None:
     """Ensure broadcast auto close works when all senders are closed."""
     sender, receiver = BroadcastChannel[int](name="auto-close-test")
 
@@ -585,11 +592,98 @@ async def test_broadcast_auto_close_2() -> None:
     assert isinstance(excinfo.value.__cause__, ChannelClosedError)
 
 
-async def test_broadcast_closed_channels_remain_closed() -> None:
-    """Ensure that a closed channel can't be resurrected."""
+async def test_broadcast_subscribe_after_last_receiver_closed() -> None:
+    """Ensure a channel without receivers can get new ones after a failed send."""
     sender, receiver = BroadcastChannel[int](name="auto-close-test")
 
     receiver.close()
+    with pytest.raises(NoReceiversError):
+        await sender.send(0)
+
+    receiver_2 = sender.subscribe()
+    await sender.send(1)
+    assert await receiver_2.receive() == 1
+
+
+async def test_broadcast_no_receivers_after_last_receiver_dropped() -> None:
+    """Ensure sending fails once the last receiver is garbage-collected."""
+    sender, receiver = BroadcastChannel[int](name="auto-close-test")
+
+    del receiver
+    gc.collect()
+
+    with pytest.raises(NoReceiversError):
+        await sender.send(1)
+
+
+async def test_broadcast_no_auto_close_send_without_receivers() -> None:
+    """Ensure a non-auto-closing `Broadcast` keeps a message sent without receivers.
+
+    With `resend_latest=True`, a receiver created later gets it.
+    """
+    chan = Broadcast[int](name="no-auto-close-test", resend_latest=True)
+    sender = chan.new_sender()
+
+    await sender.send(1)
+
+    receiver = chan.new_receiver()
+    assert await asyncio.wait_for(receiver.receive(), timeout=1.0) == 1
+
+
+async def test_broadcast_failed_send_not_resent() -> None:
+    """Ensure a message sent without receivers isn't resent to new receivers."""
+    sender, receiver = BroadcastChannel[int](name="resend-test", resend_latest=True)
+    await sender.send(1)
+    receiver.close()
+
+    with pytest.raises(NoReceiversError):
+        await sender.send(2)
+
+    receiver_2 = sender.subscribe()
+    assert await asyncio.wait_for(receiver_2.receive(), timeout=1.0) == 1
+
+
+async def test_broadcast_no_receivers_deprecated_auto_close() -> None:
+    """Ensure an auto-closing `Broadcast` stays open when sending without receivers."""
+    chan = Broadcast[int](name="auto-close-test", auto_close=True)
+    sender = chan.new_sender()
+
+    with pytest.raises(NoReceiversError):
+        await sender.send(1)
+    assert not chan.is_closed
+
+
+async def test_broadcast_last_sender_aclose_wakes_receivers() -> None:
+    """Ensure closing the last sender wakes up a waiting receiver at once."""
+    sender, receiver = BroadcastChannel[int](name="auto-close-test")
+
+    waiter = asyncio.create_task(receiver.ready())
+    await asyncio.sleep(0)
+    assert not waiter.done()
+
+    await sender.aclose()
+    await asyncio.sleep(0)
+
+    assert waiter.done()
+    assert waiter.result() is False
+
+
+async def test_broadcast_auto_close_without_senders() -> None:
+    """Ensure an auto-closing `Broadcast` without senders closes when received from."""
+    chan = Broadcast[int](name="auto-close-test", auto_close=True)
+    receiver = chan.new_receiver()
+    assert not chan.is_closed
+
+    assert not await asyncio.wait_for(receiver.ready(), timeout=1.0)
+    assert chan.is_closed
+
+
+async def test_broadcast_closed_channels_remain_closed() -> None:
+    """Ensure that a closed channel can't be resurrected."""
+    chan = Broadcast[int](name="closed-test")
+    sender = chan.new_sender()
+
+    await chan.aclose()
 
     with pytest.raises(SenderError) as excinfo:
         await sender.send(1)

@@ -16,7 +16,12 @@ from typing_extensions import deprecated, override
 from ._exceptions import ChannelClosedError
 from ._generic import ChannelMessageT
 from ._receiver import Receiver, ReceiverStoppedError
-from ._sender import CloneableSubscribableSender, SenderClosedError, SenderError
+from ._sender import (
+    CloneableSubscribableSender,
+    NoReceiversError,
+    SenderClosedError,
+    SenderError,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -201,14 +206,16 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
                 shown in the string representation of the channel.
             resend_latest: When True, every time a new receiver is created with
                 [`.new_receiver()`][frequenz.channels.Broadcast.new_receiver], the last
-                message seen by the channel will be sent to the new receiver
-                automatically. This allows new receivers on slow streams to get the
-                latest message as soon as they are created, without having to wait for
-                the next message on the channel to arrive.  It is safe to be set in
-                data/reporting channels, but is not recommended for use in channels that
-                stream control instructions.
-            auto_close: If True, the channel will be closed when all senders or all
-                receivers are closed.
+                message that was sent successfully will be sent to the new receiver
+                automatically, unless it was `None` or the channel was closed.  This
+                allows new receivers on slow streams to get the latest message as soon
+                as they are created, without having to wait for the next message on the
+                channel to arrive.  It is safe to be set in data/reporting channels, but
+                is not recommended for use in channels that stream control instructions.
+            auto_close: If True, the channel is closed when its last sender is
+                closed, or when a receiver waits for messages while the channel has
+                no senders.  A `send()` while it has no receivers raises a
+                [`NoReceiversError`][frequenz.channels.NoReceiversError].
         """
         self._name: str = name
         """The name of the broadcast channel.
@@ -240,19 +247,12 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
         """The latest message sent to the channel."""
 
         self._auto_close_enabled: bool = auto_close
-        """Whether to close the channel when all senders or all receivers are closed."""
+        """Whether the channel closes automatically, see the `auto_close` argument."""
 
         self.resend_latest: bool = resend_latest
         """Whether to resend the latest message to new receivers.
 
-        When `True`, every time a new receiver is created with
-        [`.new_receiver()`][frequenz.channels.Broadcast.new_receiver], it will
-        automatically get sent the latest message on the channel.  This allows new
-        receivers on slow streams to get the latest message as soon as they are created,
-        without having to wait for the next message on the channel to arrive.
-
-        It is safe to be set in data/reporting channels, but is not recommended for use
-        in channels that stream control instructions.
+        See the `resend_latest` argument of the constructor.
         """
 
     @property
@@ -397,6 +397,10 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
                 A [`ChannelClosedError`][frequenz.channels.ChannelClosedError] is
                 set as the cause.
             SenderClosedError: If this sender was closed.
+            NoReceiversError: If this sender and its channel are open, but the
+                channel has no receivers, and it is a
+                [`BroadcastChannel`][frequenz.channels.BroadcastChannel] or a
+                `Broadcast` created with `auto_close=True`.
         """
         if self._closed:
             raise SenderClosedError(self)
@@ -415,10 +419,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
         for _hash in stale_refs:
             del self._channel._receivers[_hash]
         if self._channel._auto_close_enabled and len(self._channel._receivers) == 0:
-            await self._channel.aclose()
-            raise SenderError("The channel was closed", self) from ChannelClosedError(
-                self._channel
-            )
+            raise NoReceiversError(self)
         self._channel._latest = message
         self._channel._wake_receivers()
         # pylint: enable=protected-access
@@ -705,7 +706,10 @@ class BroadcastChannel(
     [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
 
     When all senders of a channel are closed, all its receivers will be
-    automatically closed, and vice versa.
+    automatically closed.  While all its receivers are closed,
+    [`send()`][frequenz.channels.BroadcastSender.send] drops the message and
+    raises a [`NoReceiversError`][frequenz.channels.NoReceiversError], but the
+    channel stays open.
 
     This channel is useful, for example, to implement a pub/sub pattern, where
     multiple consumers can subscribe to a channel to receive all messages.
@@ -831,12 +835,13 @@ class BroadcastChannel(
                 shown in the string representation of the channel.
             resend_latest: When True, every time a new receiver is created with
                 [`Broadcast.new_receiver()`][frequenz.channels.Broadcast.new_receiver],
-                the last message seen by the channel will be sent to the
-                new receiver automatically. This allows new receivers on slow streams to
-                get the latest message as soon as they are created, without having to
-                wait for the next message on the channel to arrive.  It is safe to be
-                set in data/reporting channels, but is not recommended for use in
-                channels that stream control instructions.
+                the last message that was sent successfully will be sent to the new
+                receiver automatically, unless it was `None`.  This allows new
+                receivers on slow streams to get the latest message as soon as they
+                are created, without having to wait for the next message on the
+                channel to arrive.  It is safe to be set in data/reporting channels,
+                but is not recommended for use in channels that stream control
+                instructions.
             limit: Number of messages the receivers can hold in their buffers.
             warn_on_overflow: Whether to log a warning when a receiver's buffer is full
                 and a message is dropped.

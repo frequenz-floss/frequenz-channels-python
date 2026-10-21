@@ -54,6 +54,10 @@ Exception classes:
 * [`SenderError`][frequenz.channels.SenderError]: Base class for all errors
   related to senders.
 
+* [`NoReceiversError`][frequenz.channels.NoReceiversError]: Error raised when sending
+  a message to a [`BroadcastChannel`][frequenz.channels.BroadcastChannel] that has no
+  receivers.
+
 * [`ReceiverError`][frequenz.channels.ReceiverError]: Base class for all errors
   related to receivers.
 
@@ -104,6 +108,7 @@ from ._select import (
 from ._sender import (
     CloneableSender,
     CloneableSubscribableSender,
+    NoReceiversError,
     Sender,
     SenderClosedError,
     SenderError,
@@ -126,6 +131,7 @@ __all__ = [
     "LatestValueCache",
     "MappedMessageT_co",
     "Merger",
+    "NoReceiversError",
     "OneshotChannel",
     "OneshotReceiver",
     "OneshotSender",

@@ -114,6 +114,25 @@ class SenderClosedError(SenderError[SenderMessageT_co]):
         super().__init__("Sender is closed", sender)
 
 
+class NoReceiversError(SenderError[SenderMessageT_co]):
+    """An error indicating that a message was sent to a channel without receivers.
+
+    It is raised by the senders of a
+    [`BroadcastChannel`][frequenz.channels.BroadcastChannel], and of a `Broadcast`
+    created with `auto_close=True`.  The message is dropped, but the channel stays
+    open, so sending works again once a new receiver is attached.
+    """
+
+    def __init__(self, sender: Sender[SenderMessageT_co]):
+        """Initialize this error.
+
+        Args:
+            sender: The [`Sender`][frequenz.channels.Sender] that tried to send the
+                message.
+        """
+        super().__init__(f"Sender {sender} has no receivers", sender)
+
+
 class SubscribableSender(Sender[SenderMessageT_contra], ABC):
     """A [`Sender`][frequenz.channels.Sender] that can be subscribed to."""
 
