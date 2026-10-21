@@ -11,11 +11,14 @@ to the sender.
 from __future__ import annotations
 
 import asyncio
+import logging
 import typing
 
 from .._generic import ChannelMessageT
 from .._receiver import Receiver
-from .._sender import Sender
+from .._sender import NoReceiversError, Sender, SenderError
+
+_logger = logging.getLogger(__name__)
 
 
 class Pipe(typing.Generic[ChannelMessageT]):
@@ -24,6 +27,17 @@ class Pipe(typing.Generic[ChannelMessageT]):
     The [`Pipe`][frequenz.channels.experimental.Pipe] class takes a receiver and a
     sender and creates a pipe between them by forwarding all the messages received by
     the receiver to the sender.
+
+    When its receiver stops, the pipe closes its sender and stops.  If sending fails
+    with a [`SenderError`][frequenz.channels.SenderError], for example because the
+    sender's channel has no receivers, the pipe closes both its sender and its
+    receiver, and stops.  It logs the error: a
+    [`NoReceiversError`][frequenz.channels.NoReceiversError] as a warning, and any
+    other error with its traceback.
+
+    [`stop()`][frequenz.channels.experimental.Pipe.stop] leaves both open.  Give the
+    pipe a clone of the sender if you still need to send after the pipe stops on its
+    own.
 
     Example:
         ```python
@@ -101,4 +115,25 @@ class Pipe(typing.Generic[ChannelMessageT]):
 
     async def _run(self) -> None:
         async for value in self._receiver:
-            await self._sender.send(value)
+            try:
+                await self._sender.send(value)
+            except NoReceiversError:
+                _logger.warning(
+                    "Pipe from [%s] to [%s] stopped: the sender has no receivers",
+                    self._receiver,
+                    self._sender,
+                )
+            except SenderError:
+                _logger.exception(
+                    "Pipe from [%s] to [%s] stopped: sending failed",
+                    self._receiver,
+                    self._sender,
+                )
+            else:
+                continue
+            try:
+                await self._sender.aclose()
+            finally:
+                self._receiver.close()
+            return
+        await self._sender.aclose()
