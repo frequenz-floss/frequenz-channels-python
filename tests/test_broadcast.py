@@ -17,6 +17,8 @@ from frequenz.channels import (
     ReceiverStoppedError,
     Sender,
     SenderError,
+    select,
+    selected_from,
 )
 
 
@@ -436,6 +438,44 @@ async def test_broadcast_close_receiver_while_waiting() -> None:
     await asyncio.sleep(0)
     assert not waiter.done()
 
+    receiver.close()
+
+    assert await asyncio.wait_for(waiter, timeout=1.0) is False
+
+
+async def test_broadcast_closed_receiver_drops_buffered_messages() -> None:
+    """Ensure closing a receiver drops its buffered messages and stops `select()`."""
+    chan = Broadcast[int](name="input-chan")
+    sender = chan.new_sender()
+    receiver = chan.new_receiver()
+    filtered = chan.new_receiver().filter(lambda _: True)
+    await sender.send(1)
+    receiver.close()
+    filtered.close()
+
+    assert len(receiver) == 0
+    assert not await receiver.ready()
+
+    async def stopped(recv: Receiver[int]) -> list[bool]:
+        return [
+            selected.was_stopped
+            async for selected in select(recv)
+            if selected_from(selected, recv)
+        ]
+
+    assert await asyncio.wait_for(stopped(receiver), timeout=1.0) == [True]
+    assert await asyncio.wait_for(stopped(filtered), timeout=1.0) == [True]
+
+
+async def test_broadcast_receiver_closed_while_waking() -> None:
+    """Ensure a receiver closed while it wakes up isn't reported as ready."""
+    chan = Broadcast[int](name="input-chan")
+    sender = chan.new_sender()
+    receiver = chan.new_receiver()
+
+    waiter = asyncio.create_task(receiver.ready())
+    await asyncio.sleep(0)
+    await sender.send(1)
     receiver.close()
 
     assert await asyncio.wait_for(waiter, timeout=1.0) is False

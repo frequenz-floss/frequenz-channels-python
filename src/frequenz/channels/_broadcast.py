@@ -623,11 +623,12 @@ class BroadcastReceiver(Receiver[_T]):
     def close(self) -> None:
         """Close the receiver.
 
-        After calling this method, new messages will not be received.  Once the
-        receiver's buffer is drained, trying to receive a message will raise a
+        After calling this method, the messages left in the receiver's buffer are
+        dropped, and trying to receive a message raises a
         [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
         """
         self._closed = True
+        self._q.clear()
         # pylint: disable=protected-access
         self._channel._receivers.pop(hash(self), None)
         self._channel._wake_receivers()
