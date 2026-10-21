@@ -580,6 +580,8 @@ class BroadcastReceiver(Receiver[_T]):
         Returns:
             Whether the receiver is still active.
         """
+        if self._closed:
+            return False
         # if there are still messages to consume from the queue, return immediately
         if self._q:
             return True
@@ -594,7 +596,7 @@ class BroadcastReceiver(Receiver[_T]):
                 await self._channel.aclose()
                 return False
             await self._channel._wakeup.wait()
-        return True
+        return not self._closed
         # pylint: enable=protected-access
 
     @override
