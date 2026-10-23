@@ -3,10 +3,10 @@
 
 """A receiver that will wait indefinitely if there is no underlying receiver.
 
-The [`OptionalReceiver`][.OptionalReceiver] is useful when the
-underlying receiver is not set initially.
-Instead of making `if-else` branches to check if the receiver is set, you can use
-this receiver to wait indefinitely if it is not set.
+The [`OptionalReceiver`][frequenz.channels.experimental.OptionalReceiver] is useful when
+the underlying receiver is not set initially. Instead of making `if-else` branches to
+check if the receiver is set, you can use this receiver to wait indefinitely if it is
+not set.
 """
 
 import asyncio
@@ -37,10 +37,12 @@ class OptionalReceiver(Receiver[ReceiverMessageT_co]):
     async def ready(self) -> bool:
         """Wait until the receiver is ready with a message or an error.
 
-        Once a call to [`ready()`][..ready] has finished, the message should be read with
-        a call to [`consume()`][..consume]
-        ([`receive()`][....Receiver.receive] or iterated over). The receiver will
-        remain ready (this method will return immediately) until it is
+        Once a call to
+        [`ready()`][frequenz.channels.experimental.OptionalReceiver.ready] has finished,
+        the message should be read with a call to
+        [`consume()`][frequenz.channels.experimental.OptionalReceiver.consume]
+        ([`receive()`][frequenz.channels.Receiver.receive] or iterated over). The
+        receiver will remain ready (this method will return immediately) until it is
         consumed.
 
         Returns:
@@ -55,9 +57,11 @@ class OptionalReceiver(Receiver[ReceiverMessageT_co]):
 
     @override
     def consume(self) -> ReceiverMessageT_co:  # noqa: DOC503 (raised indirectly)
-        """Return the latest message once [`ready()`][..ready] is complete.
+        """Return the latest message once the receiver is ready.
 
-        [`ready()`][..ready] must be called before each call to [`consume()`][..consume].
+        [`ready()`][frequenz.channels.experimental.OptionalReceiver.ready] must be
+        called before each call to
+        [`consume()`][frequenz.channels.experimental.OptionalReceiver.consume].
 
         Returns:
             The next message received.
