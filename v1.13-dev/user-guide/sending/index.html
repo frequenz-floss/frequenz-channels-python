@@ -1640,7 +1640,7 @@ that only provides a single <a class="autorefs autorefs-internal" title="send
       abstractmethod
       async
   " href="../../reference/frequenz/channels/#frequenz.channels.Sender.send"><code>send()</code></a> method:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">await</span> <span class="n">sender</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">"Hello, world!"</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="frequenz.channels._sender--__span-0-1"><a id="frequenz.channels._sender--__codelineno-0-1" name="frequenz.channels._sender--__codelineno-0-1" href="#frequenz.channels._sender--__codelineno-0-1"></a><span class="k">await</span> <span class="n">sender</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">"Hello, world!"</span><span class="p">)</span>
 </span></code></pre></div>
 <p>Although <a class="autorefs autorefs-internal" title="send
 
@@ -1674,10 +1674,10 @@ effectively making the <a class="autorefs autorefs-internal" title="send
 </div>
 <p>If there is any failure sending a message,
 a <a class="autorefs autorefs-internal" title="frequenz.channels.SenderError" href="../../reference/frequenz/channels/#frequenz.channels.SenderError"><code>SenderError</code></a> exception is raised.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">try</span><span class="p">:</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="k">await</span> <span class="n">sender</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">"Hello, world!"</span><span class="p">)</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">except</span> <span class="n">SenderError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error sending message: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="frequenz.channels._sender--__span-1-1"><a id="frequenz.channels._sender--__codelineno-1-1" name="frequenz.channels._sender--__codelineno-1-1" href="#frequenz.channels._sender--__codelineno-1-1"></a><span class="k">try</span><span class="p">:</span>
+</span><span id="frequenz.channels._sender--__span-1-2"><a id="frequenz.channels._sender--__codelineno-1-2" name="frequenz.channels._sender--__codelineno-1-2" href="#frequenz.channels._sender--__codelineno-1-2"></a>    <span class="k">await</span> <span class="n">sender</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">"Hello, world!"</span><span class="p">)</span>
+</span><span id="frequenz.channels._sender--__span-1-3"><a id="frequenz.channels._sender--__codelineno-1-3" name="frequenz.channels._sender--__codelineno-1-3" href="#frequenz.channels._sender--__codelineno-1-3"></a><span class="k">except</span> <span class="n">SenderError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+</span><span id="frequenz.channels._sender--__span-1-4"><a id="frequenz.channels._sender--__codelineno-1-4" name="frequenz.channels._sender--__codelineno-1-4" href="#frequenz.channels._sender--__codelineno-1-4"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error sending message: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </span></code></pre></div>
 
 
