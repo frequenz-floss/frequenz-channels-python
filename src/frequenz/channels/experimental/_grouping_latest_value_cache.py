@@ -21,17 +21,17 @@ from .._receiver import Receiver
 
 ValueT_co = TypeVar("ValueT_co", covariant=True)
 """Covariant type variable for the values cached by the
-[`GroupingLatestValueCache`][..GroupingLatestValueCache].
+[`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache].
 """
 
 DefaultT = TypeVar("DefaultT")
 """Type variable for the default value returned by
-[`GroupingLatestValueCache.get`][..GroupingLatestValueCache.get].
+[`GroupingLatestValueCache.get`][frequenz.channels.experimental.GroupingLatestValueCache.get].
 """
 
 HashableT = TypeVar("HashableT", bound=Hashable)
 """Type variable for the keys used to group values in the
-[`GroupingLatestValueCache`][..GroupingLatestValueCache].
+[`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache].
 """
 
 
@@ -49,21 +49,22 @@ class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
     It provides a way to look up on demand, the latest value in a stream for any key, as
     long as there has been at least one value received for that key.
 
-    [`GroupingLatestValueCache`][..GroupingLatestValueCache]
-    takes a [`Receiver`][...Receiver] and a `key` function as arguments and
-    stores the latest value received by that receiver for each key separately.
+    [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache]
+    takes a [`Receiver`][frequenz.channels.Receiver] and a `key` function as arguments
+    and stores the latest value received by that receiver for each key separately.
 
-    The [`GroupingLatestValueCache`][..GroupingLatestValueCache]
-    implements the [`Mapping`][collections.abc.Mapping]
-    interface, so it can be used like a dictionary.  Additionally other methods from
-    [`MutableMapping`][collections.abc.MutableMapping] are implemented, but only
-    methods removing items from the cache are allowed, such as
-    [`pop()`][.pop],
-    [`popitem()`][.popitem],
-    [`clear()`][.clear], and
-    [`__delitem__()`][.__delitem__].
-    Other update methods are not provided because the user should not update the
-    cache values directly.
+    The
+    [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache]
+    implements the [`Mapping`][collections.abc.Mapping] interface, so it can be used
+    like a dictionary.  Additionally other methods from
+    [`MutableMapping`][collections.abc.MutableMapping] are implemented, but only methods
+    removing items from the cache are allowed, such as
+    [`pop()`][frequenz.channels.experimental.GroupingLatestValueCache.pop],
+    [`popitem()`][frequenz.channels.experimental.GroupingLatestValueCache.popitem],
+    [`clear()`][frequenz.channels.experimental.GroupingLatestValueCache.clear], and
+    [`__delitem__()`][frequenz.channels.experimental.GroupingLatestValueCache.__delitem__].
+    Other update methods are not provided because the user should not update the cache
+    values directly.
 
     Example:
         ```python

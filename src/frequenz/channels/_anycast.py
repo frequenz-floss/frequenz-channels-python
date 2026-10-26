@@ -79,12 +79,12 @@ class Anycast(Generic[ChannelMessageT]):
 
     To create a new [senders][frequenz.channels.Sender] and
     [receivers][frequenz.channels.Receiver] you can use the
-    [`.new_sender()`][.new_sender] and
-    [`.new_receiver()`][.new_receiver] methods
+    [`.new_sender()`][frequenz.channels.Anycast.new_sender] and
+    [`.new_receiver()`][frequenz.channels.Anycast.new_receiver] methods
     respectively.
 
     When the channel is not needed anymore, it should be closed with the
-    [`.aclose()`][.aclose] method. This will prevent further
+    [`.aclose()`][frequenz.channels.Anycast.aclose] method. This will prevent further
     attempts to [`send()`][frequenz.channels.Sender.send] data. Receivers will still be
     able to drain the pending messages on the channel, but after that, subsequent
     [`receive()`][frequenz.channels.Receiver.receive] calls will raise a
@@ -265,7 +265,7 @@ class Anycast(Generic[ChannelMessageT]):
         """The maximum number of messages that can be stored in the channel's buffer.
 
         If the length of channel's buffer reaches the limit, then the sender
-        blocks at the [`send()`][...Sender.send] method until
+        blocks at the [`send()`][frequenz.channels.Sender.send] method until
         a message is consumed.
         """
         maxlen = self._deque.maxlen
@@ -275,12 +275,12 @@ class Anycast(Generic[ChannelMessageT]):
     async def aclose(self) -> None:
         """Close the channel.
 
-        Any further attempts to [`send()`][...Sender.send] data
-        will raise a [`SenderError`][...SenderError].
+        Any further attempts to [`send()`][frequenz.channels.Sender.send] data
+        will raise a [`SenderError`][frequenz.channels.SenderError].
 
         Receivers will still be able to drain the pending messages on the channel,
         but after that, subsequent
-        [`receive()`][...Receiver.receive] calls will return `None`
+        [`receive()`][frequenz.channels.Receiver.receive] calls will return `None`
         immediately.
         """
         self._closed = True
@@ -290,8 +290,11 @@ class Anycast(Generic[ChannelMessageT]):
             self._recv_cv.notify_all()
 
     @deprecated("The close() method is deprecated, use aclose() instead")
-    async def close(self) -> None:  # noqa: D402
-        """Close the channel, deprecated alias for [`.aclose()`][..aclose]."""  # noqa: D402
+    async def close(self) -> None:
+        """Close the channel.
+
+        Deprecated alias for [`.aclose()`][frequenz.channels.Anycast.aclose].
+        """
         return await self.aclose()
 
     def new_sender(self) -> Sender[ChannelMessageT]:
@@ -351,7 +354,7 @@ class _Sender(Sender[_T]):
 
         Raises:
             SenderError: If the underlying channel was closed.
-                A [`ChannelClosedError`][...ChannelClosedError] is
+                A [`ChannelClosedError`][frequenz.channels.ChannelClosedError] is
                 set as the cause.
             SenderClosedError: If this sender was closed.
         """
@@ -387,7 +390,7 @@ class _Sender(Sender[_T]):
 
         After closing, the sender will not be able to send any more messages. Any
         attempt to send a message through a closed sender will raise a
-        [`SenderError`][...SenderError].
+        [`SenderError`][frequenz.channels.SenderError].
         """
         self._closed = True
 
@@ -430,10 +433,11 @@ class _Receiver(Receiver[_T]):
     async def ready(self) -> bool:
         """Wait until the receiver is ready with a message or an error.
 
-        Once a call to [`.ready()`][..ready] has finished, the message should be read with
-        a call to [`.consume()`][..consume] ([`receive()`][...Receiver.receive]
-        or iterated over). The receiver will
-        remain ready (this method will return immediately) until it is
+        Once a call to [`.ready()`][frequenz.channels.Receiver.ready] has finished, the
+        message should be read with a call to
+        [`.consume()`][frequenz.channels.Receiver.consume]
+        ([`receive()`][frequenz.channels.Receiver.receive] or iterated over). The
+        receiver will remain ready (this method will return immediately) until it is
         consumed.
 
         Returns:
@@ -460,7 +464,7 @@ class _Receiver(Receiver[_T]):
 
     @override
     def consume(self) -> _T:
-        """Return the latest message once [`ready()`][..ready] is complete.
+        """Return the latest message once [`ready()`][frequenz.channels.Receiver.ready] is complete.
 
         Returns:
             The next message that was received.

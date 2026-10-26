@@ -11,71 +11,71 @@ website](https://frequenz-floss.github.io/frequenz-channels-python/) -->
 
 Base classes:
 
-* [`Receiver`][.Receiver]: An object that can wait for and
+* [`Receiver`][frequenz.channels.Receiver]: An object that can wait for and
   consume messages from a channel.
 
-* [`Sender`][.Sender]: An object that can send messages to
+* [`Sender`][frequenz.channels.Sender]: An object that can send messages to
   a channel.
 
 Channels:
 
-* [`Anycast`][.Anycast]: A channel that supports multiple
+* [`Anycast`][frequenz.channels.Anycast]: A channel that supports multiple
   senders and multiple receivers.  A message sent through a sender will be
   received by exactly one receiver.
 
-* [`Broadcast`][.Broadcast]: A channel to broadcast messages
+* [`Broadcast`][frequenz.channels.Broadcast]: A channel to broadcast messages
   from multiple senders to multiple receivers. Each message sent through any of
   the senders is received by all of the receivers.
 
 Utilities to work with channels:
 
-* [`merge`][.merge]: Merge messages coming from multiple receivers into
+* [`merge`][frequenz.channels.merge]: Merge messages coming from multiple receivers into
   a single stream.
 
-* [`select`][.select]: Iterate over the messages of all
-  [receivers][.Receiver] as new messages become available.
+* [`select`][frequenz.channels.select]: Iterate over the messages of all
+  [receivers][frequenz.channels.Receiver] as new messages become available.
 
-* [`LatestValueCache`][.LatestValueCache]: A cache that stores
+* [`LatestValueCache`][frequenz.channels.LatestValueCache]: A cache that stores
   the latest value in a receiver, providing a way to look up the latest value in
   a stream, without having to wait, as long as there has been one value
   received.
 
 Exception classes:
 
-* [`Error`][.Error]: Base class for all errors in this
+* [`Error`][frequenz.channels.Error]: Base class for all errors in this
   library.
 
-* [`ChannelError`][.ChannelError]: Base class for all errors
+* [`ChannelError`][frequenz.channels.ChannelError]: Base class for all errors
   related to channels.
 
-* [`ChannelClosedError`][.ChannelClosedError]: Error raised when
+* [`ChannelClosedError`][frequenz.channels.ChannelClosedError]: Error raised when
   trying to operate (send, receive, etc.) through a closed channel.
 
-* [`SenderError`][.SenderError]: Base class for all errors
+* [`SenderError`][frequenz.channels.SenderError]: Base class for all errors
   related to senders.
 
-* [`ReceiverError`][.ReceiverError]: Base class for all errors
+* [`ReceiverError`][frequenz.channels.ReceiverError]: Base class for all errors
   related to receivers.
 
-* [`ReceiverStoppedError`][.ReceiverStoppedError]: A receiver
+* [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError]: A receiver
   stopped producing messages.
 
-* [`SelectError`][.SelectError]: Base class for all errors
-    related to [`select`][.select].
+* [`SelectError`][frequenz.channels.SelectError]: Base class for all errors
+    related to [`select`][frequenz.channels.select].
 
-* [`UnhandledSelectedError`][.UnhandledSelectedError]: An error
-    raised by [`select`][.select] that was not handled by the
+* [`UnhandledSelectedError`][frequenz.channels.UnhandledSelectedError]: An error
+    raised by [`select`][frequenz.channels.select] that was not handled by the
     user.
 
 Extra utility receivers:
 
-* [`Event`][.event.Event]: A receiver that generates a message when
+* [`Event`][frequenz.channels.event.Event]: A receiver that generates a message when
   an event is set.
 
-* [`FileWatcher`][.file_watcher.FileWatcher]: A receiver that
+* [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher]: A receiver that
   generates a message when a file is added, modified or deleted.
 
-* [`Timer`][.timer.Timer]: A receiver that generates a message after a
+* [`Timer`][frequenz.channels.timer.Timer]: A receiver that generates a message after a
   given amount of time.
 """
 
