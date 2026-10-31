@@ -142,8 +142,8 @@ class _Broadcast(  # pylint: disable=too-many-instance-attributes
 
         Receivers will still be able to drain the pending items on their queues,
         but after that, subsequent
-        [`receive()`][frequenz.channels.Receiver.receive] calls will return `None`
-        immediately.
+        [`receive()`][frequenz.channels.Receiver.receive] calls will raise a
+        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
         """
         self._latest = None
         self._closed = True
@@ -548,6 +548,11 @@ class BroadcastReceiver(Receiver[_T]):
         After calling this method, the messages left in the receiver's buffer are
         dropped, and trying to receive a message raises a
         [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+
+        Call this only from the thread that runs the event loop of the channel's
+        receivers.  From another thread, tasks waiting on any receiver of the channel
+        might not wake up.  If asyncio debug mode is on and a task is waiting, this also
+        raises a `RuntimeError`, and the waiting tasks stay stuck.
         """
         self._closed = True
         self._q.clear()

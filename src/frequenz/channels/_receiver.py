@@ -131,10 +131,11 @@ repeatedly creating new receivers.  The
 [`Receiver.close()`][frequenz.channels.Receiver.close] method can be used for this
 purpose.
 
-After [`Receiver.close()`][frequenz.channels.Receiver.close] is called, we can still
-receive messages that are in the receiver's buffer, but as soon as the receiver's buffer
-has been drained, trying to receive further messages from a *closed* receiver will raise
-a [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+After [`Receiver.close()`][frequenz.channels.Receiver.close] is called, some receivers
+still deliver the messages in their buffer, and raise a
+[`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError] once it is drained.
+Others, like [`BroadcastReceiver`][frequenz.channels.BroadcastReceiver], raise it at
+once.
 
 # Advanced Usage
 
@@ -237,8 +238,10 @@ class Receiver(ABC, Generic[ReceiverMessageT_co]):
         """Close the receiver.
 
         After calling this method, new messages will not be available from the receiver.
-        Once the receiver's buffer is drained, trying to receive a message will raise a
-        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+        Trying to receive a message raises a
+        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError], either at once
+        or once the messages already in the receiver's buffer are received, depending on
+        the receiver.
         """
         raise NotImplementedError("close() must be implemented by subclasses")
 
@@ -498,9 +501,11 @@ class _Mapper(
     def close(self) -> None:
         """Close the receiver.
 
-        After calling this method, new messages will not be received.  Once the
-        receiver's buffer is drained, trying to receive a message will raise a
-        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+        After calling this method, new messages will not be received.  Trying to
+        receive a message then raises a
+        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError], either at once
+        or once the messages already in the buffer are received, depending on the
+        input receiver.
         """
         self._receiver.close()
 
@@ -602,9 +607,11 @@ class _Filter(Receiver[ReceiverMessageT_co], Generic[ReceiverMessageT_co]):
     def close(self) -> None:
         """Close the receiver.
 
-        After calling this method, new messages will not be received.  Once the
-        receiver's buffer is drained, trying to receive a message will raise a
-        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+        After calling this method, new messages will not be received.  Trying to
+        receive a message then raises a
+        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError], either at once
+        or once the messages already in the buffer are received, depending on the
+        input receiver.
         """
         self._receiver.close()
 
