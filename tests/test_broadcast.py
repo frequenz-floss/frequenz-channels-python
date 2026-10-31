@@ -671,6 +671,18 @@ async def test_broadcast_last_sender_aclose_wakes_receivers() -> None:
     assert waiter.result() is False
 
 
+async def test_broadcast_dropped_sender_keeps_channel_open() -> None:
+    """Ensure a sender dropped without being closed keeps the channel open."""
+    sender, receiver = BroadcastChannel[int](name="auto-close-test")
+    sender_2 = sender.clone()
+
+    del sender
+    gc.collect()
+    await sender_2.aclose()
+
+    assert receiver.has_senders
+
+
 async def test_broadcast_auto_close_without_senders() -> None:
     """Ensure an auto-closing `Broadcast` without senders closes when received from."""
     chan = Broadcast[int](name="auto-close-test", auto_close=True)

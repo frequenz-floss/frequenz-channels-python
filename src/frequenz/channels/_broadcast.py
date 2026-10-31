@@ -217,9 +217,9 @@ _T = TypeVar("_T")
 class BroadcastSender(CloneableSubscribableSender[_T]):
     """A sender to send messages to the broadcast channel.
 
-    Should not be created directly, but through the
-    [`.clone()`][frequenz.channels.BroadcastSender.clone]
-    method of an existing sender.
+    Should not be created directly, but through
+    [`BroadcastChannel`][frequenz.channels.BroadcastChannel] or the
+    [`.clone()`][frequenz.channels.BroadcastSender.clone] method of an existing sender.
     """
 
     def __init__(self, channel: _Broadcast[_T], /) -> None:
@@ -392,7 +392,8 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
 class BroadcastReceiver(Receiver[_T]):
     """A receiver to receive messages from the broadcast channel.
 
-    Should not be created directly, but through the
+    Should not be created directly, but through
+    [`BroadcastChannel`][frequenz.channels.BroadcastChannel] or the
     [`BroadcastSender.subscribe()`][frequenz.channels.BroadcastSender.subscribe]
     method of an existing sender.
     """
@@ -605,27 +606,49 @@ class BroadcastChannel(
     receivers that can't keep up with the senders, and not for the whole
     channel.
 
-    Instantiating this class will create a new broadcast channel, and return an
-    initial sender and a receiver.  Further senders and receivers can be created
-    with the [`BroadcastSender.clone()`][frequenz.channels.BroadcastSender.clone],
+    Instantiating this class creates a new broadcast channel, and returns an
+    initial sender and receiver.  Further senders and receivers can be created
+    with the [`BroadcastSender.clone()`][frequenz.channels.BroadcastSender.clone]
     and
     [`BroadcastSender.subscribe()`][frequenz.channels.BroadcastSender.subscribe]
     methods respectively.
 
     When a sender or a receiver is not needed anymore, it should be closed with
     [`BroadcastSender.aclose()`][frequenz.channels.BroadcastSender.aclose] or
-    [`BroadcastReceiver.close()`][frequenz.channels.BroadcastReceiver.close]. This will prevent
-    further attempts to [`send()`][frequenz.channels.BroadcastSender.send] data,
-    and will allow receivers to drain the pending items on their queues, but
-    after that, subsequent [`receive()`][frequenz.channels.Receiver.receive] calls
-    will raise a
-    [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+    [`BroadcastReceiver.close()`][frequenz.channels.BroadcastReceiver.close].
 
-    When all senders of a channel are closed, all its receivers will be
-    automatically closed.  While all its receivers are closed,
-    [`send()`][frequenz.channels.BroadcastSender.send] drops the message and
-    raises a [`NoReceiversError`][frequenz.channels.NoReceiversError], but the
-    channel stays open.
+    The channel closes itself when all its senders are closed.  This is what each side
+    sees:
+
+    * As soon as all senders are closed, the channel is closed.  Receivers can still
+      drain the messages pending in their buffers, but after that,
+      [`receive()`][frequenz.channels.Receiver.receive] raises a
+      [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError], and `async
+      for` loops over them end.
+
+    * While all receivers are closed or garbage-collected,
+      [`send()`][frequenz.channels.BroadcastSender.send] drops the message and
+      raises a [`NoReceiversError`][frequenz.channels.NoReceiversError].  The
+      channel stays open, so once
+      [`subscribe()`][frequenz.channels.BroadcastSender.subscribe] creates a new
+      receiver, sending works again.
+
+    Senders can check
+    [`has_receivers`][frequenz.channels.BroadcastSender.has_receivers] to stop
+    producing messages that nobody would receive, and receivers can check
+    [`has_senders`][frequenz.channels.BroadcastReceiver.has_senders] to find out
+    whether new messages can still arrive.
+
+    Tip:
+        Close every sender, also when a task fails, for example with
+        `async with contextlib.aclosing(sender):`.  A sender that is dropped without
+        being closed keeps the channel open, and its receivers keep waiting for
+        messages.
+
+        Close the initial receiver if it isn't needed, instead of binding it to `_`.
+        Until `_` is reassigned or goes out of scope, that receiver stays attached:
+        [`has_receivers`][frequenz.channels.BroadcastSender.has_receivers] stays
+        `True`, and the receiver's buffer fills up.
 
     This channel is useful, for example, to implement a pub/sub pattern, where
     multiple consumers can subscribe to a channel to receive all messages.
@@ -634,12 +657,12 @@ class BroadcastChannel(
 
     Example: Send a few numbers to a receiver
         This is a very simple example that sends a few numbers from a single sender to
-        a single receiver.
+        a single receiver.  The receiver stops when the sender is closed.
 
         ```python
         import asyncio
 
-        from frequenz.channels import BroadcastChannel, Sender
+        from frequenz.channels import BroadcastChannel, Receiver, Sender
 
 
         async def send(sender: Sender[int]) -> None:
@@ -649,15 +672,18 @@ class BroadcastChannel(
             await sender.aclose()
 
 
+        async def receive(receiver: Receiver[int]) -> None:
+            async for message in receiver:
+                print(f"received {message}")
+            print("all senders are closed")
+
+
         async def main() -> None:
             sender, receiver = BroadcastChannel[int](name="numbers")
 
             async with asyncio.TaskGroup() as task_group:
                 task_group.create_task(send(sender))
-                for _ in range(3):
-                    message = await receiver.receive()
-                    print(f"received {message}")
-                    await asyncio.sleep(0.1)  # sleep (or work) with the data
+                task_group.create_task(receive(receiver))
 
 
         asyncio.run(main())
@@ -673,16 +699,17 @@ class BroadcastChannel(
         received 0
         received 1
         received 2
+        all senders are closed
         ```
 
-    Example: Send a few number from multiple senders to multiple receivers
+    Example: Send a few numbers from multiple senders to multiple receivers
         This is a more complex example that sends a few numbers from multiple senders to
-        multiple receivers, using a small buffer to force the senders to block.
+        multiple receivers.  The receivers stop when all senders are closed.
 
         ```python
         import asyncio
 
-        from frequenz.channels import BroadcastChannel, Receiver, ReceiverStoppedError, Sender
+        from frequenz.channels import BroadcastChannel, Receiver, Sender
 
 
         async def send(name: str, sender: Sender[int], start: int, stop: int) -> None:
@@ -692,30 +719,28 @@ class BroadcastChannel(
             await sender.aclose()
 
 
-        async def recv(name: str, receiver: Receiver[int]) -> None:
-            try:
-                async for message in receiver:
-                    print(f"{name} received {message}")
+        async def receive(name: str, receiver: Receiver[int]) -> None:
+            async for message in receiver:
+                print(f"{name} received {message}")
                 await asyncio.sleep(0.1)  # sleep (or work) with the data
-            except ReceiverStoppedError:
-                pass
 
 
         async def main() -> None:
             sender_1, receiver_1 = BroadcastChannel[int](name="numbers")
             sender_2 = sender_1.clone()
             receiver_2 = sender_1.subscribe()
+
             async with asyncio.TaskGroup() as task_group:
                 task_group.create_task(send("sender_1", sender_1, 10, 13))
                 task_group.create_task(send("sender_2", sender_2, 20, 22))
-                task_group.create_task(recv("receiver_1", receiver_1))
-                task_group.create_task(recv("receiver_2", receiver_2))
+                task_group.create_task(receive("receiver_1", receiver_1))
+                task_group.create_task(receive("receiver_2", receiver_2))
 
 
         asyncio.run(main())
         ```
 
-        The output should look something like this(although the sending and received
+        The output should look something like this (although the sending and received
         might appear interleaved in a different way):
 
         ```
@@ -725,15 +750,60 @@ class BroadcastChannel(
         sender_2 sending 20
         sender_2 sending 21
         receiver_1 received 10
-        receiver_1 received 11
-        receiver_1 received 12
-        receiver_1 received 20
-        receiver_1 received 21
         receiver_2 received 10
+        receiver_1 received 11
         receiver_2 received 11
+        receiver_1 received 12
         receiver_2 received 12
+        receiver_1 received 20
         receiver_2 received 20
+        receiver_1 received 21
         receiver_2 received 21
+        ```
+
+    Example: Stop producing messages when nobody is listening
+        This example produces messages only for as long as there are receivers to
+        receive them.
+
+        ```python
+        import asyncio
+
+        from frequenz.channels import BroadcastChannel, BroadcastSender, Receiver
+
+
+        async def produce(sender: BroadcastSender[int]) -> None:
+            counter = 0
+            while sender.has_receivers:
+                await sender.send(counter)
+                counter += 1
+                await asyncio.sleep(0.1)  # wait for (or compute) the next message
+            print(f"no receivers left, stopping after {counter} messages")
+
+
+        async def consume(receiver: Receiver[int]) -> None:
+            for _ in range(3):
+                print(f"received {await receiver.receive()}")
+            receiver.close()
+
+
+        async def main() -> None:
+            sender, receiver = BroadcastChannel[int](name="numbers")
+
+            async with asyncio.TaskGroup() as task_group:
+                task_group.create_task(produce(sender))
+                task_group.create_task(consume(receiver))
+
+
+        asyncio.run(main())
+        ```
+
+        The output should be:
+
+        ```
+        received 0
+        received 1
+        received 2
+        no receivers left, stopping after 3 messages
         ```
     """
 
@@ -750,7 +820,7 @@ class BroadcastChannel(
             name: The name of the channel. This is for logging purposes, and it will be
                 shown in the string representation of the channel.
             resend_latest: When True, every time a new receiver is created with
-                [`Broadcast.new_receiver()`][frequenz.channels.Broadcast.new_receiver],
+                [`BroadcastSender.subscribe()`][frequenz.channels.BroadcastSender.subscribe],
                 the last message that was sent successfully will be sent to the new
                 receiver automatically, unless it was `None`.  This allows new
                 receivers on slow streams to get the latest message as soon as they
