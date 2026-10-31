@@ -30,12 +30,11 @@ class WithPrevious(Generic[ChannelMessageT]):
 
     Example: Receiving only messages that are different from the previous one.
         ```python
-        from frequenz.channels import Broadcast
+        from frequenz.channels import BroadcastChannel
         from frequenz.channels.experimental import WithPrevious
 
-        channel = Broadcast[int](name="example")
-        receiver = channel.new_receiver().filter(WithPrevious(lambda old, new: old != new))
-        sender = channel.new_sender()
+        sender, receiver = BroadcastChannel[int](name="example")
+        receiver = receiver.filter(WithPrevious(lambda old, new: old != new))
 
         # This message will be received as it is the first message.
         await sender.send(1)
@@ -51,14 +50,13 @@ class WithPrevious(Generic[ChannelMessageT]):
 
     Example: Receiving only messages if they are bigger than the previous one.
         ```python
-        from frequenz.channels import Broadcast
+        from frequenz.channels import BroadcastChannel
         from frequenz.channels.experimental import WithPrevious
 
-        channel = Broadcast[int](name="example")
-        receiver = channel.new_receiver().filter(
+        sender, receiver = BroadcastChannel[int](name="example")
+        receiver = receiver.filter(
             WithPrevious(lambda old, new: new > old, first_is_true=False)
         )
-        sender = channel.new_sender()
 
         # This message will skipped as first_is_true is False.
         await sender.send(1)

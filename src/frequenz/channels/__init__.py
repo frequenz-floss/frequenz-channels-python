@@ -17,15 +17,29 @@ Base classes:
 * [`Sender`][frequenz.channels.Sender]: An object that can send messages to
   a channel.
 
+* [`CloneableSender`][frequenz.channels.CloneableSender],
+  [`SubscribableSender`][frequenz.channels.SubscribableSender] and
+  [`CloneableSubscribableSender`][frequenz.channels.CloneableSubscribableSender]:
+  Senders that can create more senders, or receivers, attached to the same channel.
+
 Channels:
 
-* [`Anycast`][frequenz.channels.Anycast]: A channel that supports multiple
+* [`BroadcastChannel`][frequenz.channels.BroadcastChannel]: A channel to broadcast
+  messages from multiple senders to multiple receivers. Each message sent through any
+  of the senders is received by all of the receivers.  The channel closes itself when
+  all its senders are closed.  A `send()` while it has no receivers raises a
+  [`NoReceiversError`][frequenz.channels.NoReceiversError].
+
+* [`OneshotChannel`][frequenz.channels.OneshotChannel]: A channel that can send a
+  single message from one sender to one receiver.
+
+* [`Anycast`][frequenz.channels.Anycast] (deprecated): A channel that supports multiple
   senders and multiple receivers.  A message sent through a sender will be
   received by exactly one receiver.
 
-* [`Broadcast`][frequenz.channels.Broadcast]: A channel to broadcast messages
-  from multiple senders to multiple receivers. Each message sent through any of
-  the senders is received by all of the receivers.
+* [`Broadcast`][frequenz.channels.Broadcast] (deprecated): The predecessor of
+  [`BroadcastChannel`][frequenz.channels.BroadcastChannel].  Unless it is created with
+  `auto_close=True`, it must be closed with `aclose()`.
 
 Utilities to work with channels:
 
@@ -54,6 +68,10 @@ Exception classes:
 * [`SenderError`][frequenz.channels.SenderError]: Base class for all errors
   related to senders.
 
+* [`NoReceiversError`][frequenz.channels.NoReceiversError]: Error raised when sending
+  a message to a [`BroadcastChannel`][frequenz.channels.BroadcastChannel] that has no
+  receivers.
+
 * [`ReceiverError`][frequenz.channels.ReceiverError]: Base class for all errors
   related to receivers.
 
@@ -79,8 +97,12 @@ Extra utility receivers:
   given amount of time.
 """
 
+from typing import TYPE_CHECKING
+
+from frequenz.core.warnings import DeprecatedAlias, deprecated_aliases
+
 from ._anycast import Anycast
-from ._broadcast import Broadcast, BroadcastChannel, BroadcastReceiver, BroadcastSender
+from ._broadcast import BroadcastChannel, BroadcastReceiver, BroadcastSender
 from ._exceptions import ChannelClosedError, ChannelError, Error
 from ._generic import (
     ChannelMessageT,
@@ -104,11 +126,26 @@ from ._select import (
 from ._sender import (
     CloneableSender,
     CloneableSubscribableSender,
+    NoReceiversError,
     Sender,
     SenderClosedError,
     SenderError,
     SubscribableSender,
 )
+
+if TYPE_CHECKING:
+    from ._broadcast import _Broadcast as Broadcast
+else:
+    __getattr__ = deprecated_aliases(
+        __name__,
+        DeprecatedAlias(
+            "Broadcast",
+            new_module="frequenz.channels._broadcast",
+            new_name="_Broadcast",
+            since="v1.12.0",
+            message="Please use BroadcastChannel instead.",
+        ),
+    )
 
 __all__ = [
     "Anycast",
@@ -126,6 +163,7 @@ __all__ = [
     "LatestValueCache",
     "MappedMessageT_co",
     "Merger",
+    "NoReceiversError",
     "OneshotChannel",
     "OneshotReceiver",
     "OneshotSender",

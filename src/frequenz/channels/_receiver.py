@@ -7,15 +7,15 @@
 
 Messages are received from [channels](/user-guide/channels/index.md) through
 [`Receiver`][frequenz.channels.Receiver] objects.
-[`Receiver`][frequenz.channels.Receiver]s are usually created by calling
-`channel.new_receiver()` and are [async iterators][typing.AsyncIterator], so the easiest
-way to receive messages from them as a stream is to use `async for`:
+[`Receiver`][frequenz.channels.Receiver]s usually come from creating a channel, like a
+[`BroadcastChannel`][frequenz.channels.BroadcastChannel], or from calling
+`sender.subscribe()`.  They are [async iterators][typing.AsyncIterator], so the
+easiest way to receive messages from them as a stream is to use `async for`:
 
-```python show_lines="6:"
-from frequenz.channels import Anycast
+```python show_lines="5:"
+from frequenz.channels import BroadcastChannel
 
-channel = Anycast[int](name="test-channel")
-receiver = channel.new_receiver()
+sender, receiver = BroadcastChannel[int](name="test-channel")
 
 async for message in receiver:
     print(message)
@@ -24,11 +24,10 @@ async for message in receiver:
 If you need to receive messages in different places or expecting a particular
 sequence, you can use the [`receive()`][frequenz.channels.Receiver.receive] method:
 
-```python show_lines="6:"
-from frequenz.channels import Anycast
+```python show_lines="5:"
+from frequenz.channels import BroadcastChannel
 
-channel = Anycast[int](name="test-channel")
-receiver = channel.new_receiver()
+sender, receiver = BroadcastChannel[int](name="test-channel")
 
 first_message = await receiver.receive()
 print(f"First message: {first_message}")
@@ -42,11 +41,10 @@ print(f"Second message: {second_message}")
 If you need to transform the received messages, receivers provide a
 [`map()`][frequenz.channels.Receiver.map] method to easily do so:
 
-```python show_lines="6:"
-from frequenz.channels import Anycast
+```python show_lines="5:"
+from frequenz.channels import BroadcastChannel
 
-channel = Anycast[int](name="test-channel")
-receiver = channel.new_receiver()
+sender, receiver = BroadcastChannel[int](name="test-channel")
 
 async for message in receiver.map(lambda x: x + 1):
     print(message)
@@ -60,11 +58,10 @@ use it in any of the ways described above.
 If you need to filter the received messages, receivers provide a
 [`filter()`][frequenz.channels.Receiver.filter] method to easily do so:
 
-```python show_lines="6:"
-from frequenz.channels import Anycast
+```python show_lines="5:"
+from frequenz.channels import BroadcastChannel
 
-channel = Anycast[int](name="test-channel")
-receiver = channel.new_receiver()
+sender, receiver = BroadcastChannel[int](name="test-channel")
 
 async for message in receiver.filter(lambda x: x % 2 == 0):
     print(message)  # Only even numbers will be printed
@@ -90,11 +87,10 @@ If the receiver has completely stopped (for example the underlying channel was
 closed), a [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError] exception
 is raised by [`receive()`][frequenz.channels.Receiver.receive] method.
 
-```python show_lines="6:"
-from frequenz.channels import Anycast
+```python show_lines="5:"
+from frequenz.channels import BroadcastChannel, ReceiverError, ReceiverStoppedError
 
-channel = Anycast[int](name="test-channel")
-receiver = channel.new_receiver()
+sender, receiver = BroadcastChannel[int](name="test-channel")
 
 try:
     await receiver.receive()
@@ -107,11 +103,10 @@ except ReceiverError as error:
 When used as an async iterator, the iteration will just stop without raising an
 exception:
 
-```python show_lines="6:"
-from frequenz.channels import Anycast
+```python show_lines="5:"
+from frequenz.channels import BroadcastChannel, ReceiverError, ReceiverStoppedError
 
-channel = Anycast[int](name="test-channel")
-receiver = channel.new_receiver()
+sender, receiver = BroadcastChannel[int](name="test-channel")
 
 try:
     async for message in receiver:
@@ -131,10 +126,11 @@ repeatedly creating new receivers.  The
 [`Receiver.close()`][frequenz.channels.Receiver.close] method can be used for this
 purpose.
 
-After [`Receiver.close()`][frequenz.channels.Receiver.close] is called, we can still
-receive messages that are in the receiver's buffer, but as soon as the receiver's buffer
-has been drained, trying to receive further messages from a *closed* receiver will raise
-a [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+After [`Receiver.close()`][frequenz.channels.Receiver.close] is called, some receivers
+still deliver the messages in their buffer, and raise a
+[`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError] once it is drained.
+Others, like [`BroadcastReceiver`][frequenz.channels.BroadcastReceiver], raise it at
+once.
 
 # Advanced Usage
 
@@ -237,8 +233,10 @@ class Receiver(ABC, Generic[ReceiverMessageT_co]):
         """Close the receiver.
 
         After calling this method, new messages will not be available from the receiver.
-        Once the receiver's buffer is drained, trying to receive a message will raise a
-        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+        Trying to receive a message raises a
+        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError], either at once
+        or once the messages already in the receiver's buffer are received, depending on
+        the receiver.
         """
         raise NotImplementedError("close() must be implemented by subclasses")
 

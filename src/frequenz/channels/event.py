@@ -46,12 +46,10 @@ class Event(Receiver[None]):
         ```python
         import asyncio
 
-        from frequenz.channels import Anycast, select, selected_from
+        from frequenz.channels import BroadcastChannel, select, selected_from
         from frequenz.channels.event import Event
 
-        channel: Anycast[int] = Anycast(name="channel")
-        receiver = channel.new_receiver()
-        sender = channel.new_sender()
+        sender, receiver = BroadcastChannel[int](name="channel")
         stop_event = Event(name="stop")
 
 

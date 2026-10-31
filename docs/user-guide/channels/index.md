@@ -35,7 +35,7 @@ various factors:
 Because these questions can have many answers, there are different types of
 channels. Frequenz Channels offers a few of them:
 
-* [Anycast](anycast.md)
 * [Broadcast](broadcast.md)
+* [Oneshot](oneshot.md)
 
 More might be added in the future, and you can also create your own.

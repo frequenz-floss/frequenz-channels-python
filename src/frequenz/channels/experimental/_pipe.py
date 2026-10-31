@@ -11,11 +11,14 @@ to the sender.
 from __future__ import annotations
 
 import asyncio
+import logging
 import typing
 
 from .._generic import ChannelMessageT
 from .._receiver import Receiver
-from .._sender import Sender
+from .._sender import NoReceiversError, Sender, SenderError
+
+_logger = logging.getLogger(__name__)
 
 
 class Pipe(typing.Generic[ChannelMessageT]):
@@ -25,33 +28,43 @@ class Pipe(typing.Generic[ChannelMessageT]):
     sender and creates a pipe between them by forwarding all the messages received by
     the receiver to the sender.
 
+    When its receiver stops, the pipe closes its sender and stops.  If sending fails
+    with a [`SenderError`][frequenz.channels.SenderError], for example because the
+    sender's channel has no receivers, the pipe closes both its sender and its
+    receiver, and stops.  It logs the error: a
+    [`NoReceiversError`][frequenz.channels.NoReceiversError] as a warning, and any
+    other error with its traceback.
+
+    [`stop()`][frequenz.channels.experimental.Pipe.stop] leaves both open.  Give the
+    pipe a clone of the sender if you still need to send after the pipe stops on its
+    own.
+
     Example:
         ```python
         import asyncio
-        from contextlib import closing, aclosing, AsyncExitStack
+        from contextlib import closing, AsyncExitStack
 
-        from frequenz.channels import Broadcast
+        from frequenz.channels import BroadcastChannel
         from frequenz.channels.experimental import Pipe
 
         async def main() -> None:
-            # Channels, receivers and Pipe are in AsyncExitStack
+            # Senders, receivers and Pipe are in AsyncExitStack
             # to close and stop them at the end.
             async with AsyncExitStack() as stack:
-                source_channel = await stack.enter_async_context(
-                    aclosing(Broadcast[int](name="source channel"))
+                source_sender, source_receiver = BroadcastChannel[int](
+                    name="source channel"
                 )
-                source_receiver = stack.enter_context(closing(source_channel.new_receiver()))
+                stack.push_async_callback(source_sender.aclose)
+                stack.enter_context(closing(source_receiver))
 
-                forwarding_channel = await stack.enter_async_context(
-                    aclosing(Broadcast[int](name="forwarding channel"))
+                forwarding_sender, receiver = BroadcastChannel[int](
+                    name="forwarding channel"
                 )
-                await stack.enter_async_context(
-                    Pipe(source_receiver, forwarding_channel.new_sender())
-                )
+                stack.push_async_callback(forwarding_sender.aclose)
+                stack.enter_context(closing(receiver))
 
-                receiver = stack.enter_context(closing(forwarding_channel.new_receiver()))
+                await stack.enter_async_context(Pipe(source_receiver, forwarding_sender))
 
-                source_sender = source_channel.new_sender()
                 await source_sender.send(10)
                 assert await receiver.receive() == 10
 
@@ -102,4 +115,25 @@ class Pipe(typing.Generic[ChannelMessageT]):
 
     async def _run(self) -> None:
         async for value in self._receiver:
-            await self._sender.send(value)
+            try:
+                await self._sender.send(value)
+            except NoReceiversError:
+                _logger.warning(
+                    "Pipe from [%s] to [%s] stopped: the sender has no receivers",
+                    self._receiver,
+                    self._sender,
+                )
+            except SenderError:
+                _logger.exception(
+                    "Pipe from [%s] to [%s] stopped: sending failed",
+                    self._receiver,
+                    self._sender,
+                )
+            else:
+                continue
+            try:
+                await self._sender.aclose()
+            finally:
+                self._receiver.close()
+            return
+        await self._sender.aclose()
