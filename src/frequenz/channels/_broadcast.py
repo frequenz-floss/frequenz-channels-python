@@ -137,8 +137,8 @@ class _Broadcast(  # pylint: disable=too-many-instance-attributes
 
         Receivers will still be able to drain the pending items on their queues,
         but after that, subsequent
-        [`receive()`][frequenz.channels.Receiver.receive] calls will return `None`
-        immediately.
+        [`receive()`][frequenz.channels.Receiver.receive] calls will raise a
+        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
         """
         self._latest = None
         self._closed = True
@@ -543,9 +543,13 @@ class BroadcastReceiver(Receiver[_T]):
     def close(self) -> None:
         """Close the receiver.
 
-        After calling this method, new messages will not be received.  Once the
-        receiver's buffer is drained, trying to receive a message will raise a
-        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+        After calling this method, trying to receive a message raises a
+        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError], even if there
+        are still messages in the receiver's buffer.
+
+        Call this from the thread that runs the event loop of the channel's receivers.
+        From another thread, tasks waiting on any receiver of the channel might not
+        wake up, and in asyncio debug mode this raises a `RuntimeError`.
         """
         self._closed = True
         # pylint: disable=protected-access
