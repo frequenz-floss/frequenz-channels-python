@@ -147,12 +147,17 @@ async def test_pipe_logs_send_failure(caplog: pytest.LogCaptureFixture) -> None:
     assert not source_sender.has_receivers
 
 
-async def test_pipe_closes_sender_when_receiver_stops() -> None:
+@pytest.mark.parametrize("close_pipe_on_send_error", [True, False])
+async def test_pipe_closes_sender_when_receiver_stops(
+    close_pipe_on_send_error: bool,
+) -> None:
     """Ensure a pipe closes its sender when its receiver stops."""
     source_sender, source_receiver = BroadcastChannel[int](name="source")
     sender, receiver = BroadcastChannel[int](name="forwarding")
 
-    pipe = Pipe(source_receiver, sender)
+    pipe = Pipe(
+        source_receiver, sender, close_pipe_on_send_error=close_pipe_on_send_error
+    )
     await pipe.start()
     await source_sender.send(1)
     assert await receive_timeout(receiver) == 1
@@ -229,6 +234,50 @@ async def test_pipe_leaves_both_ends_open_on_send_exception() -> None:
 
     assert source_sender.has_receivers
     assert not sender.closed
+
+
+async def test_pipe_keeps_sending_after_no_receivers(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Ensure a pipe that doesn't close on send errors outlives missing receivers."""
+    source_sender, source_receiver = BroadcastChannel[int](name="source")
+    sender, receiver = BroadcastChannel[int](name="forwarding")
+    receiver.close()
+
+    pipe = Pipe(source_receiver, sender, close_pipe_on_send_error=False)
+    await pipe.start()
+    with caplog.at_level(logging.DEBUG, logger="frequenz.channels.experimental"):
+        await source_sender.send(1)
+        await asyncio.sleep(0)
+
+        new_receiver = sender.subscribe()
+        await source_sender.send(2)
+        assert await receive_timeout(new_receiver) == 2
+
+    assert source_sender.has_receivers
+    assert [r.levelno for r in caplog.records] == [logging.DEBUG]
+    assert "dropped a message" in caplog.records[0].getMessage()
+    await pipe.stop()
+
+
+async def test_pipe_keeps_sending_after_send_failure(
+    caplog: pytest.LogCaptureFixture,
+) -> None:
+    """Ensure a pipe that doesn't close on send errors logs each failed send."""
+    source_sender, source_receiver = BroadcastChannel[int](name="source")
+
+    pipe = Pipe(source_receiver, FailingSender(), close_pipe_on_send_error=False)
+    await pipe.start()
+    with caplog.at_level(logging.WARNING, logger="frequenz.channels.experimental"):
+        await source_sender.send(1)
+        await asyncio.sleep(0)
+        await source_sender.send(2)
+        await asyncio.sleep(0)
+
+    assert source_sender.has_receivers
+    assert [r.levelno for r in caplog.records] == [logging.ERROR, logging.ERROR]
+    assert "dropped a message" in caplog.records[0].getMessage()
+    await pipe.stop()
 
 
 class UncloseableReceiver(Receiver[int]):
