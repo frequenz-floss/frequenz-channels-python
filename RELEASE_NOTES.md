@@ -16,6 +16,8 @@
 
 <!-- Here goes the main new features and examples or instructions on how to use them -->
 
+- `Pipe` is now available in `frequenz.channels`. It forwards all the messages from a receiver to a sender, like `frequenz.channels.experimental.Pipe`, but it also closes its ends: when its receiver stops it closes its sender, and when sending fails with a `SenderError` it closes its sender and its receiver, unless you pass `close_pipe_on_send_error=False`, in which case it drops the message and keeps going. See the `Pipe` documentation for what the pipe leaves open and who has to close it.
+
 ## Bug Fixes
 
 <!-- Here goes notable bug fixes that are worth a special mention or explanation -->
