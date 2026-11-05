@@ -154,7 +154,14 @@ disable = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "-W=all -Werror -Wdefault::DeprecationWarning -Wdefault::PendingDeprecationWarning"
+filterwarnings = [
+  "error",
+  "once::DeprecationWarning",
+  "once::PendingDeprecationWarning",
+  # Using a symbol this project deprecated is an error. This must go after the
+  # `once::` entries because later filters take precedence.
+  'error:.*frequenz\.channels\.[\w\.]+ (is|was) deprecated:DeprecationWarning',
+]
 testpaths = ["tests", "src"]
 asyncio_debug = true
 asyncio_mode = "auto"
