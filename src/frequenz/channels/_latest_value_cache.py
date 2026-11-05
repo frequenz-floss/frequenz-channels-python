@@ -16,16 +16,18 @@ exception if called before any messages have been received from the receiver.
 
 Example:
     ```python
-    from frequenz.channels import Broadcast, LatestValueCache
+    import asyncio
 
-    channel = Broadcast[int](name="lvc_test")
+    from frequenz.channels import BroadcastChannel, LatestValueCache
 
-    cache = LatestValueCache(channel.new_receiver())
-    sender = channel.new_sender()
+    sender, receiver = BroadcastChannel[int](name="lvc_test")
+
+    cache = LatestValueCache(receiver)
 
     assert not cache.has_value()
 
     await sender.send(5)
+    await asyncio.sleep(0)  # Let the cache process the message
 
     assert cache.has_value()
     assert cache.get() == 5

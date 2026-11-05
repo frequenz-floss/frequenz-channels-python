@@ -6,8 +6,8 @@ as soon as it is available in one single task. A naive approach like this will
 not work:
 
 ```python show_lines="4:"
-receiver1: Receiver[int] = channel1.new_receiver()
-receiver2: Receiver[int] = channel2.new_receiver()
+sender1, receiver1 = BroadcastChannel[int](name="channel1")
+sender2, receiver2 = BroadcastChannel[int](name="channel2")
 
 message = await receiver1.receive()
 print(f"Received from channel1: {message}")
@@ -16,9 +16,9 @@ message = await receiver2.receive()
 print(f"Received from channel2: {message}")
 ```
 
-The problem is that if the first message is not available in `channel1` but in
-`channel2`, the program will be blocked until a message is available in
-`channel1`, but you probably want to receive the first message from `channel2`
+The problem is that if the first message is not available in `receiver1` but in
+`receiver2`, the program will be blocked until a message is available in
+`receiver1`, but you probably want to receive the first message from `receiver2`
 as soon as it is available.
 
 Frequenz Channels provides two tools to solve this issue:

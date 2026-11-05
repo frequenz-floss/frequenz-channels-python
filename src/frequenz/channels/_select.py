@@ -18,13 +18,11 @@ correct type, you need to use the [`selected_from()`][frequenz.channels.selected
 function to check the source of the message, and the
 [`message`][frequenz.channels.Selected.message] attribute to access the message:
 
-```python show_lines="8:"
-from frequenz.channels import Anycast, ReceiverStoppedError, select, selected_from
+```python show_lines="6:"
+from frequenz.channels import BroadcastChannel, ReceiverStoppedError, select, selected_from
 
-channel1: Anycast[int] = Anycast(name="channel1")
-channel2: Anycast[str] = Anycast(name="channel2")
-receiver1 = channel1.new_receiver()
-receiver2 = channel2.new_receiver()
+sender1, receiver1 = BroadcastChannel[int](name="channel1")
+sender2, receiver2 = BroadcastChannel[str](name="channel2")
 
 async for selected in select(receiver1, receiver2):
     if selected_from(selected, receiver1):
@@ -46,13 +44,11 @@ Tip:
     If for some reason you want to ignore a received message, just add the receiver to
     the if-chain and do nothing with the message:
 
-    ```python show_lines="8:"
-    from frequenz.channels import Anycast, select, selected_from
+    ```python show_lines="6:"
+    from frequenz.channels import BroadcastChannel, select, selected_from
 
-    channel1: Anycast[int] = Anycast(name="channel1")
-    channel2: Anycast[str] = Anycast(name="channel2")
-    receiver1 = channel1.new_receiver()
-    receiver2 = channel2.new_receiver()
+    sender1, receiver1 = BroadcastChannel[int](name="channel1")
+    sender2, receiver2 = BroadcastChannel[str](name="channel2")
 
     async for selected in select(receiver1, receiver2):
         if selected_from(selected, receiver1):
@@ -72,13 +68,11 @@ via the [`Selected`][frequenz.channels.Selected] object. You can use the
 [`was_stopped`][frequenz.channels.Selected.was_stopped] method to check if the
 selected [`Receiver`][frequenz.channels.Receiver] was stopped:
 
-```python show_lines="8:"
-from frequenz.channels import Anycast, select, selected_from
+```python show_lines="6:"
+from frequenz.channels import BroadcastChannel, select, selected_from
 
-channel1: Anycast[int] = Anycast(name="channel1")
-channel2: Anycast[str] = Anycast(name="channel2")
-receiver1 = channel1.new_receiver()
-receiver2 = channel2.new_receiver()
+sender1, receiver1 = BroadcastChannel[int](name="channel1")
+sender2, receiver2 = BroadcastChannel[str](name="channel2")
 
 async for selected in select(receiver1, receiver2):
     if selected_from(selected, receiver1):
@@ -107,13 +101,11 @@ raised by the [`message`][frequenz.channels.Selected.message] attribute of the
 
 You can use a try-except block to handle exceptions as usual:
 
-```python show_lines="8:"
-from frequenz.channels import Anycast, ReceiverStoppedError, select, selected_from
+```python show_lines="6:"
+from frequenz.channels import BroadcastChannel, ReceiverStoppedError, select, selected_from
 
-channel1: Anycast[int] = Anycast(name="channel1")
-channel2: Anycast[str] = Anycast(name="channel2")
-receiver1 = channel1.new_receiver()
-receiver2 = channel2.new_receiver()
+sender1, receiver1 = BroadcastChannel[int](name="channel1")
+sender2, receiver2 = BroadcastChannel[str](name="channel2")
 
 async for selected in select(receiver1, receiver2):
     if selected_from(selected, receiver1):

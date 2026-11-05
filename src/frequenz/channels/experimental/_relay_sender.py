@@ -24,16 +24,13 @@ class RelaySender(Sender[SenderMessageT_contra]):
 
     Example:
         ```python
-        from frequenz.channels import Broadcast
+        from frequenz.channels import BroadcastChannel
         from frequenz.channels.experimental import RelaySender
 
-        channel1: Broadcast[int] = Broadcast(name="channel1")
-        channel2: Broadcast[int] = Broadcast(name="channel2")
+        sender1, receiver1 = BroadcastChannel[int](name="channel1")
+        sender2, receiver2 = BroadcastChannel[int](name="channel2")
 
-        receiver1 = channel1.new_receiver()
-        receiver2 = channel2.new_receiver()
-
-        tee_sender = RelaySender(channel1.new_sender(), channel2.new_sender())
+        tee_sender = RelaySender(sender1, sender2)
 
         await tee_sender.send(5)
         assert await receiver1.receive() == 5

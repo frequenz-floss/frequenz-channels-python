@@ -93,7 +93,7 @@ class Anycast(Generic[ChannelMessageT]):
     This channel is useful, for example, to distribute work across multiple workers.
 
     In cases where each message needs to be received by every receiver, a
-    [broadcast][frequenz.channels.Broadcast] channel may be used.
+    [`BroadcastChannel`][frequenz.channels.BroadcastChannel] may be used.
 
     # Examples
 
@@ -280,8 +280,8 @@ class Anycast(Generic[ChannelMessageT]):
 
         Receivers will still be able to drain the pending messages on the channel,
         but after that, subsequent
-        [`receive()`][frequenz.channels.Receiver.receive] calls will return `None`
-        immediately.
+        [`receive()`][frequenz.channels.Receiver.receive] calls will raise a
+        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
         """
         self._closed = True
         async with self._send_cv:
