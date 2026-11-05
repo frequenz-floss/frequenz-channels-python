@@ -40,6 +40,12 @@ Utilities to work with channels:
   a stream, without having to wait, as long as there has been one value
   received.
 
+* [`NopReceiver`][frequenz.channels.NopReceiver]: A place-holder receiver that
+  never receives a message.
+
+* [`WithPrevious`][frequenz.channels.WithPrevious]: A composable predicate to
+  filter messages based on the previous message received.
+
 Exception classes:
 
 * [`Error`][frequenz.channels.Error]: Base class for all errors in this
@@ -92,6 +98,7 @@ from ._generic import (
 )
 from ._latest_value_cache import LatestValueCache
 from ._merge import Merger, merge
+from ._nop_receiver import NopReceiver
 from ._oneshot import OneshotChannel, OneshotReceiver, OneshotSender
 from ._receiver import Receiver, ReceiverError, ReceiverStoppedError
 from ._select import (
@@ -109,6 +116,7 @@ from ._sender import (
     SenderError,
     SubscribableSender,
 )
+from ._with_previous import WithPrevious
 
 __all__ = [
     "Anycast",
@@ -126,6 +134,7 @@ __all__ = [
     "LatestValueCache",
     "MappedMessageT_co",
     "Merger",
+    "NopReceiver",
     "OneshotChannel",
     "OneshotReceiver",
     "OneshotSender",
@@ -142,6 +151,7 @@ __all__ = [
     "SenderMessageT_contra",
     "SubscribableSender",
     "UnhandledSelectedError",
+    "WithPrevious",
     "merge",
     "select",
     "selected_from",

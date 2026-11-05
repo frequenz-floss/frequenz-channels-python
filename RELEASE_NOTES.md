@@ -12,9 +12,15 @@
 
 - The minimum `typing-extensions` version is now 4.13.0, which `frequenz-core` requires.
 
+- `frequenz.channels.experimental.NopReceiver` and `frequenz.channels.experimental.WithPrevious` are deprecated. Import them from `frequenz.channels` instead; they are the same objects, so only the import changes. The old names will be removed in v2.0.0.
+
+- The deprecation warning of `frequenz.channels.experimental.OptionalReceiver` now points at `frequenz.channels.NopReceiver`. Use the receiver itself, or a `NopReceiver` when there is none.
+
 ## New Features
 
 <!-- Here goes the main new features and examples or instructions on how to use them -->
+
+- `NopReceiver` and `WithPrevious` are now stable, and available from `frequenz.channels`.
 
 ## Bug Fixes
 

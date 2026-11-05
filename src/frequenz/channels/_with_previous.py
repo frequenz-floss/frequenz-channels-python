@@ -6,7 +6,7 @@
 from collections.abc import Callable
 from typing import Final, Generic, TypeGuard
 
-from frequenz.channels._generic import ChannelMessageT
+from ._generic import ChannelMessageT
 
 
 class _Sentinel:
@@ -30,8 +30,7 @@ class WithPrevious(Generic[ChannelMessageT]):
 
     Example: Receiving only messages that are different from the previous one.
         ```python
-        from frequenz.channels import Broadcast
-        from frequenz.channels.experimental import WithPrevious
+        from frequenz.channels import Broadcast, WithPrevious
 
         channel = Broadcast[int](name="example")
         receiver = channel.new_receiver().filter(WithPrevious(lambda old, new: old != new))
@@ -51,8 +50,7 @@ class WithPrevious(Generic[ChannelMessageT]):
 
     Example: Receiving only messages if they are bigger than the previous one.
         ```python
-        from frequenz.channels import Broadcast
-        from frequenz.channels.experimental import WithPrevious
+        from frequenz.channels import Broadcast, WithPrevious
 
         channel = Broadcast[int](name="example")
         receiver = channel.new_receiver().filter(
