@@ -81,8 +81,8 @@ Extra utility receivers:
 * [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher]: A receiver that
   generates a message when a file is added, modified or deleted.
 
-* [`Timer`][frequenz.channels.timer.Timer]: A receiver that generates a message after a
-  given amount of time.
+* [`MonotonicTimer`][frequenz.channels.timer.MonotonicTimer]: A receiver that
+  generates a message after a given amount of time.
 """
 
 from ._anycast import Anycast
