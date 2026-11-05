@@ -9,14 +9,26 @@ senders and forwards all the messages sent to it, to the senders it was created 
 
 import asyncio
 
-from typing_extensions import override
+from typing_extensions import deprecated, override
 
 from .._generic import SenderMessageT_contra
 from .._sender import Sender
 
 
+@deprecated(
+    "frequenz.channels.experimental.RelaySender is deprecated and will be removed in "
+    "v2.0.0. Copy its code into your project if you need it, or open an issue at "
+    "https://github.com/frequenz-floss/frequenz-channels-python/issues if you think "
+    "it should stay in frequenz-channels."
+)
 class RelaySender(Sender[SenderMessageT_contra]):
     """A [`Sender`][frequenz.channels.Sender] for sending messages to multiple senders.
+
+    Deprecated:
+        Deprecated since v1.13.0, and will be removed in v2.0.0. Copy its code into
+        your project if you need it, or [open an
+        issue](https://github.com/frequenz-floss/frequenz-channels-python/issues) if
+        you think it should stay in this library.
 
     The [`RelaySender`][frequenz.channels.experimental.RelaySender] class takes multiple
     senders and forwards all the messages sent to it, to the senders it was created
