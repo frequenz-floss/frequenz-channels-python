@@ -786,3 +786,15 @@ async def test_monotonic_timer_is_not_deprecated() -> None:
     with asserting_no_deprecations():
         timer = MonotonicTimer(timedelta(seconds=1.0), TriggerAllMissed())
     timer.stop()
+
+
+def test_timer_star_import_warns() -> None:
+    """Test that `from frequenz.channels.timer import *` still provides `Timer`."""
+    namespace: dict[str, Any] = {}
+    with pytest.deprecated_call(
+        match=r"^frequenz\.channels\.timer\.Timer is deprecated\. "
+    ):
+        # pylint: disable-next=exec-used
+        exec("from frequenz.channels.timer import *", namespace)
+    assert namespace["Timer"] is MonotonicTimer
+    assert namespace["MonotonicTimer"] is MonotonicTimer
