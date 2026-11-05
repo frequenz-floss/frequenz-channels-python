@@ -11,6 +11,7 @@ from asyncio import Condition
 from collections import deque
 from typing import Generic, TypeVar
 
+from frequenz.core.warnings import ignoring_deprecations
 from typing_extensions import deprecated, override
 
 from ._exceptions import ChannelClosedError
@@ -827,9 +828,12 @@ class BroadcastChannel(
             A new BroadcastChannel instance that can be destructured into an initial
                 sender and receiver.
         """
-        channel = Broadcast[ChannelMessageT](
-            name=name, resend_latest=resend_latest, auto_close=True
-        )
+        # Broadcast is deprecated, but it is an implementation detail of this
+        # class, so users shouldn't be warned about it.
+        with ignoring_deprecations():
+            channel = Broadcast[ChannelMessageT](
+                name=name, resend_latest=resend_latest, auto_close=True
+            )
         return tuple.__new__(
             cls,
             (
