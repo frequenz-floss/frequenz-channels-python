@@ -13,7 +13,7 @@
       
       
       
-        <link rel="prev" href="../channels/broadcast/">
+        <link rel="prev" href="../channels/oneshot/">
       
       
         <link rel="next" href="../receiving/">
@@ -618,14 +618,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../channels/anycast/" class="md-nav__link">
+      <a href="../channels/broadcast/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Anycast
+    Broadcast
   
 
     
@@ -646,14 +646,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../channels/broadcast/" class="md-nav__link">
+      <a href="../channels/oneshot/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Broadcast
+    Oneshot
   
 
     
@@ -1631,9 +1631,11 @@
         <p>Sender interface and related exceptions.</p>
 <h2 id="frequenz.channels._sender--senders">Senders<a class="headerlink" href="#frequenz.channels._sender--senders" title="Permanent link">¤</a></h2>
 <p>Messages are sent to a <a href="/user-guide/channels">channel</a> through
-<a class="autorefs autorefs-internal" title="frequenz.channels.Sender" href="../../reference/frequenz/channels/#frequenz.channels.Sender"><code>Sender</code></a> objects. <a class="autorefs autorefs-internal" title="frequenz.channels.Sender" href="../../reference/frequenz/channels/#frequenz.channels.Sender"><code>Sender</code></a>s are
-usually created by calling <code>channel.new_sender()</code>, and are a very simple abstraction
-that only provides a single <a class="autorefs autorefs-internal" title="send
+<a class="autorefs autorefs-internal" title="frequenz.channels.Sender" href="../../reference/frequenz/channels/#frequenz.channels.Sender"><code>Sender</code></a> objects. <a class="autorefs autorefs-internal" title="frequenz.channels.Sender" href="../../reference/frequenz/channels/#frequenz.channels.Sender"><code>Sender</code></a>s
+usually come from creating a channel, like a
+<a class="autorefs autorefs-internal" title="frequenz.channels.BroadcastChannel" href="../../reference/frequenz/channels/#frequenz.channels.BroadcastChannel"><code>BroadcastChannel</code></a>, or from calling
+<code>sender.clone()</code>.  They are a very simple abstraction that mainly provides a
+<a class="autorefs autorefs-internal" title="send
 
 
   
@@ -1742,7 +1744,7 @@ a <a class="autorefs autorefs-internal" title="frequenz.channels.SenderError" hr
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../channels/broadcast/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Broadcast">
+          <a href="../channels/oneshot/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Oneshot">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1752,7 +1754,7 @@ a <a class="autorefs autorefs-internal" title="frequenz.channels.SenderError" hr
                 Previous
               </span>
               <div class="md-ellipsis">
-                Broadcast
+                Oneshot
               </div>
             </div>
           </a>

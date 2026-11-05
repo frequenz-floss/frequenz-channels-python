@@ -618,14 +618,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../channels/anycast/" class="md-nav__link">
+      <a href="../../../channels/broadcast/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Anycast
+    Broadcast
   
 
     
@@ -646,14 +646,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../channels/broadcast/" class="md-nav__link">
+      <a href="../../../channels/oneshot/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Broadcast
+    Oneshot
   
 
     
@@ -1636,9 +1636,9 @@ will receive messages from all the given receivers:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="frequenz.channels._merge--__span-0-1"><a id="frequenz.channels._merge--__codelineno-0-1" name="frequenz.channels._merge--__codelineno-0-1" href="#frequenz.channels._merge--__codelineno-0-1"></a><span class="k">async</span> <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">merge</span><span class="p">(</span><span class="n">receiver1</span><span class="p">,</span> <span class="n">receiver2</span><span class="p">):</span>
 </span><span id="frequenz.channels._merge--__span-0-2"><a id="frequenz.channels._merge--__codelineno-0-2" name="frequenz.channels._merge--__codelineno-0-2" href="#frequenz.channels._merge--__codelineno-0-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </span></code></pre></div>
-<p>If the first message comes from <code>channel2</code> and the second message from <code>channel1</code>, the
-first message will be received immediately, and the second message will be received as
-soon as it is available.</p>
+<p>If the first message comes from <code>receiver2</code> and the second message from <code>receiver1</code>,
+the first message will be received immediately, and the second message will be
+received as soon as it is available.</p>
 <p>This can be helpful when you just need to receive messages and don't care about
 where are they coming from specifically. If you need to know where the message came
 from, you can use <a class="autorefs autorefs-internal" title="frequenz.channels.select

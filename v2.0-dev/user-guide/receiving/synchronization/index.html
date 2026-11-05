@@ -618,14 +618,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../channels/anycast/" class="md-nav__link">
+      <a href="../../channels/broadcast/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Anycast
+    Broadcast
   
 
     
@@ -646,14 +646,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../channels/broadcast/" class="md-nav__link">
+      <a href="../../channels/oneshot/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Broadcast
+    Oneshot
   
 
     
@@ -1530,9 +1530,9 @@ not work:</p>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">message</span> <span class="o">=</span> <span class="k">await</span> <span class="n">receiver2</span><span class="o">.</span><span class="n">receive</span><span class="p">()</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Received from channel2: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </span></code></pre></div>
-<p>The problem is that if the first message is not available in <code>channel1</code> but in
-<code>channel2</code>, the program will be blocked until a message is available in
-<code>channel1</code>, but you probably want to receive the first message from <code>channel2</code>
+<p>The problem is that if the first message is not available in <code>receiver1</code> but in
+<code>receiver2</code>, the program will be blocked until a message is available in
+<code>receiver1</code>, but you probably want to receive the first message from <code>receiver2</code>
 as soon as it is available.</p>
 <p>Frequenz Channels provides two tools to solve this issue:
 <a class="autorefs autorefs-internal" title="frequenz.channels.merge" href="../../../reference/frequenz/channels/#frequenz.channels.merge"><code>merge()</code></a> and
