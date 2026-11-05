@@ -13,17 +13,45 @@ from __future__ import annotations
 import asyncio
 import typing
 
+from typing_extensions import deprecated
+
 from .._generic import ChannelMessageT
 from .._receiver import Receiver
 from .._sender import Sender
 
 
+@deprecated(
+    "frequenz.channels.experimental.Pipe is deprecated. "
+    "Use frequenz.channels.Pipe instead, but check your teardown first: it closes "
+    "its sender when its receiver stops, and both ends when sending fails, while "
+    "this one leaves them open."
+)
 class Pipe(typing.Generic[ChannelMessageT]):
     """A pipe between two channels.
+
+    Deprecated:
+        Deprecated since v1.13.0. Use [`frequenz.channels.Pipe`][] instead, after
+        checking how your code closes the sender and the receiver, as this class
+        leaves them open.
 
     The [`Pipe`][frequenz.channels.experimental.Pipe] class takes a receiver and a
     sender and creates a pipe between them by forwarding all the messages received by
     the receiver to the sender.
+
+    [`frequenz.channels.Pipe`][] is a separate implementation that treats its endpoints
+    differently, so moving to it can change how your code shuts down:
+
+    * When its receiver stops, this pipe stops and leaves its sender open.
+      [`frequenz.channels.Pipe`][] closes its sender too.
+    * When sending fails with a [`SenderError`][frequenz.channels.SenderError], the
+      exception ends the task of this pipe and both ends stay open.
+      [`frequenz.channels.Pipe`][] logs the error and closes its sender and its
+      receiver by default.
+    * [`frequenz.channels.Pipe`][] also takes `close_pipe_on_send_error=False`, which
+      drops the message that failed and keeps forwarding the next ones.  This doesn't
+      bring back the behavior of this class, which stops on the first send error.
+    * [`stop()`][frequenz.channels.experimental.Pipe.stop] leaves both ends open in
+      both.
 
     Example:
         ```python

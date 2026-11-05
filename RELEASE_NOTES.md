@@ -12,6 +12,13 @@
 
 - The minimum `typing-extensions` version is now 4.13.0, which `frequenz-core` requires.
 
+- `frequenz.channels.experimental.Pipe` is deprecated and will be removed in v2.0.0. Use `frequenz.channels.Pipe` instead, but check how your code closes the sender and the receiver of the pipe first, as the two behave differently:
+
+    - When its receiver stops, the new `Pipe` closes its sender. The experimental one stops and leaves the sender open.
+    - When sending fails with a `SenderError`, the new `Pipe` logs the error and closes both its sender and its receiver by default. The experimental one lets the exception end its task and leaves both open.
+    - With `close_pipe_on_send_error=False`, the new `Pipe` drops the message that failed and keeps forwarding the next ones. This doesn't bring back the behavior of the experimental one.
+    - `stop()` leaves both ends open in both.
+
 ## New Features
 
 <!-- Here goes the main new features and examples or instructions on how to use them -->
