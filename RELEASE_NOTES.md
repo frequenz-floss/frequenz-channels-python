@@ -12,6 +12,8 @@
 
 - The minimum `typing-extensions` version is now 4.13.0, which `frequenz-core` requires.
 
+- `frequenz.channels.experimental.GroupingLatestValueCache` and its type variables `DefaultT`, `HashableT` and `ValueT_co`, and `frequenz.channels.experimental.RelaySender` are deprecated and will be removed in v2.0.0. There is no replacement in this library: copy their code into your project if you need them, or [open an issue](https://github.com/frequenz-floss/frequenz-channels-python/issues) if you think they should stay.
+
 - `frequenz.channels.experimental.NopReceiver` and `frequenz.channels.experimental.WithPrevious` are deprecated. Import them from `frequenz.channels` instead; they are the same objects, so only the import changes. The old names will be removed in v2.0.0.
 
 - The deprecation warning of `frequenz.channels.experimental.OptionalReceiver` now points at `frequenz.channels.NopReceiver`. Use the receiver itself, or a `NopReceiver` when there is none.
