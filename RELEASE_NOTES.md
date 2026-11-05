@@ -16,6 +16,8 @@
 
 - The deprecation warning of `frequenz.channels.experimental.OptionalReceiver` now points at `frequenz.channels.NopReceiver`. Use the receiver itself, or a `NopReceiver` when there is none.
 
+- `frequenz.channels.timer.Timer` was renamed to `MonotonicTimer`, to make clear it uses the event loop's monotonic clock and to free the name `Timer` for a wall clock timer in a later version. `Timer` still works as a deprecated alias and will be removed in v2.0.0. The change is mechanical: replace `Timer` with `MonotonicTimer` in imports and uses.
+
 ## New Features
 
 <!-- Here goes the main new features and examples or instructions on how to use them -->
