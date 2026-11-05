@@ -108,7 +108,7 @@ from frequenz.channels import (
     select,
     selected_from,
 )
-from frequenz.channels.timer import SkipMissedAndDrift, Timer, TriggerAllMissed
+from frequenz.channels.timer import MonotonicTimer, SkipMissedAndDrift, TriggerAllMissed
 
 
 class Command(Enum):
@@ -133,7 +133,7 @@ async def send(
 ) -> None:
     """Send a counter value every second, until a stop command is received."""
     print(f"{sender}: Starting")
-    timer = Timer(timedelta(seconds=1.0), TriggerAllMissed())
+    timer = MonotonicTimer(timedelta(seconds=1.0), TriggerAllMissed())
     counter = 0
     async for selected in select(timer, control_command):
         if selected_from(selected, timer):
@@ -161,7 +161,7 @@ async def receive(
 ) -> None:
     """Receive data from multiple channels, until no more data is received for 2 seconds."""
     print("receive: Starting")
-    timer = Timer(timedelta(seconds=2.0), SkipMissedAndDrift())
+    timer = MonotonicTimer(timedelta(seconds=2.0), SkipMissedAndDrift())
     print(f"{timer=}")
     merged = merge(*receivers)
     async for selected in select(merged, timer, control_command):
