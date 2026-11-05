@@ -11,8 +11,8 @@ import asyncio
 
 from typing_extensions import override
 
-from frequenz.channels import Receiver, ReceiverError, ReceiverMessageT_co
-from frequenz.channels._receiver import ReceiverStoppedError
+from ._generic import ReceiverMessageT_co
+from ._receiver import Receiver, ReceiverError, ReceiverStoppedError
 
 
 class NopReceiver(Receiver[ReceiverMessageT_co]):
@@ -38,7 +38,7 @@ class NopReceiver(Receiver[ReceiverMessageT_co]):
     def consume(self) -> ReceiverMessageT_co:  # noqa: DOC503 (raised indirectly)
         """Raise [`ReceiverError`][frequenz.channels.ReceiverError] or stop.
 
-        If the [`NopReceiver`][frequenz.channels.experimental.NopReceiver] is not
+        If the [`NopReceiver`][frequenz.channels.NopReceiver] is not
         closed, raise [`ReceiverError`][frequenz.channels.ReceiverError]. If the
         receiver is closed, then raise
         [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].

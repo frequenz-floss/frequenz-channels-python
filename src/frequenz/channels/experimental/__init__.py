@@ -10,17 +10,19 @@ Warning:
     guidelines](https://github.com/frequenz-floss/docs/blob/v0.x.x/python/experimental-packages.md).
 """
 
+from typing import TYPE_CHECKING, TypeAlias
+
+from frequenz.core.warnings import DeprecatedAlias, deprecated_aliases
+
 from ._grouping_latest_value_cache import (
     DefaultT,
     GroupingLatestValueCache,
     HashableT,
     ValueT_co,
 )
-from ._nop_receiver import NopReceiver
 from ._optional_receiver import OptionalReceiver
 from ._pipe import Pipe
 from ._relay_sender import RelaySender
-from ._with_previous import WithPrevious
 
 __all__ = [
     "DefaultT",
@@ -33,3 +35,37 @@ __all__ = [
     "ValueT_co",
     "WithPrevious",
 ]
+
+if TYPE_CHECKING:
+    from .._nop_receiver import NopReceiver as _NopReceiver
+    from .._with_previous import WithPrevious as _WithPrevious
+
+    NopReceiver: TypeAlias = _NopReceiver
+    """A place-holder receiver that will never receive a message.
+
+    Deprecated:
+        Deprecated since v1.13.0. Use
+        [`frequenz.channels.NopReceiver`][frequenz.channels.NopReceiver] instead.
+    """
+
+    WithPrevious: TypeAlias = _WithPrevious
+    """A composable predicate to build predicates that can also use the previous message.
+
+    Deprecated:
+        Deprecated since v1.13.0. Use
+        [`frequenz.channels.WithPrevious`][frequenz.channels.WithPrevious] instead.
+    """
+else:
+    __getattr__ = deprecated_aliases(
+        __name__,
+        DeprecatedAlias(
+            "NopReceiver",
+            new_module="frequenz.channels",
+            since="v1.13.0",
+        ),
+        DeprecatedAlias(
+            "WithPrevious",
+            new_module="frequenz.channels",
+            since="v1.13.0",
+        ),
+    )

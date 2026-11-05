@@ -8,7 +8,7 @@ from typing import Callable, Generic, TypeVar
 
 import pytest
 
-from frequenz.channels.experimental import WithPrevious
+from frequenz.channels import WithPrevious
 
 _T = TypeVar("_T")
 
