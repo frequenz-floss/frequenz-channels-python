@@ -32,4 +32,6 @@
 
 - `BroadcastChannel()` no longer emits the deprecation warning of `Broadcast`, which it uses internally. You were getting a warning about a class you never used.
 
+- `OneshotReceiver.close()` no longer raises `NotImplementedError`. It now works like in the other receivers: a message sent before closing can still be received, and after that receiving raises `ReceiverStoppedError`. The sender can still send, but its message is discarded.
+
 - Docstrings now use absolute cross-references to public paths instead of relative ones. Relative cross-references are expanded from the module where an object is defined since mkdocstrings-python 2.0.9, which broke some links, and projects rendering docstrings inherited from this library needed `relative_crossrefs: true` for them to work at all. See [frequenz-repo-config-python#655](https://github.com/frequenz-floss/frequenz-repo-config-python/issues/655) for details.
