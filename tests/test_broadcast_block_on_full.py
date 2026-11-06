@@ -19,6 +19,8 @@ from frequenz.channels import (
     ChannelClosedError,
     SenderClosedError,
     SenderError,
+    SenderWouldBlockError,
+    TransientSenderError,
 )
 
 
@@ -39,6 +41,15 @@ def _drain(receiver: BroadcastReceiver[int]) -> list[int]:
 async def _start_send(sender: BroadcastSender[int], message: int) -> asyncio.Task[None]:
     """Start sending a message in a task, and let it run until it blocks."""
     task = asyncio.create_task(sender.send(message))
+    await _settle()
+    return task
+
+
+async def _start_send_with(
+    sender: BroadcastSender[int], message: int, *, block_on_full: bool
+) -> asyncio.Task[None]:
+    """Start sending a message with a `block_on_full` override in a task."""
+    task = asyncio.create_task(sender.send(message, block_on_full=block_on_full))
     await _settle()
     return task
 
@@ -161,8 +172,8 @@ async def test_subscribe_inherits_block_on_full() -> None:
     inherited = sender.subscribe(limit=1)
     explicit = sender.subscribe(limit=1, block_on_full=CHANNEL_DEFAULT)
     lossy = sender.subscribe(limit=1, block_on_full=False, warn_on_overflow=False)
-    assert "block_on_full=True" in repr(inherited)
-    assert "block_on_full=True" in repr(explicit)
+    assert "block_on_full=CHANNEL_DEFAULT" in repr(inherited)
+    assert "block_on_full=CHANNEL_DEFAULT" in repr(explicit)
     assert "block_on_full=False" in repr(lossy)
 
     await sender.send(1)
@@ -522,3 +533,108 @@ async def test_does_not_warn() -> None:
     """Ensure creating a blocking `BroadcastChannel` emits no deprecation warning."""
     with asserting_no_deprecations():
         _ = BroadcastChannel[int](name="test", block_on_full=True)
+
+
+async def test_send_override_true_waits_for_inheriting_receivers() -> None:
+    """Ensure `send(block_on_full=True)` waits for receivers using the default."""
+    sender, inheriting = BroadcastChannel[int](
+        name="test", limit=1, warn_on_overflow=False
+    )
+    await sender.send(1)
+
+    task = await _start_send_with(sender, 2, block_on_full=True)
+    assert not task.done()
+    assert _drain(inheriting) == [1]
+    await _settle()
+    assert task.done()
+    await task
+    assert _drain(inheriting) == [2]
+
+
+async def test_send_override_true_forgets_dropped_receivers() -> None:
+    """Ensure `send(block_on_full=True)` forgets dropped blocking receivers."""
+    sender, receiver = BroadcastChannel[int](name="test", limit=5)
+    dropped = sender.subscribe(block_on_full=True)
+    del dropped
+    gc.collect()
+
+    await sender.send(1, block_on_full=True)
+
+    # pylint: disable=protected-access
+    assert len(sender._channel._receivers) == 1
+    assert not sender._channel._blocking_receivers
+    # pylint: enable=protected-access
+    assert _drain(receiver) == [1]
+
+
+async def test_send_override_true_skips_explicitly_lossy_receivers() -> None:
+    """Ensure `send(block_on_full=True)` doesn't wait for explicitly lossy receivers."""
+    sender, inheriting = BroadcastChannel[int](
+        name="test", limit=5, warn_on_overflow=False
+    )
+    lossy = sender.subscribe(limit=1, warn_on_overflow=False, block_on_full=False)
+    await sender.send(1)
+
+    await sender.send(2, block_on_full=True)
+    assert _drain(lossy) == [2]
+    assert _drain(inheriting) == [1, 2]
+
+
+async def test_send_override_true_woken_by_inheriting_receiver_close() -> None:
+    """Ensure closing an inheriting receiver wakes `send(block_on_full=True)`."""
+    sender, inheriting = BroadcastChannel[int](
+        name="test", limit=1, warn_on_overflow=False
+    )
+    other = sender.subscribe(limit=5)
+    await sender.send(1)
+
+    task = await _start_send_with(sender, 2, block_on_full=True)
+    assert not task.done()
+    inheriting.close()
+    await _settle()
+    assert task.done()
+    await task
+    assert _drain(other) == [1, 2]
+
+
+async def test_send_override_false_drops_on_inheriting_receivers() -> None:
+    """Ensure `send(block_on_full=False)` never waits for inheriting receivers."""
+    sender, inheriting = BroadcastChannel[int](
+        name="test", limit=1, warn_on_overflow=False, block_on_full=True
+    )
+    await sender.send(1)
+
+    await sender.send(2, block_on_full=False)
+    assert _drain(inheriting) == [2]
+
+
+async def test_send_override_false_raises_for_explicitly_blocking() -> None:
+    """Ensure `send(block_on_full=False)` raises if an explicit blocker is full."""
+    sender, inheriting = BroadcastChannel[int](
+        name="test", resend_latest=True, limit=1, warn_on_overflow=False
+    )
+    blocking_1 = sender.subscribe(limit=1, block_on_full=True)
+    blocking_2 = sender.subscribe(limit=5, block_on_full=True)
+    await sender.send(1)
+
+    with pytest.raises(SenderWouldBlockError) as excinfo:
+        await sender.send(2, block_on_full=False)
+    error = excinfo.value
+    assert isinstance(error, TransientSenderError)
+    assert error.sender is sender
+    assert error.full_receivers == 1
+    assert error.blocking_receivers == 2
+    assert str(error) == (
+        "Sender Broadcast:test:BroadcastSender would block: 1 of 2 receivers "
+        "created with block_on_full=True are full"
+    )
+
+    assert _drain(inheriting) == [1]
+    assert _drain(blocking_2) == [1]
+    assert _drain(sender.subscribe()) == [1]
+
+    assert blocking_1.consume() == 1
+    await sender.send(3, block_on_full=False)
+    assert _drain(inheriting) == [3]
+    assert _drain(blocking_1) == [3]
+    assert _drain(blocking_2) == [3]

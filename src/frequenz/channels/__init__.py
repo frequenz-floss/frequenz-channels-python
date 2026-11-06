@@ -66,6 +66,9 @@ Exception classes:
 * [`TransientSenderError`][frequenz.channels.TransientSenderError]: Base class for
   sender errors after which the sender can still be used.
 
+* [`SenderWouldBlockError`][frequenz.channels.SenderWouldBlockError]: A send would
+  have to wait, but wasn't allowed to.
+
 * [`ReceiverError`][frequenz.channels.ReceiverError]: Base class for all errors
   related to receivers.
 
@@ -121,6 +124,7 @@ from ._sender import (
     Sender,
     SenderClosedError,
     SenderError,
+    SenderWouldBlockError,
     SubscribableSender,
     TransientSenderError,
 )
@@ -158,6 +162,7 @@ __all__ = [
     "SenderError",
     "SenderMessageT_co",
     "SenderMessageT_contra",
+    "SenderWouldBlockError",
     "SubscribableSender",
     "TransientSenderError",
     "UnhandledSelectedError",

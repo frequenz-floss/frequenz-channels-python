@@ -10,7 +10,8 @@ CHANNEL_DEFAULT = sentinel("CHANNEL_DEFAULT")
 
 Some methods take arguments that, when not given, use the value the channel was
 created with, like the `block_on_full` argument of
-[`BroadcastSender.subscribe()`][frequenz.channels.BroadcastSender.subscribe].
+[`BroadcastSender.subscribe()`][frequenz.channels.BroadcastSender.subscribe] and
+[`BroadcastSender.send()`][frequenz.channels.BroadcastSender.send].
 `CHANNEL_DEFAULT` is their default value, so passing it explicitly is the same as
 not passing the argument at all.
 """

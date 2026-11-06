@@ -20,7 +20,12 @@ from ._channel_default import CHANNEL_DEFAULT
 from ._exceptions import ChannelClosedError
 from ._generic import ChannelMessageT
 from ._receiver import Receiver, ReceiverStoppedError
-from ._sender import CloneableSubscribableSender, SenderClosedError, SenderError
+from ._sender import (
+    CloneableSubscribableSender,
+    SenderClosedError,
+    SenderError,
+    SenderWouldBlockError,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -234,10 +239,12 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
         self._blocking_receivers: dict[
             int, weakref.ReferenceType[BroadcastReceiver[ChannelMessageT]]
         ] = {}
-        """The receivers created with `block_on_full=True`, indexed by their hash().
+        """The receivers that make senders wait by default, indexed by their hash().
 
-        They are in `_receivers` too.  Senders only check these for room before
-        sending, so a channel without blocking receivers doesn't pay for it.
+        These are the receivers created with `block_on_full=True`, and, if the
+        channel's `block_on_full` setting is `True`, those using it.  They are in
+        `_receivers` too.  A `send()` without `block_on_full` only checks these for
+        room, so a channel without blocking receivers doesn't pay for it.
         """
 
         self._wake_senders_event: Event | None = None
@@ -325,32 +332,51 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
             if loop is None or not loop.is_closed():
                 raise
 
-    def _full_blocking_receivers(self) -> tuple[list[str], bool]:
-        """Return the blocking receivers that are full.
+    def _full_blocking_receivers(
+        self, block_on_full: bool | CHANNEL_DEFAULT
+    ) -> tuple[list[str], bool]:
+        """Return the full receivers that a send has to wait for.
 
         It returns only strings, so a sender waiting for room doesn't keep any
         receiver alive.
 
+        Args:
+            block_on_full: The `block_on_full` argument of the send.
+
         Returns:
-            The names of the blocking receivers whose buffer is full, and whether
-                any of them logs a warning on overflow.
+            The names of the receivers the send has to wait for whose buffer is
+                full, and whether any of them logs a warning on overflow.
         """
+        receivers = (
+            self._receivers if block_on_full is True else self._blocking_receivers
+        )
         full: list[str] = []
         warn = False
         stale_refs = []
         # pylint: disable=protected-access
-        for _hash, recv_ref in self._blocking_receivers.items():
+        for _hash, recv_ref in receivers.items():
             recv = recv_ref()
             if recv is None:
                 stale_refs.append(_hash)
                 continue
-            if recv._is_full():
+            if recv._blocks_senders(block_on_full) and recv._is_full():
                 full.append(str(recv))
                 warn = warn or recv._warn_on_overflow
         # pylint: enable=protected-access
         for _hash in stale_refs:
-            del self._blocking_receivers[_hash]
+            self._receivers.pop(_hash, None)
+            self._blocking_receivers.pop(_hash, None)
         return full, warn
+
+    def _explicitly_blocking_receivers(self) -> int:
+        """Return the number of receivers created with `block_on_full=True`."""
+        # pylint: disable=protected-access
+        return sum(
+            1
+            for recv_ref in self._blocking_receivers.values()
+            if (recv := recv_ref()) is not None and recv._block_on_full is True
+        )
+        # pylint: enable=protected-access
 
     @deprecated("The close() method is deprecated, use aclose() instead")
     async def close(self) -> None:
@@ -390,7 +416,7 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
             name=name,
             limit=limit,
             warn_on_overflow=warn_on_overflow,
-            block_on_full=self._default_block_on_full,
+            block_on_full=CHANNEL_DEFAULT,
         )
 
     def _new_receiver(  # noqa: DOC502 (raised indirectly)
@@ -399,7 +425,7 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
         name: str | None,
         limit: int,
         warn_on_overflow: bool,
-        block_on_full: bool,
+        block_on_full: bool | CHANNEL_DEFAULT,
     ) -> BroadcastReceiver[ChannelMessageT]:
         """Return a new receiver attached to this channel.
 
@@ -409,7 +435,8 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
             warn_on_overflow: Whether to log a warning when the receiver's
                 buffer is full and a message is dropped, or a sender has to wait.
             block_on_full: Whether senders wait for the receiver to have room
-                when its buffer is full, instead of dropping its oldest message.
+                when its buffer is full, instead of dropping its oldest message,
+                or `CHANNEL_DEFAULT` to use the channel's setting.
 
         Returns:
             A new receiver attached to this channel.
@@ -425,7 +452,7 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
             block_on_full=block_on_full,
         )
         self._receivers[hash(recv)] = weakref.ref(recv)
-        if block_on_full:
+        if recv._blocks_senders(CHANNEL_DEFAULT):  # pylint: disable=protected-access
             self._blocking_receivers[hash(recv)] = weakref.ref(recv)
         if self.resend_latest and self._latest is not None:
             recv._enqueue(self._latest)  # pylint: disable=protected-access
@@ -477,16 +504,34 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
         return self._channel._sender_count  # pylint: disable=protected-access
 
     @override
-    async def send(self, message: _T, /) -> None:  # noqa: DOC503 (raised indirectly)
+    async def send(  # noqa: DOC503 (raised indirectly)
+        self,
+        message: _T,
+        /,
+        *,
+        block_on_full: bool | CHANNEL_DEFAULT = CHANNEL_DEFAULT,
+    ) -> None:
         """Send a message to all broadcast receivers.
 
-        If a receiver created with `block_on_full=True` has a full buffer, this
-        waits until all such receivers have room, and then gives the message to all
-        receivers at once.  If it is cancelled while waiting, for example by
+        If a receiver that blocks senders has a full buffer, this waits until all
+        such receivers have room, and then gives the message to all receivers at
+        once.  If it is cancelled while waiting, for example by
         [`asyncio.timeout()`][asyncio.timeout], no receiver gets the message.
+
+        Which receivers block senders is described in the
+        [`BroadcastChannel`][frequenz.channels.BroadcastChannel] documentation.
 
         Args:
             message: The message to be broadcast.
+            block_on_full: Whether this send waits for full receivers that use the
+                channel's `block_on_full` setting, instead of making them drop their
+                oldest message.  Receivers created with an explicit `block_on_full`
+                in [`subscribe()`][frequenz.channels.BroadcastSender.subscribe]
+                follow their own setting.  With `False`, this never waits, and
+                raises instead if a receiver created with `block_on_full=True` is
+                full.  With
+                [`CHANNEL_DEFAULT`][frequenz.channels.CHANNEL_DEFAULT], the
+                channel's setting is used.
 
         Raises:
             SenderError: If the underlying channel was closed, also while
@@ -494,11 +539,17 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
                 [`ChannelClosedError`][frequenz.channels.ChannelClosedError] is set
                 as the cause.
             SenderClosedError: If this sender was closed, also while waiting.
+            SenderWouldBlockError: If `block_on_full` is `False` and a receiver
+                created with `block_on_full=True` is full.  No receiver gets the
+                message.
         """
         self._check_open()
         # pylint: disable=protected-access
-        if self._channel._blocking_receivers:
-            await self._wait_for_room()
+        if block_on_full is False:
+            if self._channel._blocking_receivers:
+                self._check_would_block()
+        elif block_on_full is True or self._channel._blocking_receivers:
+            await self._wait_for_room(block_on_full)
         stale_refs = []
         for _hash, recv_ref in self._channel._receivers.items():
             recv = recv_ref()
@@ -518,8 +569,30 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
             self._channel._recv_cv.notify_all()
         # pylint: enable=protected-access
 
-    async def _wait_for_room(self) -> None:  # noqa: DOC502 (raised indirectly)
-        """Wait until no blocking receiver of the channel is full.
+    def _check_would_block(self) -> None:
+        """Check that no receiver created with `block_on_full=True` is full.
+
+        Raises:
+            SenderWouldBlockError: If a receiver created with `block_on_full=True`
+                is full.
+        """
+        # pylint: disable=protected-access
+        full, _ = self._channel._full_blocking_receivers(False)
+        if full:
+            raise SenderWouldBlockError(
+                self,
+                full_receivers=len(full),
+                blocking_receivers=self._channel._explicitly_blocking_receivers(),
+            )
+        # pylint: enable=protected-access
+
+    async def _wait_for_room(  # noqa: DOC502 (raised indirectly)
+        self, block_on_full: bool | CHANNEL_DEFAULT
+    ) -> None:
+        """Wait until no receiver this send has to wait for is full.
+
+        Args:
+            block_on_full: The `block_on_full` argument of the send.
 
         Raises:
             SenderError: If the underlying channel was closed while waiting.
@@ -527,7 +600,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
         """
         # pylint: disable=protected-access
         channel = self._channel
-        full, warn = channel._full_blocking_receivers()
+        full, warn = channel._full_blocking_receivers(block_on_full)
         if not full:
             return
         _logger.log(
@@ -541,7 +614,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
                 channel._wake_senders_event = Event()
             await channel._wake_senders_event.wait()
             self._check_open()
-            full, _ = channel._full_blocking_receivers()
+            full, _ = channel._full_blocking_receivers(block_on_full)
         _logger.log(
             logging.INFO if warn else logging.DEBUG,
             "Broadcast sender [%s] is no longer blocked, all receivers have room",
@@ -608,11 +681,13 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
                 full and a message is dropped, or when a sender has to wait for the
                 receiver to have room.
             block_on_full: Whether senders wait for this receiver to have room when
-                its buffer is full, instead of dropping its oldest message.  With
+                its buffer is full, instead of dropping its oldest message.  An
+                explicit `True` or `False` also applies to sends that pass their
+                own `block_on_full`.  With
                 [`CHANNEL_DEFAULT`][frequenz.channels.CHANNEL_DEFAULT], the
                 `block_on_full` value the
                 [`BroadcastChannel`][frequenz.channels.BroadcastChannel] was created
-                with is used.
+                with is used, unless a send passes its own.
 
         Returns:
             A new receiver attached to this sender's channel.
@@ -661,7 +736,7 @@ class BroadcastReceiver(Receiver[_T]):
         name: str | None,
         limit: int,
         warn_on_overflow: bool,
-        block_on_full: bool = False,
+        block_on_full: bool | CHANNEL_DEFAULT = CHANNEL_DEFAULT,
     ) -> None:
         """Initialize this receiver.
 
@@ -681,7 +756,8 @@ class BroadcastReceiver(Receiver[_T]):
             warn_on_overflow: Whether to log a warning when the receiver's
                 buffer is full and a message is dropped, or a sender has to wait.
             block_on_full: Whether senders wait for this receiver to have room
-                when its buffer is full, instead of dropping its oldest message.
+                when its buffer is full, instead of dropping its oldest message,
+                or `CHANNEL_DEFAULT` to use the channel's setting.
 
         Raises:
             ValueError: If `limit` is smaller than 1.
@@ -706,8 +782,30 @@ class BroadcastReceiver(Receiver[_T]):
         self._closed: bool = False
         """Whether the receiver is closed."""
 
-        self._block_on_full: bool = block_on_full
-        """Whether senders wait for this receiver to have room when it is full."""
+        self._block_on_full: bool | CHANNEL_DEFAULT = block_on_full
+        """Whether senders wait for this receiver to have room when it is full.
+
+        `CHANNEL_DEFAULT` means it uses the channel's setting, unless a send passes
+        its own `block_on_full`.
+        """
+
+    def _blocks_senders(self, block_on_full: bool | CHANNEL_DEFAULT) -> bool:
+        """Return whether a send has to wait for this receiver when it is full.
+
+        The receiver's own setting comes first, then the send's, and then the
+        channel's.
+
+        Args:
+            block_on_full: The `block_on_full` argument of the send.
+
+        Returns:
+            Whether the send has to wait for this receiver when it is full.
+        """
+        if self._block_on_full is not CHANNEL_DEFAULT:
+            return self._block_on_full
+        if block_on_full is not CHANNEL_DEFAULT:
+            return block_on_full
+        return self._channel._default_block_on_full  # pylint: disable=protected-access
 
     def _is_full(self) -> bool:
         """Return whether this receiver's buffer is full."""
@@ -795,7 +893,7 @@ class BroadcastReceiver(Receiver[_T]):
 
         assert self._q, "`consume()` must be preceded by a call to `ready()`"
         message = self._q.popleft()
-        if self._block_on_full:
+        if self._block_on_full is not False:
             self._channel._wake_senders()  # pylint: disable=protected-access
         return message
 
@@ -810,8 +908,8 @@ class BroadcastReceiver(Receiver[_T]):
         self._closed = True
         # pylint: disable=protected-access
         self._channel._receivers.pop(hash(self), None)
-        if self._block_on_full:
-            self._channel._blocking_receivers.pop(hash(self), None)
+        self._channel._blocking_receivers.pop(hash(self), None)
+        if self._block_on_full is not False:
             self._channel._wake_senders()
         # pylint: enable=protected-access
 
@@ -913,6 +1011,26 @@ class BroadcastChannel(
     that can lose messages, for example one that only logs them, can pass
     `block_on_full=False`, so it never makes senders wait.
 
+    A single [`send()`][frequenz.channels.BroadcastSender.send] can also pass
+    `block_on_full`.  It only applies to receivers that use the channel's setting:
+    receivers that passed their own setting to `subscribe()` keep it, as they know
+    best whether they can lose messages.  So, when a receiver is full, `send()`:
+
+    * For a receiver created with `subscribe(block_on_full=True)`, waits for it to
+      have room.  With `send(..., block_on_full=False)`, it raises a
+      [`SenderWouldBlockError`][frequenz.channels.SenderWouldBlockError] instead,
+      and no receiver gets the message.
+    * For a receiver created with `subscribe(block_on_full=False)`, makes it drop
+      its oldest message, whatever `send()` passes.
+    * For the initial receiver, and receivers created with `subscribe()` without
+      `block_on_full`, waits with `send(..., block_on_full=True)`, makes it drop
+      its oldest message with `send(..., block_on_full=False)`, and does what the
+      channel's `block_on_full` says otherwise.
+
+    [`SenderWouldBlockError`][frequenz.channels.SenderWouldBlockError] is a
+    [`TransientSenderError`][frequenz.channels.TransientSenderError], so the sender
+    can still be used after it.
+
     When a sender starts waiting, it logs a warning, and when it stops waiting, an
     info message.  If none of the full receivers was created with
     `warn_on_overflow=True`, both are debug messages instead.
@@ -942,7 +1060,10 @@ class BroadcastChannel(
         This is a very simple example that sends a few numbers from a single sender to
         a single receiver.
 
-        ```python
+        ```python show_lines="4:"
+        # Workaround for https://github.com/frequenz-floss/frequenz-repo-config-python/issues/669
+        # pylint: disable=too-many-lines
+
         import asyncio
 
         from frequenz.channels import BroadcastChannel, Sender
