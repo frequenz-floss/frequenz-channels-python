@@ -47,6 +47,10 @@ try:
 except SenderError as error:
     print(f"Error sending message: {error}")
 ```
+
+Most errors mean that the sender, or its channel, can't be used anymore.  A
+[`TransientSenderError`][frequenz.channels.TransientSenderError] means that only
+this message wasn't sent, and sending again later can work.
 """
 
 from __future__ import annotations
@@ -112,6 +116,67 @@ class SenderClosedError(SenderError[SenderMessageT_co]):
             sender: The [`Sender`][frequenz.channels.Sender] that was closed.
         """
         super().__init__("Sender is closed", sender)
+
+
+class TransientSenderError(SenderError[SenderMessageT_co]):
+    """An error indicating that a message wasn't sent, but sending can still work.
+
+    The sender and its channel can still be used, so sending again later can
+    succeed.  Any other [`SenderError`][frequenz.channels.SenderError] means the
+    sender or its channel can't be used anymore, so catch this error first to tell
+    them apart:
+
+    Example:
+        ```python
+        from frequenz.channels import Sender, SenderError, TransientSenderError
+
+
+        async def try_send(sender: Sender[int], message: int) -> bool:
+            try:
+                await sender.send(message)
+            except TransientSenderError:
+                return False  # Not sent this time, but the sender still works.
+            except SenderError:
+                await sender.aclose()  # The sender can't be used anymore.
+                raise
+            return True
+        ```
+    """
+
+
+class SenderWouldBlockError(TransientSenderError[SenderMessageT_co]):
+    """An error indicating that a send would have to wait, but wasn't allowed to.
+
+    [`BroadcastSender.send()`][frequenz.channels.BroadcastSender.send] raises it
+    when called with `block_on_full=False` while a receiver created with
+    `block_on_full=True` is full.  No receiver got the message.
+    """
+
+    def __init__(
+        self,
+        sender: Sender[SenderMessageT_co],
+        *,
+        full_receivers: int,
+        blocking_receivers: int,
+    ):
+        """Initialize this error.
+
+        Args:
+            sender: The [`Sender`][frequenz.channels.Sender] that would block.
+            full_receivers: The number of receivers that would make the sender wait.
+            blocking_receivers: The number of receivers that can make the sender
+                wait, full or not.
+        """
+        super().__init__(
+            f"Sender {sender} would block: {full_receivers} of {blocking_receivers} "
+            "receivers created with block_on_full=True are full",
+            sender,
+        )
+        self.full_receivers: int = full_receivers
+        """The number of receivers that would make the sender wait."""
+
+        self.blocking_receivers: int = blocking_receivers
+        """The number of receivers that can make the sender wait, full or not."""
 
 
 class SubscribableSender(Sender[SenderMessageT_contra], ABC):
