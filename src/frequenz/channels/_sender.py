@@ -144,6 +144,41 @@ class TransientSenderError(SenderError[SenderMessageT_co]):
     """
 
 
+class SenderWouldBlockError(TransientSenderError[SenderMessageT_co]):
+    """An error indicating that a send would have to wait, but wasn't allowed to.
+
+    [`BroadcastSender.send()`][frequenz.channels.BroadcastSender.send] raises it
+    when called with `block_on_full=False` while a receiver created with
+    `block_on_full=True` is full.  No receiver got the message.
+    """
+
+    def __init__(
+        self,
+        sender: Sender[SenderMessageT_co],
+        *,
+        full_receivers: int,
+        blocking_receivers: int,
+    ):
+        """Initialize this error.
+
+        Args:
+            sender: The [`Sender`][frequenz.channels.Sender] that would block.
+            full_receivers: The number of receivers that would make the sender wait.
+            blocking_receivers: The number of receivers that can make the sender
+                wait, full or not.
+        """
+        super().__init__(
+            f"Sender {sender} would block: {full_receivers} of {blocking_receivers} "
+            "receivers created with block_on_full=True are full",
+            sender,
+        )
+        self.full_receivers: int = full_receivers
+        """The number of receivers that would make the sender wait."""
+
+        self.blocking_receivers: int = blocking_receivers
+        """The number of receivers that can make the sender wait, full or not."""
+
+
 class SubscribableSender(Sender[SenderMessageT_contra], ABC):
     """A [`Sender`][frequenz.channels.Sender] that can be subscribed to."""
 
