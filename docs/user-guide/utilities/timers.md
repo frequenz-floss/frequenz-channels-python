@@ -44,9 +44,9 @@
         show_root_toc_entry: false
         show_source: false
 
-## Timer
+## MonotonicTimer
 
-::: frequenz.channels.timer.Timer
+::: frequenz.channels.timer.MonotonicTimer
     options:
         inherited_members: []
         members: []

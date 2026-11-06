@@ -14,18 +14,18 @@ Info: Important
 
 If you need to do something as periodically as possible (avoiding
 [drifts](#missed-ticks-and-drifting)), you can use
-a [`Timer`][frequenz.channels.timer.Timer] like this:
+a [`MonotonicTimer`][frequenz.channels.timer.MonotonicTimer] like this:
 
 Example: Periodic Timer Example
     ```python
     import asyncio
     from datetime import datetime, timedelta
 
-    from frequenz.channels.timer import Timer
+    from frequenz.channels.timer import MonotonicTimer
 
 
     async def main() -> None:
-        async for drift in Timer(timedelta(seconds=1.0), TriggerAllMissed()):
+        async for drift in MonotonicTimer(timedelta(seconds=1.0), TriggerAllMissed()):
             print(f"The timer has triggered at {datetime.now()} with a drift of {drift}")
 
 
@@ -38,8 +38,8 @@ Example: Periodic Timer Example
     for every missed tick.
 
 If, instead, you need a timeout, for example to abort waiting for other receivers after
-a certain amount of time, you can use a [`Timer`][frequenz.channels.timer.Timer] like
-this:
+a certain amount of time, you can use
+a [`MonotonicTimer`][frequenz.channels.timer.MonotonicTimer] like this:
 
 Example: Timeout Example
     ```python
@@ -47,14 +47,14 @@ Example: Timeout Example
     from datetime import timedelta
 
     from frequenz.channels import Anycast, select, selected_from
-    from frequenz.channels.timer import Timer
+    from frequenz.channels.timer import MonotonicTimer
 
 
     async def main() -> None:
         channel = Anycast[int](name="data-channel")
         data_receiver = channel.new_receiver()
 
-        timer = Timer(timedelta(seconds=1.0), SkipMissedAndDrift())
+        timer = MonotonicTimer(timedelta(seconds=1.0), SkipMissedAndDrift())
 
         async for selected in select(data_receiver, timer):
             if selected_from(selected, data_receiver):
@@ -76,7 +76,7 @@ Example: Timeout Example
 
 # Missed Ticks And Drifting
 
-A [`Timer`][frequenz.channels.timer.Timer] can be used to send messages at regular
+A [`MonotonicTimer`][frequenz.channels.timer.MonotonicTimer] can be used to send messages at regular
 time intervals, but there is one fundamental issue with timers in the [asyncio][] world:
 the event loop could give control to another task at any time, and that task can take
 a long time to finish, making the time it takes the next timer message to be received
@@ -101,10 +101,21 @@ from __future__ import annotations
 import abc
 import asyncio
 from datetime import timedelta
+from typing import TYPE_CHECKING, TypeAlias
 
+from frequenz.core.warnings import DeprecatedAlias, deprecated_aliases
 from typing_extensions import override
 
 from ._receiver import Receiver, ReceiverStoppedError
+
+__all__ = [
+    "MissedTickPolicy",
+    "MonotonicTimer",
+    "SkipMissedAndDrift",
+    "SkipMissedAndResync",
+    "Timer",
+    "TriggerAllMissed",
+]
 
 
 def _to_microseconds(time: float | timedelta) -> int:
@@ -143,7 +154,7 @@ class MissedTickPolicy(abc.ABC):
 
 
         async def main() -> None:
-            timer = Timer(
+            timer = MonotonicTimer(
                 interval=timedelta(seconds=1),
                 missed_tick_policy=WaitOneMoreSecond(),
             )
@@ -161,10 +172,10 @@ class MissedTickPolicy(abc.ABC):
     ) -> int:
         """Calculate the next tick time according to the missed tick policy.
 
-        This method is called by [`ready()`][frequenz.channels.timer.Timer.ready] after
+        This method is called by [`ready()`][frequenz.channels.timer.MonotonicTimer.ready] after
         it has determined that the timer has triggered.  It will check if the timer has
         missed any ticks and handle them according to
-        [`missed_tick_policy`][frequenz.channels.timer.Timer.missed_tick_policy].
+        [`missed_tick_policy`][frequenz.channels.timer.MonotonicTimer.missed_tick_policy].
 
         Args:
             interval: The interval between ticks (in microseconds).
@@ -174,7 +185,7 @@ class MissedTickPolicy(abc.ABC):
 
         Returns:
             The next tick time (in microseconds) according to
-                [`missed_tick_policy`][frequenz.channels.timer.Timer.missed_tick_policy].
+                [`missed_tick_policy`][frequenz.channels.timer.MonotonicTimer.missed_tick_policy].
         """
 
     def __repr__(self) -> str:
@@ -253,9 +264,9 @@ class SkipMissedAndResync(MissedTickPolicy):
 
     If ticks are missed, the
     [`SkipMissedAndResync`][frequenz.channels.timer.SkipMissedAndResync] policy will
-    make the [`Timer`][frequenz.channels.timer.Timer] trigger immediately and it will
-    schedule to trigger again on the next multiple of the
-    [`interval`][frequenz.channels.timer.Timer.interval], effectively skipping any
+    make the [`MonotonicTimer`][frequenz.channels.timer.MonotonicTimer] trigger
+    immediately and it will schedule to trigger again on the next multiple of the
+    [`interval`][frequenz.channels.timer.MonotonicTimer.interval], effectively skipping any
     missed ticks, but re-syncing with the original start time.
 
     Example:
@@ -320,7 +331,7 @@ class SkipMissedAndDrift(MissedTickPolicy):
 
     The [`SkipMissedAndDrift`][frequenz.channels.timer.SkipMissedAndDrift] policy will
     behave effectively as if the timer was
-    [`reset()`][frequenz.channels.timer.Timer.reset] every time it is triggered. This
+    [`reset()`][frequenz.channels.timer.MonotonicTimer.reset] every time it is triggered. This
     means the start time will change and the drift will be accumulated each time a tick
     is delayed. Only the relative drift will be returned on each tick.
 
@@ -423,28 +434,28 @@ class SkipMissedAndDrift(MissedTickPolicy):
         return f"{type(self).__name__}({self.delay_tolerance=})"
 
 
-class Timer(Receiver[timedelta]):
-    """A receiver that sends a message regularly.
+class MonotonicTimer(Receiver[timedelta]):
+    """A receiver that sends a message regularly, using a monotonic clock.
 
-    [`Timer`][frequenz.channels.timer.Timer]s are started by default after they are
-    created. This can be disabled by using `auto_start=False` option when creating
+    [`MonotonicTimer`][frequenz.channels.timer.MonotonicTimer]s are started by default
+    after they are created. This can be disabled by using `auto_start=False` option when creating
     them. In this case, the timer will not be started until
-    [`reset()`][frequenz.channels.timer.Timer.reset] is called. Receiving from the timer
-    (either using [`receive()`][frequenz.channels.timer.Timer.receive] or using the
+    [`reset()`][frequenz.channels.timer.MonotonicTimer.reset] is called. Receiving from the timer
+    (either using [`receive()`][frequenz.channels.timer.MonotonicTimer.receive] or using the
     async iterator interface) will also start the timer at that point.
 
     Timers need to be created in a context where
     an [`asyncio`][] loop is already running. If no
-    [`loop`][frequenz.channels.timer.Timer.loop] is specified, the current running loop
+    [`loop`][frequenz.channels.timer.MonotonicTimer.loop] is specified, the current running loop
     is used.
 
-    Timers can be stopped by calling [`stop()`][frequenz.channels.timer.Timer.stop].
+    Timers can be stopped by calling [`stop()`][frequenz.channels.timer.MonotonicTimer.stop].
     A stopped timer will raise
     a [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError] or stop the async
     iteration as usual.
 
     Once a timer is explicitly stopped, it can only be started again by explicitly
-    calling [`reset()`][frequenz.channels.timer.Timer.reset] (trying to receive from it
+    calling [`reset()`][frequenz.channels.timer.MonotonicTimer.reset] (trying to receive from it
     or using the async iterator interface will keep failing).
 
     Timer messages are [`timedelta`][datetime.timedelta]s containing the drift of the
@@ -460,14 +471,14 @@ class Timer(Receiver[timedelta]):
         Even when the [`asyncio`][] loop's monotonic clock is a [`float`][], timers use
         `int`s to represent time internally. The internal time is tracked in
         microseconds, so the timer resolution is 1 microsecond
-        ([`interval`][frequenz.channels.timer.Timer.interval] must be at least
+        ([`interval`][frequenz.channels.timer.MonotonicTimer.interval] must be at least
          1 microsecond).
 
         This is to avoid floating point errors when performing calculations with time,
         which can lead to issues that are very hard to reproduce and debug.
 
     If the timer is delayed too much, then it will behave according to the
-    [`missed_tick_policy`][frequenz.channels.timer.Timer.missed_tick_policy]. Missing
+    [`missed_tick_policy`][frequenz.channels.timer.MonotonicTimer.missed_tick_policy]. Missing
     ticks might or might not trigger a message and the drift could be accumulated or not
     depending on the chosen policy.
     """
@@ -486,7 +497,7 @@ class Timer(Receiver[timedelta]):
     ) -> None:
         """Initialize this timer.
 
-        See the [class documentation][frequenz.channels.timer.Timer] for details.
+        See the [class documentation][frequenz.channels.timer.MonotonicTimer] for details.
 
         Args:
             interval: The time between timer ticks. Must be at least
@@ -562,7 +573,7 @@ class Timer(Receiver[timedelta]):
 
         * If `_next_msg_time` is `None`, it means it wasn't started yet (it was
           created with `auto_start=False`).  Any receiving method will start
-          it by calling [`reset()`][frequenz.channels.timer.Timer.reset] in this case.
+          it by calling [`reset()`][frequenz.channels.timer.MonotonicTimer.reset] in this case.
 
         * If `_next_msg_time` is not `None`, it means there was a request to
           stop it.  In this case receiving methods will raise
@@ -579,8 +590,8 @@ class Timer(Receiver[timedelta]):
         self._current_drift: timedelta | None = None
         """The difference between `_next_msg_time` and the triggered time.
 
-        This is calculated by [`ready()`][frequenz.channels.timer.Timer.ready] but is
-        returned by [`consume()`][frequenz.channels.timer.Timer.consume]. If `None` it
+        This is calculated by [`ready()`][frequenz.channels.timer.MonotonicTimer.ready] but is
+        returned by [`consume()`][frequenz.channels.timer.MonotonicTimer.consume]. If `None` it
         means `ready()` wasn't called and `consume()` will assert. `consume()` will set
         it back to `None` to tell `ready()` that it needs to wait again.
         """
@@ -662,13 +673,13 @@ class Timer(Receiver[timedelta]):
         """Stop the timer.
 
         Once `stop` has been called, all subsequent calls to
-        [`ready()`][frequenz.channels.timer.Timer.ready] will immediately return False
-        and calls to [`consume()`][frequenz.channels.timer.Timer.consume] /
-        [`receive()`][frequenz.channels.timer.Timer.receive] or any use of the async
+        [`ready()`][frequenz.channels.timer.MonotonicTimer.ready] will immediately return False
+        and calls to [`consume()`][frequenz.channels.timer.MonotonicTimer.consume] /
+        [`receive()`][frequenz.channels.timer.MonotonicTimer.receive] or any use of the async
         iterator interface will raise a
         [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
 
-        You can restart the timer with [`reset()`][frequenz.channels.timer.Timer.reset].
+        You can restart the timer with [`reset()`][frequenz.channels.timer.MonotonicTimer.reset].
         """
         self._stopped = True
         # We need to make sure it's not None, otherwise `ready()` will start it
@@ -679,12 +690,12 @@ class Timer(Receiver[timedelta]):
     # exceptions are raised indirectly.
     @override
     async def ready(self) -> bool:  # noqa: DOC502
-        """Wait until the timer [`interval`][frequenz.channels.timer.Timer.interval] elapses.
+        """Wait until the [`interval`][frequenz.channels.timer.MonotonicTimer.interval] elapses.
 
-        Once a call to [`ready()`][frequenz.channels.timer.Timer.ready] has finished,
+        Once a call to [`ready()`][frequenz.channels.timer.MonotonicTimer.ready] has finished,
         the resulting tick information must be read with a call to
-        [`consume()`][frequenz.channels.timer.Timer.consume]
-        ([`receive()`][frequenz.channels.timer.Timer.receive] or iterated over) to tell
+        [`consume()`][frequenz.channels.timer.MonotonicTimer.consume]
+        ([`receive()`][frequenz.channels.timer.MonotonicTimer.receive] or iterated over) to tell
         the timer it should wait for the next interval.
 
         The timer will remain ready (this method will return immediately)
@@ -755,7 +766,7 @@ class Timer(Receiver[timedelta]):
     def consume(self) -> timedelta:
         """Return the latest drift once the timer has triggered.
 
-        Once the timer has triggered ([`ready()`][frequenz.channels.timer.Timer.ready]
+        Once the timer has triggered ([`ready()`][frequenz.channels.timer.MonotonicTimer.ready]
         is done), this method returns the difference between when the timer should have
         triggered and the time when it actually triggered. See the class documentation
         for more details.
@@ -766,7 +777,7 @@ class Timer(Receiver[timedelta]):
 
         Raises:
             ReceiverStoppedError: If the timer was stopped via
-                [`stop()`][frequenz.channels.timer.Timer.stop].
+                [`stop()`][frequenz.channels.timer.MonotonicTimer.stop].
         """
         # If it was stopped and there it no pending result, we raise
         # (if there is a pending result, then we still want to return it first)
@@ -803,3 +814,28 @@ class Timer(Receiver[timedelta]):
             f"{type(self).__name__}<{self.interval=}, {self.missed_tick_policy=}, "
             f"{self.loop=}, {self.is_running=}>"
         )
+
+
+if TYPE_CHECKING:
+    Timer: TypeAlias = MonotonicTimer
+    """A receiver that sends a message regularly.
+
+    Deprecated:
+        Deprecated since v1.13.0. Use
+        [`MonotonicTimer`][frequenz.channels.timer.MonotonicTimer] instead.
+
+        The name `Timer` will be used for a wall clock timer in a later version.
+    """
+else:
+    __getattr__ = deprecated_aliases(
+        __name__,
+        DeprecatedAlias(
+            "Timer",
+            new_name="MonotonicTimer",
+            since="v1.13.0",
+            message=(
+                "{old} is deprecated. Use {new} instead. The name Timer will be "
+                "used for a wall clock timer in a later version."
+            ),
+        ),
+    )
