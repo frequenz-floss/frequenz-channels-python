@@ -296,7 +296,7 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
         """Return a new sender attached to this channel."""
         return BroadcastSender(self)
 
-    def new_receiver(
+    def new_receiver(  # noqa: DOC502 (raised indirectly)
         self, *, name: str | None = None, limit: int = 50, warn_on_overflow: bool = True
     ) -> BroadcastReceiver[ChannelMessageT]:
         """Return a new receiver attached to this channel.
@@ -307,12 +307,16 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
 
         Args:
             name: A name to identify the receiver in the logs.
-            limit: Number of messages the receiver can hold in its buffer.
+            limit: Number of messages the receiver can hold in its buffer.  It
+                must be at least 1.
             warn_on_overflow: Whether to log a warning when the receiver's
                 buffer is full and a message is dropped.
 
         Returns:
             A new receiver attached to this channel.
+
+        Raises:
+            ValueError: If `limit` is smaller than 1.
         """
         recv: BroadcastReceiver[ChannelMessageT] = BroadcastReceiver(
             self, name=name, limit=limit, warn_on_overflow=warn_on_overflow
@@ -431,7 +435,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
         return BroadcastSender(self._channel)
 
     @override
-    def subscribe(
+    def subscribe(  # noqa: DOC502 (raised indirectly)
         self,
         name: str | None = None,
         limit: int = 50,
@@ -441,7 +445,8 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
 
         Args:
             name: A name to identify the receiver in the logs.
-            limit: Number of messages the receiver can hold in its buffer.
+            limit: Number of messages the receiver can hold in its buffer.  It must
+                be at least 1.
             warn_on_overflow: Whether to log a warning when the receiver's buffer is
                 full and a message is dropped.
 
@@ -451,6 +456,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
         Raises:
             SenderError: If the underlying channel is closed.
             SenderClosedError: If this sender is closed.
+            ValueError: If `limit` is smaller than 1.
         """
         if self._closed:
             raise SenderClosedError(self)
@@ -501,10 +507,17 @@ class BroadcastReceiver(Receiver[_T]):
                 `id(self)`-based name will be used.  This is only for debugging
                 purposes, it will be shown in the string representation of the
                 receiver.
-            limit: Number of messages the receiver can hold in its buffer.
+            limit: Number of messages the receiver can hold in its buffer.  It
+                must be at least 1.
             warn_on_overflow: Whether to log a warning when the receiver's
                 buffer is full and a message is dropped.
+
+        Raises:
+            ValueError: If `limit` is smaller than 1.
         """
+        if limit < 1:
+            raise ValueError(f"The receiver's limit must be at least 1, not {limit}")
+
         self._warn_on_overflow: bool = warn_on_overflow
 
         self._name: str = name if name is not None else f"{id(self):_}"
@@ -800,7 +813,7 @@ class BroadcastChannel(
         ```
     """
 
-    def __new__(
+    def __new__(  # noqa: DOC502 (raised indirectly)
         cls,
         name: str,
         resend_latest: bool = False,
@@ -820,13 +833,17 @@ class BroadcastChannel(
                 wait for the next message on the channel to arrive.  It is safe to be
                 set in data/reporting channels, but is not recommended for use in
                 channels that stream control instructions.
-            limit: Number of messages the receivers can hold in their buffers.
+            limit: Number of messages the receivers can hold in their buffers.  It
+                must be at least 1.
             warn_on_overflow: Whether to log a warning when a receiver's buffer is full
                 and a message is dropped.
 
         Returns:
             A new BroadcastChannel instance that can be destructured into an initial
                 sender and receiver.
+
+        Raises:
+            ValueError: If `limit` is smaller than 1.
         """
         # Broadcast is deprecated, but it is an implementation detail of this
         # class, so users shouldn't be warned about it.
