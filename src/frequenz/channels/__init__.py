@@ -19,9 +19,9 @@ Base classes:
 
 Channels:
 
-* [`Anycast`][frequenz.channels.Anycast]: A channel that supports multiple
-  senders and multiple receivers.  A message sent through a sender will be
-  received by exactly one receiver.
+* [`Anycast`][frequenz.channels.Anycast] (deprecated): A channel that supports
+  multiple senders and multiple receivers.  A message sent through a sender will
+  be received by exactly one receiver.
 
 * [`Broadcast`][frequenz.channels.Broadcast]: A channel to broadcast messages
   from multiple senders to multiple receivers. Each message sent through any of
