@@ -43,6 +43,9 @@ Utilities to work with channels:
 * [`NopReceiver`][frequenz.channels.NopReceiver]: A place-holder receiver that
   never receives a message.
 
+* [`CHANNEL_DEFAULT`][frequenz.channels.CHANNEL_DEFAULT]: A marker for arguments
+  that take their value from the channel.
+
 * [`WithPrevious`][frequenz.channels.WithPrevious]: A composable predicate to
   filter messages based on the previous message received.
 
@@ -87,6 +90,7 @@ Extra utility receivers:
 
 from ._anycast import Anycast
 from ._broadcast import Broadcast, BroadcastChannel, BroadcastReceiver, BroadcastSender
+from ._channel_default import CHANNEL_DEFAULT
 from ._exceptions import ChannelClosedError, ChannelError, Error
 from ._generic import (
     ChannelMessageT,
@@ -124,6 +128,7 @@ __all__ = [
     "BroadcastChannel",
     "BroadcastReceiver",
     "BroadcastSender",
+    "CHANNEL_DEFAULT",
     "ChannelClosedError",
     "ChannelError",
     "ChannelMessageT",
