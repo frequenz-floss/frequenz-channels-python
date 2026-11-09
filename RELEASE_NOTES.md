@@ -2,17 +2,17 @@
 
 ## Summary
 
-<!-- Here goes a general summary of what this release is about -->
+This will probably be the last minor release of v1. It deprecates everything that will be removed in v2.0.0.
 
 ## Upgrading
-
-<!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
 
 - `frequenz-core >= 1.6.0, < 2` is now a runtime dependency. It provides the utilities this project uses to deprecate symbols following the Frequenz deprecations guide.
 
 - The minimum `typing-extensions` version is now 4.16.0. `frequenz-core` requires 4.13.0, and the new `buffer_size` argument needs the `sentinel` type added in 4.16.0.
 
 - `frequenz.channels.Anycast`, deprecated since v1.12.0, will be removed in a future version, not necessarily the next major one. Its deprecation warning now recommends copying its code into your project if you need it, or [opening an issue](https://github.com/frequenz-floss/frequenz-channels-python/issues) if you think it should stay in the library.
+
+- `watchfiles` versions up to 1.3 are now allowed.
 
 - `frequenz.channels.experimental.GroupingLatestValueCache` and its type variables `DefaultT`, `HashableT` and `ValueT_co`, and `frequenz.channels.experimental.RelaySender` are deprecated and will be removed in v2.0.0. There is no replacement in this library: copy their code into your project if you need them, or [open an issue](https://github.com/frequenz-floss/frequenz-channels-python/issues) if you think they should stay.
 
@@ -26,13 +26,9 @@
 
 ## New Features
 
-<!-- Here goes the main new features and examples or instructions on how to use them -->
-
 - `NopReceiver` and `WithPrevious` are now stable, and available from `frequenz.channels`.
 
 ## Bug Fixes
-
-<!-- Here goes notable bug fixes that are worth a special mention or explanation -->
 
 - `BroadcastChannel()` no longer emits the deprecation warning of `Broadcast`, which it uses internally. You were getting a warning about a class you never used.
 
