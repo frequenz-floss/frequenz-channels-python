@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import logging
 import weakref
-from asyncio import Condition, Event
+from asyncio import AbstractEventLoop, Condition, Event, get_running_loop
 from collections import deque
 from typing import Generic, TypeVar
 
@@ -254,6 +254,12 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
         then sets the old event, which wakes up all senders waiting on it.
         """
 
+        self._wake_senders_loop: AbstractEventLoop | None = None
+        """The event loop of the senders waiting on `_wake_senders_event`.
+
+        It is set and cleared together with the event.
+        """
+
         self._default_block_on_full: bool = False
         """Whether new receivers block senders when full, unless told otherwise.
 
@@ -320,17 +326,14 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
     def _wake_senders(self) -> None:
         """Wake up all senders waiting for blocking receivers to have room."""
         event, self._wake_senders_event = self._wake_senders_event, None
+        loop, self._wake_senders_loop = self._wake_senders_loop, None
         if event is None:
             return
-        try:
-            event.set()
-        except RuntimeError:
-            # `set()` raises if the waiters' loop is closed, and they can't be woken
-            # up anyway.  All waiters of an event share one loop, so any other
-            # `RuntimeError` is re-raised.
-            loop = getattr(event, "_loop", None)
-            if loop is None or not loop.is_closed():
-                raise
+        # The waiting senders can't be woken up once their loop is closed, and
+        # `set()` would raise.
+        if loop is not None and loop.is_closed():
+            return
+        event.set()
 
     def _full_blocking_receivers(
         self, block_on_full: bool | CHANNEL_DEFAULT
@@ -612,6 +615,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
         while full:
             if channel._wake_senders_event is None:
                 channel._wake_senders_event = Event()
+                channel._wake_senders_loop = get_running_loop()
             await channel._wake_senders_event.wait()
             self._check_open()
             full, _ = channel._full_blocking_receivers(block_on_full)

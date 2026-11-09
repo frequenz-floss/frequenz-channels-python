@@ -525,8 +525,10 @@ def test_wake_up_after_loop_closed(action: str) -> None:
         receiver.close()
     else:
         assert receiver.consume() == 1
-    # pylint: disable-next=protected-access
+    # pylint: disable=protected-access
     assert sender._channel._wake_senders_event is None
+    assert sender._channel._wake_senders_loop is None
+    # pylint: enable=protected-access
 
 
 async def test_does_not_warn() -> None:
