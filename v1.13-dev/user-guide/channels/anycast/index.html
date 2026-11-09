@@ -1631,7 +1631,18 @@
 
 
         <p>A channel that delivers each message to exactly one receiver.</p>
-<h2 id="frequenz.channels._anycast.Anycast--description">Description<a class="headerlink" href="#frequenz.channels._anycast.Anycast--description" title="Permanent link">¤</a></h2>
+
+
+<details class="deprecated" open>
+  <summary>Deprecated</summary>
+  <p>Deprecated since v1.12.0, and will be removed in v2.0.0. If you only use it
+with a single receiver, to make senders wait when the channel is full, use
+<a class="autorefs autorefs-internal" title="frequenz.channels.BroadcastChannel" href="../../../reference/frequenz/channels/#frequenz.channels.BroadcastChannel"><code>BroadcastChannel</code></a> with
+<code>block_on_full=True</code> instead. Otherwise, copy its code into your project if
+you need it, or <a href="https://github.com/frequenz-floss/frequenz-channels-python/issues">open an
+issue</a> if
+you think it should stay in this library.</p>
+</details>        <h2 id="frequenz.channels._anycast.Anycast--description">Description<a class="headerlink" href="#frequenz.channels._anycast.Anycast--description" title="Permanent link">¤</a></h2>
 <div class="admonition tip inline end">
 <p class="admonition-title">Tip</p>
 <p><a class="autorefs autorefs-internal" title="frequenz.channels.Anycast" href="../../../reference/frequenz/channels/#frequenz.channels.Anycast"><code>Anycast</code></a> channels behave like the
