@@ -13,6 +13,8 @@ from frequenz.channels._receiver import ReceiverStoppedError
 
 
 @pytest.mark.integration
+# This test uses the deprecated Anycast on purpose.
+@pytest.mark.filterwarnings("once::DeprecationWarning")
 async def test_merge() -> None:
     """Ensure merge() receives messages in order."""
     chan1 = Anycast[int](name="chan1")
