@@ -2,15 +2,15 @@
 
 ## Summary
 
-<!-- Here goes a general summary of what this release is about -->
+This will probably be the last minor release of v1. It deprecates everything that will be removed in v2.0.0.
 
 ## Upgrading
-
-<!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
 
 - `frequenz-core >= 1.6.0, < 2` is now a runtime dependency. It provides the utilities this project uses to deprecate symbols following the Frequenz deprecations guide.
 
 - The minimum `typing-extensions` version is now 4.16.0. `frequenz-core` requires 4.13.0, and `CHANNEL_DEFAULT` needs the `sentinel` type added in 4.16.0.
+
+- `watchfiles` versions up to 1.3 are now allowed.
 
 - `frequenz.channels.experimental.GroupingLatestValueCache` and its type variables `DefaultT`, `HashableT` and `ValueT_co`, and `frequenz.channels.experimental.RelaySender` are deprecated and will be removed in v2.0.0. There is no replacement in this library: copy their code into your project if you need them, or [open an issue](https://github.com/frequenz-floss/frequenz-channels-python/issues) if you think they should stay.
 
@@ -26,8 +26,6 @@
 
 ## New Features
 
-<!-- Here goes the main new features and examples or instructions on how to use them -->
-
 - `NopReceiver` and `WithPrevious` are now stable, and available from `frequenz.channels`.
 
 - `BroadcastChannel` can now make senders wait instead of dropping messages. With `block_on_full=True`, when a receiver's buffer is full, `send()` waits until every receiver that blocks senders has room, and then gives the message to all receivers at once. A `send()` that is cancelled while waiting, for example by `asyncio.timeout()`, gives the message to no receiver. Close receivers you don't need: one that is never read stops all senders once its buffer is full.
@@ -41,8 +39,6 @@
 - `CHANNEL_DEFAULT` is a new marker for arguments that take their value from the channel, like `block_on_full` in `subscribe()` and `send()`. It is a PEP 661 sentinel: mypy checks it since version 2.4, older versions accept any value for those arguments.
 
 ## Bug Fixes
-
-<!-- Here goes notable bug fixes that are worth a special mention or explanation -->
 
 - `BroadcastChannel()` no longer emits the deprecation warning of `Broadcast`, which it uses internally. You were getting a warning about a class you never used.
 
