@@ -57,7 +57,7 @@ async def _start_send_with(
 async def test_default_drops_oldest() -> None:
     """Ensure a channel created without `block_on_full` still drops messages."""
     sender, receiver = BroadcastChannel[int](
-        name="test", limit=2, warn_on_overflow=False
+        name="test", buffer_size=2, warn_on_overflow=False
     )
 
     for message in range(4):
@@ -68,7 +68,9 @@ async def test_default_drops_oldest() -> None:
 
 async def test_send_waits_for_room() -> None:
     """Ensure a send to a full receiver waits until a message is received."""
-    sender, receiver = BroadcastChannel[int](name="test", limit=2, block_on_full=True)
+    sender, receiver = BroadcastChannel[int](
+        name="test", buffer_size=2, block_on_full=True
+    )
     await sender.send(1)
     await sender.send(2)
 
@@ -85,7 +87,9 @@ async def test_send_waits_for_room() -> None:
 
 async def test_ready_without_consume_doesnt_wake() -> None:
     """Ensure a receiver only makes room when a message is consumed."""
-    sender, receiver = BroadcastChannel[int](name="test", limit=1, block_on_full=True)
+    sender, receiver = BroadcastChannel[int](
+        name="test", buffer_size=1, block_on_full=True
+    )
     await sender.send(1)
 
     task = await _start_send(sender, 2)
@@ -102,8 +106,10 @@ async def test_ready_without_consume_doesnt_wake() -> None:
 
 async def test_all_or_nothing() -> None:
     """Ensure no receiver gets a message until all blocking receivers have room."""
-    sender, receiver_1 = BroadcastChannel[int](name="test", limit=1, block_on_full=True)
-    receiver_2 = sender.subscribe(limit=2)
+    sender, receiver_1 = BroadcastChannel[int](
+        name="test", buffer_size=1, block_on_full=True
+    )
+    receiver_2 = sender.subscribe(buffer_size=2)
     await sender.send(1)
     assert _drain(receiver_2) == [1]
 
@@ -122,9 +128,9 @@ async def test_all_or_nothing() -> None:
 async def test_lossy_receiver_waits_too() -> None:
     """Ensure a lossy receiver gets nothing while a blocking receiver is full."""
     sender, blocking = BroadcastChannel[int](
-        name="test", resend_latest=True, limit=1, block_on_full=True
+        name="test", resend_latest=True, buffer_size=1, block_on_full=True
     )
-    lossy = sender.subscribe(limit=1, block_on_full=False, warn_on_overflow=False)
+    lossy = sender.subscribe(buffer_size=1, block_on_full=False, warn_on_overflow=False)
     await sender.send(1)
 
     task = await _start_send(sender, 2)
@@ -144,9 +150,9 @@ async def test_lossy_receiver_waits_too() -> None:
 async def test_cancelled_send_delivers_nothing() -> None:
     """Ensure a send that times out gives the message to no receiver."""
     sender, receiver_1 = BroadcastChannel[int](
-        name="test", resend_latest=True, limit=1, block_on_full=True
+        name="test", resend_latest=True, buffer_size=1, block_on_full=True
     )
-    receiver_2 = sender.subscribe(limit=5)
+    receiver_2 = sender.subscribe(buffer_size=5)
     await sender.send(1)
 
     with pytest.raises(TimeoutError):
@@ -169,9 +175,9 @@ async def test_subscribe_inherits_block_on_full() -> None:
     sender, receiver = BroadcastChannel[int](name="test", block_on_full=True)
     receiver.close()
 
-    inherited = sender.subscribe(limit=1)
-    explicit = sender.subscribe(limit=1, block_on_full=CHANNEL_DEFAULT)
-    lossy = sender.subscribe(limit=1, block_on_full=False, warn_on_overflow=False)
+    inherited = sender.subscribe(buffer_size=1)
+    explicit = sender.subscribe(buffer_size=1, block_on_full=CHANNEL_DEFAULT)
+    lossy = sender.subscribe(buffer_size=1, block_on_full=False, warn_on_overflow=False)
     assert "block_on_full=CHANNEL_DEFAULT" in repr(inherited)
     assert "block_on_full=CHANNEL_DEFAULT" in repr(explicit)
     assert "block_on_full=False" in repr(lossy)
@@ -219,8 +225,10 @@ async def test_subscribe_uses_overridden_new_receiver() -> None:
 
 async def test_lossy_receiver_never_blocks() -> None:
     """Ensure a lossy receiver on a blocking channel drops messages instead."""
-    sender, blocking = BroadcastChannel[int](name="test", limit=5, block_on_full=True)
-    lossy = sender.subscribe(limit=1, block_on_full=False, warn_on_overflow=False)
+    sender, blocking = BroadcastChannel[int](
+        name="test", buffer_size=5, block_on_full=True
+    )
+    lossy = sender.subscribe(buffer_size=1, block_on_full=False, warn_on_overflow=False)
 
     for message in range(3):
         await sender.send(message)
@@ -231,8 +239,10 @@ async def test_lossy_receiver_never_blocks() -> None:
 
 async def test_blocking_receiver_on_lossy_channel() -> None:
     """Ensure a blocking receiver makes senders of a lossy channel wait."""
-    sender, lossy = BroadcastChannel[int](name="test", limit=1, warn_on_overflow=False)
-    blocking = sender.subscribe(limit=1, block_on_full=True)
+    sender, lossy = BroadcastChannel[int](
+        name="test", buffer_size=1, warn_on_overflow=False
+    )
+    blocking = sender.subscribe(buffer_size=1, block_on_full=True)
     await sender.send(1)
 
     task = await _start_send(sender, 2)
@@ -249,7 +259,7 @@ async def test_blocking_receiver_on_lossy_channel() -> None:
 async def test_resend_latest_fills_new_receiver() -> None:
     """Ensure the message resent to a new receiver counts towards its buffer."""
     sender, receiver = BroadcastChannel[int](
-        name="test", resend_latest=True, limit=1, block_on_full=True
+        name="test", resend_latest=True, buffer_size=1, block_on_full=True
     )
     await sender.send(1)
     assert receiver.consume() == 1
@@ -257,7 +267,7 @@ async def test_resend_latest_fills_new_receiver() -> None:
     task = await _start_send(sender, 2)
     await task
 
-    new_receiver = sender.subscribe(limit=1)
+    new_receiver = sender.subscribe(buffer_size=1)
     assert len(new_receiver) == 1
     assert receiver.consume() == 2
 
@@ -273,12 +283,12 @@ async def test_resend_latest_fills_new_receiver() -> None:
 async def test_receiver_subscribed_while_waiting() -> None:
     """Ensure a send waits for receivers subscribed after it started waiting."""
     sender, receiver = BroadcastChannel[int](
-        name="test", resend_latest=True, limit=1, block_on_full=True
+        name="test", resend_latest=True, buffer_size=1, block_on_full=True
     )
     await sender.send(1)
 
     task = await _start_send(sender, 2)
-    new_receiver = sender.subscribe(limit=1)
+    new_receiver = sender.subscribe(buffer_size=1)
     assert len(new_receiver) == 1
 
     assert receiver.consume() == 1
@@ -295,8 +305,10 @@ async def test_receiver_subscribed_while_waiting() -> None:
 
 async def test_closing_full_receiver_wakes_sender() -> None:
     """Ensure closing the full receiver lets a waiting send finish."""
-    sender, receiver_1 = BroadcastChannel[int](name="test", limit=1, block_on_full=True)
-    receiver_2 = sender.subscribe(limit=5)
+    sender, receiver_1 = BroadcastChannel[int](
+        name="test", buffer_size=1, block_on_full=True
+    )
+    receiver_2 = sender.subscribe(buffer_size=5)
     await sender.send(1)
 
     task = await _start_send(sender, 2)
@@ -311,8 +323,10 @@ async def test_closing_full_receiver_wakes_sender() -> None:
 
 async def test_dropped_receiver_doesnt_block_new_sends() -> None:
     """Ensure a receiver dropped without closing doesn't block later sends."""
-    sender, receiver_1 = BroadcastChannel[int](name="test", limit=1, block_on_full=True)
-    receiver_2 = sender.subscribe(limit=5)
+    sender, receiver_1 = BroadcastChannel[int](
+        name="test", buffer_size=1, block_on_full=True
+    )
+    receiver_2 = sender.subscribe(buffer_size=5)
     await sender.send(1)
 
     del receiver_1
@@ -324,7 +338,9 @@ async def test_dropped_receiver_doesnt_block_new_sends() -> None:
 
 async def test_closing_last_receiver_while_waiting() -> None:
     """Ensure a waiting send fails like any other if all receivers are closed."""
-    sender, receiver = BroadcastChannel[int](name="test", limit=1, block_on_full=True)
+    sender, receiver = BroadcastChannel[int](
+        name="test", buffer_size=1, block_on_full=True
+    )
     await sender.send(1)
 
     task = await _start_send(sender, 2)
@@ -339,7 +355,9 @@ async def test_closing_last_receiver_while_waiting() -> None:
 
 async def test_closing_other_sender_keeps_waiting() -> None:
     """Ensure closing another sender doesn't stop a waiting send."""
-    sender_1, receiver = BroadcastChannel[int](name="test", limit=1, block_on_full=True)
+    sender_1, receiver = BroadcastChannel[int](
+        name="test", buffer_size=1, block_on_full=True
+    )
     sender_2 = sender_1.clone()
     await sender_1.send(1)
 
@@ -357,7 +375,9 @@ async def test_closing_other_sender_keeps_waiting() -> None:
 
 async def test_closing_waiting_sender() -> None:
     """Ensure closing a waiting sender stops its send, and closes the channel."""
-    sender, receiver = BroadcastChannel[int](name="test", limit=1, block_on_full=True)
+    sender, receiver = BroadcastChannel[int](
+        name="test", buffer_size=1, block_on_full=True
+    )
     await sender.send(1)
 
     task = await _start_send(sender, 2)
@@ -373,7 +393,9 @@ async def test_closing_waiting_sender() -> None:
 
 async def test_closing_one_of_two_waiting_senders() -> None:
     """Ensure closing one waiting sender leaves the other one waiting."""
-    sender_1, receiver = BroadcastChannel[int](name="test", limit=1, block_on_full=True)
+    sender_1, receiver = BroadcastChannel[int](
+        name="test", buffer_size=1, block_on_full=True
+    )
     sender_2 = sender_1.clone()
     await sender_1.send(1)
 
@@ -398,7 +420,7 @@ async def test_closing_channel_wakes_sender() -> None:
     """Ensure closing the channel stops a waiting send."""
     channel = Broadcast[int](name="test")
     sender = channel.new_sender()
-    receiver = sender.subscribe(limit=1, block_on_full=True)
+    receiver = sender.subscribe(buffer_size=1, block_on_full=True)
     await sender.send(1)
 
     task = await _start_send(sender, 2)
@@ -415,7 +437,7 @@ async def test_closing_channel_wakes_sender() -> None:
 async def test_several_waiting_senders() -> None:
     """Ensure several waiting senders all deliver, each in order."""
     sender, receiver = BroadcastChannel[int](
-        name="test", limit=2, warn_on_overflow=False, block_on_full=True
+        name="test", buffer_size=2, warn_on_overflow=False, block_on_full=True
     )
 
     async def send_all(sender: BroadcastSender[int], messages: range) -> None:
@@ -444,7 +466,7 @@ async def test_several_waiting_senders() -> None:
 async def test_cancelling_one_of_several_waiting_senders() -> None:
     """Ensure cancelling one waiting send doesn't stop the others."""
     sender, receiver = BroadcastChannel[int](
-        name="test", limit=1, warn_on_overflow=False, block_on_full=True
+        name="test", buffer_size=1, warn_on_overflow=False, block_on_full=True
     )
     await sender.send(0)
 
@@ -466,7 +488,9 @@ async def test_cancelling_one_of_several_waiting_senders() -> None:
 async def test_logging(caplog: pytest.LogCaptureFixture) -> None:
     """Ensure waiting is logged as a warning when the receiver warns on overflow."""
     caplog.set_level(logging.DEBUG, logger="frequenz.channels._broadcast")
-    sender, receiver = BroadcastChannel[int](name="test", limit=1, block_on_full=True)
+    sender, receiver = BroadcastChannel[int](
+        name="test", buffer_size=1, block_on_full=True
+    )
     await sender.send(1)
 
     task = await _start_send(sender, 2)
@@ -495,7 +519,7 @@ async def test_logging_without_warn_on_overflow(
     """Ensure waiting is logged at debug level when the receiver doesn't warn."""
     caplog.set_level(logging.DEBUG, logger="frequenz.channels._broadcast")
     sender, receiver = BroadcastChannel[int](
-        name="test", limit=1, warn_on_overflow=False, block_on_full=True
+        name="test", buffer_size=1, warn_on_overflow=False, block_on_full=True
     )
     await sender.send(1)
 
@@ -511,7 +535,9 @@ async def test_logging_without_warn_on_overflow(
 @pytest.mark.parametrize("action", ["close", "consume"])
 def test_wake_up_after_loop_closed(action: str) -> None:
     """Ensure a receiver can be used after the loop of a waiting sender is closed."""
-    sender, receiver = BroadcastChannel[int](name="test", limit=1, block_on_full=True)
+    sender, receiver = BroadcastChannel[int](
+        name="test", buffer_size=1, block_on_full=True
+    )
 
     async def start_waiting_send() -> None:
         await sender.send(1)
@@ -540,7 +566,7 @@ async def test_does_not_warn() -> None:
 async def test_send_override_true_waits_for_inheriting_receivers() -> None:
     """Ensure `send(block_on_full=True)` waits for receivers using the default."""
     sender, inheriting = BroadcastChannel[int](
-        name="test", limit=1, warn_on_overflow=False
+        name="test", buffer_size=1, warn_on_overflow=False
     )
     await sender.send(1)
 
@@ -555,7 +581,7 @@ async def test_send_override_true_waits_for_inheriting_receivers() -> None:
 
 async def test_send_override_true_forgets_dropped_receivers() -> None:
     """Ensure `send(block_on_full=True)` forgets dropped blocking receivers."""
-    sender, receiver = BroadcastChannel[int](name="test", limit=5)
+    sender, receiver = BroadcastChannel[int](name="test", buffer_size=5)
     dropped = sender.subscribe(block_on_full=True)
     del dropped
     gc.collect()
@@ -572,9 +598,9 @@ async def test_send_override_true_forgets_dropped_receivers() -> None:
 async def test_send_override_true_skips_explicitly_lossy_receivers() -> None:
     """Ensure `send(block_on_full=True)` doesn't wait for explicitly lossy receivers."""
     sender, inheriting = BroadcastChannel[int](
-        name="test", limit=5, warn_on_overflow=False
+        name="test", buffer_size=5, warn_on_overflow=False
     )
-    lossy = sender.subscribe(limit=1, warn_on_overflow=False, block_on_full=False)
+    lossy = sender.subscribe(buffer_size=1, warn_on_overflow=False, block_on_full=False)
     await sender.send(1)
 
     await sender.send(2, block_on_full=True)
@@ -585,9 +611,9 @@ async def test_send_override_true_skips_explicitly_lossy_receivers() -> None:
 async def test_send_override_true_woken_by_inheriting_receiver_close() -> None:
     """Ensure closing an inheriting receiver wakes `send(block_on_full=True)`."""
     sender, inheriting = BroadcastChannel[int](
-        name="test", limit=1, warn_on_overflow=False
+        name="test", buffer_size=1, warn_on_overflow=False
     )
-    other = sender.subscribe(limit=5)
+    other = sender.subscribe(buffer_size=5)
     await sender.send(1)
 
     task = await _start_send_with(sender, 2, block_on_full=True)
@@ -602,7 +628,7 @@ async def test_send_override_true_woken_by_inheriting_receiver_close() -> None:
 async def test_send_override_false_drops_on_inheriting_receivers() -> None:
     """Ensure `send(block_on_full=False)` never waits for inheriting receivers."""
     sender, inheriting = BroadcastChannel[int](
-        name="test", limit=1, warn_on_overflow=False, block_on_full=True
+        name="test", buffer_size=1, warn_on_overflow=False, block_on_full=True
     )
     await sender.send(1)
 
@@ -613,10 +639,10 @@ async def test_send_override_false_drops_on_inheriting_receivers() -> None:
 async def test_send_override_false_raises_for_explicitly_blocking() -> None:
     """Ensure `send(block_on_full=False)` raises if an explicit blocker is full."""
     sender, inheriting = BroadcastChannel[int](
-        name="test", resend_latest=True, limit=1, warn_on_overflow=False
+        name="test", resend_latest=True, buffer_size=1, warn_on_overflow=False
     )
-    blocking_1 = sender.subscribe(limit=1, block_on_full=True)
-    blocking_2 = sender.subscribe(limit=5, block_on_full=True)
+    blocking_1 = sender.subscribe(buffer_size=1, block_on_full=True)
+    blocking_2 = sender.subscribe(buffer_size=5, block_on_full=True)
     await sender.send(1)
 
     with pytest.raises(SenderWouldBlockError) as excinfo:

@@ -1264,7 +1264,7 @@ class BroadcastChannel(
 
         async def main() -> None:
             sender, receiver = BroadcastChannel[int](
-                name="numbers", limit=2, warn_on_overflow=False, block_on_full=True
+                name="numbers", buffer_size=2, warn_on_overflow=False, block_on_full=True
             )
 
             async with asyncio.TaskGroup() as task_group:
