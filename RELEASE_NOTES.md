@@ -20,7 +20,9 @@
 
 - `frequenz.channels.timer.Timer` was renamed to `MonotonicTimer`, to make clear it uses the event loop's monotonic clock and to free the name `Timer` for a wall clock timer in a later version. `Timer` still works as a deprecated alias and will be removed in v2.0.0. The change is mechanical: replace `Timer` with `MonotonicTimer` in imports and uses.
 
-- The deprecation warning of `Anycast` now points at a replacement for its only known use, making senders wait when the channel is full, with a single receiver: a `BroadcastChannel` created with `block_on_full=True`. It gives each message to every receiver instead of one of them, each receiver has its own buffer of `limit` messages (50 by default instead of 10), and it closes itself when all its senders are closed. For other uses, copy `Anycast`'s code into your project, or open an issue if you think it should stay in this library. `Anycast` will be removed in v2.0.0.
+- The `limit` argument of `BroadcastChannel()` and `BroadcastSender.subscribe()` is deprecated and will be removed in v2.0.0. Use the new `buffer_size` argument instead. It does the same, but its name says what is limited: the number of messages each receiver can hold. `buffer_size` is keyword-only. A call that passes both `limit` and `buffer_size` raises a `TypeError`. Passing `warn_on_overflow` by position is deprecated too, because the new form only accepts it by keyword: pass it by keyword. v2.0.0 will also make `resend_latest` keyword-only, so pass it by keyword too. `Broadcast` and `Anycast` are not changed.
+
+- The deprecation warning of `Anycast` now points at a replacement for its only known use, making senders wait when the channel is full, with a single receiver: a `BroadcastChannel` created with `block_on_full=True`. It gives each message to every receiver instead of one of them, each receiver has its own buffer of `buffer_size` messages (50 by default instead of 10), and it closes itself when all its senders are closed. For other uses, copy `Anycast`'s code into your project, or open an issue if you think it should stay in this library. `Anycast` will be removed in v2.0.0.
 
 ## New Features
 
@@ -46,6 +48,6 @@
 
 - `OneshotReceiver.close()` no longer raises `NotImplementedError`. It now works like in the other receivers: a message sent before closing can still be received, and after that receiving raises `ReceiverStoppedError`. The sender can still send, but its message is discarded.
 
-- Creating a broadcast receiver with a `limit` of 0 now raises a `ValueError`, from `BroadcastChannel()`, `BroadcastSender.subscribe()` and `Broadcast.new_receiver()`. Before, the first message sent to it raised an `IndexError`, after other receivers might have got the message already.
+- Creating a broadcast receiver with a `buffer_size` (or `limit`) of 0 now raises a `ValueError`, from `BroadcastChannel()`, `BroadcastSender.subscribe()` and `Broadcast.new_receiver()`. Before, the first message sent to it raised an `IndexError`, after other receivers might have got the message already.
 
 - Docstrings now use absolute cross-references to public paths instead of relative ones. Relative cross-references are expanded from the module where an object is defined since mkdocstrings-python 2.0.9, which broke some links, and projects rendering docstrings inherited from this library needed `relative_crossrefs: true` for them to work at all. See [frequenz-repo-config-python#655](https://github.com/frequenz-floss/frequenz-repo-config-python/issues/655) for details.
