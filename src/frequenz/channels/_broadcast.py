@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 import weakref
 from asyncio import Condition
 from collections import deque
@@ -26,6 +27,12 @@ _NOT_GIVEN = sentinel("_NOT_GIVEN")
 
 _DEFAULT_BUFFER_SIZE = 50
 """The default buffer size of broadcast receivers."""
+
+_LIMIT_DEPRECATION = (
+    "The argument limit in {function} is deprecated and will be removed in "
+    "v2.0.0. Use buffer_size instead."
+)
+"""The warning of the deprecated `limit` argument, for a function's full name."""
 
 
 def _resolve_buffer_size(
@@ -50,6 +57,13 @@ def _resolve_buffer_size(
         raise TypeError(
             f"{function}() got both `limit` and `buffer_size`, "
             "pass only `buffer_size`"
+        )
+    if limit is not _NOT_GIVEN:
+        warnings.warn(
+            _LIMIT_DEPRECATION.format(function=f"frequenz.channels.{function}"),
+            category=DeprecationWarning,
+            # The caller of the function that got the argument
+            stacklevel=3,
         )
     argument = "limit" if limit is not _NOT_GIVEN else "buffer_size"
     size = limit if limit is not _NOT_GIVEN else buffer_size
@@ -478,6 +492,10 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
     ) -> BroadcastReceiver[_T]: ...
 
     @overload
+    @deprecated(
+        "The argument limit in frequenz.channels.BroadcastSender.subscribe is "
+        "deprecated and will be removed in v2.0.0. Use buffer_size instead."
+    )
     def subscribe(
         self,
         name: str | None = None,
@@ -496,12 +514,17 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
     ) -> BroadcastReceiver[_T]:
         """Return a new receiver attached to this sender's channel.
 
+        Deprecated:
+            The `limit` argument is deprecated since v1.13.0. Use `buffer_size`
+            instead.
+
         Args:
             name: A name to identify the receiver in the logs.
-            limit: The old name of `buffer_size`.  Passing both `limit` and
-                `buffer_size` raises a `TypeError`.
+            limit: Deprecated, use `buffer_size` instead.  Passing both `limit`
+                and `buffer_size` raises a `TypeError`.
             warn_on_overflow: Whether to log a warning when the receiver's buffer is
-                full and a message is dropped.
+                full and a message is dropped.  Pass it by keyword: passing it by
+                position requires passing the deprecated `limit` too.
             buffer_size: Number of messages the receiver can hold in its buffer (50
                 if neither this nor `limit` is given).  It must be at least 1.
 
@@ -876,6 +899,10 @@ class BroadcastChannel(
     ) -> BroadcastChannel[ChannelMessageT]: ...
 
     @overload
+    @deprecated(
+        "The argument limit in frequenz.channels.BroadcastChannel is deprecated and "
+        "will be removed in v2.0.0. Use buffer_size instead."
+    )
     def __new__(
         cls,
         name: str,
@@ -895,6 +922,10 @@ class BroadcastChannel(
     ) -> BroadcastChannel[ChannelMessageT]:
         """Create a new BroadcastChannel instance.
 
+        Deprecated:
+            The `limit` argument is deprecated since v1.13.0. Use `buffer_size`
+            instead.
+
         Args:
             name: The name of the channel. This is for logging purposes, and it will be
                 shown in the string representation of the channel.
@@ -906,10 +937,11 @@ class BroadcastChannel(
                 wait for the next message on the channel to arrive.  It is safe to be
                 set in data/reporting channels, but is not recommended for use in
                 channels that stream control instructions.
-            limit: The old name of `buffer_size`.  Passing both `limit` and
-                `buffer_size` raises a `TypeError`.
+            limit: Deprecated, use `buffer_size` instead.  Passing both `limit`
+                and `buffer_size` raises a `TypeError`.
             warn_on_overflow: Whether to log a warning when a receiver's buffer is full
-                and a message is dropped.
+                and a message is dropped.  Pass it by keyword: passing it by position
+                requires passing the deprecated `limit` too.
             buffer_size: Number of messages the receivers can hold in their buffers
                 (50 if neither this nor `limit` is given).  It must be at least 1.
 
