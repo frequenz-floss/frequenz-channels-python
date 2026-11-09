@@ -11,10 +11,10 @@ import logging
 import weakref
 from asyncio import AbstractEventLoop, Condition, Event, get_running_loop
 from collections import deque
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, overload
 
 from frequenz.core.warnings import ignoring_deprecations
-from typing_extensions import deprecated, override
+from typing_extensions import deprecated, override, sentinel
 
 from ._channel_default import CHANNEL_DEFAULT
 from ._exceptions import ChannelClosedError
@@ -28,6 +28,44 @@ from ._sender import (
 )
 
 _logger = logging.getLogger(__name__)
+
+_NOT_GIVEN = sentinel("_NOT_GIVEN")
+"""A marker for the arguments of the broadcast channel that were not passed."""
+
+_DEFAULT_BUFFER_SIZE = 50
+"""The default buffer size of broadcast receivers."""
+
+
+def _resolve_buffer_size(
+    function: str, *, limit: int | _NOT_GIVEN, buffer_size: int | _NOT_GIVEN
+) -> int:
+    """Return the buffer size to use out of `limit` and `buffer_size`.
+
+    Args:
+        function: The name of the function that got the arguments, for the error
+            messages.
+        limit: The `limit` argument the function got, or `_NOT_GIVEN`.
+        buffer_size: The `buffer_size` argument the function got, or `_NOT_GIVEN`.
+
+    Returns:
+        The buffer size to use.
+
+    Raises:
+        TypeError: If both `limit` and `buffer_size` were given.
+        ValueError: If the buffer size is smaller than 1.
+    """
+    if limit is not _NOT_GIVEN and buffer_size is not _NOT_GIVEN:
+        raise TypeError(
+            f"{function}() got both `limit` and `buffer_size`, "
+            "pass only `buffer_size`"
+        )
+    argument = "limit" if limit is not _NOT_GIVEN else "buffer_size"
+    size = limit if limit is not _NOT_GIVEN else buffer_size
+    if size is _NOT_GIVEN:
+        return _DEFAULT_BUFFER_SIZE
+    if size < 1:
+        raise ValueError(f"The receiver's {argument} must be at least 1, not {size}")
+    return size
 
 
 @deprecated("Please use BroadcastChannel instead.")
@@ -666,24 +704,47 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
         """Return a clone of this sender."""
         return BroadcastSender(self._channel)
 
-    @override
-    def subscribe(  # noqa: DOC502 (raised indirectly)
+    @overload
+    def subscribe(
+        self,
+        name: str | None = None,
+        *,
+        buffer_size: int = 50,
+        warn_on_overflow: bool = True,
+        block_on_full: bool | CHANNEL_DEFAULT = CHANNEL_DEFAULT,
+    ) -> BroadcastReceiver[_T]: ...
+
+    @overload
+    def subscribe(
         self,
         name: str | None = None,
         limit: int = 50,
         warn_on_overflow: bool = True,
         *,
         block_on_full: bool | CHANNEL_DEFAULT = CHANNEL_DEFAULT,
+    ) -> BroadcastReceiver[_T]: ...
+
+    @override
+    def subscribe(  # noqa: DOC502 (raised indirectly)
+        self,
+        name: str | None = None,
+        limit: int | _NOT_GIVEN = _NOT_GIVEN,
+        warn_on_overflow: bool = True,
+        *,
+        buffer_size: int | _NOT_GIVEN = _NOT_GIVEN,
+        block_on_full: bool | CHANNEL_DEFAULT = CHANNEL_DEFAULT,
     ) -> BroadcastReceiver[_T]:
         """Return a new receiver attached to this sender's channel.
 
         Args:
             name: A name to identify the receiver in the logs.
-            limit: Number of messages the receiver can hold in its buffer.  It must
-                be at least 1.
+            limit: The old name of `buffer_size`.  Passing both `limit` and
+                `buffer_size` raises a `TypeError`.
             warn_on_overflow: Whether to log a warning when the receiver's buffer is
                 full and a message is dropped, or when a sender has to wait for the
                 receiver to have room.
+            buffer_size: Number of messages the receiver can hold in its buffer (50
+                if neither this nor `limit` is given).  It must be at least 1.
             block_on_full: Whether senders wait for this receiver to have room when
                 its buffer is full, instead of dropping its oldest message.  An
                 explicit `True` or `False` also applies to sends that pass their
@@ -699,18 +760,22 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
         Raises:
             SenderError: If the underlying channel is closed.
             SenderClosedError: If this sender is closed.
-            ValueError: If `limit` is smaller than 1.
+            TypeError: If both `limit` and `buffer_size` are given.
+            ValueError: If the buffer size is smaller than 1.
         """
         self._check_open()
+        buffer_size = _resolve_buffer_size(
+            "BroadcastSender.subscribe", limit=limit, buffer_size=buffer_size
+        )
         if block_on_full is CHANNEL_DEFAULT:
             # Go through the public method, which subclasses of the deprecated
             # `Broadcast` might override.
             return self._channel.new_receiver(
-                name=name, limit=limit, warn_on_overflow=warn_on_overflow
+                name=name, limit=buffer_size, warn_on_overflow=warn_on_overflow
             )
         return self._channel._new_receiver(  # pylint: disable=protected-access
             name=name,
-            limit=limit,
+            limit=buffer_size,
             warn_on_overflow=warn_on_overflow,
             block_on_full=block_on_full,
         )
@@ -1224,13 +1289,36 @@ class BroadcastChannel(
         ```
     """
 
-    def __new__(  # noqa: DOC502 (raised indirectly)
+    @overload
+    def __new__(
+        cls,
+        name: str,
+        resend_latest: bool = False,
+        *,
+        buffer_size: int = 50,
+        warn_on_overflow: bool = True,
+        block_on_full: bool = False,
+    ) -> BroadcastChannel[ChannelMessageT]: ...
+
+    @overload
+    def __new__(
         cls,
         name: str,
         resend_latest: bool = False,
         limit: int = 50,
         warn_on_overflow: bool = True,
         *,
+        block_on_full: bool = False,
+    ) -> BroadcastChannel[ChannelMessageT]: ...
+
+    def __new__(  # noqa: DOC502 (raised indirectly), pylint: disable=too-many-arguments
+        cls,
+        name: str,
+        resend_latest: bool = False,
+        limit: int | _NOT_GIVEN = _NOT_GIVEN,
+        warn_on_overflow: bool = True,
+        *,
+        buffer_size: int | _NOT_GIVEN = _NOT_GIVEN,
         block_on_full: bool = False,
     ) -> BroadcastChannel[ChannelMessageT]:
         """Create a new BroadcastChannel instance.
@@ -1246,11 +1334,13 @@ class BroadcastChannel(
                 wait for the next message on the channel to arrive.  It is safe to be
                 set in data/reporting channels, but is not recommended for use in
                 channels that stream control instructions.
-            limit: Number of messages the receivers can hold in their buffers.  It
-                must be at least 1.
+            limit: The old name of `buffer_size`.  Passing both `limit` and
+                `buffer_size` raises a `TypeError`.
             warn_on_overflow: Whether to log a warning when a receiver's buffer is full
                 and a message is dropped, or when a sender has to wait for a receiver
                 to have room.
+            buffer_size: Number of messages the receivers can hold in their buffers
+                (50 if neither this nor `limit` is given).  It must be at least 1.
             block_on_full: Whether senders wait for receivers to have room when their
                 buffer is full, instead of dropping their oldest message.  It applies
                 to the initial receiver and, by default, to receivers created with
@@ -1261,8 +1351,12 @@ class BroadcastChannel(
                 sender and receiver.
 
         Raises:
-            ValueError: If `limit` is smaller than 1.
+            TypeError: If both `limit` and `buffer_size` are given.
+            ValueError: If the buffer size is smaller than 1.
         """
+        buffer_size = _resolve_buffer_size(
+            "BroadcastChannel", limit=limit, buffer_size=buffer_size
+        )
         # Broadcast is deprecated, but it is an implementation detail of this
         # class, so users shouldn't be warned about it.
         with ignoring_deprecations():
@@ -1278,7 +1372,7 @@ class BroadcastChannel(
                 channel.new_sender(),
                 channel.new_receiver(
                     name=f"{name}_receiver",
-                    limit=limit,
+                    limit=buffer_size,
                     warn_on_overflow=warn_on_overflow,
                 ),
             ),
