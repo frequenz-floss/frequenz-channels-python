@@ -28,7 +28,7 @@ This will probably be the last minor release of v1. It deprecates everything tha
 
 - `NopReceiver` and `WithPrevious` are now stable, and available from `frequenz.channels`.
 
-- `BroadcastChannel` can now make senders wait instead of dropping messages. With `block_on_full=True`, when a receiver's buffer is full, `send()` waits until every receiver that blocks senders has room, and then gives the message to all receivers at once. A `send()` that is cancelled while waiting, for example by `asyncio.timeout()`, gives the message to no receiver. Close receivers you don't need: one that is never read stops all senders once its buffer is full.
+- `BroadcastChannel` can now make senders wait instead of dropping messages. With `block_on_full=True`, when a receiver's buffer is full, `send()` waits until every receiver that blocks senders has room, and then gives the message to all receivers at once. A `send()` that is cancelled while waiting, for example by `asyncio.timeout()`, gives the message to no receiver. Close receivers you don't need: one that is never read stops all senders once its buffer is full. A waiting sender only logs at debug level. `warn_on_overflow` only applies to dropped messages.
 
 - `BroadcastSender.subscribe()` takes a new keyword-only `block_on_full` argument. By default, it uses the channel's setting, so a receiver that can lose messages can pass `block_on_full=False` and never make senders wait.
 
