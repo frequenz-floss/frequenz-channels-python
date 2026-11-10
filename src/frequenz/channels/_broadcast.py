@@ -389,7 +389,7 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
 
     def _full_blocking_receivers(
         self, block_on_full: bool | CHANNEL_DEFAULT
-    ) -> tuple[list[str], bool]:
+    ) -> list[str]:
         """Return the full receivers that a send has to wait for.
 
         It returns only strings, so a sender waiting for room doesn't keep any
@@ -400,13 +400,12 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
 
         Returns:
             The names of the receivers the send has to wait for whose buffer is
-                full, and whether any of them logs a warning on overflow.
+                full.
         """
         receivers = (
             self._receivers if block_on_full is True else self._blocking_receivers
         )
         full: list[str] = []
-        warn = False
         stale_refs = []
         # pylint: disable=protected-access
         for _hash, recv_ref in receivers.items():
@@ -416,12 +415,11 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
                 continue
             if recv._blocks_senders(block_on_full) and recv._is_full():
                 full.append(str(recv))
-                warn = warn or recv._warn_on_overflow
         # pylint: enable=protected-access
         for _hash in stale_refs:
             self._receivers.pop(_hash, None)
             self._blocking_receivers.pop(_hash, None)
-        return full, warn
+        return full
 
     def _explicitly_blocking_receivers(self) -> int:
         """Return the number of receivers created with `block_on_full=True`."""
@@ -488,7 +486,7 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
             name: A name to identify the receiver in the logs.
             limit: Number of messages the receiver can hold in its buffer.
             warn_on_overflow: Whether to log a warning when the receiver's
-                buffer is full and a message is dropped, or a sender has to wait.
+                buffer is full and a message is dropped.
             block_on_full: Whether senders wait for the receiver to have room
                 when its buffer is full, instead of dropping its oldest message,
                 or `CHANNEL_DEFAULT` to use the channel's setting.
@@ -632,7 +630,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
                 is full.
         """
         # pylint: disable=protected-access
-        full, _ = self._channel._full_blocking_receivers(False)
+        full = self._channel._full_blocking_receivers(False)
         if full:
             raise SenderWouldBlockError(
                 self,
@@ -655,11 +653,10 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
         """
         # pylint: disable=protected-access
         channel = self._channel
-        full, warn = channel._full_blocking_receivers(block_on_full)
+        full = channel._full_blocking_receivers(block_on_full)
         if not full:
             return
-        _logger.log(
-            logging.WARNING if warn else logging.DEBUG,
+        _logger.debug(
             "Broadcast sender [%s] is blocked until receivers have room: %s",
             self,
             ", ".join(full),
@@ -670,9 +667,8 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
                 channel._wake_senders_loop = get_running_loop()
             await channel._wake_senders_event.wait()
             self._check_open()
-            full, _ = channel._full_blocking_receivers(block_on_full)
-        _logger.log(
-            logging.INFO if warn else logging.DEBUG,
+            full = channel._full_blocking_receivers(block_on_full)
+        _logger.debug(
             "Broadcast sender [%s] is no longer blocked, all receivers have room",
             self,
         )
@@ -763,9 +759,8 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
             limit: Deprecated, use `buffer_size` instead.  Passing both `limit`
                 and `buffer_size` raises a `TypeError`.
             warn_on_overflow: Whether to log a warning when the receiver's buffer is
-                full and a message is dropped, or when a sender has to wait for the
-                receiver to have room.  Pass it by keyword: passing it by position
-                requires passing the deprecated `limit` too.
+                full and a message is dropped.  Pass it by keyword: passing it by
+                position requires passing the deprecated `limit` too.
             buffer_size: Number of messages the receiver can hold in its buffer (50
                 if neither this nor `limit` is given).  It must be at least 1.
             block_on_full: Whether senders wait for this receiver to have room when
@@ -846,7 +841,7 @@ class BroadcastReceiver(Receiver[_T]):
             limit: Number of messages the receiver can hold in its buffer.  It
                 must be at least 1.
             warn_on_overflow: Whether to log a warning when the receiver's
-                buffer is full and a message is dropped, or a sender has to wait.
+                buffer is full and a message is dropped.
             block_on_full: Whether senders wait for this receiver to have room
                 when its buffer is full, instead of dropping its oldest message,
                 or `CHANNEL_DEFAULT` to use the channel's setting.
@@ -1123,9 +1118,10 @@ class BroadcastChannel(
     [`TransientSenderError`][frequenz.channels.TransientSenderError], so the sender
     can still be used after it.
 
-    When a sender starts waiting, it logs a warning, and when it stops waiting, an
-    info message.  If none of the full receivers was created with
-    `warn_on_overflow=True`, both are debug messages instead.
+    A sender logs a debug message when it starts waiting and when it stops
+    waiting.  Waiting is what `block_on_full=True` asks for, so it is not warned
+    about.  `warn_on_overflow` only covers a full receiver that drops its oldest
+    message.
 
     Messages sent by awaiting one `send()` after another stay in order.
     Concurrent `send()` calls, even through the same sender, have no order: any of
@@ -1287,7 +1283,7 @@ class BroadcastChannel(
 
         async def main() -> None:
             sender, receiver = BroadcastChannel[int](
-                name="numbers", buffer_size=2, warn_on_overflow=False, block_on_full=True
+                name="numbers", buffer_size=2, block_on_full=True
             )
 
             async with asyncio.TaskGroup() as task_group:
@@ -1368,9 +1364,8 @@ class BroadcastChannel(
             limit: Deprecated, use `buffer_size` instead.  Passing both `limit`
                 and `buffer_size` raises a `TypeError`.
             warn_on_overflow: Whether to log a warning when a receiver's buffer is full
-                and a message is dropped, or when a sender has to wait for a receiver
-                to have room.  Pass it by keyword: passing it by position requires
-                passing the deprecated `limit` too.
+                and a message is dropped.  Pass it by keyword: passing it by position
+                requires passing the deprecated `limit` too.
             buffer_size: Number of messages the receivers can hold in their buffers
                 (50 if neither this nor `limit` is given).  It must be at least 1.
             block_on_full: Whether senders wait for receivers to have room when their

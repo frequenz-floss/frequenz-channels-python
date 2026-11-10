@@ -485,11 +485,17 @@ async def test_cancelling_one_of_several_waiting_senders() -> None:
     assert sorted(received) == [0, 1, 3]
 
 
-async def test_logging(caplog: pytest.LogCaptureFixture) -> None:
-    """Ensure waiting is logged as a warning when the receiver warns on overflow."""
+@pytest.mark.parametrize("warn_on_overflow", [True, False])
+async def test_logging(
+    caplog: pytest.LogCaptureFixture, warn_on_overflow: bool
+) -> None:
+    """Ensure waiting is only logged at debug level, whatever `warn_on_overflow` is."""
     caplog.set_level(logging.DEBUG, logger="frequenz.channels._broadcast")
     sender, receiver = BroadcastChannel[int](
-        name="test", buffer_size=1, block_on_full=True
+        name="test",
+        buffer_size=1,
+        warn_on_overflow=warn_on_overflow,
+        block_on_full=True,
     )
     await sender.send(1)
 
@@ -501,35 +507,34 @@ async def test_logging(caplog: pytest.LogCaptureFixture) -> None:
 
     assert [(r.levelno, r.getMessage()) for r in caplog.records] == [
         (
-            logging.WARNING,
+            logging.DEBUG,
             "Broadcast sender [Broadcast:test:BroadcastSender] is blocked until "
             "receivers have room: Broadcast:test:BroadcastReceiver:test_receiver",
         ),
         (
-            logging.INFO,
+            logging.DEBUG,
             "Broadcast sender [Broadcast:test:BroadcastSender] is no longer blocked, "
             "all receivers have room",
         ),
     ]
 
 
-async def test_logging_without_warn_on_overflow(
-    caplog: pytest.LogCaptureFixture,
-) -> None:
-    """Ensure waiting is logged at debug level when the receiver doesn't warn."""
+async def test_dropping_a_message_still_warns(caplog: pytest.LogCaptureFixture) -> None:
+    """Ensure a receiver that drops its oldest message warns by default."""
     caplog.set_level(logging.DEBUG, logger="frequenz.channels._broadcast")
-    sender, receiver = BroadcastChannel[int](
-        name="test", buffer_size=1, warn_on_overflow=False, block_on_full=True
-    )
+    sender, receiver = BroadcastChannel[int](name="test", buffer_size=1)
+
     await sender.send(1)
+    await sender.send(2)
 
-    task = await _start_send(sender, 2)
-    assert receiver.consume() == 1
-    await _settle()
-    assert task.done()
-    await task
-
-    assert [r.levelno for r in caplog.records] == [logging.DEBUG, logging.DEBUG]
+    assert receiver.consume() == 2
+    assert [(r.levelno, r.getMessage()) for r in caplog.records] == [
+        (
+            logging.WARNING,
+            "Broadcast receiver [Broadcast:test:BroadcastReceiver:test_receiver] is "
+            "full. Oldest message was dropped.",
+        )
+    ]
 
 
 @pytest.mark.parametrize("action", ["close", "consume"])
