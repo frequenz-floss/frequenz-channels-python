@@ -494,18 +494,3 @@ async def test_broadcast_closed_channels_remain_closed() -> None:
     with pytest.raises(SenderError) as excinfo:
         _ = sender.subscribe()
     assert isinstance(excinfo.value.__cause__, ChannelClosedError)
-
-
-@pytest.mark.parametrize("limit", [0, -1])
-async def test_broadcast_limit_must_be_positive(limit: int) -> None:
-    """Ensure receivers can't be created with a buffer smaller than 1."""
-    with pytest.raises(ValueError, match="limit must be at least 1"):
-        _ = BroadcastChannel[int](name="limit-test", limit=limit)
-
-    sender, _receiver = BroadcastChannel[int](name="limit-test")
-    with pytest.raises(ValueError, match="limit must be at least 1"):
-        _ = sender.subscribe(limit=limit)
-
-    channel = Broadcast[int](name="limit-test")
-    with pytest.raises(ValueError, match="limit must be at least 1"):
-        _ = channel.new_receiver(limit=limit)

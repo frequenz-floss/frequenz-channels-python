@@ -19,9 +19,9 @@ Base classes:
 
 Channels:
 
-* [`Anycast`][frequenz.channels.Anycast] (deprecated): A channel that supports
-  multiple senders and multiple receivers.  A message sent through a sender will
-  be received by exactly one receiver.
+* [`Anycast`][frequenz.channels.Anycast]: A channel that supports multiple
+  senders and multiple receivers.  A message sent through a sender will be
+  received by exactly one receiver.
 
 * [`Broadcast`][frequenz.channels.Broadcast]: A channel to broadcast messages
   from multiple senders to multiple receivers. Each message sent through any of
@@ -43,9 +43,6 @@ Utilities to work with channels:
 * [`NopReceiver`][frequenz.channels.NopReceiver]: A place-holder receiver that
   never receives a message.
 
-* [`CHANNEL_DEFAULT`][frequenz.channels.CHANNEL_DEFAULT]: A marker for arguments
-  that take their value from the channel.
-
 * [`WithPrevious`][frequenz.channels.WithPrevious]: A composable predicate to
   filter messages based on the previous message received.
 
@@ -62,12 +59,6 @@ Exception classes:
 
 * [`SenderError`][frequenz.channels.SenderError]: Base class for all errors
   related to senders.
-
-* [`TransientSenderError`][frequenz.channels.TransientSenderError]: Base class for
-  sender errors after which the sender can still be used.
-
-* [`SenderWouldBlockError`][frequenz.channels.SenderWouldBlockError]: A send would
-  have to wait, but wasn't allowed to.
 
 * [`ReceiverError`][frequenz.channels.ReceiverError]: Base class for all errors
   related to receivers.
@@ -96,7 +87,6 @@ Extra utility receivers:
 
 from ._anycast import Anycast
 from ._broadcast import Broadcast, BroadcastChannel, BroadcastReceiver, BroadcastSender
-from ._channel_default import CHANNEL_DEFAULT
 from ._exceptions import ChannelClosedError, ChannelError, Error
 from ._generic import (
     ChannelMessageT,
@@ -124,9 +114,7 @@ from ._sender import (
     Sender,
     SenderClosedError,
     SenderError,
-    SenderWouldBlockError,
     SubscribableSender,
-    TransientSenderError,
 )
 from ._with_previous import WithPrevious
 
@@ -136,7 +124,6 @@ __all__ = [
     "BroadcastChannel",
     "BroadcastReceiver",
     "BroadcastSender",
-    "CHANNEL_DEFAULT",
     "ChannelClosedError",
     "ChannelError",
     "ChannelMessageT",
@@ -162,9 +149,7 @@ __all__ = [
     "SenderError",
     "SenderMessageT_co",
     "SenderMessageT_contra",
-    "SenderWouldBlockError",
     "SubscribableSender",
-    "TransientSenderError",
     "UnhandledSelectedError",
     "WithPrevious",
     "merge",

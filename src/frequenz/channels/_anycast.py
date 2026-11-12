@@ -21,24 +21,13 @@ _logger = logging.getLogger(__name__)
 
 
 @deprecated(
-    "frequenz.channels.Anycast is deprecated and will be removed in v2.0.0. If you "
-    "only use it with a single receiver, to make senders wait when the channel is "
-    "full, use frequenz.channels.BroadcastChannel with block_on_full=True instead. "
-    "Otherwise, copy its code into your project if you need it, or open an issue at "
-    "https://github.com/frequenz-floss/frequenz-channels-python/issues if you think "
-    "it should stay in frequenz-channels."
+    "Anycast channels are deprecated, because of the high cost of maintaining "
+    "something for which we don't have a use case. The implementation will "
+    "remain in the codebase in its current form at least until the next major "
+    "version."
 )
 class Anycast(Generic[ChannelMessageT]):
     """A channel that delivers each message to exactly one receiver.
-
-    Deprecated:
-        Deprecated since v1.12.0, and will be removed in v2.0.0. If you only use it
-        with a single receiver, to make senders wait when the channel is full, use
-        [`BroadcastChannel`][frequenz.channels.BroadcastChannel] with
-        `block_on_full=True` instead. Otherwise, copy its code into your project if
-        you need it, or [open an
-        issue](https://github.com/frequenz-floss/frequenz-channels-python/issues) if
-        you think it should stay in this library.
 
     # Description
 

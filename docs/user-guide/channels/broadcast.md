@@ -1,6 +1,6 @@
 # Broadcast
 
-::: frequenz.channels._broadcast.BroadcastChannel
+::: frequenz.channels._broadcast.Broadcast
     options:
         inherited_members: []
         members: []
