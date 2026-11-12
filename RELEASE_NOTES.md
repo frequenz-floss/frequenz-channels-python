@@ -10,7 +10,7 @@
 
 - `frequenz-core >= 1.6.0, < 2` is now a runtime dependency. It provides the utilities this project uses to deprecate symbols following the Frequenz deprecations guide.
 
-- The minimum `typing-extensions` version is now 4.13.0, which `frequenz-core` requires.
+- The minimum `typing-extensions` version is now 4.16.0. `frequenz-core` requires 4.13.0, and the new `buffer_size` argument needs the `sentinel` type added in 4.16.0.
 
 - `frequenz.channels.Anycast`, deprecated since v1.12.0, will be removed in a future version, not necessarily the next major one. Its deprecation warning now recommends copying its code into your project if you need it, or [opening an issue](https://github.com/frequenz-floss/frequenz-channels-python/issues) if you think it should stay in the library.
 
