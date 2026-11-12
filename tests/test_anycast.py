@@ -16,6 +16,20 @@ from frequenz.channels import (
     SenderError,
 )
 
+# Every test here uses the deprecated Anycast on purpose.
+pytestmark = pytest.mark.filterwarnings("once::DeprecationWarning")
+
+
+def test_deprecation_warning() -> None:
+    """Test that Anycast warns it is deprecated."""
+    with pytest.deprecated_call(
+        match=r"^frequenz\.channels\.Anycast is deprecated and will be removed in a "
+        r"future version\. Copy its code into your project if you need it, or open an "
+        r"issue at https://github\.com/frequenz-floss/frequenz-channels-python/issues "
+        r"if you think it should stay in frequenz-channels\.$"
+    ):
+        _ = Anycast[int](name="test")
+
 
 async def test_anycast() -> None:
     """Ensure sent messages are received by one receiver."""

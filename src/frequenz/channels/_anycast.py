@@ -21,13 +21,19 @@ _logger = logging.getLogger(__name__)
 
 
 @deprecated(
-    "Anycast channels are deprecated, because of the high cost of maintaining "
-    "something for which we don't have a use case. The implementation will "
-    "remain in the codebase in its current form at least until the next major "
-    "version."
+    "frequenz.channels.Anycast is deprecated and will be removed in a future "
+    "version. Copy its code into your project if you need it, or open an issue at "
+    "https://github.com/frequenz-floss/frequenz-channels-python/issues if you think "
+    "it should stay in frequenz-channels."
 )
 class Anycast(Generic[ChannelMessageT]):
     """A channel that delivers each message to exactly one receiver.
+
+    Deprecated:
+        Deprecated since v1.12.0, and will be removed in a future version. Copy its
+        code into your project if you need it, or [open an
+        issue](https://github.com/frequenz-floss/frequenz-channels-python/issues) if
+        you think it should stay in this library.
 
     # Description
 
