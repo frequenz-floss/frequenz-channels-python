@@ -758,10 +758,10 @@ async def test_broadcast_subscribe_default_options(
 async def test_broadcast_subscribe_inherits_receiver_options() -> None:
     """Ensure subscribed receivers default to the channel's receiver options."""
     sender, receiver = BroadcastChannel[int](
-        name="options-test", limit=2, warn_on_overflow=False
+        name="options-test", buffer_size=2, warn_on_overflow=False
     )
     subscribed = sender.subscribe()
-    overridden = sender.subscribe(limit=3, warn_on_overflow=True)
+    overridden = sender.subscribe(buffer_size=3, warn_on_overflow=True)
 
     for i in range(4):
         await sender.send(i)
