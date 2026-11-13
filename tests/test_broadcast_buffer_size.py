@@ -54,17 +54,34 @@ async def test_default_buffer_size() -> None:
     assert _drain(receiver_2) == list(range(10, 60))
 
 
-async def test_buffer_size_is_keyword_only() -> None:
-    """Ensure `buffer_size` can't be passed by position."""
+async def test_options_are_keyword_only() -> None:
+    """Ensure every option but the name has to be passed by keyword."""
     sender, _receiver = BroadcastChannel[int](name="test")
 
     with pytest.raises(TypeError):
         # We want to test the runtime error.
         # pylint: disable-next=too-many-function-args
-        BroadcastChannel[int]("test", False, 5, True, 7)  # type: ignore[call-overload]
+        BroadcastChannel[int]("test", False)  # type: ignore[call-overload]
     with pytest.raises(TypeError):
         # We want to test the runtime error.
-        sender.subscribe("test", 5, True, 7)  # type: ignore[call-overload]
+        sender.subscribe("test", 5)  # type: ignore[call-overload]
+    with pytest.raises(TypeError):
+        # We want to test the runtime error.
+        sender.subscribe("test", None, True)  # type: ignore[call-overload]
+
+
+async def test_subscribe_none_uses_the_channel_options() -> None:
+    """Ensure passing `None` to `subscribe()` is the same as not passing it."""
+    sender, _receiver = BroadcastChannel[int](
+        name="test", buffer_size=2, warn_on_overflow=False
+    )
+    receiver = sender.subscribe(buffer_size=None, warn_on_overflow=None)
+
+    for message in range(5):
+        await sender.send(message)
+
+    assert _drain(receiver) == [3, 4]
+    assert not receiver._warn_on_overflow  # pylint: disable=protected-access
 
 
 @pytest.mark.parametrize("buffer_size", [0, -1])
@@ -116,30 +133,6 @@ async def test_limit_keyword_is_deprecated() -> None:
     assert _drain(receiver_2) == [2, 3, 4]
 
 
-async def test_limit_position_is_deprecated() -> None:
-    """Ensure passing `limit` by position warns, but still sets the buffer size."""
-    with pytest.deprecated_call(
-        match=r"^The argument limit in frequenz\.channels\.BroadcastChannel is deprecated\b"
-    ) as warnings_record:
-        sender, receiver_1 = BroadcastChannel[int]("test", False, 2, False)
-    assert warnings_record[0].filename == __file__
-
-    with pytest.deprecated_call(
-        match=(
-            r"^The argument limit in frequenz\.channels\.BroadcastSender\.subscribe "
-            r"is deprecated\b"
-        )
-    ) as warnings_record:
-        receiver_2 = sender.subscribe("test", 3, False)
-    assert warnings_record[0].filename == __file__
-
-    for message in range(5):
-        await sender.send(message)
-
-    assert _drain(receiver_1) == [3, 4]
-    assert _drain(receiver_2) == [2, 3, 4]
-
-
 @pytest.mark.parametrize("limit", [0, -1])
 async def test_limit_must_be_positive(limit: int) -> None:
     """Ensure the error of a deprecated `limit` smaller than 1 names `limit`."""
@@ -162,7 +155,7 @@ async def test_buffer_size_is_not_deprecated() -> None:
         _ = sender.subscribe(buffer_size=2, warn_on_overflow=False)
         _ = sender.subscribe()
         _ = sender.subscribe("name")
-        _ = BroadcastChannel[int]("name", True)
+        _ = BroadcastChannel[int]("name", resend_latest=True)
 
 
 async def test_limit_and_buffer_size_conflict_does_not_warn() -> None:

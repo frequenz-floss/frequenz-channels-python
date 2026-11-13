@@ -418,6 +418,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
     def subscribe(
         self,
         name: str | None = None,
+        *,
         limit: int | None = None,
         warn_on_overflow: bool | None = None,
     ) -> BroadcastReceiver[_T]: ...
@@ -426,10 +427,10 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
     def subscribe(  # noqa: DOC502 (raised indirectly)
         self,
         name: str | None = None,
-        limit: int | None | _NOT_GIVEN = _NOT_GIVEN,
-        warn_on_overflow: bool | None = None,
         *,
+        limit: int | None | _NOT_GIVEN = _NOT_GIVEN,
         buffer_size: int | None | _NOT_GIVEN = _NOT_GIVEN,
+        warn_on_overflow: bool | None = None,
     ) -> BroadcastReceiver[_T]:
         """Return a new receiver attached to this sender's channel.
 
@@ -441,15 +442,14 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
             name: A name to identify the receiver in the logs.
             limit: Deprecated, use `buffer_size` instead.  Passing both `limit`
                 and `buffer_size` raises a `TypeError`.
-            warn_on_overflow: Whether to log a warning when the receiver's buffer is
-                full and a message is dropped.  If `None`, the `warn_on_overflow`
-                setting the `BroadcastChannel` was created with is used, or `True`
-                for a `Broadcast`.  Pass it by keyword: passing it by position
-                requires passing the deprecated `limit` too.
             buffer_size: Number of messages the receiver can hold in its buffer.  If
                 `None` or not given, the buffer size the `BroadcastChannel` was
                 created with is used, or `50` for a `Broadcast`.  It must be at
                 least 1.
+            warn_on_overflow: Whether to log a warning when the receiver's buffer is
+                full and a message is dropped.  If `None`, the `warn_on_overflow`
+                setting the `BroadcastChannel` was created with is used, or `True`
+                for a `Broadcast`.
 
         Returns:
             A new receiver attached to this sender's channel.
@@ -915,8 +915,8 @@ class BroadcastChannel(
     def __new__(
         cls,
         name: str,
-        resend_latest: bool = False,
         *,
+        resend_latest: bool = False,
         buffer_size: int = 50,
         warn_on_overflow: bool = True,
     ) -> BroadcastChannel[ChannelMessageT]: ...
@@ -929,6 +929,7 @@ class BroadcastChannel(
     def __new__(
         cls,
         name: str,
+        *,
         resend_latest: bool = False,
         limit: int = 50,
         warn_on_overflow: bool = True,
@@ -937,11 +938,11 @@ class BroadcastChannel(
     def __new__(  # noqa: DOC502 (raised indirectly), pylint: disable=too-many-arguments
         cls,
         name: str,
+        *,
         resend_latest: bool = False,
         limit: int | _NOT_GIVEN = _NOT_GIVEN,
-        warn_on_overflow: bool = True,
-        *,
         buffer_size: int | _NOT_GIVEN = _NOT_GIVEN,
+        warn_on_overflow: bool = True,
     ) -> BroadcastChannel[ChannelMessageT]:
         """Create a new BroadcastChannel instance.
 
@@ -963,16 +964,14 @@ class BroadcastChannel(
                 channels that stream control instructions.
             limit: Deprecated, use `buffer_size` instead.  Passing both `limit`
                 and `buffer_size` raises a `TypeError`.
-            warn_on_overflow: Whether to log a warning when a receiver's buffer is full
-                and a message is dropped.  Applies to the initial receiver and, by
-                default, to receivers created with
-                [`BroadcastSender.subscribe()`][frequenz.channels.BroadcastSender.subscribe].
-                Pass it by keyword: passing it by position requires passing the
-                deprecated `limit` too.
             buffer_size: Number of messages each receiver can hold in its buffer, for
                 the initial receiver and, by default, for receivers created with
                 [`BroadcastSender.subscribe()`][frequenz.channels.BroadcastSender.subscribe]
                 (50 if neither this nor `limit` is given).  It must be at least 1.
+            warn_on_overflow: Whether to log a warning when a receiver's buffer is full
+                and a message is dropped.  Applies to the initial receiver and, by
+                default, to receivers created with
+                [`BroadcastSender.subscribe()`][frequenz.channels.BroadcastSender.subscribe].
 
         Returns:
             A new BroadcastChannel instance that can be destructured into an initial
