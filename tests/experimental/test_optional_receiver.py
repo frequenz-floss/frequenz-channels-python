@@ -72,9 +72,9 @@ async def test_receiver_ends_when_underlying_receiver_ends() -> None:
 def test_deprecation_warning() -> None:
     """Test that the receiver warns it is deprecated."""
     with pytest.deprecated_call(
-        match=r"^frequenz\.channels\.experimental\.OptionalReceiver is deprecated\. "
-        r"Use the receiver itself, or frequenz\.channels\.NopReceiver when there is "
-        r"none\.$"
+        match=r"^frequenz\.channels\.experimental\.OptionalReceiver is deprecated and "
+        r"will be removed in v2\.0\.0\. Use the receiver itself, or "
+        r"frequenz\.channels\.NopReceiver when there is none\.$"
     ):
         receiver = OptionalReceiver[int](None)
     receiver.close()
