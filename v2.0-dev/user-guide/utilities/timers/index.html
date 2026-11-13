@@ -1234,10 +1234,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#timer" class="md-nav__link">
+  <a href="#monotonictimer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Timer
+        MonotonicTimer
       
     </span>
   </a>
@@ -1733,10 +1733,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#timer" class="md-nav__link">
+  <a href="#monotonictimer" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Timer
+        MonotonicTimer
       
     </span>
   </a>
@@ -1796,7 +1796,7 @@ it is extremely important to understand how timers behave when they are delayed.
 drifting</a> before using timers in production.</p>
 </details>        <p>If you need to do something as periodically as possible (avoiding
 <a href="#frequenz.channels.timer--missed-ticks-and-drifting">drifts</a>), you can use
-a <a class="autorefs autorefs-internal" title="frequenz.channels.timer.Timer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> like this:</p>
+a <a class="autorefs autorefs-internal" title="frequenz.channels.timer.MonotonicTimer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MonotonicTimer"><code>MonotonicTimer</code></a> like this:</p>
 
 
 <details class="example" open>
@@ -1804,11 +1804,11 @@ a <a class="autorefs autorefs-internal" title="frequenz.channels.timer.Timer" hr
   <div class="language-python highlight"><pre><span></span><code><span id="frequenz.channels.timer--__span-0-1"><a id="frequenz.channels.timer--__codelineno-0-1" name="frequenz.channels.timer--__codelineno-0-1" href="#frequenz.channels.timer--__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 </span><span id="frequenz.channels.timer--__span-0-2"><a id="frequenz.channels.timer--__codelineno-0-2" name="frequenz.channels.timer--__codelineno-0-2" href="#frequenz.channels.timer--__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 </span><span id="frequenz.channels.timer--__span-0-3"><a id="frequenz.channels.timer--__codelineno-0-3" name="frequenz.channels.timer--__codelineno-0-3" href="#frequenz.channels.timer--__codelineno-0-3"></a>
-</span><span id="frequenz.channels.timer--__span-0-4"><a id="frequenz.channels.timer--__codelineno-0-4" name="frequenz.channels.timer--__codelineno-0-4" href="#frequenz.channels.timer--__codelineno-0-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">frequenz.channels.timer</span><span class="w"> </span><span class="kn">import</span> <span class="n">Timer</span><span class="p">,</span> <span class="n">TriggerAllMissed</span>
+</span><span id="frequenz.channels.timer--__span-0-4"><a id="frequenz.channels.timer--__codelineno-0-4" name="frequenz.channels.timer--__codelineno-0-4" href="#frequenz.channels.timer--__codelineno-0-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">frequenz.channels.timer</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonotonicTimer</span><span class="p">,</span> <span class="n">TriggerAllMissed</span>
 </span><span id="frequenz.channels.timer--__span-0-5"><a id="frequenz.channels.timer--__codelineno-0-5" name="frequenz.channels.timer--__codelineno-0-5" href="#frequenz.channels.timer--__codelineno-0-5"></a>
 </span><span id="frequenz.channels.timer--__span-0-6"><a id="frequenz.channels.timer--__codelineno-0-6" name="frequenz.channels.timer--__codelineno-0-6" href="#frequenz.channels.timer--__codelineno-0-6"></a>
 </span><span id="frequenz.channels.timer--__span-0-7"><a id="frequenz.channels.timer--__codelineno-0-7" name="frequenz.channels.timer--__codelineno-0-7" href="#frequenz.channels.timer--__codelineno-0-7"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="frequenz.channels.timer--__span-0-8"><a id="frequenz.channels.timer--__codelineno-0-8" name="frequenz.channels.timer--__codelineno-0-8" href="#frequenz.channels.timer--__codelineno-0-8"></a>    <span class="k">async</span> <span class="k">for</span> <span class="n">drift</span> <span class="ow">in</span> <span class="n">Timer</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">TriggerAllMissed</span><span class="p">()):</span>
+</span><span id="frequenz.channels.timer--__span-0-8"><a id="frequenz.channels.timer--__codelineno-0-8" name="frequenz.channels.timer--__codelineno-0-8" href="#frequenz.channels.timer--__codelineno-0-8"></a>    <span class="k">async</span> <span class="k">for</span> <span class="n">drift</span> <span class="ow">in</span> <span class="n">MonotonicTimer</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">TriggerAllMissed</span><span class="p">()):</span>
 </span><span id="frequenz.channels.timer--__span-0-9"><a id="frequenz.channels.timer--__codelineno-0-9" name="frequenz.channels.timer--__codelineno-0-9" href="#frequenz.channels.timer--__codelineno-0-9"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"The timer has triggered at </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="si">}</span><span class="s2"> with a drift of </span><span class="si">{</span><span class="n">drift</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </span><span id="frequenz.channels.timer--__span-0-10"><a id="frequenz.channels.timer--__codelineno-0-10" name="frequenz.channels.timer--__codelineno-0-10" href="#frequenz.channels.timer--__codelineno-0-10"></a>
 </span><span id="frequenz.channels.timer--__span-0-11"><a id="frequenz.channels.timer--__codelineno-0-11" name="frequenz.channels.timer--__codelineno-0-11" href="#frequenz.channels.timer--__codelineno-0-11"></a>
@@ -1819,8 +1819,8 @@ doing something else for a good amount of time. In extreme cases, if the loop wa
 busy for a few seconds, the timer will trigger a few times in a row to catch up, one
 for every missed tick.</p>
 </details>        <p>If, instead, you need a timeout, for example to abort waiting for other receivers after
-a certain amount of time, you can use a <a class="autorefs autorefs-internal" title="frequenz.channels.timer.Timer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> like
-this:</p>
+a certain amount of time, you can use
+a <a class="autorefs autorefs-internal" title="frequenz.channels.timer.MonotonicTimer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MonotonicTimer"><code>MonotonicTimer</code></a> like this:</p>
 
 
 <details class="example" open>
@@ -1829,13 +1829,13 @@ this:</p>
 </span><span id="frequenz.channels.timer--__span-0-2"><a id="frequenz.channels.timer--__codelineno-0-2" name="frequenz.channels.timer--__codelineno-0-2" href="#frequenz.channels.timer--__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
 </span><span id="frequenz.channels.timer--__span-0-3"><a id="frequenz.channels.timer--__codelineno-0-3" name="frequenz.channels.timer--__codelineno-0-3" href="#frequenz.channels.timer--__codelineno-0-3"></a>
 </span><span id="frequenz.channels.timer--__span-0-4"><a id="frequenz.channels.timer--__codelineno-0-4" name="frequenz.channels.timer--__codelineno-0-4" href="#frequenz.channels.timer--__codelineno-0-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">frequenz.channels</span><span class="w"> </span><span class="kn">import</span> <span class="n">BroadcastChannel</span><span class="p">,</span> <span class="n">select</span><span class="p">,</span> <span class="n">selected_from</span>
-</span><span id="frequenz.channels.timer--__span-0-5"><a id="frequenz.channels.timer--__codelineno-0-5" name="frequenz.channels.timer--__codelineno-0-5" href="#frequenz.channels.timer--__codelineno-0-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">frequenz.channels.timer</span><span class="w"> </span><span class="kn">import</span> <span class="n">SkipMissedAndDrift</span><span class="p">,</span> <span class="n">Timer</span>
+</span><span id="frequenz.channels.timer--__span-0-5"><a id="frequenz.channels.timer--__codelineno-0-5" name="frequenz.channels.timer--__codelineno-0-5" href="#frequenz.channels.timer--__codelineno-0-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">frequenz.channels.timer</span><span class="w"> </span><span class="kn">import</span> <span class="n">MonotonicTimer</span><span class="p">,</span> <span class="n">SkipMissedAndDrift</span>
 </span><span id="frequenz.channels.timer--__span-0-6"><a id="frequenz.channels.timer--__codelineno-0-6" name="frequenz.channels.timer--__codelineno-0-6" href="#frequenz.channels.timer--__codelineno-0-6"></a>
 </span><span id="frequenz.channels.timer--__span-0-7"><a id="frequenz.channels.timer--__codelineno-0-7" name="frequenz.channels.timer--__codelineno-0-7" href="#frequenz.channels.timer--__codelineno-0-7"></a>
 </span><span id="frequenz.channels.timer--__span-0-8"><a id="frequenz.channels.timer--__codelineno-0-8" name="frequenz.channels.timer--__codelineno-0-8" href="#frequenz.channels.timer--__codelineno-0-8"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="frequenz.channels.timer--__span-0-9"><a id="frequenz.channels.timer--__codelineno-0-9" name="frequenz.channels.timer--__codelineno-0-9" href="#frequenz.channels.timer--__codelineno-0-9"></a>    <span class="n">sender</span><span class="p">,</span> <span class="n">data_receiver</span> <span class="o">=</span> <span class="n">BroadcastChannel</span><span class="p">[</span><span class="nb">int</span><span class="p">](</span><span class="n">name</span><span class="o">=</span><span class="s2">"data-channel"</span><span class="p">)</span>
 </span><span id="frequenz.channels.timer--__span-0-10"><a id="frequenz.channels.timer--__codelineno-0-10" name="frequenz.channels.timer--__codelineno-0-10" href="#frequenz.channels.timer--__codelineno-0-10"></a>
-</span><span id="frequenz.channels.timer--__span-0-11"><a id="frequenz.channels.timer--__codelineno-0-11" name="frequenz.channels.timer--__codelineno-0-11" href="#frequenz.channels.timer--__codelineno-0-11"></a>    <span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">SkipMissedAndDrift</span><span class="p">())</span>
+</span><span id="frequenz.channels.timer--__span-0-11"><a id="frequenz.channels.timer--__codelineno-0-11" name="frequenz.channels.timer--__codelineno-0-11" href="#frequenz.channels.timer--__codelineno-0-11"></a>    <span class="n">timer</span> <span class="o">=</span> <span class="n">MonotonicTimer</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mf">1.0</span><span class="p">),</span> <span class="n">SkipMissedAndDrift</span><span class="p">())</span>
 </span><span id="frequenz.channels.timer--__span-0-12"><a id="frequenz.channels.timer--__codelineno-0-12" name="frequenz.channels.timer--__codelineno-0-12" href="#frequenz.channels.timer--__codelineno-0-12"></a>
 </span><span id="frequenz.channels.timer--__span-0-13"><a id="frequenz.channels.timer--__codelineno-0-13" name="frequenz.channels.timer--__codelineno-0-13" href="#frequenz.channels.timer--__codelineno-0-13"></a>    <span class="k">async</span> <span class="k">for</span> <span class="n">selected</span> <span class="ow">in</span> <span class="n">select</span><span class="p">(</span><span class="n">data_receiver</span><span class="p">,</span> <span class="n">timer</span><span class="p">):</span>
 </span><span id="frequenz.channels.timer--__span-0-14"><a id="frequenz.channels.timer--__codelineno-0-14" name="frequenz.channels.timer--__codelineno-0-14" href="#frequenz.channels.timer--__codelineno-0-14"></a>        <span class="k">if</span> <span class="n">selected_from</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="n">data_receiver</span><span class="p">):</span>
@@ -1854,7 +1854,7 @@ trigger again after the selected interval, no matter what the current drift was.
 if the loop was busy for a few seconds, the timer will trigger immediately and then
 wait for another second before triggering again. The missed ticks are skipped.</p>
 </details>        <h2 id="frequenz.channels.timer--missed-ticks-and-drifting">Missed Ticks And Drifting<a class="headerlink" href="#frequenz.channels.timer--missed-ticks-and-drifting" title="Permanent link">¤</a></h2>
-<p>A <a class="autorefs autorefs-internal" title="frequenz.channels.timer.Timer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> can be used to send messages at regular
+<p>A <a class="autorefs autorefs-internal" title="frequenz.channels.timer.MonotonicTimer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MonotonicTimer"><code>MonotonicTimer</code></a> can be used to send messages at regular
 time intervals, but there is one fundamental issue with timers in the <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio">asyncio</a> world:
 the event loop could give control to another task at any time, and that task can take
 a long time to finish, making the time it takes the next timer message to be received
@@ -1914,7 +1914,7 @@ a <em>missing tick policy</em>.</p>
         <p>A policy that drops all the missed ticks, triggers immediately and resets.</p>
 <p>The <a class="autorefs autorefs-internal" title="frequenz.channels.timer.SkipMissedAndDrift" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.SkipMissedAndDrift"><code>SkipMissedAndDrift</code></a> policy will
 behave effectively as if the timer was
-<a class="autorefs autorefs-internal" title="reset" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.reset"><code>reset()</code></a> every time it is triggered. This
+<a class="autorefs autorefs-internal" title="reset" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MonotonicTimer.reset"><code>reset()</code></a> every time it is triggered. This
 means the start time will change and the drift will be accumulated each time a tick
 is delayed. Only the relative drift will be returned on each tick.</p>
 <p>The reset happens only if the delay is larger than the
@@ -2008,14 +2008,14 @@ is possible to ignore small delays and not drift in those cases.</p>
         <p>A policy that drops all the missed ticks, triggers immediately and resyncs.</p>
 <p>If ticks are missed, the
 <a class="autorefs autorefs-internal" title="frequenz.channels.timer.SkipMissedAndResync" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.SkipMissedAndResync"><code>SkipMissedAndResync</code></a> policy will
-make the <a class="autorefs autorefs-internal" title="frequenz.channels.timer.Timer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a> trigger immediately and it will
-schedule to trigger again on the next multiple of the
+make the <a class="autorefs autorefs-internal" title="frequenz.channels.timer.MonotonicTimer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MonotonicTimer"><code>MonotonicTimer</code></a> trigger
+immediately and it will schedule to trigger again on the next multiple of the
 <a class="autorefs autorefs-internal" title="interval
 
 
   
       property
-  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.interval"><code>interval</code></a>, effectively skipping any
+  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MonotonicTimer.interval"><code>interval</code></a>, effectively skipping any
 missed ticks, but re-syncing with the original start time.</p>
 
 
@@ -2165,7 +2165,7 @@ time.</p>
 
     </div>
 
-</div><h2 id="timer">Timer<a class="headerlink" href="#timer" title="Permanent link">¤</a></h2>
+</div><h2 id="monotonictimer">MonotonicTimer<a class="headerlink" href="#monotonictimer" title="Permanent link">¤</a></h2>
 
 
 <div class="doc doc-object doc-class">
@@ -2177,17 +2177,17 @@ time.</p>
 
 
 
-        <p>A receiver that sends a message regularly.</p>
-<p><a class="autorefs autorefs-internal" title="frequenz.channels.timer.Timer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer"><code>Timer</code></a>s are started by default after they are
-created. This can be disabled by using <code>auto_start=False</code> option when creating
+        <p>A receiver that sends a message regularly, using a monotonic clock.</p>
+<p><a class="autorefs autorefs-internal" title="frequenz.channels.timer.MonotonicTimer" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MonotonicTimer"><code>MonotonicTimer</code></a>s are started by default
+after they are created. This can be disabled by using <code>auto_start=False</code> option when creating
 them. In this case, the timer will not be started until
-<a class="autorefs autorefs-internal" title="reset" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.reset"><code>reset()</code></a> is called. Receiving from the timer
+<a class="autorefs autorefs-internal" title="reset" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MonotonicTimer.reset"><code>reset()</code></a> is called. Receiving from the timer
 (either using <a class="autorefs autorefs-internal" title="receive
 
 
   
       async
-  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.receive"><code>receive()</code></a> or using the
+  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MonotonicTimer.receive"><code>receive()</code></a> or using the
 async iterator interface) will also start the timer at that point.</p>
 <p>Timers need to be created in a context where
 an <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/asyncio.html#module-asyncio"><code>asyncio</code></a> loop is already running. If no
@@ -2196,14 +2196,14 @@ an <a class="autorefs autorefs-external" href="https://docs.python.org/3/library
 
   
       property
-  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.loop"><code>loop</code></a> is specified, the current running loop
+  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MonotonicTimer.loop"><code>loop</code></a> is specified, the current running loop
 is used.</p>
-<p>Timers can be stopped by calling <a class="autorefs autorefs-internal" title="stop" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.stop"><code>stop()</code></a>.
+<p>Timers can be stopped by calling <a class="autorefs autorefs-internal" title="stop" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MonotonicTimer.stop"><code>stop()</code></a>.
 A stopped timer will raise
 a <a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverStoppedError" href="../../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a> or stop the async
 iteration as usual.</p>
 <p>Once a timer is explicitly stopped, it can only be started again by explicitly
-calling <a class="autorefs autorefs-internal" title="reset" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.reset"><code>reset()</code></a> (trying to receive from it
+calling <a class="autorefs autorefs-internal" title="reset" href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MonotonicTimer.reset"><code>reset()</code></a> (trying to receive from it
 or using the async iterator interface will keep failing).</p>
 <p>Timer messages are <a class="autorefs autorefs-external" href="https://docs.python.org/3/library/datetime.html#datetime.timedelta"><code>timedelta</code></a>s containing the drift of the
 timer, i.e. the difference between when the timer should have triggered and the time
@@ -2224,7 +2224,7 @@ microseconds, so the timer resolution is 1 microsecond
 
   
       property
-  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.interval"><code>interval</code></a> must be at least
+  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MonotonicTimer.interval"><code>interval</code></a> must be at least
  1 microsecond).</p>
 <p>This is to avoid floating point errors when performing calculations with time,
 which can lead to issues that are very hard to reproduce and debug.</p>
@@ -2234,7 +2234,7 @@ which can lead to issues that are very hard to reproduce and debug.</p>
 
   
       property
-  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.Timer.missed_tick_policy"><code>missed_tick_policy</code></a>. Missing
+  " href="../../../reference/frequenz/channels/timer/#frequenz.channels.timer.MonotonicTimer.missed_tick_policy"><code>missed_tick_policy</code></a>. Missing
 ticks might or might not trigger a message and the drift could be accumulated or not
 depending on the chosen policy.</p>
 
@@ -2301,7 +2301,7 @@ tick is missed:</p>
 </span><span id="frequenz.channels.timer.MissedTickPolicy--__span-0-6"><a id="frequenz.channels.timer.MissedTickPolicy--__codelineno-0-6" name="frequenz.channels.timer.MissedTickPolicy--__codelineno-0-6" href="#frequenz.channels.timer.MissedTickPolicy--__codelineno-0-6"></a>
 </span><span id="frequenz.channels.timer.MissedTickPolicy--__span-0-7"><a id="frequenz.channels.timer.MissedTickPolicy--__codelineno-0-7" name="frequenz.channels.timer.MissedTickPolicy--__codelineno-0-7" href="#frequenz.channels.timer.MissedTickPolicy--__codelineno-0-7"></a>
 </span><span id="frequenz.channels.timer.MissedTickPolicy--__span-0-8"><a id="frequenz.channels.timer.MissedTickPolicy--__codelineno-0-8" name="frequenz.channels.timer.MissedTickPolicy--__codelineno-0-8" href="#frequenz.channels.timer.MissedTickPolicy--__codelineno-0-8"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="frequenz.channels.timer.MissedTickPolicy--__span-0-9"><a id="frequenz.channels.timer.MissedTickPolicy--__codelineno-0-9" name="frequenz.channels.timer.MissedTickPolicy--__codelineno-0-9" href="#frequenz.channels.timer.MissedTickPolicy--__codelineno-0-9"></a>    <span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span>
+</span><span id="frequenz.channels.timer.MissedTickPolicy--__span-0-9"><a id="frequenz.channels.timer.MissedTickPolicy--__codelineno-0-9" name="frequenz.channels.timer.MissedTickPolicy--__codelineno-0-9" href="#frequenz.channels.timer.MissedTickPolicy--__codelineno-0-9"></a>    <span class="n">timer</span> <span class="o">=</span> <span class="n">MonotonicTimer</span><span class="p">(</span>
 </span><span id="frequenz.channels.timer.MissedTickPolicy--__span-0-10"><a id="frequenz.channels.timer.MissedTickPolicy--__codelineno-0-10" name="frequenz.channels.timer.MissedTickPolicy--__codelineno-0-10" href="#frequenz.channels.timer.MissedTickPolicy--__codelineno-0-10"></a>        <span class="n">interval</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
 </span><span id="frequenz.channels.timer.MissedTickPolicy--__span-0-11"><a id="frequenz.channels.timer.MissedTickPolicy--__codelineno-0-11" name="frequenz.channels.timer.MissedTickPolicy--__codelineno-0-11" href="#frequenz.channels.timer.MissedTickPolicy--__codelineno-0-11"></a>        <span class="n">missed_tick_policy</span><span class="o">=</span><span class="n">WaitOneMoreSecond</span><span class="p">(),</span>
 </span><span id="frequenz.channels.timer.MissedTickPolicy--__span-0-12"><a id="frequenz.channels.timer.MissedTickPolicy--__codelineno-0-12" name="frequenz.channels.timer.MissedTickPolicy--__codelineno-0-12" href="#frequenz.channels.timer.MissedTickPolicy--__codelineno-0-12"></a>    <span class="p">)</span>
