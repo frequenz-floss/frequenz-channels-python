@@ -163,7 +163,7 @@ class _Broadcast(  # pylint: disable=too-many-instance-attributes
         `auto_close` argument.
         """
 
-        self._default_limit: int = 50
+        self._default_buffer_size: int = 50
         """The default buffer size of receivers created with `BroadcastSender.subscribe()`."""
 
         self._default_warn_on_overflow: bool = True
@@ -249,7 +249,7 @@ class _Broadcast(  # pylint: disable=too-many-instance-attributes
             A new receiver attached to this channel.
         """
         recv: BroadcastReceiver[ChannelMessageT] = BroadcastReceiver(
-            self, name=name, limit=limit, warn_on_overflow=warn_on_overflow
+            self, name=name, buffer_size=limit, warn_on_overflow=warn_on_overflow
         )
         self._receivers[hash(recv)] = weakref.ref(recv)
         if self.resend_latest and self._latest is not None:
@@ -467,7 +467,9 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
         return self._channel.new_receiver(
             name=name,
             limit=(
-                self._channel._default_limit if resolved_size is None else resolved_size
+                self._channel._default_buffer_size
+                if resolved_size is None
+                else resolved_size
             ),
             warn_on_overflow=(
                 self._channel._default_warn_on_overflow
@@ -501,7 +503,7 @@ class BroadcastReceiver(Receiver[_T]):
         /,
         *,
         name: str | None,
-        limit: int,
+        buffer_size: int,
         warn_on_overflow: bool,
     ) -> None:
         """Initialize this receiver.
@@ -516,7 +518,7 @@ class BroadcastReceiver(Receiver[_T]):
                 `id(self)`-based name will be used.  This is only for debugging
                 purposes, it will be shown in the string representation of the
                 receiver.
-            limit: Number of messages the receiver can hold in its buffer.
+            buffer_size: Number of messages the receiver can hold in its buffer.
             warn_on_overflow: Whether to log a warning when the receiver's
                 buffer is full and a message is dropped.
         """
@@ -531,7 +533,7 @@ class BroadcastReceiver(Receiver[_T]):
         self._channel: _Broadcast[_T] = channel
         """The broadcast channel that this receiver belongs to."""
 
-        self._q: deque[_T] = deque(maxlen=limit)
+        self._q: deque[_T] = deque(maxlen=buffer_size)
         """The receiver's internal message queue."""
 
         self._closed: bool = False
@@ -662,10 +664,10 @@ class BroadcastReceiver(Receiver[_T]):
 
     def __repr__(self) -> str:
         """Return a string representation of this receiver."""
-        limit = self._q.maxlen
-        assert limit is not None
+        buffer_size = self._q.maxlen
+        assert buffer_size is not None
         return (
-            f"{type(self).__name__}(name={self._name!r}, limit={limit!r}, "
+            f"{type(self).__name__}(name={self._name!r}, buffer_size={buffer_size!r}, "
             f"{self._channel!r}):<id={id(self)!r}, used={len(self._q)!r}>"
         )
 
@@ -989,7 +991,7 @@ class BroadcastChannel(
             name=name, resend_latest=resend_latest, auto_close=True
         )
         # pylint: disable=protected-access
-        channel._default_limit = (
+        channel._default_buffer_size = (
             _DEFAULT_BUFFER_SIZE if resolved_size is None else resolved_size
         )
         channel._default_warn_on_overflow = warn_on_overflow

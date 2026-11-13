@@ -84,6 +84,14 @@ async def test_subscribe_none_uses_the_channel_options() -> None:
     assert not receiver._warn_on_overflow  # pylint: disable=protected-access
 
 
+async def test_receiver_repr_shows_buffer_size() -> None:
+    """Ensure the receiver's `repr()` shows its buffer size as `buffer_size`."""
+    _sender, receiver = BroadcastChannel[int](name="test", buffer_size=2)
+
+    assert "buffer_size=2" in repr(receiver)
+    assert "limit" not in repr(receiver)
+
+
 @pytest.mark.parametrize("buffer_size", [0, -1])
 async def test_buffer_size_must_be_positive(buffer_size: int) -> None:
     """Ensure the error of a buffer smaller than 1 names `buffer_size`."""
