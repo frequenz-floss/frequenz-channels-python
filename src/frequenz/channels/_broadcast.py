@@ -11,7 +11,7 @@ from asyncio import AbstractEventLoop, Event, get_running_loop
 from collections import deque
 from typing import Generic, TypeVar
 
-from typing_extensions import deprecated, override
+from typing_extensions import override
 
 from ._exceptions import ChannelClosedError
 from ._generic import ChannelMessageT
@@ -183,14 +183,6 @@ class _Broadcast(  # pylint: disable=too-many-instance-attributes
         if loop is not None and loop.is_closed():
             return
         wakeup.set()
-
-    @deprecated("The close() method is deprecated, use aclose() instead")
-    async def close(self) -> None:
-        """Close the channel.
-
-        Deprecated alias for [`.aclose()`][frequenz.channels.Broadcast.aclose].
-        """
-        return await self.aclose()
 
     def new_sender(self) -> BroadcastSender[ChannelMessageT]:
         """Return a new sender attached to this channel."""

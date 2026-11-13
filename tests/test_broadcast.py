@@ -113,6 +113,14 @@ async def test_broadcast_after_close() -> None:
     assert excinfo.value.__cause__.channel is bcast
 
 
+def test_broadcast_has_no_async_close() -> None:
+    """Ensure the removed `close()` method is gone, `aclose()` is the only way."""
+    bcast: Broadcast[int] = Broadcast(name="meter_5")
+
+    assert not hasattr(bcast, "close")
+    assert hasattr(bcast, "aclose")
+
+
 async def test_broadcast_overflow() -> None:
     """Ensure messages sent to full broadcast receivers get dropped."""
     from frequenz.channels._broadcast import (  # pylint: disable=import-outside-toplevel
