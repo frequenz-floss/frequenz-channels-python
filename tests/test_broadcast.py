@@ -20,6 +20,31 @@ from frequenz.channels import (
     SenderError,
 )
 
+# These tests use the deprecated Broadcast on purpose.
+pytestmark = pytest.mark.filterwarnings("once::DeprecationWarning")
+
+
+def test_broadcast_is_deprecated() -> None:
+    """Ensure `Broadcast` warns it is deprecated, and what to use instead."""
+    with pytest.deprecated_call(
+        match=r"^frequenz\.channels\.Broadcast is deprecated\. "
+        r"Use frequenz\.channels\.BroadcastChannel instead\.$"
+    ):
+        _ = Broadcast[int](name="deprecation-test")
+
+
+async def test_close_is_deprecated() -> None:
+    """Ensure `close()` warns it is deprecated, and still closes the channel."""
+    bcast = Broadcast[int](name="close-test")
+    with pytest.deprecated_call(
+        match=r"^The method close\(\) in frequenz\.channels\.Broadcast is deprecated "
+        r"and will be removed in v2\.0\.0\. Use aclose\(\) instead\.$"
+    ):
+        await bcast.close()
+
+    with pytest.raises(SenderError):
+        await bcast.new_sender().send(1)
+
 
 async def test_broadcast() -> None:
     """Ensure sent messages are received by all receivers."""

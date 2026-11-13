@@ -11,6 +11,9 @@ import pytest
 from frequenz.channels import Broadcast
 from frequenz.channels.experimental import GroupingLatestValueCache
 
+# These tests use the deprecated Broadcast on purpose.
+pytestmark = pytest.mark.filterwarnings("once::DeprecationWarning")
+
 
 @pytest.mark.integration
 async def test_latest_value_cache_key() -> None:  # pylint: disable=too-many-statements

@@ -74,11 +74,18 @@ def _resolve_buffer_size(
     return size
 
 
-@deprecated("Please use BroadcastChannel instead.")
+@deprecated(
+    "frequenz.channels.Broadcast is deprecated. "
+    "Use frequenz.channels.BroadcastChannel instead."
+)
 class Broadcast(  # pylint: disable=too-many-instance-attributes
     Generic[ChannelMessageT]
 ):
     """A channel that delivers all messages to all receivers.
+
+    Deprecated:
+        Deprecated since v1.12.0. Use
+        [`BroadcastChannel`][frequenz.channels.BroadcastChannel] instead.
 
     # Description
 
@@ -336,11 +343,16 @@ class Broadcast(  # pylint: disable=too-many-instance-attributes
         async with self._recv_cv:
             self._recv_cv.notify_all()
 
-    @deprecated("The close() method is deprecated, use aclose() instead")
+    @deprecated(
+        "The method close() in frequenz.channels.Broadcast is deprecated and will be "
+        "removed in v2.0.0. Use aclose() instead."
+    )
     async def close(self) -> None:
         """Close the channel.
 
-        Deprecated alias for [`.aclose()`][frequenz.channels.Broadcast.aclose].
+        Deprecated:
+            Deprecated since v1.8.0, and will be removed in v2.0.0. Use
+            [`aclose()`][frequenz.channels.Broadcast.aclose] instead.
         """
         return await self.aclose()
 
@@ -516,7 +528,8 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
 
         Deprecated:
             The `limit` argument is deprecated since v1.13.0. Use `buffer_size`
-            instead.
+            instead. Passing `warn_on_overflow` by position is deprecated too, as
+            it requires passing `limit`: pass it by keyword.
 
         Args:
             name: A name to identify the receiver in the logs.
@@ -924,7 +937,8 @@ class BroadcastChannel(
 
         Deprecated:
             The `limit` argument is deprecated since v1.13.0. Use `buffer_size`
-            instead.
+            instead. Passing `warn_on_overflow` by position is deprecated too, as
+            it requires passing `limit`: pass it by keyword.
 
         Args:
             name: The name of the channel. This is for logging purposes, and it will be

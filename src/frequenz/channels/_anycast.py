@@ -295,11 +295,16 @@ class Anycast(Generic[ChannelMessageT]):
         async with self._recv_cv:
             self._recv_cv.notify_all()
 
-    @deprecated("The close() method is deprecated, use aclose() instead")
+    @deprecated(
+        "The method close() in frequenz.channels.Anycast is deprecated and will be "
+        "removed in v2.0.0. Use aclose() instead."
+    )
     async def close(self) -> None:
         """Close the channel.
 
-        Deprecated alias for [`.aclose()`][frequenz.channels.Anycast.aclose].
+        Deprecated:
+            Deprecated since v1.8.0, and will be removed in v2.0.0. Use
+            [`aclose()`][frequenz.channels.Anycast.aclose] instead.
         """
         return await self.aclose()
 

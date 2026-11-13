@@ -31,6 +31,19 @@ def test_deprecation_warning() -> None:
         _ = Anycast[int](name="test")
 
 
+async def test_close_is_deprecated() -> None:
+    """Test that `close()` warns it is deprecated, and still closes the channel."""
+    acast = Anycast[int](name="close-test")
+    with pytest.deprecated_call(
+        match=r"^The method close\(\) in frequenz\.channels\.Anycast is deprecated "
+        r"and will be removed in v2\.0\.0\. Use aclose\(\) instead\.$"
+    ):
+        await acast.close()
+
+    with pytest.raises(SenderError):
+        await acast.new_sender().send(1)
+
+
 async def test_anycast() -> None:
     """Ensure sent messages are received by one receiver."""
     acast: Anycast[int] = Anycast(name="test")
