@@ -57,6 +57,9 @@ Utilities to work with channels:
 * [`NopReceiver`][frequenz.channels.NopReceiver]: A place-holder receiver that
   never receives a message.
 
+* [`Pipe`][frequenz.channels.Pipe]: Forwards all the messages from a receiver to
+  a sender.
+
 * [`WithPrevious`][frequenz.channels.WithPrevious]: A composable predicate to
   filter messages based on the previous message received.
 
@@ -125,6 +128,7 @@ from ._latest_value_cache import LatestValueCache
 from ._merge import Merger, merge
 from ._nop_receiver import NopReceiver
 from ._oneshot import OneshotChannel, OneshotReceiver, OneshotSender
+from ._pipe import Pipe
 from ._receiver import Receiver, ReceiverError, ReceiverStoppedError
 from ._select import (
     Selected,
@@ -180,6 +184,7 @@ __all__ = [
     "OneshotChannel",
     "OneshotReceiver",
     "OneshotSender",
+    "Pipe",
     "Receiver",
     "ReceiverError",
     "ReceiverMessageT_co",
