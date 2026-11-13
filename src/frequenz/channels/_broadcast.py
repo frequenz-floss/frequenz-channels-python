@@ -528,7 +528,8 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
 
         Deprecated:
             The `limit` argument is deprecated since v1.13.0. Use `buffer_size`
-            instead.
+            instead. Passing `warn_on_overflow` by position is deprecated too, as
+            it requires passing `limit`: pass it by keyword.
 
         Args:
             name: A name to identify the receiver in the logs.
@@ -936,7 +937,8 @@ class BroadcastChannel(
 
         Deprecated:
             The `limit` argument is deprecated since v1.13.0. Use `buffer_size`
-            instead.
+            instead. Passing `warn_on_overflow` by position is deprecated too, as
+            it requires passing `limit`: pass it by keyword.
 
         Args:
             name: The name of the channel. This is for logging purposes, and it will be
