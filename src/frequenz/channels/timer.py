@@ -821,7 +821,7 @@ if TYPE_CHECKING:
     """A receiver that sends a message regularly.
 
     Deprecated:
-        Deprecated since v1.13.0. Use
+        Deprecated since v1.13.0, and will be removed in v2.0.0. Use
         [`MonotonicTimer`][frequenz.channels.timer.MonotonicTimer] instead.
 
         The name `Timer` will be used for a wall clock timer in a later version.
@@ -834,8 +834,9 @@ else:
             new_name="MonotonicTimer",
             since="v1.13.0",
             message=(
-                "{old} is deprecated. Use {new} instead. The name Timer will be "
-                "used for a wall clock timer in a later version."
+                "{old} is deprecated and will be removed in v2.0.0. Use {new} "
+                "instead. The name Timer will be used for a wall clock timer in a "
+                "later version."
             ),
         ),
     )

@@ -16,8 +16,8 @@ _PROMOTED = ["NopReceiver", "WithPrevious"]
 def test_old_name_warns(name: str) -> None:
     """Ensure the old `experimental` name warns and is the very same object."""
     with pytest.deprecated_call(
-        match=rf"^frequenz\.channels\.experimental\.{name} is deprecated\. "
-        rf"Use frequenz\.channels\.{name} instead\.$"
+        match=rf"^frequenz\.channels\.experimental\.{name} is deprecated and will "
+        rf"be removed in v2\.0\.0\. Use frequenz\.channels\.{name} instead\.$"
     ):
         old = getattr(experimental, name)
     assert old is getattr(frequenz.channels, name)

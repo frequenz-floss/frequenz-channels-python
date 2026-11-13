@@ -48,7 +48,7 @@ if TYPE_CHECKING:
     """A place-holder receiver that will never receive a message.
 
     Deprecated:
-        Deprecated since v1.13.0. Use
+        Deprecated since v1.13.0, and will be removed in v2.0.0. Use
         [`frequenz.channels.NopReceiver`][frequenz.channels.NopReceiver] instead.
     """
 
@@ -56,7 +56,7 @@ if TYPE_CHECKING:
     """A composable predicate to build predicates that can also use the previous message.
 
     Deprecated:
-        Deprecated since v1.13.0. Use
+        Deprecated since v1.13.0, and will be removed in v2.0.0. Use
         [`frequenz.channels.WithPrevious`][frequenz.channels.WithPrevious] instead.
     """
 
@@ -69,6 +69,7 @@ if TYPE_CHECKING:
     Deprecated:
         Deprecated since v1.13.0, and will be removed in v2.0.0 together with
         [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache].
+        See it for what to use instead.
     """
 
     HashableT = TypeVar("HashableT", bound=Hashable)
@@ -78,6 +79,7 @@ if TYPE_CHECKING:
     Deprecated:
         Deprecated since v1.13.0, and will be removed in v2.0.0 together with
         [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache].
+        See it for what to use instead.
     """
 
     ValueT_co = TypeVar("ValueT_co", covariant=True)
@@ -87,6 +89,7 @@ if TYPE_CHECKING:
     Deprecated:
         Deprecated since v1.13.0, and will be removed in v2.0.0 together with
         [`GroupingLatestValueCache`][frequenz.channels.experimental.GroupingLatestValueCache].
+        See it for what to use instead.
     """
 else:
     __getattr__ = deprecated_aliases(
@@ -95,11 +98,15 @@ else:
             "NopReceiver",
             new_module="frequenz.channels",
             since="v1.13.0",
+            message="{old} is deprecated and will be removed in v2.0.0. "
+            "Use {new} instead.",
         ),
         DeprecatedAlias(
             "WithPrevious",
             new_module="frequenz.channels",
             since="v1.13.0",
+            message="{old} is deprecated and will be removed in v2.0.0. "
+            "Use {new} instead.",
         ),
         DeprecatedAlias(
             "DefaultT",
