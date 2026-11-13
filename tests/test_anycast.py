@@ -21,15 +21,12 @@ pytestmark = pytest.mark.filterwarnings("once::DeprecationWarning")
 
 
 def test_deprecation_warning() -> None:
-    """Test that Anycast warns it is deprecated, pointing at its replacement."""
+    """Test that Anycast warns it is deprecated."""
     with pytest.deprecated_call(
-        match=r"^frequenz\.channels\.Anycast is deprecated and will be removed in "
-        r"v2\.0\.0\. If you only use it with a single receiver, to make senders wait "
-        r"when the channel is full, use frequenz\.channels\.BroadcastChannel with "
-        r"block_on_full=True instead\. Otherwise, copy its code into your project if "
-        r"you need it, or open an issue at "
-        r"https://github\.com/frequenz-floss/frequenz-channels-python/issues if you "
-        r"think it should stay in frequenz-channels\.$"
+        match=r"^frequenz\.channels\.Anycast is deprecated and will be removed in a "
+        r"future version\. Copy its code into your project if you need it, or open an "
+        r"issue at https://github\.com/frequenz-floss/frequenz-channels-python/issues "
+        r"if you think it should stay in frequenz-channels\.$"
     ):
         _ = Anycast[int](name="test")
 
