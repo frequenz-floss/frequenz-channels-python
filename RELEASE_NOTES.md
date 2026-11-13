@@ -34,6 +34,8 @@
 
 - `Broadcast` is now a deprecated alias of the class behind `BroadcastChannel`.  The `DeprecationWarning` is now emitted when `Broadcast` is imported or accessed from `frequenz.channels`, including by `from frequenz.channels import *`, instead of each time a channel is created, and type checkers no longer report it as deprecated.  Please use `BroadcastChannel` instead.
 
+- `Receiver.close()` is now an abstract method, so a custom `Receiver` subclass that doesn't implement it can't be instantiated anymore.  Before, calling it raised a `NotImplementedError`.  All the receivers in this library implement it already.  Add a `close()` method to your own receivers; the same implementation works on v1, so your code can support both major versions.
+
 ## New Features
 
 <!-- Here goes the main new features and examples or instructions on how to use them -->
