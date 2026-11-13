@@ -28,7 +28,7 @@ Channels:
   messages from multiple senders to multiple receivers. Each message sent through any
   of the senders is received by all of the receivers.  The channel closes itself when
   all its senders are closed.  A `send()` while it has no receivers raises a
-  [`NoReceiversError`][frequenz.channels.NoReceiversError].
+  [`SenderHasNoReceiversError`][frequenz.channels.SenderHasNoReceiversError].
 
 * [`OneshotChannel`][frequenz.channels.OneshotChannel]: A channel that can send a
   single message from one sender to one receiver.
@@ -57,6 +57,9 @@ Utilities to work with channels:
 * [`NopReceiver`][frequenz.channels.NopReceiver]: A place-holder receiver that
   never receives a message.
 
+* [`Pipe`][frequenz.channels.Pipe]: Forwards all the messages from a receiver to
+  a sender.
+
 * [`WithPrevious`][frequenz.channels.WithPrevious]: A composable predicate to
   filter messages based on the previous message received.
 
@@ -74,9 +77,12 @@ Exception classes:
 * [`SenderError`][frequenz.channels.SenderError]: Base class for all errors
   related to senders.
 
-* [`NoReceiversError`][frequenz.channels.NoReceiversError]: Error raised when sending
-  a message to a [`BroadcastChannel`][frequenz.channels.BroadcastChannel] that has no
-  receivers.
+* [`TransientSenderError`][frequenz.channels.TransientSenderError]: Base class for
+  sender errors after which the sender can still be used.
+
+* [`SenderHasNoReceiversError`][frequenz.channels.SenderHasNoReceiversError]: Error
+  raised when sending a message to a
+  [`BroadcastChannel`][frequenz.channels.BroadcastChannel] that has no receivers.
 
 * [`ReceiverError`][frequenz.channels.ReceiverError]: Base class for all errors
   related to receivers.
@@ -122,6 +128,7 @@ from ._latest_value_cache import LatestValueCache
 from ._merge import Merger, merge
 from ._nop_receiver import NopReceiver
 from ._oneshot import OneshotChannel, OneshotReceiver, OneshotSender
+from ._pipe import Pipe
 from ._receiver import Receiver, ReceiverError, ReceiverStoppedError
 from ._select import (
     Selected,
@@ -133,11 +140,12 @@ from ._select import (
 from ._sender import (
     CloneableSender,
     CloneableSubscribableSender,
-    NoReceiversError,
     Sender,
     SenderClosedError,
     SenderError,
+    SenderHasNoReceiversError,
     SubscribableSender,
+    TransientSenderError,
 )
 from ._with_previous import WithPrevious
 
@@ -171,11 +179,12 @@ __all__ = [
     "LatestValueCache",
     "MappedMessageT_co",
     "Merger",
-    "NoReceiversError",
+    "SenderHasNoReceiversError",
     "NopReceiver",
     "OneshotChannel",
     "OneshotReceiver",
     "OneshotSender",
+    "Pipe",
     "Receiver",
     "ReceiverError",
     "ReceiverMessageT_co",
@@ -188,6 +197,7 @@ __all__ = [
     "SenderMessageT_co",
     "SenderMessageT_contra",
     "SubscribableSender",
+    "TransientSenderError",
     "UnhandledSelectedError",
     "WithPrevious",
     "merge",
