@@ -23,6 +23,9 @@ from frequenz.channels.experimental import Pipe
 
 T = typing.TypeVar("T")
 
+# These tests use the deprecated Broadcast on purpose.
+pytestmark = pytest.mark.filterwarnings("once::DeprecationWarning")
+
 
 class Timeout:
     """Sentinel for timeout."""
