@@ -144,15 +144,18 @@ class TransientSenderError(SenderError[SenderMessageT_co]):
     """
 
 
-class NoReceiversError(SenderError[SenderMessageT_co]):
+class SenderHasNoReceiversError(TransientSenderError[SenderMessageT_co]):
     """An error indicating that a message was sent to a channel without receivers.
 
     It is raised by the senders of a
     [`BroadcastChannel`][frequenz.channels.BroadcastChannel], and of a `Broadcast`
     created with `auto_close=True`.  The message is dropped.  With
     `resend_latest=True`, new receivers still get it if it is the last message sent and
-    it isn't `None`.  The channel stays open, so sending works again once a new receiver
-    is attached.
+    it isn't `None`.
+
+    It is a [`TransientSenderError`][frequenz.channels.TransientSenderError]: the
+    sender and its channel stay open, so sending works again once a new receiver
+    subscribes.
     """
 
     def __init__(self, sender: Sender[SenderMessageT_co]):
