@@ -18,12 +18,13 @@ from frequenz.channels import (
     Broadcast,
     BroadcastChannel,
     ChannelClosedError,
-    NoReceiversError,
     Receiver,
     ReceiverStoppedError,
     Sender,
     SenderClosedError,
     SenderError,
+    SenderHasNoReceiversError,
+    TransientSenderError,
     select,
     selected_from,
 )
@@ -578,7 +579,8 @@ async def test_broadcast_no_receivers_after_all_receivers_closed() -> None:
         match=f"^Sender {re.escape(str(sender))} has no receivers$",
     ) as excinfo:
         await sender.send(3)
-    assert isinstance(excinfo.value, NoReceiversError)
+    assert isinstance(excinfo.value, SenderHasNoReceiversError)
+    assert isinstance(excinfo.value, TransientSenderError)
     assert excinfo.value.__cause__ is None
 
 
@@ -610,7 +612,7 @@ async def test_broadcast_subscribe_after_last_receiver_closed() -> None:
     sender, receiver = BroadcastChannel[int](name="auto-close-test")
 
     receiver.close()
-    with pytest.raises(NoReceiversError):
+    with pytest.raises(SenderHasNoReceiversError):
         await sender.send(0)
 
     receiver_2 = sender.subscribe()
@@ -625,7 +627,7 @@ async def test_broadcast_no_receivers_after_last_receiver_dropped() -> None:
     del receiver
     gc.collect()
 
-    with pytest.raises(NoReceiversError):
+    with pytest.raises(SenderHasNoReceiversError):
         await sender.send(1)
 
 
@@ -649,7 +651,7 @@ async def test_broadcast_send_without_receivers_resent() -> None:
     await sender.send(1)
     receiver.close()
 
-    with pytest.raises(NoReceiversError):
+    with pytest.raises(SenderHasNoReceiversError):
         await sender.send(2)
 
     receiver_2 = sender.subscribe()
@@ -661,7 +663,7 @@ async def test_broadcast_no_receivers_deprecated_auto_close() -> None:
     chan = Broadcast[int](name="auto-close-test", auto_close=True)
     sender = chan.new_sender()
 
-    with pytest.raises(NoReceiversError):
+    with pytest.raises(SenderHasNoReceiversError):
         await sender.send(1)
     assert not chan.is_closed
 

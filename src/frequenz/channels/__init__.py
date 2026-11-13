@@ -28,7 +28,7 @@ Channels:
   messages from multiple senders to multiple receivers. Each message sent through any
   of the senders is received by all of the receivers.  The channel closes itself when
   all its senders are closed.  A `send()` while it has no receivers raises a
-  [`NoReceiversError`][frequenz.channels.NoReceiversError].
+  [`SenderHasNoReceiversError`][frequenz.channels.SenderHasNoReceiversError].
 
 * [`OneshotChannel`][frequenz.channels.OneshotChannel]: A channel that can send a
   single message from one sender to one receiver.
@@ -74,9 +74,12 @@ Exception classes:
 * [`SenderError`][frequenz.channels.SenderError]: Base class for all errors
   related to senders.
 
-* [`NoReceiversError`][frequenz.channels.NoReceiversError]: Error raised when sending
-  a message to a [`BroadcastChannel`][frequenz.channels.BroadcastChannel] that has no
-  receivers.
+* [`TransientSenderError`][frequenz.channels.TransientSenderError]: Base class for
+  sender errors after which the sender can still be used.
+
+* [`SenderHasNoReceiversError`][frequenz.channels.SenderHasNoReceiversError]: Error
+  raised when sending a message to a
+  [`BroadcastChannel`][frequenz.channels.BroadcastChannel] that has no receivers.
 
 * [`ReceiverError`][frequenz.channels.ReceiverError]: Base class for all errors
   related to receivers.
@@ -133,11 +136,12 @@ from ._select import (
 from ._sender import (
     CloneableSender,
     CloneableSubscribableSender,
-    NoReceiversError,
     Sender,
     SenderClosedError,
     SenderError,
+    SenderHasNoReceiversError,
     SubscribableSender,
+    TransientSenderError,
 )
 from ._with_previous import WithPrevious
 
@@ -171,7 +175,7 @@ __all__ = [
     "LatestValueCache",
     "MappedMessageT_co",
     "Merger",
-    "NoReceiversError",
+    "SenderHasNoReceiversError",
     "NopReceiver",
     "OneshotChannel",
     "OneshotReceiver",
@@ -188,6 +192,7 @@ __all__ = [
     "SenderMessageT_co",
     "SenderMessageT_contra",
     "SubscribableSender",
+    "TransientSenderError",
     "UnhandledSelectedError",
     "WithPrevious",
     "merge",

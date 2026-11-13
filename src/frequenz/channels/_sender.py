@@ -47,6 +47,10 @@ try:
 except SenderError as error:
     print(f"Error sending message: {error}")
 ```
+
+Most errors mean that the sender, or its channel, can't be used anymore.  A
+[`TransientSenderError`][frequenz.channels.TransientSenderError] means that only
+this message wasn't sent, and sending again later can work.
 """
 
 from __future__ import annotations
@@ -114,15 +118,44 @@ class SenderClosedError(SenderError[SenderMessageT_co]):
         super().__init__("Sender is closed", sender)
 
 
-class NoReceiversError(SenderError[SenderMessageT_co]):
+class TransientSenderError(SenderError[SenderMessageT_co]):
+    """An error indicating that a message wasn't sent, but sending can still work.
+
+    The sender and its channel can still be used, so sending again later can
+    succeed.  Any other [`SenderError`][frequenz.channels.SenderError] means the
+    sender or its channel can't be used anymore, so catch this error first to tell
+    them apart:
+
+    Example:
+        ```python
+        from frequenz.channels import Sender, SenderError, TransientSenderError
+
+
+        async def try_send(sender: Sender[int], message: int) -> bool:
+            try:
+                await sender.send(message)
+            except TransientSenderError:
+                return False  # Not sent this time, but the sender still works.
+            except SenderError:
+                await sender.aclose()  # The sender can't be used anymore.
+                raise
+            return True
+        ```
+    """
+
+
+class SenderHasNoReceiversError(TransientSenderError[SenderMessageT_co]):
     """An error indicating that a message was sent to a channel without receivers.
 
     It is raised by the senders of a
     [`BroadcastChannel`][frequenz.channels.BroadcastChannel], and of a `Broadcast`
     created with `auto_close=True`.  The message is dropped.  With
     `resend_latest=True`, new receivers still get it if it is the last message sent and
-    it isn't `None`.  The channel stays open, so sending works again once a new receiver
-    is attached.
+    it isn't `None`.
+
+    It is a [`TransientSenderError`][frequenz.channels.TransientSenderError]: the
+    sender and its channel stay open, so sending works again once a new receiver
+    subscribes.
     """
 
     def __init__(self, sender: Sender[SenderMessageT_co]):

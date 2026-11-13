@@ -12,17 +12,17 @@
 
 - The `repr()` of a `BroadcastReceiver` shows its `buffer_size` instead of `limit`.
 
-- A `BroadcastChannel`, or a `Broadcast` created with `auto_close=True`, no longer closes when a message is sent while it has no receivers.  `send()` now drops the message and raises a `NoReceiversError`, a `SenderError` without a cause.  The channel stays open: `subscribe()` keeps working, and sending works again once a new receiver is attached.
+- A `BroadcastChannel`, or a `Broadcast` created with `auto_close=True`, no longer closes when a message is sent while it has no receivers.  `send()` now drops the message and raises a `SenderHasNoReceiversError`, a `SenderError` without a cause.  The channel stays open: `subscribe()` keeps working, and sending works again once a new receiver is attached.
 
-- Code that waited for such a channel to close after a send without receivers, for example by checking for a `ChannelClosedError` cause or for `is_closed`, should catch `NoReceiversError` instead.  It can then stop sending, or close all of the channel's senders to close the channel.
+- Code that waited for such a channel to close after a send without receivers, for example by checking for a `ChannelClosedError` cause or for `is_closed`, should catch `SenderHasNoReceiversError` instead.  It can then stop sending, or close all of the channel's senders to close the channel.
 
 - An experimental `Pipe` now closes its sender when its receiver stops.  Before, it left the sender open.
 
-- When sending fails with a `SenderError`, for example because the sender's `BroadcastChannel` has no receivers, a `Pipe` now closes both its sender and its receiver, and logs the error: a `NoReceiversError` as a warning, and any other error with its traceback.  Before, the pipe stopped but left both open.
+- When sending fails with a `SenderError`, for example because the sender's `BroadcastChannel` has no receivers, a `Pipe` now closes both its sender and its receiver, and logs the error: a `SenderHasNoReceiversError` as a warning, and any other error with its traceback.  Before, the pipe stopped but left both open.
 
 - `Pipe.stop()` still leaves a pipe's sender and receiver open.  So does any exception while receiving, other than the receiver stopping, and any exception from sending that isn't a `SenderError`.
 
-- To keep a `Pipe` running after a `SenderError`, pass `close_pipe_on_send_error=False`.  It then drops the message, keeps sending the messages that follow, and logs a `NoReceiversError` at debug level.
+- To keep a `Pipe` running after a `SenderError`, pass `close_pipe_on_send_error=False`.  It then drops the message, keeps sending the messages that follow, and logs a `SenderHasNoReceiversError` at debug level.
 
 - Give a `Pipe` a clone of its sender if you still need to send after the pipe stops on its own.
 
@@ -38,7 +38,9 @@
 
 <!-- Here goes the main new features and examples or instructions on how to use them -->
 
-- `NoReceiversError` is a new `SenderError`.  An open sender of a `BroadcastChannel`, or of a `Broadcast` created with `auto_close=True`, raises it from `send()` while the channel is open but has no receivers.  The message is dropped, but with `resend_latest=True`, new receivers still get it if it is the last message sent and it isn't `None`.
+- `TransientSenderError` is a new `SenderError` for errors after which the sender and its channel can still be used: only the message that failed wasn't sent.  Catch it before `SenderError` to tell it apart from the errors that make a sender unusable.
+
+- `SenderHasNoReceiversError` is a new `TransientSenderError`.  An open sender of a `BroadcastChannel`, or of a `Broadcast` created with `auto_close=True`, raises it from `send()` while the channel is open but has no receivers.  The message is dropped, but with `resend_latest=True`, new receivers still get it if it is the last message sent and it isn't `None`.  The channel stays open, so sending works again once a receiver subscribes.
 
 - `BroadcastSender.has_receivers` and `BroadcastReceiver.has_senders` tell whether the other side of a broadcast channel is still there, so producers can stop producing messages that nobody would receive.  A sender that was garbage-collected without being closed still counts.
 
