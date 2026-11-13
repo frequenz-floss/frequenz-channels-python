@@ -16,7 +16,7 @@ import typing
 
 from .._generic import ChannelMessageT
 from .._receiver import Receiver
-from .._sender import NoReceiversError, Sender, SenderError
+from .._sender import Sender, SenderError, SenderHasNoReceiversError
 
 _logger = logging.getLogger(__name__)
 
@@ -36,9 +36,9 @@ class Pipe(typing.Generic[ChannelMessageT]):
     message instead, and keeps sending the messages that follow.
 
     The pipe logs a failed send: a
-    [`NoReceiversError`][frequenz.channels.NoReceiversError] as a warning, or at debug
-    level with `close_pipe_on_send_error=False`, and any other error with its
-    traceback.
+    [`SenderHasNoReceiversError`][frequenz.channels.SenderHasNoReceiversError] as a
+    warning, or at debug level with `close_pipe_on_send_error=False`, and any other
+    error with its traceback.
 
     [`stop()`][frequenz.channels.experimental.Pipe.stop] leaves its sender and its
     receiver open.  So does any exception while receiving, other than the receiver
@@ -140,7 +140,7 @@ class Pipe(typing.Generic[ChannelMessageT]):
         async for value in self._receiver:
             try:
                 await self._sender.send(value)
-            except NoReceiversError as error:
+            except SenderHasNoReceiversError as error:
                 _logger.log(
                     no_receivers_level,
                     "Pipe from [%s] to [%s] %s: %s",

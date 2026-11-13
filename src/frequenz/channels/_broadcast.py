@@ -19,9 +19,9 @@ from ._generic import ChannelMessageT
 from ._receiver import Receiver, ReceiverStoppedError
 from ._sender import (
     CloneableSubscribableSender,
-    NoReceiversError,
     SenderClosedError,
     SenderError,
+    SenderHasNoReceiversError,
 )
 
 _logger = logging.getLogger(__name__)
@@ -122,7 +122,7 @@ class _Broadcast(  # pylint: disable=too-many-instance-attributes
             auto_close: If True, the channel is closed when its last sender is
                 closed, or when a receiver waits for messages while the channel has
                 no senders.  A `send()` while it has no receivers raises a
-                [`NoReceiversError`][frequenz.channels.NoReceiversError].
+                [`SenderHasNoReceiversError`][frequenz.channels.SenderHasNoReceiversError].
         """
         self._name: str = name
         """The name of the broadcast channel.
@@ -306,10 +306,10 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
         """Whether this sender's channel is open and has any receivers.
 
         Producers can check this to stop producing messages that nobody would
-        receive.  When this is `False` on an open
-        [`BroadcastChannel`][frequenz.channels.BroadcastChannel],
-        [`send()`][frequenz.channels.BroadcastSender.send] on an open sender raises a
-        [`NoReceiversError`][frequenz.channels.NoReceiversError] until a new receiver is
+        receive.  While this is `False`, an open sender of an open
+        [`BroadcastChannel`][frequenz.channels.BroadcastChannel] raises a
+        [`SenderHasNoReceiversError`][frequenz.channels.SenderHasNoReceiversError]
+        from [`send()`][frequenz.channels.BroadcastSender.send] until a new receiver is
         created with [`subscribe()`][frequenz.channels.BroadcastSender.subscribe].
 
         This doesn't check whether this sender itself is closed.
@@ -331,7 +331,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
                 A [`ChannelClosedError`][frequenz.channels.ChannelClosedError] is
                 set as the cause.
             SenderClosedError: If this sender was closed.
-            NoReceiversError: If this sender and its channel are open, but the
+            SenderHasNoReceiversError: If this sender and its channel are open, but the
                 channel has no receivers, and it is a
                 [`BroadcastChannel`][frequenz.channels.BroadcastChannel] or a
                 `Broadcast` created with `auto_close=True`.
@@ -349,7 +349,7 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
             del self._channel._receivers[_hash]
         self._channel._latest = message
         if self._channel._auto_close_enabled and len(self._channel._receivers) == 0:
-            raise NoReceiversError(self)
+            raise SenderHasNoReceiversError(self)
         self._channel._wake_receivers()
         # pylint: enable=protected-access
 
@@ -732,8 +732,8 @@ class BroadcastChannel(
       for` loops over them end.
 
     * While all receivers are closed or garbage-collected,
-      [`send()`][frequenz.channels.BroadcastSender.send] drops the message and
-      raises a [`NoReceiversError`][frequenz.channels.NoReceiversError].  The
+      [`send()`][frequenz.channels.BroadcastSender.send] drops the message and raises a
+      [`SenderHasNoReceiversError`][frequenz.channels.SenderHasNoReceiversError].  The
       channel stays open, so once
       [`subscribe()`][frequenz.channels.BroadcastSender.subscribe] creates a new
       receiver, sending works again.  With `resend_latest=True`, that receiver first
