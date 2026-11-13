@@ -9,6 +9,9 @@ import pytest
 
 from frequenz.channels import Broadcast, LatestValueCache
 
+# These tests use the deprecated Broadcast on purpose.
+pytestmark = pytest.mark.filterwarnings("once::DeprecationWarning")
+
 
 @pytest.mark.integration
 async def test_latest_value_cache() -> None:

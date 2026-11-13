@@ -10,6 +10,9 @@ import pytest
 from frequenz.channels import Broadcast, BroadcastChannel, Sender, merge
 from frequenz.channels._receiver import ReceiverStoppedError
 
+# These tests use the deprecated Broadcast on purpose.
+pytestmark = pytest.mark.filterwarnings("once::DeprecationWarning")
+
 
 @pytest.mark.integration
 async def test_merge() -> None:
