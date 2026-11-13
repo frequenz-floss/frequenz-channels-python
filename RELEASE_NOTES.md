@@ -22,6 +22,8 @@
 
 - `WithPrevious` and `NopReceiver` are no longer available from `frequenz.channels.experimental`.  Import them from `frequenz.channels`, where they are available since v1.13.0, so you can migrate before upgrading.
 
+- The deprecated `async close()` method of `Anycast` and `Broadcast` is removed.  Use `aclose()` instead, which exists since v1.8.0, so you can migrate before upgrading.  It also works with `contextlib.aclosing()`.
+
 - The `repr()` of a `BroadcastReceiver` shows its `buffer_size` instead of `limit`.
 
 - A `BroadcastChannel`, or a `Broadcast` created with `auto_close=True`, no longer closes when a message is sent while it has no receivers.  `send()` now drops the message and raises a `NoReceiversError`, a `SenderError` without a cause.  The channel stays open: `subscribe()` keeps working, and sending works again once a new receiver is attached.
