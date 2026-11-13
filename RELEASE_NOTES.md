@@ -8,7 +8,9 @@
 
 <!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
 
-- `BroadcastChannel()` and `BroadcastSender.subscribe()` now take everything but the name by keyword: `resend_latest`, `buffer_size` and `warn_on_overflow`.  The deprecated `limit` is keyword-only too, so a call that passed `limit` or any other option by position fails with a `TypeError`.  Pass them by keyword, as v1.13.0 recommends.
+- `BroadcastChannel()` and `BroadcastSender.subscribe()` now take everything but the name by keyword: `resend_latest`, `buffer_size` and `warn_on_overflow`.  A call that passed any of them by position fails with a `TypeError`.  Pass them by keyword, as v1.13.0 recommends.
+
+- The deprecated `limit` argument of `BroadcastChannel()` and `BroadcastSender.subscribe()` is removed.  Use `buffer_size` instead, which exists since v1.13.0, so you can migrate before upgrading.  `Broadcast.new_receiver()` still takes `limit`.
 
 - The `repr()` of a `BroadcastReceiver` shows its `buffer_size` instead of `limit`.
 
