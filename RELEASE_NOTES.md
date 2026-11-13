@@ -46,7 +46,7 @@
 
 - Call `BroadcastReceiver.close()` from the thread that runs the event loop of the channel's receivers.  From another thread, tasks waiting on any receiver of the channel might not wake up.  If asyncio debug mode is on and a task is waiting, `close()` also raises a `RuntimeError`, and the waiting tasks stay stuck.  Use `loop.call_soon_threadsafe(receiver.close)` instead.
 
-- `Broadcast` is now a deprecated alias of the class behind `BroadcastChannel`.  The `DeprecationWarning` is now emitted when `Broadcast` is imported or accessed from `frequenz.channels`, including by `from frequenz.channels import *`, instead of each time a channel is created, and type checkers no longer report it as deprecated.  Please use `BroadcastChannel` instead.
+- `Broadcast` is still deprecated, and it is still a class that warns when a channel is created, as in v1.  It doesn't warn when it is imported, and type checkers keep reporting it as deprecated.  `BroadcastChannel` doesn't warn.  Please use `BroadcastChannel` instead.
 
 ## New Features
 
