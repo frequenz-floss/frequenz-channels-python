@@ -7,10 +7,15 @@ import asyncio
 import typing
 from contextlib import AsyncExitStack, aclosing, closing
 
+import pytest
+
 from frequenz.channels import Broadcast, Receiver
 from frequenz.channels.experimental import Pipe
 
 T = typing.TypeVar("T")
+
+# These tests use the deprecated Broadcast on purpose.
+pytestmark = pytest.mark.filterwarnings("once::DeprecationWarning")
 
 
 class Timeout:

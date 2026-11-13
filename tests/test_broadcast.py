@@ -20,6 +20,18 @@ from frequenz.channels import (
     SenderError,
 )
 
+# These tests use the deprecated Broadcast on purpose.
+pytestmark = pytest.mark.filterwarnings("once::DeprecationWarning")
+
+
+def test_broadcast_is_deprecated() -> None:
+    """Ensure `Broadcast` warns it is deprecated, and what to use instead."""
+    with pytest.deprecated_call(
+        match=r"^frequenz\.channels\.Broadcast is deprecated\. "
+        r"Use frequenz\.channels\.BroadcastChannel instead\.$"
+    ):
+        _ = Broadcast[int](name="deprecation-test")
+
 
 async def test_broadcast() -> None:
     """Ensure sent messages are received by all receivers."""

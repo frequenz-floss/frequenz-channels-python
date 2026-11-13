@@ -8,6 +8,9 @@ import pytest
 from frequenz.channels import Broadcast
 from frequenz.channels.experimental import RelaySender
 
+# These tests use the deprecated Broadcast on purpose.
+pytestmark = pytest.mark.filterwarnings("once::DeprecationWarning")
+
 
 async def test_tee_sender() -> None:
     """Test tee sender."""

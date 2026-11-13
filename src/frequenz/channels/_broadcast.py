@@ -74,11 +74,18 @@ def _resolve_buffer_size(
     return size
 
 
-@deprecated("Please use BroadcastChannel instead.")
+@deprecated(
+    "frequenz.channels.Broadcast is deprecated. "
+    "Use frequenz.channels.BroadcastChannel instead."
+)
 class Broadcast(  # pylint: disable=too-many-instance-attributes
     Generic[ChannelMessageT]
 ):
     """A channel that delivers all messages to all receivers.
+
+    Deprecated:
+        Deprecated since v1.12.0. Use
+        [`BroadcastChannel`][frequenz.channels.BroadcastChannel] instead.
 
     # Description
 
