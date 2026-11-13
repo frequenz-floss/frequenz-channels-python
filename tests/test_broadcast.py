@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import TypeGuard, assert_never
 
 import pytest
+from frequenz.core.warnings import asserting_no_deprecations
 
 from frequenz import channels
 from frequenz.channels import (
@@ -521,6 +522,8 @@ def test_broadcast_wake_after_loop_closed() -> None:
     _leave_waiter_on_closed_loop(receiver)
     asyncio.run(chan.aclose())
     assert chan.is_closed
+    # pylint: disable-next=protected-access
+    assert chan._wakeup_loop is None
 
 
 def test_broadcast_wake_from_other_thread_in_debug_mode() -> None:
@@ -543,6 +546,12 @@ def test_broadcast_wake_from_other_thread_in_debug_mode() -> None:
         loop.run_until_complete(close_in_thread())
     finally:
         loop.close()
+
+
+async def test_broadcast_channel_does_not_warn() -> None:
+    """Ensure creating a `BroadcastChannel` doesn't emit deprecation warnings."""
+    with asserting_no_deprecations():
+        _ = BroadcastChannel[int](name="no-deprecations-test")
 
 
 async def test_broadcast_no_receivers_after_all_receivers_closed() -> None:
@@ -751,10 +760,10 @@ async def test_broadcast_subscribe_default_options(
 async def test_broadcast_subscribe_inherits_receiver_options() -> None:
     """Ensure subscribed receivers default to the channel's receiver options."""
     sender, receiver = BroadcastChannel[int](
-        name="options-test", limit=2, warn_on_overflow=False
+        name="options-test", buffer_size=2, warn_on_overflow=False
     )
     subscribed = sender.subscribe()
-    overridden = sender.subscribe(limit=3, warn_on_overflow=True)
+    overridden = sender.subscribe(buffer_size=3, warn_on_overflow=True)
 
     for i in range(4):
         await sender.send(i)

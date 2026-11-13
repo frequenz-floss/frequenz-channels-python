@@ -54,6 +54,12 @@ Utilities to work with channels:
   a stream, without having to wait, as long as there has been one value
   received.
 
+* [`NopReceiver`][frequenz.channels.NopReceiver]: A place-holder receiver that
+  never receives a message.
+
+* [`WithPrevious`][frequenz.channels.WithPrevious]: A composable predicate to
+  filter messages based on the previous message received.
+
 Exception classes:
 
 * [`Error`][frequenz.channels.Error]: Base class for all errors in this
@@ -93,8 +99,8 @@ Extra utility receivers:
 * [`FileWatcher`][frequenz.channels.file_watcher.FileWatcher]: A receiver that
   generates a message when a file is added, modified or deleted.
 
-* [`Timer`][frequenz.channels.timer.Timer]: A receiver that generates a message after a
-  given amount of time.
+* [`MonotonicTimer`][frequenz.channels.timer.MonotonicTimer]: A receiver that
+  generates a message after a given amount of time.
 """
 
 from typing import TYPE_CHECKING
@@ -114,6 +120,7 @@ from ._generic import (
 )
 from ._latest_value_cache import LatestValueCache
 from ._merge import Merger, merge
+from ._nop_receiver import NopReceiver
 from ._oneshot import OneshotChannel, OneshotReceiver, OneshotSender
 from ._receiver import Receiver, ReceiverError, ReceiverStoppedError
 from ._select import (
@@ -132,6 +139,7 @@ from ._sender import (
     SenderError,
     SubscribableSender,
 )
+from ._with_previous import WithPrevious
 
 if TYPE_CHECKING:
     from ._broadcast import _Broadcast as Broadcast
@@ -164,6 +172,7 @@ __all__ = [
     "MappedMessageT_co",
     "Merger",
     "NoReceiversError",
+    "NopReceiver",
     "OneshotChannel",
     "OneshotReceiver",
     "OneshotSender",
@@ -180,6 +189,7 @@ __all__ = [
     "SenderMessageT_contra",
     "SubscribableSender",
     "UnhandledSelectedError",
+    "WithPrevious",
     "merge",
     "select",
     "selected_from",

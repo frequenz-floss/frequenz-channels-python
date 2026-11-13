@@ -11,6 +11,9 @@ import pytest
 from frequenz.channels import Broadcast, ReceiverError, ReceiverStoppedError
 from frequenz.channels.experimental import OptionalReceiver
 
+# Every test here uses the deprecated OptionalReceiver on purpose.
+pytestmark = pytest.mark.filterwarnings("once::DeprecationWarning")
+
 
 async def test_receiver_with_none_does_not_end() -> None:
     """Test that the receiver with None does not end."""
@@ -64,3 +67,14 @@ async def test_receiver_ends_when_underlying_receiver_ends() -> None:
             # Then check if `receive` method raises ReceiverStoppedError
             with pytest.raises(ReceiverStoppedError):
                 await optional_receiver.receive()
+
+
+def test_deprecation_warning() -> None:
+    """Test that the receiver warns it is deprecated."""
+    with pytest.deprecated_call(
+        match=r"^frequenz\.channels\.experimental\.OptionalReceiver is deprecated\. "
+        r"Use the receiver itself, or frequenz\.channels\.NopReceiver when there is "
+        r"none\.$"
+    ):
+        receiver = OptionalReceiver[int](None)
+    receiver.close()

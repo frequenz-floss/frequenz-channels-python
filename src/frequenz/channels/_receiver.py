@@ -71,6 +71,37 @@ As with [`map()`][frequenz.channels.Receiver.map],
 [`filter()`][frequenz.channels.Receiver.filter] returns a new full receiver, so you can
 use it in any of the ways described above.
 
+To filter messages based on the previous one, for example to skip repeated messages,
+use [`WithPrevious`][frequenz.channels.WithPrevious] to build the filter function:
+
+```python show_lines="6:"
+from frequenz.channels import Anycast, WithPrevious
+
+channel = Anycast[int](name="test-channel")
+receiver = channel.new_receiver()
+
+async for message in receiver.filter(WithPrevious(lambda old, new: old != new)):
+    print(message)  # Only messages different from the previous one will be printed
+```
+
+# Placeholder Receivers
+
+When a receiver is needed but there is none, use a
+[`NopReceiver`][frequenz.channels.NopReceiver]. It never produces a message and only
+stops when it is closed, so it can make a source optional, for example in
+[`merge()`][frequenz.channels.merge] or [`select()`][frequenz.channels.select]:
+
+```python
+from frequenz.channels import NopReceiver, Receiver, merge
+
+
+async def process(data: Receiver[int], commands: Receiver[int] | None = None) -> None:
+    if commands is None:
+        commands = NopReceiver[int]()
+    async for message in merge(data, commands):
+        print(message)
+```
+
 # Error Handling
 
 !!! Tip inline end

@@ -15,7 +15,7 @@ from collections.abc import (
 )
 from typing import TypeVar, overload
 
-from typing_extensions import override
+from typing_extensions import deprecated, override
 
 from .._receiver import Receiver
 
@@ -43,8 +43,20 @@ class _NotSpecified:
         return "<_NotSpecified>"
 
 
+@deprecated(
+    "frequenz.channels.experimental.GroupingLatestValueCache is deprecated and will "
+    "be removed in v2.0.0. Copy its code into your project if you need it, or open "
+    "an issue at https://github.com/frequenz-floss/frequenz-channels-python/issues "
+    "if you think it should stay in frequenz-channels."
+)
 class GroupingLatestValueCache(Mapping[HashableT, ValueT_co]):
     """A cache that stores the latest value in a receiver, grouped by key.
+
+    Deprecated:
+        Deprecated since v1.13.0, and will be removed in v2.0.0. Copy its code into
+        your project if you need it, or [open an
+        issue](https://github.com/frequenz-floss/frequenz-channels-python/issues) if
+        you think it should stay in this library.
 
     It provides a way to look up on demand, the latest value in a stream for any key, as
     long as there has been at least one value received for that key.

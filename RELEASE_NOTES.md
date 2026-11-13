@@ -8,6 +8,10 @@
 
 <!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
 
+- `BroadcastChannel()` and `BroadcastSender.subscribe()` now take everything but the name by keyword: `resend_latest`, `buffer_size` and `warn_on_overflow`.  The deprecated `limit` is keyword-only too, so a call that passed `limit` or any other option by position fails with a `TypeError`.  Pass them by keyword, as v1.13.0 recommends.
+
+- The `repr()` of a `BroadcastReceiver` shows its `buffer_size` instead of `limit`.
+
 - A `BroadcastChannel`, or a `Broadcast` created with `auto_close=True`, no longer closes when a message is sent while it has no receivers.  `send()` now drops the message and raises a `NoReceiversError`, a `SenderError` without a cause.  The channel stays open: `subscribe()` keeps working, and sending works again once a new receiver is attached.
 
 - Code that waited for such a channel to close after a send without receivers, for example by checking for a `ChannelClosedError` cause or for `is_closed`, should catch `NoReceiversError` instead.  It can then stop sending, or close all of the channel's senders to close the channel.
@@ -24,13 +28,11 @@
 
 - `BroadcastSender.clone()` now raises a `SenderClosedError` if the sender is closed, and a `SenderError` if the channel is closed, like `send()` and `subscribe()` do.  Clone a sender before closing it, or catch `SenderError`.
 
-- `BroadcastSender.subscribe()` now uses the `limit` and `warn_on_overflow` values the `BroadcastChannel` was created with as defaults, instead of `50` and `True`.  Pass `limit=50, warn_on_overflow=True` to keep the old values.
+- `BroadcastSender.subscribe()` now uses the `buffer_size` and `warn_on_overflow` values the `BroadcastChannel` was created with as defaults, instead of `50` and `True`.  Pass `buffer_size=50, warn_on_overflow=True` to keep the old values.
 
 - Call `BroadcastReceiver.close()` from the thread that runs the event loop of the channel's receivers.  From another thread, tasks waiting on any receiver of the channel might not wake up.  If asyncio debug mode is on and a task is waiting, `close()` also raises a `RuntimeError`, and the waiting tasks stay stuck.  Use `loop.call_soon_threadsafe(receiver.close)` instead.
 
 - `Broadcast` is now a deprecated alias of the class behind `BroadcastChannel`.  The `DeprecationWarning` is now emitted when `Broadcast` is imported or accessed from `frequenz.channels`, including by `from frequenz.channels import *`, instead of each time a channel is created, and type checkers no longer report it as deprecated.  Please use `BroadcastChannel` instead.
-
-- This package now depends on `frequenz-core >= 1.6.0, < 2`, and needs `typing-extensions >= 4.13.0`.
 
 ## New Features
 
@@ -44,12 +46,8 @@
 
 <!-- Here goes notable bug fixes that are worth a special mention or explanation -->
 
-- Docstrings now use absolute cross-references to public paths instead of relative ones. Relative cross-references are expanded from the module where an object is defined since mkdocstrings-python 2.0.9, which broke some links, and projects rendering docstrings inherited from this library needed `relative_crossrefs: true` for them to work at all. See [frequenz-repo-config-python#655](https://github.com/frequenz-floss/frequenz-repo-config-python/issues/655) for details.
-
 - Closing a broadcast receiver now wakes up tasks waiting for messages on it, instead of leaving them blocked until the next message arrived or the channel was closed.
 
 - Closing a broadcast receiver now drops the messages left in its buffer, so it is no longer reported as ready.  So `select()` no longer reports it as stopped over and over, and no longer fails with a `SelectError` for a `filter()` on it.
 
 - Sending to or closing a broadcast channel no longer raises `RuntimeError: Event loop is closed` when a receiver was left waiting on an event loop that has since been closed.
-
-- Creating a `BroadcastChannel` no longer emits a deprecation warning telling users to use `BroadcastChannel` instead.

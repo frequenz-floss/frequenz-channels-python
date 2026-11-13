@@ -12,13 +12,14 @@ from typing import Any
 import async_solipsism
 import hypothesis
 import pytest
+from frequenz.core.warnings import asserting_no_deprecations
 from hypothesis import strategies as st
 
 from frequenz.channels import ReceiverStoppedError
 from frequenz.channels.timer import (
+    MonotonicTimer,
     SkipMissedAndDrift,
     SkipMissedAndResync,
-    Timer,
     TriggerAllMissed,
 )
 
@@ -287,7 +288,7 @@ def test_policy_skip_missed_and_drift_examples() -> None:
 
 async def test_timer_construction_defaults() -> None:
     """Test the construction of a periodic timer with default values."""
-    timer = Timer(timedelta(seconds=1.0), TriggerAllMissed())
+    timer = MonotonicTimer(timedelta(seconds=1.0), TriggerAllMissed())
     assert timer.interval == timedelta(seconds=1.0)
     assert isinstance(timer.missed_tick_policy, TriggerAllMissed)
     assert timer.loop is asyncio.get_running_loop()
@@ -298,7 +299,7 @@ def test_timer_construction_no_async() -> None:
     """Test the construction outside of async (using a custom loop)."""
     loop = async_solipsism.EventLoop()
     try:
-        timer = Timer(timedelta(seconds=1.0), TriggerAllMissed(), loop=loop)
+        timer = MonotonicTimer(timedelta(seconds=1.0), TriggerAllMissed(), loop=loop)
         assert timer.interval == timedelta(seconds=1.0)
         assert isinstance(timer.missed_tick_policy, TriggerAllMissed)
         assert timer.loop is loop
@@ -310,13 +311,13 @@ def test_timer_construction_no_async() -> None:
 def test_timer_construction_no_event_loop() -> None:
     """Test the construction outside of async (without a custom loop) fails."""
     with pytest.raises(RuntimeError, match="no running event loop"):
-        Timer(timedelta(seconds=1.0), TriggerAllMissed())
+        MonotonicTimer(timedelta(seconds=1.0), TriggerAllMissed())
 
 
 async def test_timer_construction_auto_start() -> None:
     """Test the construction of a periodic timer with auto_start=False."""
     policy = TriggerAllMissed()
-    timer = Timer(
+    timer = MonotonicTimer(
         timedelta(seconds=5.0),
         policy,
         auto_start=False,
@@ -331,7 +332,7 @@ async def test_timer_construction_auto_start() -> None:
 async def test_timer_construction_custom_args() -> None:
     """Test the construction of a periodic timer with custom arguments."""
     policy = TriggerAllMissed()
-    timer = Timer(
+    timer = MonotonicTimer(
         timedelta(seconds=5.0),
         policy,
         auto_start=True,
@@ -349,7 +350,7 @@ async def test_timer_construction_wrong_args() -> None:
         ValueError,
         match="^The `interval` must be positive and at least 1 microsecond, not -1 day, 23:59:55$",
     ):
-        _ = Timer(
+        _ = MonotonicTimer(
             timedelta(seconds=-5.0),
             SkipMissedAndResync(),
             auto_start=True,
@@ -360,7 +361,7 @@ async def test_timer_construction_wrong_args() -> None:
         ValueError,
         match="^`start_delay` can't be negative, got -1 day, 23:59:59$",
     ):
-        _ = Timer(
+        _ = MonotonicTimer(
             timedelta(seconds=5.0),
             SkipMissedAndResync(),
             auto_start=True,
@@ -372,7 +373,7 @@ async def test_timer_construction_wrong_args() -> None:
         ValueError,
         match="^`auto_start` must be `True` if a `start_delay` is specified$",
     ):
-        _ = Timer(
+        _ = MonotonicTimer(
             timedelta(seconds=5.0),
             SkipMissedAndResync(),
             auto_start=False,
@@ -384,7 +385,7 @@ async def test_timer_construction_wrong_args() -> None:
         ValueError,
         match=re.escape("`auto_start` must be `True` if `tick_at_start` is `True`"),
     ):
-        _ = Timer(
+        _ = MonotonicTimer(
             timedelta(seconds=5.0),
             SkipMissedAndResync(),
             auto_start=False,
@@ -397,7 +398,7 @@ async def test_timer_close_receiver() -> None:
     """Test the autostart of a periodic timer."""
     event_loop = asyncio.get_running_loop()
 
-    timer = Timer(timedelta(seconds=1.0), TriggerAllMissed())
+    timer = MonotonicTimer(timedelta(seconds=1.0), TriggerAllMissed())
 
     drift = await timer.receive()
     assert drift == _approx_timedelta(timedelta(seconds=0.0))
@@ -412,7 +413,7 @@ async def test_timer_autostart() -> None:
     """Test the autostart of a periodic timer."""
     event_loop = asyncio.get_running_loop()
 
-    timer = Timer(timedelta(seconds=1.0), TriggerAllMissed())
+    timer = MonotonicTimer(timedelta(seconds=1.0), TriggerAllMissed())
 
     # We sleep some time, less than the interval, and then receive from the
     # timer, since it was automatically started at time 0, it should trigger at
@@ -427,7 +428,7 @@ async def test_timer_autostart_with_delay() -> None:
     """Test the autostart of a periodic timer with a delay."""
     event_loop = asyncio.get_running_loop()
 
-    timer = Timer(
+    timer = MonotonicTimer(
         timedelta(seconds=1.0), TriggerAllMissed(), start_delay=timedelta(seconds=0.5)
     )
 
@@ -449,7 +450,9 @@ async def test_timer_autostart_with_tick_at_start() -> None:
     """Test the autostart of a periodic timer with a tick at start."""
     event_loop = asyncio.get_running_loop()
 
-    timer = Timer(timedelta(seconds=1.0), TriggerAllMissed(), tick_at_start=True)
+    timer = MonotonicTimer(
+        timedelta(seconds=1.0), TriggerAllMissed(), tick_at_start=True
+    )
 
     # The first tick should be at 0.0, without any delay.
     drift = await timer.receive()
@@ -466,7 +469,7 @@ async def test_timer_autostart_with_delay_and_tick_at_start() -> None:
     """Test the autostart of a periodic timer with a start delay and tick at start."""
     event_loop = asyncio.get_running_loop()
 
-    timer = Timer(
+    timer = MonotonicTimer(
         timedelta(seconds=1.0),
         TriggerAllMissed(),
         tick_at_start=True,
@@ -499,7 +502,7 @@ async def test_timer_no_autostart(
     """Test a periodic timer when it is not automatically started."""
     event_loop = asyncio.get_running_loop()
 
-    timer = Timer(
+    timer = MonotonicTimer(
         timedelta(seconds=1.0),
         TriggerAllMissed(),
         auto_start=False,
@@ -534,7 +537,7 @@ async def test_timer_trigger_all_missed() -> None:
     event_loop = asyncio.get_running_loop()
 
     interval = 1.0
-    timer = Timer(timedelta(seconds=interval), TriggerAllMissed())
+    timer = MonotonicTimer(timedelta(seconds=interval), TriggerAllMissed())
 
     # We let the first tick be triggered on time
     drift = await timer.receive()
@@ -595,7 +598,7 @@ async def test_timer_skip_missed_and_resync() -> None:
     event_loop = asyncio.get_running_loop()
 
     interval = 1.0
-    timer = Timer(timedelta(seconds=interval), SkipMissedAndResync())
+    timer = MonotonicTimer(timedelta(seconds=interval), SkipMissedAndResync())
 
     # We let the first tick be triggered on time
     drift = await timer.receive()
@@ -647,7 +650,7 @@ async def test_timer_skip_missed_and_drift() -> None:
 
     interval = 1.0
     tolerance = 0.1
-    timer = Timer(
+    timer = MonotonicTimer(
         timedelta(seconds=interval),
         SkipMissedAndDrift(delay_tolerance=timedelta(seconds=tolerance)),
     )
@@ -713,7 +716,7 @@ async def test_timer_reset_with_new_interval() -> None:
 
     initial_interval = timedelta(seconds=1.0)
     new_interval = timedelta(seconds=2.0)
-    timer = Timer(initial_interval, TriggerAllMissed())
+    timer = MonotonicTimer(initial_interval, TriggerAllMissed())
 
     # Wait for the first tick
     drift = await timer.receive()
@@ -736,9 +739,9 @@ async def test_timer_reset_with_new_interval() -> None:
 
 async def test_timer_immediate_interruption_on_reset() -> None:
     """Test that the timer is interrupted immediately upon reset."""
-    timer1 = Timer(timedelta(seconds=5.0), TriggerAllMissed())
-    timer2 = Timer(timedelta(seconds=1.0), TriggerAllMissed())
-    timer3 = Timer(timedelta(seconds=4.0), TriggerAllMissed())
+    timer1 = MonotonicTimer(timedelta(seconds=5.0), TriggerAllMissed())
+    timer2 = MonotonicTimer(timedelta(seconds=1.0), TriggerAllMissed())
+    timer3 = MonotonicTimer(timedelta(seconds=4.0), TriggerAllMissed())
 
     timer_trigger_order = []
 
@@ -762,3 +765,36 @@ async def test_timer_immediate_interruption_on_reset() -> None:
 
     await asyncio.wait([task1, task2, task3])
     assert timer_trigger_order == [2, 1, 3]
+
+
+def test_timer_is_deprecated_alias() -> None:
+    """Test that `Timer` warns and is the same class as `MonotonicTimer`."""
+    with pytest.deprecated_call(
+        match=r"^frequenz\.channels\.timer\.Timer is deprecated\. "
+        r"Use frequenz\.channels\.timer\.MonotonicTimer instead\. "
+        r"The name Timer will be used for a wall clock timer in a later version\.$"
+    ):
+        from frequenz.channels.timer import (  # pylint: disable=import-outside-toplevel
+            Timer,
+        )
+
+    assert Timer is MonotonicTimer
+
+
+async def test_monotonic_timer_is_not_deprecated() -> None:
+    """Test that creating a `MonotonicTimer` doesn't emit deprecation warnings."""
+    with asserting_no_deprecations():
+        timer = MonotonicTimer(timedelta(seconds=1.0), TriggerAllMissed())
+    timer.stop()
+
+
+def test_timer_star_import_warns() -> None:
+    """Test that `from frequenz.channels.timer import *` still provides `Timer`."""
+    namespace: dict[str, Any] = {}
+    with pytest.deprecated_call(
+        match=r"^frequenz\.channels\.timer\.Timer is deprecated\. "
+    ):
+        # pylint: disable-next=exec-used
+        exec("from frequenz.channels.timer import *", namespace)
+    assert namespace["Timer"] is MonotonicTimer
+    assert namespace["MonotonicTimer"] is MonotonicTimer

@@ -11,7 +11,7 @@ import pytest
 
 from frequenz.channels import ReceiverStoppedError, select, selected_from
 from frequenz.channels.file_watcher import EventType, FileWatcher
-from frequenz.channels.timer import SkipMissedAndDrift, Timer
+from frequenz.channels.timer import MonotonicTimer, SkipMissedAndDrift
 
 
 @pytest.mark.integration
@@ -29,7 +29,7 @@ async def test_file_watcher(tmp_path: pathlib.Path) -> None:
     file_watcher = FileWatcher(
         paths=[str(tmp_path)], polling_interval=timedelta(seconds=0.05)
     )
-    timer = Timer(timedelta(seconds=0.1), SkipMissedAndDrift())
+    timer = MonotonicTimer(timedelta(seconds=0.1), SkipMissedAndDrift())
 
     async for selected in select(file_watcher, timer):
         if selected_from(selected, timer):
@@ -69,8 +69,8 @@ async def test_file_watcher_deletes(tmp_path: pathlib.Path) -> None:
         force_polling=False,
         polling_interval=timedelta(seconds=0.05),
     )
-    write_timer = Timer(timedelta(seconds=0.1), SkipMissedAndDrift())
-    deletion_timer = Timer(timedelta(seconds=0.25), SkipMissedAndDrift())
+    write_timer = MonotonicTimer(timedelta(seconds=0.1), SkipMissedAndDrift())
+    deletion_timer = MonotonicTimer(timedelta(seconds=0.25), SkipMissedAndDrift())
 
     number_of_write = 0
     number_of_deletes = 0
@@ -132,7 +132,7 @@ async def test_file_watcher_exit_iterator(tmp_path: pathlib.Path) -> None:
         force_polling=True,
         polling_interval=timedelta(seconds=0.05),
     )
-    timer = Timer(timedelta(seconds=0.1), SkipMissedAndDrift())
+    timer = MonotonicTimer(timedelta(seconds=0.1), SkipMissedAndDrift())
 
     async for selected in select(file_watcher, timer):
         if selected_from(selected, timer):
@@ -169,7 +169,7 @@ async def test_file_watcher_close_receiver(tmp_path: pathlib.Path) -> None:
         force_polling=True,
         polling_interval=timedelta(seconds=0.05),
     )
-    timer = Timer(timedelta(seconds=0.1), SkipMissedAndDrift())
+    timer = MonotonicTimer(timedelta(seconds=0.1), SkipMissedAndDrift())
 
     async for selected in select(file_watcher, timer):
         if selected_from(selected, timer):
