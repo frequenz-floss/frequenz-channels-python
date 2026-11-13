@@ -522,6 +522,8 @@ def test_broadcast_wake_after_loop_closed() -> None:
     _leave_waiter_on_closed_loop(receiver)
     asyncio.run(chan.aclose())
     assert chan.is_closed
+    # pylint: disable-next=protected-access
+    assert chan._wakeup_loop is None
 
 
 def test_broadcast_wake_from_other_thread_in_debug_mode() -> None:

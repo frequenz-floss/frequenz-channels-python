@@ -8,7 +8,7 @@ from __future__ import annotations
 import logging
 import warnings
 import weakref
-from asyncio import Event
+from asyncio import AbstractEventLoop, Event, get_running_loop
 from collections import deque
 from typing import Generic, TypeVar, overload
 
@@ -139,6 +139,9 @@ class _Broadcast(  # pylint: disable=too-many-instance-attributes
         [`BroadcastReceiver.close()`][frequenz.channels.BroadcastReceiver.close].
         """
 
+        self._wakeup_loop: AbstractEventLoop | None = None
+        """The loop of the receivers waiting on `_wakeup`, cleared on each wake-up."""
+
         self._sender_count: int = 0
         """The number of senders attached to this channel."""
 
@@ -208,16 +211,12 @@ class _Broadcast(  # pylint: disable=too-many-instance-attributes
     def _wake_receivers(self) -> None:
         """Wake up all receivers waiting for new messages."""
         wakeup, self._wakeup = self._wakeup, Event()
-        try:
-            wakeup.set()
-        except RuntimeError:
-            # `set()` raises if the waiters' loop is closed, and they can't be woken
-            # anyway.  All waiters of an event share one loop, so any other
-            # `RuntimeError`, like a call from another thread in debug mode, is
-            # re-raised.
-            loop = getattr(wakeup, "_loop", None)
-            if loop is None or not loop.is_closed():
-                raise
+        loop, self._wakeup_loop = self._wakeup_loop, None
+        # Receivers can't be woken up once their loop is closed, and `set()` would
+        # raise.  Any other error from `set()` is raised.
+        if loop is not None and loop.is_closed():
+            return
+        wakeup.set()
 
     @deprecated("The close() method is deprecated, use aclose() instead")
     async def close(self) -> None:
@@ -609,6 +608,8 @@ class BroadcastReceiver(Receiver[_T]):
             if self._channel._auto_close_enabled and self._channel._sender_count == 0:
                 await self._channel.aclose()
                 return False
+            if self._channel._wakeup_loop is None:
+                self._channel._wakeup_loop = get_running_loop()
             await self._channel._wakeup.wait()
         return True
         # pylint: enable=protected-access
