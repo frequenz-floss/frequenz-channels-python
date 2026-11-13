@@ -11,43 +11,54 @@ to the sender.
 from __future__ import annotations
 
 import asyncio
-import logging
 import typing
+
+from typing_extensions import deprecated
 
 from .._generic import ChannelMessageT
 from .._receiver import Receiver
-from .._sender import Sender, SenderError, SenderHasNoReceiversError
-
-_logger = logging.getLogger(__name__)
+from .._sender import Sender
 
 
+@deprecated(
+    "frequenz.channels.experimental.Pipe is deprecated and will be removed in v3.0.0. "
+    "Use frequenz.channels.Pipe instead, but check how your code closes its sender and "
+    "receiver first: the new one closes its sender when its receiver stops, and both "
+    "ends when sending fails, while this one leaves them open."
+)
 class Pipe(typing.Generic[ChannelMessageT]):
     """A pipe between two channels.
+
+    Deprecated:
+        Deprecated since v2.0.0, and will be removed in v3.0.0.  Use
+        [`frequenz.channels.Pipe`][] instead, after checking how your code closes the
+        sender and the receiver: the new class closes them in cases where this one
+        leaves them open, and drops messages that fail with a
+        [`TransientSenderError`][frequenz.channels.TransientSenderError].
 
     The [`Pipe`][frequenz.channels.experimental.Pipe] class takes a receiver and a
     sender and creates a pipe between them by forwarding all the messages received by
     the receiver to the sender.
 
-    When its receiver stops, the pipe closes its sender and stops.
+    [`frequenz.channels.Pipe`][] is a separate implementation that treats its endpoints
+    differently, so moving to it can change how your code shuts down:
 
-    If sending fails with a [`SenderError`][frequenz.channels.SenderError], for example
-    because the sender's channel has no receivers, the pipe closes both its sender and
-    its receiver, and stops.  With `close_pipe_on_send_error=False`, it drops the
-    message instead, and keeps sending the messages that follow.
-
-    The pipe logs a failed send: a
-    [`SenderHasNoReceiversError`][frequenz.channels.SenderHasNoReceiversError] as a
-    warning, or at debug level with `close_pipe_on_send_error=False`, and any other
-    error with its traceback.
-
-    [`stop()`][frequenz.channels.experimental.Pipe.stop] leaves its sender and its
-    receiver open.  So does any exception while receiving, other than the receiver
-    stopping, and any exception from sending that isn't a
-    [`SenderError`][frequenz.channels.SenderError].  Such an exception ends the pipe's
-    task, and a later `stop()` doesn't raise it.
-
-    Give the pipe a clone of the sender if you still need to send after the pipe stops
-    on its own.
+    * When its receiver stops, this pipe stops and leaves its sender open.
+      [`frequenz.channels.Pipe`][] closes its sender too.
+    * When sending fails with any [`SenderError`][frequenz.channels.SenderError], the
+      exception ends the task of this pipe and both ends stay open.
+      [`frequenz.channels.Pipe`][] logs the error and closes its sender and its
+      receiver by default, unless it is a
+      [`TransientSenderError`][frequenz.channels.TransientSenderError], like a
+      [`SenderHasNoReceiversError`][frequenz.channels.SenderHasNoReceiversError]:
+      then it logs it, drops the message and keeps forwarding.
+    * [`frequenz.channels.Pipe`][] also takes `close_pipe_on_send_error=False`, which
+      drops the message that failed with any other
+      [`SenderError`][frequenz.channels.SenderError] and keeps forwarding the next
+      ones.  This doesn't bring back the behavior of this class, which stops on the
+      first send error.
+    * [`stop()`][frequenz.channels.experimental.Pipe.stop] leaves both ends open in
+      both.
 
     Example:
         ```python
@@ -83,25 +94,16 @@ class Pipe(typing.Generic[ChannelMessageT]):
     """
 
     def __init__(
-        self,
-        receiver: Receiver[ChannelMessageT],
-        sender: Sender[ChannelMessageT],
-        *,
-        close_pipe_on_send_error: bool = True,
+        self, receiver: Receiver[ChannelMessageT], sender: Sender[ChannelMessageT]
     ) -> None:
         """Create a new pipe between two channels.
 
         Args:
             receiver: The receiver channel.
             sender: The sender channel.
-            close_pipe_on_send_error: Whether a `SenderError` from sending closes the
-                sender and the receiver and stops the pipe.  If `False`, the pipe drops
-                the message and keeps sending the messages that follow, even if the
-                sender is closed and every send fails.
         """
         self._sender = sender
         self._receiver = receiver
-        self._close_pipe_on_send_error = close_pipe_on_send_error
         self._task: asyncio.Task[None] | None = None
 
     async def __aenter__(self) -> Pipe[ChannelMessageT]:
@@ -133,36 +135,5 @@ class Pipe(typing.Generic[ChannelMessageT]):
                 pass
 
     async def _run(self) -> None:
-        if self._close_pipe_on_send_error:
-            no_receivers_level, outcome = logging.WARNING, "stopped"
-        else:
-            no_receivers_level, outcome = logging.DEBUG, "dropped a message"
         async for value in self._receiver:
-            try:
-                await self._sender.send(value)
-            except SenderHasNoReceiversError as error:
-                _logger.log(
-                    no_receivers_level,
-                    "Pipe from [%s] to [%s] %s: %s",
-                    self._receiver,
-                    self._sender,
-                    outcome,
-                    error,
-                )
-            except SenderError:
-                _logger.exception(
-                    "Pipe from [%s] to [%s] %s: sending failed",
-                    self._receiver,
-                    self._sender,
-                    outcome,
-                )
-            else:
-                continue
-            if not self._close_pipe_on_send_error:
-                continue
-            try:
-                await self._sender.aclose()
-            finally:
-                self._receiver.close()
-            return
-        await self._sender.aclose()
+            await self._sender.send(value)
