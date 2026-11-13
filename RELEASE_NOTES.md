@@ -14,6 +14,14 @@
 
 - The deprecated `frequenz.channels.timer.Timer` is removed.  Use `MonotonicTimer` instead, which exists since v1.13.0, so you can migrate before upgrading.  The name `Timer` will be used for a wall clock timer in a later version.
 
+- `frequenz.channels.experimental.GroupingLatestValueCache` is removed, together with its type variables `DefaultT`, `HashableT` and `ValueT_co`.  Copy its code into your project if you still need it, or open an issue if you think it should stay in the library.
+
+- `frequenz.channels.experimental.RelaySender` is removed.  Copy its code into your project if you still need it, or open an issue if you think it should stay in the library.
+
+- `frequenz.channels.experimental.OptionalReceiver` is removed.  Use the receiver itself, or `frequenz.channels.NopReceiver` when there is none.  `NopReceiver` exists since v1.13.0, so you can migrate before upgrading.
+
+- `WithPrevious` and `NopReceiver` are no longer available from `frequenz.channels.experimental`.  Import them from `frequenz.channels`, where they are available since v1.13.0, so you can migrate before upgrading.
+
 - The `repr()` of a `BroadcastReceiver` shows its `buffer_size` instead of `limit`.
 
 - A `BroadcastChannel`, or a `Broadcast` created with `auto_close=True`, no longer closes when a message is sent while it has no receivers.  `send()` now drops the message and raises a `NoReceiversError`, a `SenderError` without a cause.  The channel stays open: `subscribe()` keeps working, and sending works again once a new receiver is attached.
