@@ -74,6 +74,9 @@ Exception classes:
 * [`SenderError`][frequenz.channels.SenderError]: Base class for all errors
   related to senders.
 
+* [`TransientSenderError`][frequenz.channels.TransientSenderError]: Base class for
+  sender errors after which the sender can still be used.
+
 * [`NoReceiversError`][frequenz.channels.NoReceiversError]: Error raised when sending
   a message to a [`BroadcastChannel`][frequenz.channels.BroadcastChannel] that has no
   receivers.
@@ -138,6 +141,7 @@ from ._sender import (
     SenderClosedError,
     SenderError,
     SubscribableSender,
+    TransientSenderError,
 )
 from ._with_previous import WithPrevious
 
@@ -188,6 +192,7 @@ __all__ = [
     "SenderMessageT_co",
     "SenderMessageT_contra",
     "SubscribableSender",
+    "TransientSenderError",
     "UnhandledSelectedError",
     "WithPrevious",
     "merge",
