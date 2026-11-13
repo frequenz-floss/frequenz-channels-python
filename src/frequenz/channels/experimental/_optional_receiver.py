@@ -16,9 +16,17 @@ from typing_extensions import deprecated, override
 from frequenz.channels import Receiver, ReceiverError, ReceiverMessageT_co
 
 
-@deprecated("Use `frequenz.channels.experimental.NopReceiver` instead.")
+@deprecated(
+    "frequenz.channels.experimental.OptionalReceiver is deprecated. "
+    "Use the receiver itself, or frequenz.channels.NopReceiver when there is none."
+)
 class OptionalReceiver(Receiver[ReceiverMessageT_co]):
     """A receiver that will wait indefinitely if there is no underlying receiver.
+
+    Deprecated:
+        Deprecated since v1.9.0. Use the receiver itself, or a
+        [`frequenz.channels.NopReceiver`][frequenz.channels.NopReceiver] when there
+        is none.
 
     This receiver is useful when the underlying receiver is not set initially.
     Instead of making `if-else` branches to check if the receiver is set, you can use

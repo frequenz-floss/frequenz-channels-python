@@ -80,10 +80,10 @@ class OneshotReceiver(Receiver[ChannelMessageT]):
             `True` if a message is ready to be received, `False` if the sender
                 is closed and no message will be sent.
         """
+        while not self._channel.closed and not self._channel.drained:
+            await self._channel.event.wait()
         if self._channel.drained:
             return False
-        while not self._channel.closed:
-            await self._channel.event.wait()
         if isinstance(self._channel.message, _Empty):
             return False
         return True
@@ -107,6 +107,21 @@ class OneshotReceiver(Receiver[ChannelMessageT]):
         self._channel.drained = True
         self._channel.event.clear()
         return self._channel.message
+
+    def close(self) -> None:
+        """Close this receiver.
+
+        After calling this method, new messages will not be received. A message sent
+        before the receiver was closed can still be received; after that, trying to
+        receive a message will raise a
+        [`ReceiverStoppedError`][frequenz.channels.ReceiverStoppedError].
+
+        The sender is not affected: it can still send its message, which is
+        discarded.
+        """
+        if isinstance(self._channel.message, _Empty):
+            self._channel.drained = True
+            self._channel.event.set()
 
 
 class OneshotChannel(

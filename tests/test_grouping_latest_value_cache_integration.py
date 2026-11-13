@@ -4,6 +4,7 @@
 """Tests for the LatestValueCache implementation."""
 
 import asyncio
+import importlib
 
 import pytest
 
@@ -16,9 +17,10 @@ async def test_latest_value_cache_key() -> None:  # pylint: disable=too-many-sta
     """Ensure LatestValueCache works with keys."""
     channel = Broadcast[tuple[int, str]](name="lvc_test")
 
-    cache: GroupingLatestValueCache[int, tuple[int, str]] = GroupingLatestValueCache(
-        channel.new_receiver(), key=lambda x: x[0]
-    )
+    with pytest.deprecated_call():
+        cache: GroupingLatestValueCache[int, tuple[int, str]] = (
+            GroupingLatestValueCache(channel.new_receiver(), key=lambda x: x[0])
+        )
     sender = channel.new_sender()
 
     assert 5 not in cache
@@ -103,12 +105,14 @@ async def test_equality() -> None:
     """Test that two caches with the same content are equal."""
     channel = Broadcast[tuple[int, str]](name="lvc_test")
 
-    cache1: GroupingLatestValueCache[int, tuple[int, str]] = GroupingLatestValueCache(
-        channel.new_receiver(), key=lambda x: x[0]
-    )
-    cache2: GroupingLatestValueCache[int, tuple[int, str]] = GroupingLatestValueCache(
-        channel.new_receiver(), key=lambda x: x[0]
-    )
+    with pytest.deprecated_call():
+        cache1: GroupingLatestValueCache[int, tuple[int, str]] = (
+            GroupingLatestValueCache(channel.new_receiver(), key=lambda x: x[0])
+        )
+    with pytest.deprecated_call():
+        cache2: GroupingLatestValueCache[int, tuple[int, str]] = (
+            GroupingLatestValueCache(channel.new_receiver(), key=lambda x: x[0])
+        )
 
     sender = channel.new_sender()
     await sender.send((1, "one"))
@@ -122,3 +126,31 @@ async def test_equality() -> None:
 
     await cache1.stop()
     await cache2.stop()
+
+
+@pytest.mark.integration
+async def test_grouping_latest_value_cache_is_deprecated() -> None:
+    """Test that creating a GroupingLatestValueCache warns."""
+    channel = Broadcast[int](name="lvc_test")
+    with pytest.deprecated_call(
+        match=r"^frequenz\.channels\.experimental\.GroupingLatestValueCache is "
+        r"deprecated and will be removed in v2\.0\.0\. Copy its code into your project"
+    ):
+        cache = GroupingLatestValueCache(channel.new_receiver(), key=lambda x: x)
+    await cache.stop()
+
+
+@pytest.mark.parametrize("name", ["DefaultT", "HashableT", "ValueT_co"])
+def test_type_variables_are_deprecated(name: str) -> None:
+    """Test that reaching the type variables of GroupingLatestValueCache warns."""
+    experimental = importlib.import_module("frequenz.channels.experimental")
+    private = importlib.import_module(
+        "frequenz.channels.experimental._grouping_latest_value_cache"
+    )
+    with pytest.deprecated_call(
+        match=rf"^frequenz\.channels\.experimental\.{name} is deprecated and will be "
+        r"removed in v2\.0\.0, together with "
+        r"frequenz\.channels\.experimental\.GroupingLatestValueCache\."
+    ):
+        value = getattr(experimental, name)
+    assert value is getattr(private, name)

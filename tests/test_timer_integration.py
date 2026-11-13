@@ -9,7 +9,7 @@ from datetime import timedelta
 import async_solipsism
 import pytest
 
-from frequenz.channels.timer import SkipMissedAndDrift, Timer
+from frequenz.channels.timer import MonotonicTimer, SkipMissedAndDrift
 
 
 @pytest.fixture(autouse=True)
@@ -24,12 +24,12 @@ async def test_timer_timeout_reset() -> None:
     """Test that the receiving is properly adjusted after a reset."""
     event_loop = asyncio.get_running_loop()
 
-    async def timer_wait(timer: Timer) -> None:
+    async def timer_wait(timer: MonotonicTimer) -> None:
         await timer.receive()
 
     async with asyncio.timeout(2.0):
         async with asyncio.TaskGroup() as task_group:
-            timer = Timer(timedelta(seconds=1.0), SkipMissedAndDrift())
+            timer = MonotonicTimer(timedelta(seconds=1.0), SkipMissedAndDrift())
             start_time = event_loop.time()
             task_group.create_task(timer_wait(timer))
             await asyncio.sleep(0.5)

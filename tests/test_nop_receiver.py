@@ -8,9 +8,7 @@ from contextlib import closing
 
 import pytest
 
-from frequenz.channels import ReceiverError
-from frequenz.channels._receiver import ReceiverStoppedError
-from frequenz.channels.experimental import NopReceiver
+from frequenz.channels import NopReceiver, ReceiverError, ReceiverStoppedError
 
 
 async def test_never_ready() -> None:

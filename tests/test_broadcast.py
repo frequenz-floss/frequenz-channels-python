@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from typing import TypeGuard, assert_never
 
 import pytest
+from frequenz.core.warnings import asserting_no_deprecations
 
 from frequenz import channels
 from frequenz.channels import (
@@ -543,6 +544,12 @@ def test_broadcast_wake_from_other_thread_in_debug_mode() -> None:
         loop.run_until_complete(close_in_thread())
     finally:
         loop.close()
+
+
+async def test_broadcast_channel_does_not_warn() -> None:
+    """Ensure creating a `BroadcastChannel` doesn't emit deprecation warnings."""
+    with asserting_no_deprecations():
+        _ = BroadcastChannel[int](name="no-deprecations-test")
 
 
 async def test_broadcast_no_receivers_after_all_receivers_closed() -> None:

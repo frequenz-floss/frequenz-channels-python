@@ -374,10 +374,10 @@ async def select(  # noqa: DOC503
         from typing import assert_never
 
         from frequenz.channels import ReceiverStoppedError, select
-        from frequenz.channels.timer import SkipMissedAndDrift, Timer, TriggerAllMissed
+        from frequenz.channels.timer import MonotonicTimer, SkipMissedAndDrift, TriggerAllMissed
 
-        timer1 = Timer(datetime.timedelta(seconds=1), TriggerAllMissed())
-        timer2 = Timer(datetime.timedelta(seconds=0.5), SkipMissedAndDrift())
+        timer1 = MonotonicTimer(datetime.timedelta(seconds=1), TriggerAllMissed())
+        timer2 = MonotonicTimer(datetime.timedelta(seconds=0.5), SkipMissedAndDrift())
 
         async for selected in select(timer1, timer2):
             if timer1.triggered(selected):
