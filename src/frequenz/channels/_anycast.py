@@ -295,14 +295,6 @@ class Anycast(Generic[ChannelMessageT]):
         async with self._recv_cv:
             self._recv_cv.notify_all()
 
-    @deprecated("The close() method is deprecated, use aclose() instead")
-    async def close(self) -> None:
-        """Close the channel.
-
-        Deprecated alias for [`.aclose()`][frequenz.channels.Anycast.aclose].
-        """
-        return await self.aclose()
-
     def new_sender(self) -> Sender[ChannelMessageT]:
         """Return a new sender attached to this channel."""
         return _Sender(self)

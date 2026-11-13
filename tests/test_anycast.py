@@ -115,6 +115,14 @@ async def test_anycast_after_close() -> None:
         await receiver.receive()
 
 
+def test_anycast_has_no_async_close() -> None:
+    """Ensure the removed `close()` method is gone, `aclose()` is the only way."""
+    acast: Anycast[int] = Anycast(name="test")
+
+    assert not hasattr(acast, "close")
+    assert hasattr(acast, "aclose")
+
+
 async def test_anycast_full() -> None:
     """Ensure send calls to a full channel are blocked."""
     buffer_size = 10

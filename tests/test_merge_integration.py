@@ -10,10 +10,11 @@ import pytest
 from frequenz.channels import Anycast, Broadcast, Sender, merge
 from frequenz.channels._receiver import ReceiverStoppedError
 
+# These tests use the deprecated Anycast and Broadcast on purpose.
+pytestmark = pytest.mark.filterwarnings("once::DeprecationWarning")
+
 
 @pytest.mark.integration
-# This test uses the deprecated Anycast on purpose.
-@pytest.mark.filterwarnings("once::DeprecationWarning")
 async def test_merge() -> None:
     """Ensure merge() receives messages in order."""
     chan1 = Anycast[int](name="chan1")

@@ -13,7 +13,6 @@ from typing import TypeGuard, assert_never
 import pytest
 from frequenz.core.warnings import asserting_no_deprecations
 
-from frequenz import channels
 from frequenz.channels import (
     Broadcast,
     BroadcastChannel,
@@ -27,6 +26,18 @@ from frequenz.channels import (
     select,
     selected_from,
 )
+
+# These tests use the deprecated Broadcast on purpose.
+pytestmark = pytest.mark.filterwarnings("once::DeprecationWarning")
+
+
+def test_broadcast_is_deprecated() -> None:
+    """Ensure `Broadcast` warns it is deprecated, and what to use instead."""
+    with pytest.deprecated_call(
+        match=r"^frequenz\.channels\.Broadcast is deprecated\. "
+        r"Use frequenz\.channels\.BroadcastChannel instead\.$"
+    ):
+        _ = Broadcast[int](name="deprecation-test")
 
 
 async def test_broadcast() -> None:
@@ -111,6 +122,14 @@ async def test_broadcast_after_close() -> None:
     assert excinfo.value.receiver is receiver
     assert isinstance(excinfo.value.__cause__, ChannelClosedError)
     assert excinfo.value.__cause__.channel is bcast
+
+
+def test_broadcast_has_no_async_close() -> None:
+    """Ensure the removed `close()` method is gone, `aclose()` is the only way."""
+    bcast: Broadcast[int] = Broadcast(name="meter_5")
+
+    assert not hasattr(bcast, "close")
+    assert hasattr(bcast, "aclose")
 
 
 async def test_broadcast_overflow() -> None:
@@ -855,12 +874,6 @@ async def test_broadcast_channel_str() -> None:
     assert str(sender) == "Broadcast:str-test:BroadcastSender"
     assert str(receiver) == "Broadcast:str-test:BroadcastReceiver:str-test_receiver"
     assert repr(sender).startswith("BroadcastSender(Broadcast(name='str-test'")
-
-
-def test_broadcast_deprecated() -> None:
-    """Ensure reaching the `Broadcast` alias emits a deprecation warning."""
-    with pytest.deprecated_call(match="Please use BroadcastChannel instead."):
-        _ = channels.Broadcast
 
 
 async def test_broadcast_channel_closed_error_holds_broadcast() -> None:
