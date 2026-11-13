@@ -100,9 +100,7 @@ from __future__ import annotations
 import abc
 import asyncio
 from datetime import timedelta
-from typing import TYPE_CHECKING, TypeAlias
 
-from frequenz.core.warnings import DeprecatedAlias, deprecated_aliases
 from typing_extensions import override
 
 from ._receiver import Receiver, ReceiverStoppedError
@@ -112,7 +110,6 @@ __all__ = [
     "MonotonicTimer",
     "SkipMissedAndDrift",
     "SkipMissedAndResync",
-    "Timer",
     "TriggerAllMissed",
 ]
 
@@ -813,28 +810,3 @@ class MonotonicTimer(Receiver[timedelta]):
             f"{type(self).__name__}<{self.interval=}, {self.missed_tick_policy=}, "
             f"{self.loop=}, {self.is_running=}>"
         )
-
-
-if TYPE_CHECKING:
-    Timer: TypeAlias = MonotonicTimer
-    """A receiver that sends a message regularly.
-
-    Deprecated:
-        Deprecated since v1.13.0. Use
-        [`MonotonicTimer`][frequenz.channels.timer.MonotonicTimer] instead.
-
-        The name `Timer` will be used for a wall clock timer in a later version.
-    """
-else:
-    __getattr__ = deprecated_aliases(
-        __name__,
-        DeprecatedAlias(
-            "Timer",
-            new_name="MonotonicTimer",
-            since="v1.13.0",
-            message=(
-                "{old} is deprecated. Use {new} instead. The name Timer will be "
-                "used for a wall clock timer in a later version."
-            ),
-        ),
-    )
