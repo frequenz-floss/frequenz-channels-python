@@ -260,6 +260,7 @@ class Receiver(ABC, Generic[ReceiverMessageT_co]):
             ReceiverError: If there is some problem with the receiver.
         """
 
+    @abstractmethod
     def close(self) -> None:
         """Close the receiver.
 
@@ -269,7 +270,6 @@ class Receiver(ABC, Generic[ReceiverMessageT_co]):
         or once the messages already in the receiver's buffer are received, depending on
         the receiver.
         """
-        raise NotImplementedError("close() must be implemented by subclasses")
 
     def __aiter__(self) -> Self:
         """Get an async iterator over the received messages.
