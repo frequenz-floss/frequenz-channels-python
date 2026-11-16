@@ -24,6 +24,16 @@ This will probably be the last minor release of v1. It deprecates everything tha
 
 - `frequenz.channels.experimental.OptionalReceiver` will be removed in v2.0.0. Its deprecation warning now points at `frequenz.channels.NopReceiver`: use the receiver itself, or a `NopReceiver` when there is none.
 
+- `frequenz.channels.experimental.Pipe` is deprecated and will be removed in v3.0.0. Its behavior is unchanged. Use the new `frequenz.channels.Pipe` instead, but check how your code closes the sender and the receiver of the pipe first, as the two behave differently:
+
+  - When its receiver stops, the new `Pipe` closes its sender. The experimental one stops and leaves the sender open.
+  - When sending fails with a `SenderError` that isn't a `TransientSenderError`, the new `Pipe` logs the error and closes both its sender and its receiver by default. The experimental one lets the exception end its task and leaves both open.
+  - When sending fails with a `TransientSenderError`, the new `Pipe` logs a warning, drops the message and keeps forwarding. The experimental one lets the exception end its task.
+  - With `close_pipe_on_send_error=False`, the new `Pipe` also drops the message that failed with any other `SenderError` and keeps forwarding the next ones. This doesn't bring back the behavior of the experimental one.
+  - `stop()` leaves both ends open in both.
+
+  The deprecation warning says so too: `frequenz.channels.experimental.Pipe is deprecated and will be removed in v3.0.0. Use frequenz.channels.Pipe instead, but check how your code closes its sender and receiver first: the new one closes its sender when its receiver stops, and both ends when sending fails, while this one leaves them open.`
+
 - `frequenz.channels.timer.Timer` was renamed to `MonotonicTimer`, to make clear it uses the event loop's monotonic clock and to free the name `Timer` for a wall clock timer in a later version. `Timer` still works as a deprecated alias and will be removed in v2.0.0, as its deprecation warning says. The change is mechanical: replace `Timer` with `MonotonicTimer` in imports and uses.
 
 - The `limit` argument of `BroadcastChannel()` and `BroadcastSender.subscribe()` is deprecated and will be removed in v2.0.0. Use the new `buffer_size` argument instead. It does the same, but its name says what is limited: the number of messages each receiver can hold.
@@ -36,6 +46,12 @@ This will probably be the last minor release of v1. It deprecates everything tha
 ## New Features
 
 - `NopReceiver` and `WithPrevious` are now stable, and available from `frequenz.channels`.
+
+- `Pipe` is now available in `frequenz.channels`. It forwards all the messages from a receiver to a sender, like `frequenz.channels.experimental.Pipe`, but it also closes its ends: when its receiver stops it closes its sender, and when sending fails with a `SenderError` that isn't a `TransientSenderError` it closes its sender and its receiver, unless you pass `close_pipe_on_send_error=False`, in which case it drops the message and keeps going. When sending fails with a `TransientSenderError`, it logs a warning, drops the message and keeps forwarding, whatever `close_pipe_on_send_error` says. See the `Pipe` documentation for what the pipe leaves open and who has to close it.
+
+  A send to a `BroadcastChannel` without receivers closes the channel and raises a plain `SenderError` in v1, so a `Pipe` sending to one stops and closes its ends by default. A `Broadcast` created with the default `auto_close=False` drops the message instead, and the pipe keeps going. In v2.0.0, a `BroadcastChannel` without receivers stays open, so the pipe keeps going too.
+
+- `TransientSenderError` is a new `SenderError` for errors after which the sender and its channel can still be used: only that message wasn't sent. No sender in this library raises it yet, but `Pipe` already handles it, and custom senders can raise it.
 
 ## Bug Fixes
 
