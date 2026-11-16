@@ -1724,9 +1724,19 @@ exception:</p>
 <p>When a particular stream of data is no-longer required, it is a good practice to close
 the receiver to free up resources. This is especially important in applications that are
 repeatedly creating new receivers.  The
-<a class="autorefs autorefs-internal" title="close" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.close"><code>Receiver.close()</code></a> method can be used for this
+<a class="autorefs autorefs-internal" title="close
+
+
+  
+      abstractmethod
+  " href="../../reference/frequenz/channels/#frequenz.channels.Receiver.close"><code>Receiver.close()</code></a> method can be used for this
 purpose.</p>
-<p>After <a class="autorefs autorefs-internal" title="close" href="../../reference/frequenz/channels/#frequenz.channels.Receiver.close"><code>Receiver.close()</code></a> is called, some receivers
+<p>After <a class="autorefs autorefs-internal" title="close
+
+
+  
+      abstractmethod
+  " href="../../reference/frequenz/channels/#frequenz.channels.Receiver.close"><code>Receiver.close()</code></a> is called, some receivers
 still deliver the messages in their buffer, and raise a
 <a class="autorefs autorefs-internal" title="frequenz.channels.ReceiverStoppedError" href="../../reference/frequenz/channels/#frequenz.channels.ReceiverStoppedError"><code>ReceiverStoppedError</code></a> once it is drained.
 Others, like <a class="autorefs autorefs-internal" title="frequenz.channels.BroadcastReceiver" href="../../reference/frequenz/channels/#frequenz.channels.BroadcastReceiver"><code>BroadcastReceiver</code></a>, raise it at
