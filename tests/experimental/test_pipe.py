@@ -1,21 +1,32 @@
 # License: MIT
 # Copyright © 2024 Frequenz Energy-as-a-Service GmbH
 
-"""Tests for the Pipe class."""
+"""Tests for the deprecated experimental Pipe class."""
 
 import asyncio
 import typing
-from contextlib import AsyncExitStack, aclosing, closing
+from contextlib import AsyncExitStack, closing
 
 import pytest
 
-from frequenz.channels import Broadcast, Receiver
+from frequenz.channels import (
+    BroadcastChannel,
+    Receiver,
+    Sender,
+    SenderError,
+)
 from frequenz.channels.experimental import Pipe
 
 T = typing.TypeVar("T")
 
-# These tests use the deprecated Broadcast on purpose.
-pytestmark = pytest.mark.filterwarnings("once::DeprecationWarning")
+DEPRECATION_MESSAGE = "frequenz.channels.experimental.Pipe is deprecated"
+"""The start of the deprecation message, which the pytest filter matches."""
+
+
+def make_pipe(receiver: Receiver[T], sender: Sender[T]) -> Pipe[T]:
+    """Create a deprecated pipe, checking that it warns."""
+    with pytest.deprecated_call(match=DEPRECATION_MESSAGE):
+        return Pipe(receiver, sender)
 
 
 class Timeout:
@@ -30,17 +41,35 @@ async def receive_timeout(recv: Receiver[T], timeout: float = 0.1) -> T | type[T
         return Timeout
 
 
+async def wait_stopped(pipe: Pipe[int]) -> None:
+    """Wait until the task of a started pipe ends."""
+    task = pipe._task  # pylint: disable=protected-access
+    assert task is not None
+    await asyncio.wait_for(task, timeout=1.0)
+
+
+async def test_pipe_deprecation_message() -> None:
+    """Ensure the warning says what to use instead and what changes."""
+    sender, receiver = BroadcastChannel[int](name="channel")
+    with pytest.deprecated_call() as record:
+        Pipe(receiver, sender)
+
+    message = str(record[0].message)
+    assert message.startswith(
+        "frequenz.channels.experimental.Pipe is deprecated and will be removed in "
+        "v3.0.0. Use frequenz.channels.Pipe instead, "
+    )
+    assert "closes its sender when its receiver stops" in message
+    assert "both ends when sending fails" in message
+    assert "this one leaves them open" in message
+
+
 async def test_pipe() -> None:
     """Test pipe."""
-    channel1: Broadcast[int] = Broadcast(name="channel1")
-    channel2: Broadcast[int] = Broadcast(name="channel2")
+    sender_chan1, receiver_chan1 = BroadcastChannel[int](name="channel1")
+    sender_chan2, receiver_chan2 = BroadcastChannel[int](name="channel2")
 
-    sender_chan1 = channel1.new_sender()
-    sender_chan2 = channel2.new_sender()
-    receiver_chan1 = channel1.new_receiver()
-    receiver_chan2 = channel2.new_receiver()
-
-    async with Pipe(channel2.new_receiver(), channel1.new_sender()):
+    async with make_pipe(sender_chan2.subscribe(), sender_chan1.clone()):
         await sender_chan2.send(42)
         assert await receive_timeout(receiver_chan1) == 42
         assert await receive_timeout(receiver_chan2) == 42
@@ -64,23 +93,105 @@ async def test_pipe() -> None:
 
 async def test_pipe_with_async_exit_stack() -> None:
     """Test how pipe should work with async exit stack."""
-    # Channels, receivers and Pipe are in AsyncExitStack
+    # Senders, receivers and Pipe are in AsyncExitStack
     # to close and stop them at the end.
     async with AsyncExitStack() as stack:
-        source_channel = await stack.enter_async_context(
-            aclosing(Broadcast[int](name="source channel"))
-        )
-        source_receiver = stack.enter_context(closing(source_channel.new_receiver()))
+        source_sender, source_receiver = BroadcastChannel[int](name="source channel")
+        stack.push_async_callback(source_sender.aclose)
+        stack.enter_context(closing(source_receiver))
 
-        forwarding_channel = await stack.enter_async_context(
-            aclosing(Broadcast[int](name="forwarding channel"))
-        )
-        await stack.enter_async_context(
-            Pipe(source_receiver, forwarding_channel.new_sender())
-        )
+        forwarding_sender, receiver = BroadcastChannel[int](name="forwarding channel")
+        stack.push_async_callback(forwarding_sender.aclose)
+        stack.enter_context(closing(receiver))
 
-        receiver = stack.enter_context(closing(forwarding_channel.new_receiver()))
+        await stack.enter_async_context(make_pipe(source_receiver, forwarding_sender))
 
-        source_sender = source_channel.new_sender()
         await source_sender.send(10)
         assert await receiver.receive() == 10
+
+
+async def test_pipe_leaves_sender_open_when_receiver_stops() -> None:
+    """Ensure the deprecated pipe stops, but leaves its sender open."""
+    source_sender, source_receiver = BroadcastChannel[int](name="source")
+    sender, receiver = BroadcastChannel[int](name="forwarding")
+
+    pipe = make_pipe(source_receiver, sender)
+    await pipe.start()
+    await source_sender.send(1)
+    assert await receive_timeout(receiver) == 1
+
+    await source_sender.aclose()
+    await wait_stopped(pipe)
+
+    await sender.send(2)
+    assert await receive_timeout(receiver) == 2
+
+
+class FailingSender(Sender[int]):
+    """A sender whose sends fail with a `SenderError`."""
+
+    def __init__(self) -> None:
+        """Initialize this sender."""
+        self.closed = False
+
+    async def send(self, message: int, /) -> None:
+        """Fail to send."""
+        raise SenderError("Sending failed", self)
+
+    async def aclose(self) -> None:
+        """Remember that this sender was closed."""
+        self.closed = True
+
+
+async def test_pipe_leaves_both_ends_open_when_sending_fails() -> None:
+    """Ensure the deprecated pipe lets a send error end its task and closes nothing."""
+    source_sender, source_receiver = BroadcastChannel[int](name="source")
+    sender = FailingSender()
+
+    pipe = make_pipe(source_receiver, sender)
+    await pipe.start()
+    await source_sender.send(1)
+    with pytest.raises(SenderError, match="Sending failed"):
+        await wait_stopped(pipe)
+
+    assert not sender.closed
+    # The receiver is still open: the source channel still accepts messages.
+    await source_sender.send(2)
+    assert await receive_timeout(source_receiver) == 2
+
+
+async def test_pipe_stops_when_sending_without_receivers() -> None:
+    """Ensure a send without receivers ends the task of the deprecated pipe.
+
+    In v1, sending to a `BroadcastChannel` without receivers closes it and raises a
+    `SenderError`. The new `Pipe` closes its ends and stops instead.
+    """
+    source_sender, source_receiver = BroadcastChannel[int](name="source")
+    sender, receiver = BroadcastChannel[int](name="forwarding")
+    receiver.close()
+
+    pipe = make_pipe(source_receiver, sender)
+    await pipe.start()
+    await source_sender.send(1)
+    with pytest.raises(SenderError):
+        await wait_stopped(pipe)
+
+    # The pipe doesn't close its receiver: the source channel still accepts messages.
+    await source_sender.send(2)
+    assert await receive_timeout(source_receiver) == 2
+
+
+async def test_pipe_stop_leaves_both_ends_open() -> None:
+    """Ensure stopping the deprecated pipe leaves its sender and receiver open."""
+    source_sender, source_receiver = BroadcastChannel[int](name="source")
+    sender, receiver = BroadcastChannel[int](name="forwarding")
+
+    pipe = make_pipe(source_receiver, sender)
+    await pipe.start()
+    await asyncio.sleep(0)
+    await pipe.stop()
+
+    await sender.send(1)
+    assert await receive_timeout(receiver) == 1
+    await source_sender.send(2)
+    assert await receive_timeout(source_receiver) == 2

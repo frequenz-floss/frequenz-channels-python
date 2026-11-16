@@ -13,45 +13,78 @@ from __future__ import annotations
 import asyncio
 import typing
 
+from typing_extensions import deprecated
+
 from .._generic import ChannelMessageT
 from .._receiver import Receiver
 from .._sender import Sender
 
 
+@deprecated(
+    "frequenz.channels.experimental.Pipe is deprecated and will be removed in v3.0.0. "
+    "Use frequenz.channels.Pipe instead, but check how your code closes its sender and "
+    "receiver first: the new one closes its sender when its receiver stops, and both "
+    "ends when sending fails, while this one leaves them open."
+)
 class Pipe(typing.Generic[ChannelMessageT]):
     """A pipe between two channels.
+
+    Deprecated:
+        Deprecated since v1.13.0, and will be removed in v3.0.0.  Use
+        [`frequenz.channels.Pipe`][] instead, after checking how your code closes the
+        sender and the receiver: the new class closes them in cases where this one
+        leaves them open, and drops messages that fail with a
+        [`TransientSenderError`][frequenz.channels.TransientSenderError].
 
     The [`Pipe`][frequenz.channels.experimental.Pipe] class takes a receiver and a
     sender and creates a pipe between them by forwarding all the messages received by
     the receiver to the sender.
 
+    [`frequenz.channels.Pipe`][] is a separate implementation that treats its endpoints
+    differently, so moving to it can change how your code shuts down:
+
+    * When its receiver stops, this pipe stops and leaves its sender open.
+      [`frequenz.channels.Pipe`][] closes its sender too.
+    * When sending fails with any [`SenderError`][frequenz.channels.SenderError], the
+      exception ends the task of this pipe and both ends stay open.
+      [`frequenz.channels.Pipe`][] logs the error and closes its sender and its
+      receiver by default, unless it is a
+      [`TransientSenderError`][frequenz.channels.TransientSenderError]: then it logs
+      it, drops the message and keeps forwarding.
+    * [`frequenz.channels.Pipe`][] also takes `close_pipe_on_send_error=False`, which
+      drops the message that failed with any other
+      [`SenderError`][frequenz.channels.SenderError] and keeps forwarding the next
+      ones.  This doesn't bring back the behavior of this class, which stops on the
+      first send error.
+    * [`stop()`][frequenz.channels.experimental.Pipe.stop] leaves both ends open in
+      both.
+
     Example:
         ```python
         import asyncio
-        from contextlib import closing, aclosing, AsyncExitStack
+        from contextlib import closing, AsyncExitStack
 
-        from frequenz.channels import Broadcast
+        from frequenz.channels import BroadcastChannel
         from frequenz.channels.experimental import Pipe
 
         async def main() -> None:
-            # Channels, receivers and Pipe are in AsyncExitStack
+            # Senders, receivers and Pipe are in AsyncExitStack
             # to close and stop them at the end.
             async with AsyncExitStack() as stack:
-                source_channel = await stack.enter_async_context(
-                    aclosing(Broadcast[int](name="source channel"))
+                source_sender, source_receiver = BroadcastChannel[int](
+                    name="source channel"
                 )
-                source_receiver = stack.enter_context(closing(source_channel.new_receiver()))
+                stack.push_async_callback(source_sender.aclose)
+                stack.enter_context(closing(source_receiver))
 
-                forwarding_channel = await stack.enter_async_context(
-                    aclosing(Broadcast[int](name="forwarding channel"))
+                forwarding_sender, receiver = BroadcastChannel[int](
+                    name="forwarding channel"
                 )
-                await stack.enter_async_context(
-                    Pipe(source_receiver, forwarding_channel.new_sender())
-                )
+                stack.push_async_callback(forwarding_sender.aclose)
+                stack.enter_context(closing(receiver))
 
-                receiver = stack.enter_context(closing(forwarding_channel.new_receiver()))
+                await stack.enter_async_context(Pipe(source_receiver, forwarding_sender))
 
-                source_sender = source_channel.new_sender()
                 await source_sender.send(10)
                 assert await receiver.receive() == 10
 
