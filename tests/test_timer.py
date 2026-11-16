@@ -767,34 +767,8 @@ async def test_timer_immediate_interruption_on_reset() -> None:
     assert timer_trigger_order == [2, 1, 3]
 
 
-def test_timer_is_deprecated_alias() -> None:
-    """Test that `Timer` warns and is the same class as `MonotonicTimer`."""
-    with pytest.deprecated_call(
-        match=r"^frequenz\.channels\.timer\.Timer is deprecated\. "
-        r"Use frequenz\.channels\.timer\.MonotonicTimer instead\. "
-        r"The name Timer will be used for a wall clock timer in a later version\.$"
-    ):
-        from frequenz.channels.timer import (  # pylint: disable=import-outside-toplevel
-            Timer,
-        )
-
-    assert Timer is MonotonicTimer
-
-
 async def test_monotonic_timer_is_not_deprecated() -> None:
     """Test that creating a `MonotonicTimer` doesn't emit deprecation warnings."""
     with asserting_no_deprecations():
         timer = MonotonicTimer(timedelta(seconds=1.0), TriggerAllMissed())
     timer.stop()
-
-
-def test_timer_star_import_warns() -> None:
-    """Test that `from frequenz.channels.timer import *` still provides `Timer`."""
-    namespace: dict[str, Any] = {}
-    with pytest.deprecated_call(
-        match=r"^frequenz\.channels\.timer\.Timer is deprecated\. "
-    ):
-        # pylint: disable-next=exec-used
-        exec("from frequenz.channels.timer import *", namespace)
-    assert namespace["Timer"] is MonotonicTimer
-    assert namespace["MonotonicTimer"] is MonotonicTimer

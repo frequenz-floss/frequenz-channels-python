@@ -8,7 +8,21 @@
 
 <!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
 
-- `BroadcastChannel()` and `BroadcastSender.subscribe()` now take everything but the name by keyword: `resend_latest`, `buffer_size` and `warn_on_overflow`.  The deprecated `limit` is keyword-only too, so a call that passed `limit` or any other option by position fails with a `TypeError`.  Pass them by keyword, as v1.13.0 recommends.
+- `BroadcastChannel()` and `BroadcastSender.subscribe()` now take everything but the name by keyword: `resend_latest`, `buffer_size` and `warn_on_overflow`.  A call that passed any of them by position fails with a `TypeError`.  Pass them by keyword, as v1.13.0 recommends.
+
+- The deprecated `limit` argument of `BroadcastChannel()` and `BroadcastSender.subscribe()` is removed.  Use `buffer_size` instead, which exists since v1.13.0, so you can migrate before upgrading.  `Broadcast.new_receiver()` still takes `limit`.
+
+- The deprecated `frequenz.channels.timer.Timer` is removed.  Use `MonotonicTimer` instead, which exists since v1.13.0, so you can migrate before upgrading.  The name `Timer` will be used for a wall clock timer in a later version.
+
+- `frequenz.channels.experimental.GroupingLatestValueCache` is removed, together with its type variables `DefaultT`, `HashableT` and `ValueT_co`.  Copy its code into your project if you still need it, or open an issue if you think it should stay in the library.
+
+- `frequenz.channels.experimental.RelaySender` is removed.  Copy its code into your project if you still need it, or open an issue if you think it should stay in the library.
+
+- `frequenz.channels.experimental.OptionalReceiver` is removed.  Use the receiver itself, or `frequenz.channels.NopReceiver` when there is none.  `NopReceiver` exists since v1.13.0, so you can migrate before upgrading.
+
+- `WithPrevious` and `NopReceiver` are no longer available from `frequenz.channels.experimental`.  Import them from `frequenz.channels`, where they are available since v1.13.0, so you can migrate before upgrading.
+
+- The deprecated `async close()` method of `Anycast` and `Broadcast` is removed.  Use `aclose()` instead, which exists since v1.8.0, so you can migrate before upgrading.  It also works with `contextlib.aclosing()`.
 
 - The `repr()` of a `BroadcastReceiver` shows its `buffer_size` instead of `limit`.
 
