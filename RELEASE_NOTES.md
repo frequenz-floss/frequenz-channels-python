@@ -18,7 +18,7 @@ This will probably be the last minor release of v1. It deprecates everything tha
 
 - `Broadcast.close()` and `Anycast.close()`, deprecated since v1.8.0, will be removed in v2.0.0. Use `aclose()` instead. Their deprecation warnings now say so, and name the method and its class, as in `The method close() in frequenz.channels.Broadcast is deprecated and will be removed in v2.0.0. Use aclose() instead.`
 
-- `frequenz.channels.experimental.GroupingLatestValueCache` and its type variables `DefaultT`, `HashableT` and `ValueT_co`, and `frequenz.channels.experimental.RelaySender` are deprecated and will be removed in v2.0.0. There is no replacement in this library: copy their code into your project if you need them, or [open an issue](https://github.com/frequenz-floss/frequenz-channels-python/issues) if you think they should stay.
+- `frequenz.channels.experimental.GroupingLatestValueCache`, with its type variables `DefaultT`, `HashableT` and `ValueT_co`, is deprecated and will be removed in v2.0.0, and so is `frequenz.channels.experimental.RelaySender`. There is no replacement in this library: copy their code into your project if you need them, or [open an issue](https://github.com/frequenz-floss/frequenz-channels-python/issues) if you think they should stay.
 
 - `frequenz.channels.experimental.NopReceiver` and `frequenz.channels.experimental.WithPrevious` are deprecated. Import them from `frequenz.channels` instead; they are the same objects, so only the import changes. The old names will be removed in v2.0.0, and their deprecation warnings say so.
 
