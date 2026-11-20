@@ -7,30 +7,28 @@ import asyncio
 
 import pytest
 
-from frequenz.channels import Anycast, Broadcast, Sender, merge
+from frequenz.channels import Broadcast, BroadcastChannel, Sender, merge
 from frequenz.channels._receiver import ReceiverStoppedError
 
 
 @pytest.mark.integration
-# This test uses the deprecated Anycast on purpose.
-@pytest.mark.filterwarnings("once::DeprecationWarning")
 async def test_merge() -> None:
     """Ensure merge() receives messages in order."""
-    chan1 = Anycast[int](name="chan1")
-    chan2 = Anycast[int](name="chan2")
+    sender1, receiver1 = BroadcastChannel[int](name="chan1")
+    sender2, receiver2 = BroadcastChannel[int](name="chan2")
 
     async def send(ch1: Sender[int], ch2: Sender[int]) -> None:
         for ctr in range(5):
             await ch1.send(ctr + 1)
             await ch2.send(ctr + 101)
-        await chan1.aclose()
+        await ch1.aclose()
         await ch2.send(1000)
-        await chan2.aclose()
+        await ch2.aclose()
 
-    senders = asyncio.create_task(send(chan1.new_sender(), chan2.new_sender()))
+    senders = asyncio.create_task(send(sender1, sender2))
 
     results: list[int] = []
-    async for item in merge(chan1.new_receiver(), chan2.new_receiver()):
+    async for item in merge(receiver1, receiver2):
         results.append(item)
     await senders
     for ctr in range(5):

@@ -39,7 +39,6 @@
 "part:channels":
   - changed-files:
     - any-glob-to-any-file:
-      - "src/frequenz/channels/_anycast.py"
       - "src/frequenz/channels/_broadcast.py"
 
 "part:core":
