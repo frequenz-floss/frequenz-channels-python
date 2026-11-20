@@ -1691,8 +1691,8 @@ sees:</p>
 
   
       async
-  " href="../../../reference/frequenz/channels/#frequenz.channels.BroadcastSender.send"><code>send()</code></a> drops the message and
-  raises a <a class="autorefs autorefs-internal" title="frequenz.channels.NoReceiversError" href="../../../reference/frequenz/channels/#frequenz.channels.NoReceiversError"><code>NoReceiversError</code></a>.  The
+  " href="../../../reference/frequenz/channels/#frequenz.channels.BroadcastSender.send"><code>send()</code></a> drops the message and raises a
+  <a class="autorefs autorefs-internal" title="frequenz.channels.SenderHasNoReceiversError" href="../../../reference/frequenz/channels/#frequenz.channels.SenderHasNoReceiversError"><code>SenderHasNoReceiversError</code></a>.  The
   channel stays open, so once
   <a class="autorefs autorefs-internal" title="subscribe" href="../../../reference/frequenz/channels/#frequenz.channels.BroadcastSender.subscribe"><code>subscribe()</code></a> creates a new
   receiver, sending works again.  With <code>resend_latest=True</code>, that receiver first
