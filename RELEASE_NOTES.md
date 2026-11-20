@@ -33,6 +33,8 @@ This will probably be the last minor release of v1. It deprecates everything tha
   - v2.0.0 will also make `resend_latest` keyword-only, so pass it by keyword now.
   - `Broadcast.new_receiver()` and `Anycast()` keep their `limit` argument.
 
+- v2.0.0 will make `Receiver.close()` abstract, so a custom receiver that doesn't implement it can't be instantiated anymore. Add a `close()` method to your own receivers now; the same code works on v1 and v2.
+
 ## New Features
 
 - `NopReceiver` and `WithPrevious` are now stable, and available from `frequenz.channels`.
