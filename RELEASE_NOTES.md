@@ -18,7 +18,7 @@ This will probably be the last minor release of v1. It deprecates everything tha
 
 - `Broadcast.close()` and `Anycast.close()`, deprecated since v1.8.0, will be removed in v2.0.0. Use `aclose()` instead. Their deprecation warnings now say so, and name the method and its class, as in `The method close() in frequenz.channels.Broadcast is deprecated and will be removed in v2.0.0. Use aclose() instead.`
 
-- `frequenz.channels.experimental.GroupingLatestValueCache` and its type variables `DefaultT`, `HashableT` and `ValueT_co`, and `frequenz.channels.experimental.RelaySender` are deprecated and will be removed in v2.0.0. There is no replacement in this library: copy their code into your project if you need them, or [open an issue](https://github.com/frequenz-floss/frequenz-channels-python/issues) if you think they should stay.
+- `frequenz.channels.experimental.GroupingLatestValueCache`, with its type variables `DefaultT`, `HashableT` and `ValueT_co`, is deprecated and will be removed in v2.0.0, and so is `frequenz.channels.experimental.RelaySender`. There is no replacement in this library: copy their code into your project if you need them, or [open an issue](https://github.com/frequenz-floss/frequenz-channels-python/issues) if you think they should stay.
 
 - `frequenz.channels.experimental.NopReceiver` and `frequenz.channels.experimental.WithPrevious` are deprecated. Import them from `frequenz.channels` instead; they are the same objects, so only the import changes. The old names will be removed in v2.0.0, and their deprecation warnings say so.
 
@@ -31,7 +31,9 @@ This will probably be the last minor release of v1. It deprecates everything tha
   - `buffer_size` is keyword-only, and passing both `limit` and `buffer_size` raises a `TypeError`.
   - Passing `warn_on_overflow` by position is deprecated, since the `buffer_size` form only accepts it by keyword.
   - v2.0.0 will also make `resend_latest` keyword-only, so pass it by keyword now.
-  - `Broadcast` and `Anycast` are not changed.
+  - `Broadcast.new_receiver()` and `Anycast()` keep their `limit` argument.
+
+- v2.0.0 will make `Receiver.close()` abstract, so a custom receiver that doesn't implement it can't be instantiated anymore. Add a `close()` method to your own receivers now; the same code works on v1 and v2.
 
 ## New Features
 
