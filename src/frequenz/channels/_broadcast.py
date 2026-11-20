@@ -11,7 +11,8 @@ from asyncio import AbstractEventLoop, Event, get_running_loop
 from collections import deque
 from typing import Generic, TypeVar
 
-from typing_extensions import override
+from frequenz.core.warnings import ignoring_deprecations
+from typing_extensions import deprecated, override
 
 from ._exceptions import ChannelClosedError
 from ._generic import ChannelMessageT
@@ -48,14 +49,18 @@ def _check_buffer_size(buffer_size: int) -> int:
     return buffer_size
 
 
-class _Broadcast(  # pylint: disable=too-many-instance-attributes
+@deprecated(
+    "frequenz.channels.Broadcast is deprecated. "
+    "Use frequenz.channels.BroadcastChannel instead."
+)
+class Broadcast(  # pylint: disable=too-many-instance-attributes
     Generic[ChannelMessageT]
 ):
-    """The implementation of broadcast channels.
+    """A channel that delivers all messages to all receivers.
 
-    Please use [`BroadcastChannel`][frequenz.channels.BroadcastChannel] instead of
-    using this class directly through the deprecated
-    [`Broadcast`][frequenz.channels.Broadcast] alias.
+    Deprecated:
+        Deprecated since v1.12.0. Use
+        [`BroadcastChannel`][frequenz.channels.BroadcastChannel] instead.
 
     Senders and receivers are created with
     [`.new_sender()`][frequenz.channels.Broadcast.new_sender] and
@@ -216,12 +221,12 @@ class _Broadcast(  # pylint: disable=too-many-instance-attributes
 
     def __str__(self) -> str:
         """Return a string representation of this channel."""
-        return f"{type(self).__name__.removeprefix('_')}:{self._name}"
+        return f"{type(self).__name__}:{self._name}"
 
     def __repr__(self) -> str:
         """Return a string representation of this channel."""
         return (
-            f"{type(self).__name__.removeprefix('_')}(name={self._name!r}, "
+            f"{type(self).__name__}(name={self._name!r}, "
             f"resend_latest={self.resend_latest!r}):<"
             f"latest={self._latest!r}, "
             f"receivers={len(self._receivers)!r}, "
@@ -240,13 +245,13 @@ class BroadcastSender(CloneableSubscribableSender[_T]):
     [`.clone()`][frequenz.channels.BroadcastSender.clone] method of an existing sender.
     """
 
-    def __init__(self, channel: _Broadcast[_T], /) -> None:
+    def __init__(self, channel: Broadcast[_T], /) -> None:
         """Initialize this sender.
 
         Args:
             channel: A reference to the broadcast channel this sender belongs to.
         """
-        self._channel: _Broadcast[_T] = channel
+        self._channel: Broadcast[_T] = channel
         """The broadcast channel this sender belongs to."""
 
         self._closed: bool = False
@@ -424,7 +429,7 @@ class BroadcastReceiver(Receiver[_T]):
 
     def __init__(
         self,
-        channel: _Broadcast[_T],
+        channel: Broadcast[_T],
         /,
         *,
         name: str | None,
@@ -455,7 +460,7 @@ class BroadcastReceiver(Receiver[_T]):
         Only used for debugging purposes.
         """
 
-        self._channel: _Broadcast[_T] = channel
+        self._channel: Broadcast[_T] = channel
         """The broadcast channel that this receiver belongs to."""
 
         self._q: deque[_T] = deque(maxlen=buffer_size)
@@ -877,9 +882,12 @@ class BroadcastChannel(
         Raises:
             ValueError: If the buffer size is smaller than 1.
         """
-        channel = _Broadcast[ChannelMessageT](
-            name=name, resend_latest=resend_latest, auto_close=True
-        )
+        # Broadcast is deprecated, but it is an implementation detail of this
+        # class, so users shouldn't be warned about it.
+        with ignoring_deprecations():
+            channel = Broadcast[ChannelMessageT](
+                name=name, resend_latest=resend_latest, auto_close=True
+            )
         # pylint: disable=protected-access
         channel._default_buffer_size = _check_buffer_size(buffer_size)
         channel._default_warn_on_overflow = warn_on_overflow

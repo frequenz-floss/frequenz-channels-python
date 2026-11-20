@@ -102,11 +102,7 @@ Extra utility receivers:
   generates a message after a given amount of time.
 """
 
-from typing import TYPE_CHECKING
-
-from frequenz.core.warnings import DeprecatedAlias, deprecated_aliases
-
-from ._broadcast import BroadcastChannel, BroadcastReceiver, BroadcastSender
+from ._broadcast import Broadcast, BroadcastChannel, BroadcastReceiver, BroadcastSender
 from ._exceptions import ChannelClosedError, ChannelError, Error
 from ._generic import (
     ChannelMessageT,
@@ -139,20 +135,6 @@ from ._sender import (
     TransientSenderError,
 )
 from ._with_previous import WithPrevious
-
-if TYPE_CHECKING:
-    from ._broadcast import _Broadcast as Broadcast
-else:
-    __getattr__ = deprecated_aliases(
-        __name__,
-        DeprecatedAlias(
-            "Broadcast",
-            new_module="frequenz.channels._broadcast",
-            new_name="_Broadcast",
-            since="v1.12.0",
-            message="Please use BroadcastChannel instead.",
-        ),
-    )
 
 __all__ = [
     "Broadcast",
