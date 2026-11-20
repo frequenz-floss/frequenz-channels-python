@@ -11,7 +11,7 @@ from frequenz.channels import Receiver
 def test_receiver_without_close_cannot_be_instantiated() -> None:
     """Test that a receiver subclass has to implement `close()`."""
 
-    class NoCloseReceiver(Receiver[int]):
+    class NoCloseReceiver(Receiver[int]):  # pylint: disable=abstract-method
         """A receiver that doesn't implement `close()`."""
 
         async def ready(self) -> bool:
