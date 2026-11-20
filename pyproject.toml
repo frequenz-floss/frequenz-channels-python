@@ -47,19 +47,19 @@ dev-flake8 = [
 ]
 dev-formatting = ["black == 26.10.1", "isort == 9.0.2"]
 dev-mkdocs = [
-  "Markdown == 3.11.2",
+  "Markdown == 3.11.3",
   "black == 26.10.1",
   "frequenz-repo-config[lib] == 0.19.0",
   "markdown-callouts == 0.4.0",
   "markdown-svgbob == 202406.1023",
   "mike == 2.2.0",
   "mkdocs-gen-files == 0.6.1",
-  "mkdocs-include-markdown-plugin == 7.3.0",
+  "mkdocs-include-markdown-plugin == 7.3.2",
   "mkdocs-literate-nav == 0.6.3",
   "mkdocs-macros-plugin == 1.5.0",
   "mkdocs-material == 9.8.1",
   "mkdocstrings[python] == 1.0.8",
-  "mkdocstrings-python == 2.0.10",
+  "mkdocstrings-python == 2.0.11",
   "pymdownx-superfence-filter-lines == 1.0.0",
   "griffe==2.4.1",
 ]
