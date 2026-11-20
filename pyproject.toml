@@ -60,7 +60,7 @@ dev-mkdocs = [
   "mkdocs-material == 9.7.7",
   "mkdocstrings[python] == 1.0.8",
   "mkdocstrings-python == 2.0.10",
-  "pymdownx-superfence-filter-lines == 0.1.0",
+  "pymdownx-superfence-filter-lines == 1.0.0",
   "griffe==2.3.0",
 ]
 dev-mypy = [
