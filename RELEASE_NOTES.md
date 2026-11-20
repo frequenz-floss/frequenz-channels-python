@@ -12,7 +12,7 @@ This will probably be the last minor release of v1. It deprecates everything tha
 
 - `watchfiles` 1.2 and 1.3 are now allowed (`watchfiles >= 0.15.0, < 1.4.0`).
 
-- `frequenz.channels.Anycast`, deprecated since v1.12.0, will be removed in a future version, not necessarily the next major one. Its deprecation warning now recommends copying its code into your project if you need it, or [opening an issue](https://github.com/frequenz-floss/frequenz-channels-python/issues) if you think it should stay in the library.
+- `frequenz.channels.Anycast`, deprecated since v1.12.0, will be removed in v2.0.0, with no replacement. Copy its code into your project if you need it. Its deprecation warning now says so.
 
 - `frequenz.channels.Broadcast`, deprecated since v1.12.0, now warns `frequenz.channels.Broadcast is deprecated. Use frequenz.channels.BroadcastChannel instead.`, instead of `Please use BroadcastChannel instead.`.
 
