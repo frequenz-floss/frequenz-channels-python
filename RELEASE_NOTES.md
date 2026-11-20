@@ -31,7 +31,7 @@ This will probably be the last minor release of v1. It deprecates everything tha
   - `buffer_size` is keyword-only, and passing both `limit` and `buffer_size` raises a `TypeError`.
   - Passing `warn_on_overflow` by position is deprecated, since the `buffer_size` form only accepts it by keyword.
   - v2.0.0 will also make `resend_latest` keyword-only, so pass it by keyword now.
-  - `Broadcast` and `Anycast` are not changed.
+  - `Broadcast.new_receiver()` and `Anycast()` keep their `limit` argument.
 
 ## New Features
 
