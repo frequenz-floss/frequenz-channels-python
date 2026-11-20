@@ -14,6 +14,8 @@
 
 - The deprecated `frequenz.channels.timer.Timer` is removed.  Use `MonotonicTimer` instead, which exists since v1.13.0, so you can migrate before upgrading.  The name `Timer` will be used for a wall clock timer in a later version.
 
+- `Anycast` is removed.  There is no replacement: copy its code into your project if you still need it.
+
 - `frequenz.channels.experimental.GroupingLatestValueCache` is removed, together with its type variables `DefaultT`, `HashableT` and `ValueT_co`.  Copy its code into your project if you still need it, or open an issue if you think it should stay in the library.
 
 - `frequenz.channels.experimental.RelaySender` is removed.  Copy its code into your project if you still need it, or open an issue if you think it should stay in the library.
@@ -22,7 +24,7 @@
 
 - `WithPrevious` and `NopReceiver` are no longer available from `frequenz.channels.experimental`.  Import them from `frequenz.channels`, where they are available since v1.13.0, so you can migrate before upgrading.
 
-- The deprecated `async close()` method of `Anycast` and `Broadcast` is removed.  Use `aclose()` instead, which exists since v1.8.0, so you can migrate before upgrading.  It also works with `contextlib.aclosing()`.
+- The deprecated `async close()` method of `Broadcast` is removed.  Use `aclose()` instead, which exists since v1.8.0, so you can migrate before upgrading.  It also works with `contextlib.aclosing()`.
 
 - The `repr()` of a `BroadcastReceiver` shows its `buffer_size` instead of `limit`.
 

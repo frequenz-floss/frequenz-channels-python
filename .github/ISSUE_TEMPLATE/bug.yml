@@ -50,7 +50,7 @@ body:
         - Documentation (part:docs)
         - Unit, integration and performance tests (part:tests)
         - Build script, CI, dependencies, etc. (part:tooling)
-        - Channels, `Broadcast`, `Anycast`, etc. (part:channels)
+        - Channels, `BroadcastChannel`, etc. (part:channels)
         - Core types (`Sender`, `Receiver`, exceptions, etc.) (part:core)
         - Experimental features (the `experimental` package) (part:experimental)
         - Utilities (`Event`, `FileWatcher`, `Timer`, etc.) (part:utilities)

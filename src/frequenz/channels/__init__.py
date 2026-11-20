@@ -33,10 +33,6 @@ Channels:
 * [`OneshotChannel`][frequenz.channels.OneshotChannel]: A channel that can send a
   single message from one sender to one receiver.
 
-* [`Anycast`][frequenz.channels.Anycast] (deprecated): A channel that supports multiple
-  senders and multiple receivers.  A message sent through a sender will be
-  received by exactly one receiver.
-
 * [`Broadcast`][frequenz.channels.Broadcast] (deprecated): The predecessor of
   [`BroadcastChannel`][frequenz.channels.BroadcastChannel].  Unless it is created with
   `auto_close=True`, it must be closed with `aclose()`.
@@ -110,7 +106,6 @@ from typing import TYPE_CHECKING
 
 from frequenz.core.warnings import DeprecatedAlias, deprecated_aliases
 
-from ._anycast import Anycast
 from ._broadcast import BroadcastChannel, BroadcastReceiver, BroadcastSender
 from ._exceptions import ChannelClosedError, ChannelError, Error
 from ._generic import (
@@ -160,7 +155,6 @@ else:
     )
 
 __all__ = [
-    "Anycast",
     "Broadcast",
     "BroadcastChannel",
     "BroadcastReceiver",
