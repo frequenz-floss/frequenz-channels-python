@@ -74,11 +74,10 @@ use it in any of the ways described above.
 To filter messages based on the previous one, for example to skip repeated messages,
 use [`WithPrevious`][frequenz.channels.WithPrevious] to build the filter function:
 
-```python show_lines="6:"
-from frequenz.channels import Anycast, WithPrevious
+```python show_lines="5:"
+from frequenz.channels import BroadcastChannel, WithPrevious
 
-channel = Anycast[int](name="test-channel")
-receiver = channel.new_receiver()
+sender, receiver = BroadcastChannel[int](name="test-channel")
 
 async for message in receiver.filter(WithPrevious(lambda old, new: old != new)):
     print(message)  # Only messages different from the previous one will be printed
