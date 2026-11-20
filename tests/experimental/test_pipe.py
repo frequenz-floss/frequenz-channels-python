@@ -13,11 +13,11 @@ import pytest
 from frequenz.channels import (
     Broadcast,
     BroadcastChannel,
-    NoReceiversError,
     Receiver,
     Sender,
     SenderClosedError,
     SenderError,
+    SenderHasNoReceiversError,
 )
 from frequenz.channels.experimental import Pipe
 
@@ -109,7 +109,7 @@ async def test_pipe_closes_both_ends_when_sending_fails(
 
     pipe = Pipe(source_receiver, sender)
     await pipe.start()
-    with pytest.raises(NoReceiversError):
+    with pytest.raises(SenderHasNoReceiversError):
         await sender.send(0)
 
     with caplog.at_level(logging.WARNING, logger="frequenz.channels.experimental"):
