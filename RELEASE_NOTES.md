@@ -46,7 +46,7 @@ To upgrade, move to v1.13.0 first and fix all its deprecation warnings: every re
     - With `close_pipe_on_send_error=False`, the new `Pipe` also drops the message that failed with any other `SenderError` and keeps forwarding the next ones.  This doesn't bring back the behavior of the experimental one.
     - `stop()` leaves both ends open in both.
 
-- `BroadcastSender.clone()` now raises a `SenderClosedError` if the sender is closed, and a `SenderError` if the channel is closed, like `send()` and `subscribe()` do.  Clone a sender before closing it, or catch `SenderError`.
+- `BroadcastSender.clone()` now raises a `SenderClosedError` if the sender is closed, like `send()` and `subscribe()` do.  Clone a sender before closing it, or catch `SenderClosedError`.  A `Broadcast` can also be closed with `aclose()` while it still has open senders; after that, cloning any of them raises a `SenderError`.
 
 - `BroadcastSender.subscribe()` now uses the `buffer_size` and `warn_on_overflow` values the `BroadcastChannel` was created with as defaults, instead of `50` and `True`.  Pass `buffer_size=50, warn_on_overflow=True` to keep the old values.
 
