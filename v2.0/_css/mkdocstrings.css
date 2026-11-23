@@ -1,0 +1,66 @@
+/* Recommended style from:
+ * https://mkdocstrings.github.io/python/customization/#recommended-style-material
+ * With some additions from:
+ * https://github.com/mkdocstrings/mkdocstrings/blob/master/docs/css/mkdocstrings.css
+ */
+
+/* Indentation. */
+div.doc-contents:not(.first) {
+  padding-left: 25px;
+  border-left: .05rem solid var(--md-typeset-table-color);
+}
+
+/* Indentation. */
+div.doc-contents:not(.first) {
+  padding-left: 25px;
+  border-left: 4px solid rgba(230, 230, 230);
+  margin-bottom: 80px;
+}
+
+/* Avoid breaking parameters name, etc. in table cells. */
+td code {
+  word-break: normal !important;
+}
+
+/* Mark external links as such. */
+a.autorefs-external::after {
+  /* https://primer.style/octicons/arrow-up-right-24 */
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="rgb(0, 0, 0)" d="M18.25 15.5a.75.75 0 00.75-.75v-9a.75.75 0 00-.75-.75h-9a.75.75 0 000 1.5h7.19L6.22 16.72a.75.75 0 101.06 1.06L17.5 7.56v7.19c0 .414.336.75.75.75z"></path></svg>');
+  content: ' ';
+
+  display: inline-block;
+  position: relative;
+  top: 0.1em;
+  margin-left: 0.2em;
+  margin-right: 0.1em;
+
+  height: 1em;
+  width: 1em;
+  border-radius: 100%;
+  background-color: var(--md-typeset-a-color);
+}
+a.autorefs-external:hover::after {
+  background-color: var(--md-accent-fg-color);
+}
+
+/* A "Deprecated" admonition, styled like a warning but with its own icon. */
+:root {
+  --md-admonition-icon--deprecated: url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 2h4c3.31 0 5 2.69 5 6v10.66C16.88 17.63 15.07 17 12 17s-4.88.63-7 1.66V8c0-3.31 1.69-6 5-6M8 8v1.5h8V8zm1 4v1.5h6V12zM3 22v-.69c2.66-1.69 10.23-5.47 18-.06V22z"/></svg>');
+}
+
+.md-typeset .admonition.deprecated,
+.md-typeset details.deprecated {
+  border-color: #cc9900;
+}
+
+.md-typeset .deprecated > .admonition-title,
+.md-typeset .deprecated > summary {
+  background-color: #cc99001a;
+}
+
+.md-typeset .deprecated > .admonition-title::before,
+.md-typeset .deprecated > summary::before {
+  background-color: #cc9900;
+  -webkit-mask-image: var(--md-admonition-icon--deprecated);
+  mask-image: var(--md-admonition-icon--deprecated);
+}
