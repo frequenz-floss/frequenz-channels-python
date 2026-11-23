@@ -2,13 +2,19 @@
 
 ## Summary
 
-<!-- Here goes a general summary of what this release is about -->
+This release removes what v1.13.0 deprecated, and it has breaking changes that v1.13.0 can't warn about, mostly in `BroadcastChannel`.  Read the Upgrading section before upgrading.  The main breaking changes are:
+
+- A `BroadcastChannel` no longer closes when a message is sent while it has no receivers.  `send()` raises the new `SenderHasNoReceiversError` instead, and the channel stays open, so code that relied on the channel closing has to catch the error.
+- `BroadcastChannel()` takes `resend_latest` only by keyword, `BroadcastSender.subscribe()` uses the channel's `buffer_size` and `warn_on_overflow` as defaults, and `BroadcastSender.clone()` raises a `SenderClosedError` on a closed sender.
+- `Receiver.close()` is abstract, so custom receivers have to implement it.
+
+The new `frequenz.channels.Pipe` is a separate implementation that replaces `frequenz.channels.experimental.Pipe`, which is deprecated but still behaves as in v1.  The new `Pipe` closes its sender, and by default its receiver too, in cases where the experimental one leaves them open, so check how your code shuts down before switching.
+
+To upgrade, move to v1.13.0 first and fix all its deprecation warnings: every replacement already exists there, so a project can then require `frequenz-channels >= 1.13.0, < 3`.  Then check the changes above, which can make the same code behave differently on v2.  `Broadcast` still works, but stays deprecated.
 
 ## Upgrading
 
-<!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
-
-- `BroadcastChannel()` and `BroadcastSender.subscribe()` now take everything but the name by keyword: `resend_latest`, `buffer_size` and `warn_on_overflow`.  A call that passed any of them by position fails with a `TypeError`.  Pass them by keyword, as v1.13.0 recommends.
+- `BroadcastChannel()` and `BroadcastSender.subscribe()` now take only the name by position.  `resend_latest` (only in `BroadcastChannel()`), `buffer_size` and `warn_on_overflow` must be passed by keyword.  A call that passes any of them by position fails with a `TypeError`.  v1.13.0 already deprecates passing `warn_on_overflow` by position, but it doesn't warn about `resend_latest`, so look for calls like `BroadcastChannel("name", True)` and pass it by keyword.
 
 - The deprecated `limit` argument of `BroadcastChannel()` and `BroadcastSender.subscribe()` is removed.  Use `buffer_size` instead, which exists since v1.13.0, so you can migrate before upgrading.  `Broadcast.new_receiver()` still takes `limit`.
 
@@ -40,7 +46,7 @@
     - With `close_pipe_on_send_error=False`, the new `Pipe` also drops the message that failed with any other `SenderError` and keeps forwarding the next ones.  This doesn't bring back the behavior of the experimental one.
     - `stop()` leaves both ends open in both.
 
-- `BroadcastSender.clone()` now raises a `SenderClosedError` if the sender is closed, and a `SenderError` if the channel is closed, like `send()` and `subscribe()` do.  Clone a sender before closing it, or catch `SenderError`.
+- `BroadcastSender.clone()` now raises a `SenderClosedError` if the sender is closed, like `send()` and `subscribe()` do.  Clone a sender before closing it, or catch `SenderClosedError`.  A `Broadcast` can also be closed with `aclose()` while it still has open senders; after that, cloning any of them raises a `SenderError`.
 
 - `BroadcastSender.subscribe()` now uses the `buffer_size` and `warn_on_overflow` values the `BroadcastChannel` was created with as defaults, instead of `50` and `True`.  Pass `buffer_size=50, warn_on_overflow=True` to keep the old values.
 
@@ -49,8 +55,6 @@
 - `Receiver.close()` is now an abstract method, so a custom `Receiver` subclass that doesn't implement it can't be instantiated anymore.  Before, calling it raised a `NotImplementedError`.  All the receivers in this library implement it already.  Add a `close()` method to your own receivers; the same implementation works on v1, so your code can support both major versions.
 
 ## New Features
-
-<!-- Here goes the main new features and examples or instructions on how to use them -->
 
 - `TransientSenderError` is a new `SenderError` for errors after which the sender and its channel can still be used: only the message that failed wasn't sent.  Catch it before `SenderError` to tell it apart from the errors that make a sender unusable.
 
@@ -61,8 +65,6 @@
 - `BroadcastSender.has_receivers` and `BroadcastReceiver.has_senders` tell whether the other side of a broadcast channel is still there, so producers can stop producing messages that nobody would receive.  A sender that was garbage-collected without being closed still counts.
 
 ## Bug Fixes
-
-<!-- Here goes notable bug fixes that are worth a special mention or explanation -->
 
 - Closing a broadcast receiver now wakes up tasks waiting for messages on it, instead of leaving them blocked until the next message arrived or the channel was closed.
 
