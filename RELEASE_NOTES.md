@@ -6,7 +6,7 @@
 
 ## Upgrading
 
-- `BroadcastChannel()` and `BroadcastSender.subscribe()` now take everything but the name by keyword: `resend_latest`, `buffer_size` and `warn_on_overflow`.  A call that passed any of them by position fails with a `TypeError`.  Pass them by keyword, as v1.13.0 recommends.
+- `BroadcastChannel()` and `BroadcastSender.subscribe()` now take only the name by position.  `resend_latest` (only in `BroadcastChannel()`), `buffer_size` and `warn_on_overflow` must be passed by keyword.  A call that passes any of them by position fails with a `TypeError`.  v1.13.0 already deprecates passing `warn_on_overflow` by position, but it doesn't warn about `resend_latest`, so look for calls like `BroadcastChannel("name", True)` and pass it by keyword.
 
 - The deprecated `limit` argument of `BroadcastChannel()` and `BroadcastSender.subscribe()` is removed.  Use `buffer_size` instead, which exists since v1.13.0, so you can migrate before upgrading.  `Broadcast.new_receiver()` still takes `limit`.
 
