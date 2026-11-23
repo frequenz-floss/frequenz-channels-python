@@ -2,7 +2,15 @@
 
 ## Summary
 
-<!-- Here goes a general summary of what this release is about -->
+This release removes what v1.13.0 deprecated, and it has breaking changes that v1.13.0 can't warn about, mostly in `BroadcastChannel`.  Read the Upgrading section before upgrading.  The main breaking changes are:
+
+- A `BroadcastChannel` no longer closes when a message is sent while it has no receivers.  `send()` raises the new `SenderHasNoReceiversError` instead, and the channel stays open, so code that relied on the channel closing has to catch the error.
+- `BroadcastChannel()` takes `resend_latest` only by keyword, `BroadcastSender.subscribe()` uses the channel's `buffer_size` and `warn_on_overflow` as defaults, and `BroadcastSender.clone()` raises a `SenderClosedError` on a closed sender.
+- `Receiver.close()` is abstract, so custom receivers have to implement it.
+
+The new `frequenz.channels.Pipe` is a separate implementation that replaces `frequenz.channels.experimental.Pipe`, which is deprecated but still behaves as in v1.  The new `Pipe` closes its sender, and by default its receiver too, in cases where the experimental one leaves them open, so check how your code shuts down before switching.
+
+To upgrade, move to v1.13.0 first and fix all its deprecation warnings: every replacement already exists there, so a project can then require `frequenz-channels >= 1.13.0, < 3`.  Then check the changes above, which can make the same code behave differently on v2.  `Broadcast` still works, but stays deprecated.
 
 ## Upgrading
 
