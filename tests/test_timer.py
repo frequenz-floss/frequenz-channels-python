@@ -7,7 +7,7 @@ import asyncio
 import enum
 import re
 from datetime import timedelta
-from typing import Any
+from typing import Any, Literal
 
 import async_solipsism
 import hypothesis
@@ -407,6 +407,42 @@ async def test_timer_close_receiver() -> None:
     timer.close()
     with pytest.raises(ReceiverStoppedError):
         await timer.receive()
+
+
+@pytest.mark.parametrize("wake_up_by", ["reset", "tick"])
+@pytest.mark.parametrize("loop_iterations", range(10))
+async def test_timer_ready_cancel_after_wake_up(
+    wake_up_by: Literal["reset", "tick"], loop_iterations: int
+) -> None:
+    """Test that cancelling `ready()` right after it wakes up is not ignored.
+
+    When the timer is reset or ticks, `ready()` cleans up the task it was
+    waiting on before going on. A cancellation arriving during that cleanup
+    must still cancel `ready()`, instead of being ignored. Every
+    `loop_iterations` value cancels at a different point after the wake-up,
+    so some of them hit the cleanup.
+    """
+    interval = timedelta(hours=1)
+    timer = MonotonicTimer(interval, SkipMissedAndResync())
+
+    ready = asyncio.create_task(timer.ready())
+    await asyncio.sleep(0)  # Let `ready()` start waiting
+    match wake_up_by:
+        case "reset":
+            timer.reset(interval=interval)
+        case "tick":
+            await asyncio.sleep(interval.total_seconds())
+    for _ in range(loop_iterations):
+        await asyncio.sleep(0)
+
+    if not ready.cancel():
+        # After a tick, `ready()` can finish before the cancellation arrives.
+        assert wake_up_by == "tick"
+        assert ready.result() is True
+        return
+    await asyncio.wait([ready])
+
+    assert ready.cancelled()
 
 
 async def test_timer_autostart() -> None:

@@ -14,4 +14,4 @@
 
 ## Bug Fixes
 
-<!-- Here goes notable bug fixes that are worth a special mention or explanation -->
+- Cancelling a task that waits on a `MonotonicTimer` (or the deprecated `Timer`), directly or through `select()`, is no longer ignored when it arrives right after the timer was reset or ticked. Before, the task could keep waiting until the next tick, so stopping a service could hang for a whole timer interval.
