@@ -736,10 +736,12 @@ class MonotonicTimer(Receiver[timedelta]):
             )
             for task in pending:
                 task.cancel()
-                try:
-                    await task
-                except asyncio.CancelledError:
-                    pass
+            # Awaiting each task and catching its `CancelledError` would also
+            # catch a cancellation of this task, making `ready()` ignore it.
+            # `asyncio.wait()` doesn't raise the tasks' exceptions, but still
+            # raises when this task is cancelled.
+            if pending:
+                await asyncio.wait(pending)
 
             self._reset_event.clear()
             now = self._now()
