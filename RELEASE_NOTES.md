@@ -2,16 +2,8 @@
 
 ## Summary
 
-<!-- Here goes a general summary of what this release is about -->
-
-## Upgrading
-
-<!-- Here goes notes on how to upgrade from previous versions, including deprecations and what they should be replaced with -->
-
-## New Features
-
-<!-- Here goes the main new features and examples or instructions on how to use them -->
+This release fixes timers ignoring the cancellation of a task waiting on them, which could make stopping a service hang for a whole timer interval.
 
 ## Bug Fixes
 
-<!-- Here goes notable bug fixes that are worth a special mention or explanation -->
+- Cancelling a task that waits on a `MonotonicTimer`, directly or through `select()`, is no longer ignored when it arrives right after the timer was reset or ticked. Before, the task could keep waiting until the next tick, so stopping a service could hang for a whole timer interval.
